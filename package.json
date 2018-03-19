@@ -9,7 +9,7 @@
   "devDependencies": {
     "@commitlint/cli": "^6.1.2",
     "@commitlint/config-conventional": "^6.1.2",
-    "@progre/tslint-config": "~5.8.0",
+    "@progre/tslint-config": "~5.9.0",
     "@types/node": "^8.9.4",
     "copy-webpack-plugin": "^4.2.3",
     "cross-env": "^5.1.1",
