@@ -13,7 +13,10 @@ async function main() {
     width: 800,
     height: 600,
     resizable: true,
-    show: true,
+    show: false,
+  });
+  win.on('ready-to-show', () => {
+    win.show();
   });
   win.loadURL(`file://${__dirname}/public/index.html`);
   await module();
