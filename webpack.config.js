@@ -1,6 +1,7 @@
 const webpack = require('webpack');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const uglifySaveLicense = require('uglify-save-license');
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 const electronVersion = require('./package.json').devDependencies.electron.slice(1);
 
 const isProduction = process.env.NODE_ENV === 'production';
@@ -38,9 +39,9 @@ const clientSide = {
     ),
     ...(
       !isProduction ? [] : [
-        new webpack.optimize.UglifyJsPlugin({
-          output: { comments: uglifySaveLicense }
-        })
+        new UglifyJsPlugin({
+          uglifyOptions: { output: { comments: uglifySaveLicense } },
+        }),
       ]
     )
   ],

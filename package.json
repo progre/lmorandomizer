@@ -24,6 +24,7 @@
     "tslint-language-service": "^0.9.8",
     "typescript": "^2.7.2",
     "uglify-save-license": "^0.4.1",
+    "uglifyjs-webpack-plugin": "^1.2.4",
     "webpack": "^3.11.0"
   },
   "files": [
