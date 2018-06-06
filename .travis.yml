@@ -1,11 +1,18 @@
-sudo: required
-dist: trusty
+os: osx
 language: node_js
 node_js:
   - '8'
-before_script:
-  - sudo apt-get install -y wine
+env:
+  - ELECTRON_CACHE=$HOME/.cache/electron
+  - ELECTRON_BUILDER_CACHE=$HOME/.cache/electron-builder
+cache:
+  directories:
+    - node_modules
+    - $HOME/.cache/electron
+    - $HOME/.cache/electron-builder
 script:
   - npm run debug-build
   - npm run build
   - npm run package
+before_cache:
+  - rm -rf $HOME/.cache/electron-builder/wine
