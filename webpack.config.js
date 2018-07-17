@@ -1,4 +1,3 @@
-const webpack = require('webpack');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const uglifySaveLicense = require('uglify-save-license');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
