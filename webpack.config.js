@@ -7,7 +7,7 @@ module.exports = (_, argv) => {
       isProduction,
       'public/js/',
       ['index.ts'],
-      true,
+      'public/',
     ),
     webpackConfig.electronMain(
       isProduction,

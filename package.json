@@ -20,7 +20,7 @@
     "@commitlint/cli": "^7.0.0",
     "@commitlint/config-conventional": "^7.0.1",
     "@progre/tslint-config": "~5.9.0",
-    "@progre/webpack-config": "0.0.1",
+    "@progre/webpack-config": "0.0.3",
     "@types/node": "^10.5.2",
     "del-cli": "^1.1.0",
     "electron": "^2.0.2",
