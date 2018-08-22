@@ -36,7 +36,7 @@
     "webpack-cli": "^3.1.0"
   },
   "homepage": "https://github.com/progre/typescript-boilerplate#readme",
-  "license": "CC0-1.0",
+  "license": "MIT",
   "main": "dist/index.js",
   "private": true,
   "repository": {
