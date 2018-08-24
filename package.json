@@ -57,7 +57,7 @@
     "commitmsg": "commitlint -e $GIT_PARAMS",
     "debug-build": "webpack --mode development --progress",
     "dev": "webpack --mode development --progress --watch",
-    "package": "electron-builder --win portable --mac zip",
+    "package": "electron-builder --win portable --mac zip --publish never",
     "release-build": "webpack --mode production --progress",
     "start": "electron ."
   },
