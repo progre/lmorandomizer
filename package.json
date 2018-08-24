@@ -1,9 +1,9 @@
 {
-  "name": "typescript-boilerplate",
-  "description": "Boilerplate for TypeScript project.",
-  "version": "1.0.0",
+  "name": "lmorandomizer",
+  "description": "Randomizer for La-Mulana Original.",
+  "version": "0.0.1",
   "bugs": {
-    "url": "https://github.com/progre/typescript-boilerplate/issues"
+    "url": "https://github.com/progre/lmoriginalrandomizer/issues"
   },
   "build": {
     "directories": {
@@ -15,13 +15,21 @@
       "README.md"
     ]
   },
-  "dependencies": {},
+  "dependencies": {
+    "@material-ui/core": "^1.5.1",
+    "iconv-lite": "^0.4.24",
+    "js-sha3": "^0.8.0",
+    "react": "^16.4.2",
+    "react-dom": "^16.4.2"
+  },
   "devDependencies": {
     "@commitlint/cli": "^7.0.0",
     "@commitlint/config-conventional": "^7.0.1",
     "@progre/tslint-config": "~5.10.0",
     "@progre/webpack-config": "^0.0.6",
     "@types/node": "^10.7.1",
+    "@types/react": "^16.4.11",
+    "@types/react-dom": "^16.0.7",
     "del-cli": "^1.1.0",
     "electron": "^2.0.2",
     "electron-builder": "^20.15.1",
@@ -35,13 +43,13 @@
     "webpack": "^4.17.1",
     "webpack-cli": "^3.1.0"
   },
-  "homepage": "https://github.com/progre/typescript-boilerplate#readme",
+  "homepage": "https://github.com/progre/lmoriginalrandomizer#readme",
   "license": "MIT",
   "main": "dist/index.js",
   "private": true,
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/progre/typescript-boilerplate.git"
+    "url": "git+https://github.com/progre/lmoriginalrandomizer.git"
   },
   "scripts": {
     "build": "run-s clean release-build",
@@ -49,7 +57,7 @@
     "commitmsg": "commitlint -e $GIT_PARAMS",
     "debug-build": "webpack --mode development --progress",
     "dev": "webpack --mode development --progress --watch",
-    "package": "electron-builder --win --mac zip",
+    "package": "electron-builder --win portable --mac zip",
     "release-build": "webpack --mode production --progress",
     "start": "electron ."
   },

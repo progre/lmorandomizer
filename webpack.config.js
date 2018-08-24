@@ -6,7 +6,7 @@ module.exports = (_, argv) => {
     webpackConfig.electronRenderer(
       isProduction,
       'public/js/',
-      ['index.ts'],
+      ['index.tsx'],
       'public/',
     ),
     webpackConfig.electronMain(

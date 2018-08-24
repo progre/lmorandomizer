@@ -1,18 +1,30 @@
 os: osx
 language: node_js
 node_js:
-  - '8'
+- '8'
 env:
-  - ELECTRON_CACHE=$HOME/.cache/electron
-  - ELECTRON_BUILDER_CACHE=$HOME/.cache/electron-builder
+- ELECTRON_CACHE=$HOME/.cache/electron
+- ELECTRON_BUILDER_CACHE=$HOME/.cache/electron-builder
 cache:
   directories:
-    - node_modules
-    - $HOME/.cache/electron
-    - $HOME/.cache/electron-builder
+  - node_modules
+  - "$HOME/.cache/electron"
+  - "$HOME/.cache/electron-builder"
 script:
-  - npm run debug-build
-  - npm run build
-  - npm run package
+- npm run debug-build
+- npm run build
+- npm run package
 before_cache:
-  - rm -rf $HOME/.cache/electron-builder/wine
+- rm -rf $HOME/.cache/electron-builder/wine
+deploy:
+  provider: releases
+  api_key:
+    secure: If761YoPRdxQgWWQHEEjj91LyovJZA+MGKyMDYAguTL9wWkF3WHxLCBCdtUeD+/Ze81vhz2HJw/Fu/N0ghU4jX5QuvTFOYhT+rBQinxFPX83eUgCPkOHudRIX0IO5/+de/quxCtus8hz5EKNQcKKC4mBHz4fF6B2bRO7t3TUt1+xwHZFuPpjn+LFLtGXWSHahlko9oEhLjbkZ3ou7L5W9NepE5yVuS0jg7B758AzPpRcZTXfFgs+jY05zbkzkMIIY36l4b8JSe3sT89d1p9NlJ5+hdUlsJnVbM/WzOx3qylm0/RPES3nVYh1Bb/ASXsF/UDSpmYhDLtU+WXxpVqNjlirLXahh2zRkOp8krFPW0OwgYWG0oRThpy5/6Ry9+jO6eeyIroJYviqfIoNgim/5GvJ4HEOpbWaWz3Kzdyia2U3irug8m2JHgDPENWmf7cTuTn6+t0SY/LMUKDi85jo0OviTQM+kLCez33lX5mP5xbxpAEuCx2s5IoLHwL+LoaB/rrQ/rJGs4IlWnZipItbEZBsZU9Vi5zHS0QLGrAR+0CLojAF31nyrpCVMaaodUXlxFXvFQmw+EicjsLWeXsReVcDUX6od7AD9dO8UQFu0J0GZdiRJENliDEZu0PmjVvreFwV51B+2oogO1onHbGgQixr2a08DvdMW0bbDA9Ldt0=
+  file:
+  - output/lmoriginalrandomizer *.exe
+  - output/lmoriginalrandomizer-*-mac.zip
+  on:
+    repo: progre/lmoriginalrandomizer
+    tags: true
+  prerelease: true
+  skip_cleanup: true

@@ -1,5 +1,12 @@
 {
   "extends": [
     "@progre/tslint-config"
-  ]
+  ],
+  "rules": {
+    "no-bitwise": false,
+    "no-console": false,
+    "no-string-based-set-immediate": false,
+    "no-string-based-set-timeout": false,
+    "strict-boolean-expressions": false
+  }
 }
