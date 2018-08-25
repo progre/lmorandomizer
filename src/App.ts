@@ -2,12 +2,16 @@ import assert from 'assert';
 // tslint:disable-next-line:no-implicit-dependencies
 import electron from 'electron';
 const { app, BrowserWindow, ipcMain } = electron;
+import fs from 'fs';
 import seedrandom from 'seedrandom';
+import util from 'util';
 import { initMacMenu } from './macmenu';
 import { randomize } from './model/randomizer/randomize';
 import ScriptDatRepo from './repo/ScriptDatRepo';
 import SettingsRepo from './repo/SettingsRepo';
 import { InitialParameters, Settings } from './types';
+
+const readFile = util.promisify(fs.readFile);
 
 export default class App {
   static async create() {
@@ -16,18 +20,23 @@ export default class App {
     const settingsFilePath = `${app.getPath('userData')}/settings.json`;
     const settingsRepo = new SettingsRepo(settingsFilePath);
     const settings = await settingsRepo.get();
-    return new this(settingsRepo, settings);
+    const version = JSON.parse(
+      await readFile(`${__dirname}/../package.json`, { encoding: 'utf8' })
+    ).version;
+    return new this(version, settingsRepo, settings, );
   }
 
   private win: electron.BrowserWindow;
   private scriptDatRepo = new ScriptDatRepo();
 
   constructor(
+    version: string,
     private settingsRepo: SettingsRepo,
     private settings: Settings,
   ) {
     app.on('window-all-closed', app.quit.bind(app));
     this.win = new BrowserWindow({
+      title: `La-Mulana Original Randomizer v${version}`,
       width: 800,
       height: 306,
       resizable: true,
