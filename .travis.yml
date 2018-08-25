@@ -6,8 +6,6 @@ env:
   - >-
       ELECTRON_CACHE=$HOME/.cache/electron
       ELECTRON_BUILDER_CACHE=$HOME/.cache/electron-builder
-before_cache:
-  - rm -rf $HOME/.cache/electron-builder/wine
 cache:
   directories:
     - node_modules
@@ -17,3 +15,5 @@ script:
   - npm run debug-build
   - npm run build
   - npm run package
+before_cache:
+  - rm -rf $HOME/.cache/electron-builder/wine
