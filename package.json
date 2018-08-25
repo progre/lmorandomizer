@@ -20,7 +20,8 @@
     "iconv-lite": "^0.4.24",
     "js-sha3": "^0.8.0",
     "react": "^16.4.2",
-    "react-dom": "^16.4.2"
+    "react-dom": "^16.4.2",
+    "seedrandom": "^2.4.4"
   },
   "devDependencies": {
     "@commitlint/cli": "^7.0.0",
@@ -30,6 +31,7 @@
     "@types/node": "^8.10.27",
     "@types/react": "^16.4.11",
     "@types/react-dom": "^16.0.7",
+    "@types/seedrandom": "^2.4.27",
     "del-cli": "^1.1.0",
     "electron": "^2.0.8",
     "electron-builder": "^20.15.1",

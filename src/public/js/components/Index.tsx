@@ -11,12 +11,14 @@ import {
 import React from 'react';
 
 export default function Index(props: {
-  isProcessingApply: boolean;
-  isProcessingRestore: boolean;
+  seed: string;
   installDirectory: string;
   snackbar: string;
+  isProcessingApply: boolean;
+  isProcessingRestore: boolean;
 
-  onChangeInstallDirectory(ev: React.ChangeEvent<HTMLInputElement>): void;
+  onChangeSeed(seed: string): void;
+  onChangeInstallDirectory(path: string): void;
   onClickApply(): void;
   onClickRestore(): void;
   onCloseSnackbar(event: React.SyntheticEvent<any>, reason?: string): void;
@@ -36,12 +38,18 @@ export default function Index(props: {
         <Paper elevation={1} style={{ flex: 1, padding: 16 }}>
           <Typography style={{ fontSize: 14 }}>
             General settings
-        </Typography>
+          </Typography>
           <TextField
-            id="name"
+            label="Seed"
+            value={props.seed}
+            onChange={buildOnChangeTextField(props.onChangeSeed)}
+            margin="dense"
+            fullWidth
+          />
+          <TextField
             label="La-Mulana install directory"
             value={props.installDirectory}
-            onChange={props.onChangeInstallDirectory}
+            onChange={buildOnChangeTextField(props.onChangeInstallDirectory)}
             margin="dense"
             fullWidth
           />
@@ -112,4 +120,10 @@ export default function Index(props: {
       </div>
     </>
   );
+}
+
+function buildOnChangeTextField(callback: (value: string) => void) {
+  return (ev: React.ChangeEvent<HTMLInputElement>) => {
+    callback(ev.target.value);
+  };
 }

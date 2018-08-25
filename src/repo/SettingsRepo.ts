@@ -18,7 +18,9 @@ export default class SettingsRepo {
       );
     } catch (err) {
       console.error(err);
-      return {};
+      return {
+        seed: Math.random().toString(36).slice(-8),
+      };
     }
   }
 

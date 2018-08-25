@@ -7,6 +7,11 @@ const json: InitialParameters
   = JSON.parse(decodeURIComponent(location.search.slice(1)));
 
 ReactDOM.render(
-  <Index defaultInstallDirectory={json.installDirectory} />,
+  (
+    <Index
+      defaultSeed={json.seed}
+      defaultInstallDirectory={json.installDirectory}
+    />
+  ),
   document.getElementById('root'),
 );

@@ -5,25 +5,29 @@ import React from 'react';
 import { default as Component } from '../components/Index';
 
 interface Props {
+  defaultSeed: string;
   defaultInstallDirectory: string;
 }
 
 const initialState = {
-  isProcessingApply: false,
-  isProcessingRestore: false,
+  seed: '',
   installDirectory: '',
   snackbar: '',
+  isProcessingApply: false,
+  isProcessingRestore: false,
 };
 
 export default class Index extends React.Component<Props, typeof initialState> {
   constructor(props: Props) {
     super(props);
+    this.onChangeSeed = this.onChangeSeed.bind(this);
     this.onChangeInstallDirectory = this.onChangeInstallDirectory.bind(this);
     this.onClickApply = this.onClickApply.bind(this);
     this.onClickRestore = this.onClickRestore.bind(this);
     this.onCloseSnackbar = this.onCloseSnackbar.bind(this);
     this.state = {
       ...initialState,
+      seed: props.defaultSeed,
       installDirectory: props.defaultInstallDirectory,
     };
 
@@ -37,11 +41,19 @@ export default class Index extends React.Component<Props, typeof initialState> {
     });
   }
 
-  private onChangeInstallDirectory(ev: React.ChangeEvent<HTMLInputElement>) {
-    ipcRenderer.send('setInstallDirectory', ev.target.value);
+  private onChangeSeed(seed: string) {
+    ipcRenderer.send('setSeed', seed);
     this.setState({
       ...this.state,
-      installDirectory: ev.target.value,
+      seed,
+    });
+  }
+
+  private onChangeInstallDirectory(path: string) {
+    ipcRenderer.send('setInstallDirectory', path);
+    this.setState({
+      ...this.state,
+      installDirectory: path,
     });
   }
 
@@ -77,6 +89,7 @@ export default class Index extends React.Component<Props, typeof initialState> {
     return (
       <Component
         {...this.state}
+        onChangeSeed={this.onChangeSeed}
         onChangeInstallDirectory={this.onChangeInstallDirectory}
         onClickApply={this.onClickApply}
         onClickRestore={this.onClickRestore}

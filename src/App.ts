@@ -2,6 +2,7 @@ import assert from 'assert';
 // tslint:disable-next-line:no-implicit-dependencies
 import electron from 'electron';
 const { app, BrowserWindow, ipcMain } = electron;
+import seedrandom from 'seedrandom';
 import { initMacMenu } from './macmenu';
 import { randomize } from './model/randomizer/randomize';
 import ScriptDatRepo from './repo/ScriptDatRepo';
@@ -28,12 +29,20 @@ export default class App {
     app.on('window-all-closed', app.quit.bind(app));
     this.win = new BrowserWindow({
       width: 800,
-      height: 242,
+      height: 306,
       resizable: true,
       show: false,
     });
     this.win.on('ready-to-show', () => {
       this.win.show();
+    });
+    ipcMain.on('setSeed', async (ev: any, seed: string) => {
+      try {
+        this.settings.seed = seed;
+        await this.settingsRepo.set(this.settings);
+      } catch (err) {
+        console.error(err);
+      }
     });
     ipcMain.on('setInstallDirectory', async (ev: any, path: string) => {
       try {
@@ -49,6 +58,7 @@ export default class App {
           this.scriptDatRepo,
           `${this.settings.installDirectory}/data/script.dat`,
           `${app.getPath('userData')}/script.dat.bak`,
+          this.settings.seed || '',
         );
         ev.sender.send('result', result);
       } catch (err) {
@@ -70,6 +80,7 @@ export default class App {
       }
     });
     const initialParams: InitialParameters = {
+      seed: this.settings.seed || '',
       installDirectory: this.settings.installDirectory || '',
     };
     const search = encodeURIComponent(JSON.stringify(initialParams));
@@ -83,6 +94,7 @@ async function apply(
   scriptDatRepo: ScriptDatRepo,
   targetFilePath: string,
   workingFilePath: string,
+  seed: string,
 ) {
   let { data: workingFile } = await scriptDatRepo.readValidScriptDat(workingFilePath);
   if (workingFile == null) {
@@ -100,7 +112,12 @@ async function apply(
     }
   }
 
-  const modifiedFile = await randomize(workingFile, {});
+  const modifiedFile = await randomize(
+    workingFile,
+    {
+      rng: seedrandom(seed),
+    },
+  );
 
   await scriptDatRepo.writeScriptDat(targetFilePath, <ArrayBuffer>modifiedFile.buffer);
   return 'Succeeded.';
