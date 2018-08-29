@@ -1,0 +1,23 @@
+export const fields = {
+  surface: 'surface',
+  gateOfGuidance: 'gateOfGuidance',
+  mausoleumOfTheGiants: 'mausoleumOfTheGiants',
+  templeOfTheSun: 'templeOfTheSun',
+  springInTheSky: 'springInTheSky',
+  infernoCavern: 'infernoCavern',
+  chamberOfExtinction: 'chamberOfExtinction',
+  twinLabyrinthsFront: 'twinLabyrinthsFront',
+  endlessCorridor: 'endlessCorridor',
+  shrineOfTheMother: 'shrineOfTheMother',
+  gateOfIllusion: 'gateOfIllusion',
+  graveyardOfTheGiants: 'graveyardOfTheGiants',
+  templeOfMoonlight: 'templeOfMoonlight',
+  towerOfTheGoddess: 'towerOfTheGoddess',
+  towerOfRuin: 'towerOfRuin',
+  chamberOfBirth: 'chamberOfBirth',
+  twinLabyrinthsBack: 'twinLabyrinthsBack',
+  dimensionalCorridor: 'dimensionalCorridor',
+  trueShrineOfTheMother: 'trueShrineOfTheMother',
+  hellTemple: 'hellTemple',
+};
+export type Field = keyof typeof fields;

@@ -1,6 +1,14 @@
+import assert from 'assert';
 import { prng } from 'seedrandom';
 import { decode, encode } from './codec';
-import { Item } from './items';
+import { createItems, createPlaces } from './definitions/factory';
+import {
+  EquipmentNumber,
+  equipmentNumbers,
+  SubWeaponNumber,
+  subWeaponNumbers,
+} from './definitions/items';
+import validate from './validate';
 
 export async function randomize(src: ArrayBuffer, config: { rng: prng }) {
   let txt = await decode(src);
@@ -10,10 +18,15 @@ export async function randomize(src: ArrayBuffer, config: { rng: prng }) {
     txt = addStartingItems(
       txt,
       [
-        // ...`${Item.sacredOrb},`.repeat(5).split(',').map(Number),
-        Item.feather, Item.grappleClaw, Item.boots,
+        // ...`${items.sacredOrb},`.repeat(5).split(',').map(Number),
+        equipmentNumbers.feather,
+        equipmentNumbers.grappleClaw,
+        equipmentNumbers.boots,
+        equipmentNumbers.serpentStaff,
       ],
-      [],
+      [
+        subWeaponNumbers.pistol, subWeaponNumbers.ammunition,
+      ],
     );
   }
 
@@ -21,34 +34,58 @@ export async function randomize(src: ArrayBuffer, config: { rng: prng }) {
 }
 
 function randomizeItems(txt: string, rng: prng) {
-  const items = shuffle(findItems(txt), rng);
-  let itemsIdx = 0;
+  const source = getSource(txt);
+  assert(validate(source));
+  let shuffled;
+  for (let i = 0; i < 10000; i += 1) {
+    // itemをshuffleしてplaceと合わせる
+    const s = shuffle(source.map(x => x.item), rng)
+      .map((item, j) => ({ item, place: source[j].place }));
+    if (s.every(x => x.item.payload.num !== 30)) {
+      throw new Error();
+    }
+    if (validate(s)) {
+      assert(s[6].place.payload.conditionGroups[0][0].payload === 30);
+      assert(s[6].item.payload.num !== 30);
+      shuffled = s;
+      break;
+    }
+  }
+  if (shuffled == null) {
+    throw new Error();
+  }
+
+  const shuffledItems = shuffled.map(x => x.item);
+  let idx = 0;
   return txt.split('\n').map((x) => {
+    if (idx >= shuffledItems.length) {
+      return x;
+    }
     if (!x.startsWith('<OBJECT 1,')) {
       return x;
     }
     const params = x.slice('<OBJECT 1,'.length, x.length - 1).split(',');
     // アンクジュエル、印、手前より開けは無視
-    if (params[3] === '-1') {
+    if (
+      params[3] === '-1'
+      || params[3] === String(equipmentNumbers.twinStatue)
+      || params[3] === String(equipmentNumbers.sweetClothing)
+    ) {
       return x;
     }
-    const itemData = items[itemsIdx];
-    params[3] = itemData.item;
-    params[4] = itemData.flag;
-    itemsIdx += 1;
+    const item = shuffledItems[idx];
+    switch (item.type) {
+      case 'equipment': params[3] = String(item.payload.num); break;
+      case 'rom': params[3] = String(100 + item.payload.num); break;
+      default: throw new Error();
+    }
+    params[4] = String(item.payload.flag);
+    idx += 1;
     return `<OBJECT 1,${params.join(',')}>`;
   }).join('\n');
 }
 
-function findItems(txt: string) {
-  return txt.split('\n')
-    .filter(x => x.startsWith('<OBJECT 1,'))
-    .map(x => x.slice('<OBJECT 1,'.length, x.length - 1).split(','))
-    .filter(x => x[3] !== '-1')
-    .map(x => ({ item: x[3], flag: x[4] }));
-}
-
-function shuffle<T>(list: ReadonlyArray<T>, rng: prng) {
+function shuffle<T>(list: ReadonlyArray<T>, rng: prng): ReadonlyArray<T> {
   const array = [...list];
   for (let i = array.length - 1; i >= 0; i -= 1) {
     // tslint:disable-next-line:insecure-random
@@ -58,7 +95,11 @@ function shuffle<T>(list: ReadonlyArray<T>, rng: prng) {
   return array;
 }
 
-function addStartingItems(txt: string, items: number[], subWeapons: number[]) {
+function addStartingItems(
+  txt: string,
+  equipmentList: EquipmentNumber[],
+  subWeaponList: SubWeaponNumber[],
+) {
   const unusedOneTimeFlagNo = 7400;
   const unusedSaveFlagNo = 6000;
   let targetSeek = 0;
@@ -78,11 +119,11 @@ function addStartingItems(txt: string, items: number[], subWeapons: number[]) {
         // tslint:disable-next-line:prefer-template
         `<OBJECT 7,38912,14336,7,999,-1,-1></OBJECT>`
         + `<OBJECT 22,26624,10240,2,2,${unusedOneTimeFlagNo},-1></OBJECT>`
-        + subWeapons.map(y => (
+        + subWeaponList.map(y => (
           `<OBJECT 13,26624,10240,${y},0,${unusedSaveFlagNo},-1></OBJECT>`
           + `<OBJECT 13,26624,10240,${y},255,${unusedSaveFlagNo},-1></OBJECT>`
         )).join('')
-        + items.map(y => (
+        + equipmentList.map(y => (
           `<OBJECT 1,26624,14336,${unusedOneTimeFlagNo},${y},${unusedSaveFlagNo},-1></OBJECT>`
         )).join('')
         + x
@@ -91,4 +132,11 @@ function addStartingItems(txt: string, items: number[], subWeapons: number[]) {
     }
     return x;
   }).join('\n');
+}
+
+function getSource(txt: string) {
+  const items = createItems(txt);
+  const places = createPlaces();
+  assert(items.length === places.length);
+  return items.map((item, i) => ({ item, place: places[i] }));
 }
