@@ -1,10 +1,11 @@
 import assert from 'assert';
 import { prng } from 'seedrandom';
 import ScriptDat from '../../util/scriptdat/ScriptDat';
+import Item from '../dataset/Item';
 import Spot from '../dataset/Spot';
-import { Item, Storage, Supplements } from '../dataset/types';
+import Supplements from '../dataset/Supplements';
+import { Storage } from '../dataset/types';
 import { getSource } from '../dataset/utils';
-import { equipmentNumbers } from './items';
 import { selectRandom, shuffleSimply } from './shuffleUtils';
 import validate from './validate';
 
@@ -63,13 +64,13 @@ function distributeItems(items: ReadonlyArray<Item>, source: Storage, rng: prng)
   const newChestItems: Item[] = [];
   const newShopItems: Item[] = [];
   const sorted = [...items].sort((a, b) => (
-    Number(canDisplayInShop(a)) - Number(canDisplayInShop(b))
+    Number(a.canDisplayInShop()) - Number(b.canDisplayInShop())
   ));
   sorted.forEach((item) => {
     switch (selectRandom(
       [
         source.chests.length - newChestItems.length,
-        !canDisplayInShop(item) ? 0 : source.shops.length * 3 - newShopItems.length,
+        !item.canDisplayInShop() ? 0 : source.shops.length * 3 - newShopItems.length,
       ],
       rng,
     )) {
@@ -142,17 +143,4 @@ function assertUnique(storage: Storage) {
       flagMap.set(key, x);
     }
   });
-}
-
-// chests -> equipments / rom
-// chests <- subWeapon / subWeaponAmmo / equipments / rom / sign
-// shops -> equipments / rom
-// shops <- subWeapon / subWeaponAmmo / equipments / rom
-function canDisplayInShop(item: Item) {
-  return item.flag % 256 !== 0
-    && (
-      item.type !== 'equipment'
-      || item.number !== equipmentNumbers.map
-      && item.number !== equipmentNumbers.sacredOrb
-    );
 }

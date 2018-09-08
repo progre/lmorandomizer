@@ -2,7 +2,6 @@ import fs from 'fs';
 import sha3 from 'js-sha3';
 import util from 'util';
 import { decode, encode } from './codec';
-import createScriptDat from './createScriptDat';
 import ScriptDat from './ScriptDat';
 
 const readFile = util.promisify(fs.readFile);
@@ -28,7 +27,7 @@ export default class ScriptDatRepo {
       return { error: { reason: <'invalidfile'>'invalidfile' } };
     }
     const txt = await decode(data);
-    return { scriptDat: createScriptDat(txt) };
+    return { scriptDat: new ScriptDat(txt) };
   }
 
   async writeScriptDat(path: string, scriptDat: ScriptDat) {

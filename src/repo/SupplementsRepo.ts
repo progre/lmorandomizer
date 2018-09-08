@@ -1,7 +1,7 @@
 import fs from 'fs';
 import yaml from 'js-yaml';
 import util from 'util';
-import { Supplements } from '../model/dataset/types';
+import Supplements from '../model/dataset/Supplements';
 
 const readFile = util.promisify(fs.readFile);
 
@@ -20,12 +20,12 @@ export default class SupplementsRepo {
     const { mainWeapons, subWeapons } = yaml.safeLoad(weaponsYml);
     const chests = yaml.safeLoad(chestsYml);
     const shops = yaml.safeLoad(shopsYml);
-    return {
-      mainWeapons: <any>parseRequirements(mainWeapons),
-      subWeapons: <any>parseRequirements(subWeapons),
-      chests: <any>parseRequirements(chests),
-      shops: <any>parseRequirements(shops),
-    };
+    return new Supplements(
+      <any>parseRequirements(mainWeapons),
+      <any>parseRequirements(subWeapons),
+      <any>parseRequirements(chests),
+      <any>parseRequirements(shops),
+    );
   }
 }
 

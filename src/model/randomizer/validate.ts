@@ -1,4 +1,5 @@
-import { Item, Storage } from '../dataset/types';
+import Item from '../dataset/Item';
+import { Storage } from '../dataset/types';
 
 export default function validate(storage: Storage) {
   const requirementItems = getAllRequirementsFromItems(

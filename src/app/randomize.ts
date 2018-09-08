@@ -1,5 +1,5 @@
 import { prng } from 'seedrandom';
-import { Supplements } from '../model/dataset/types';
+import Supplements from '../model/dataset/Supplements';
 import { equipmentNumbers, subWeaponNumbers } from '../model/randomizer/items';
 import randomizeItems from '../model/randomizer/randomizeItems';
 import ScriptDat from '../util/scriptdat/ScriptDat';

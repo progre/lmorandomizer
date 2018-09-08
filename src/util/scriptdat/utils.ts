@@ -1,6 +1,7 @@
 import assert from 'assert';
+import Item from '../../model/dataset/Item';
 import Spot from '../../model/dataset/Spot';
-import { Item, Storage } from '../../model/dataset/types';
+import { Storage } from '../../model/dataset/types';
 import { equipmentNumbers, subWeaponNumbers } from '../../model/randomizer/items';
 import ShopItemsData, { ShopItemData } from './ShopItemsData';
 

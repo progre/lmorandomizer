@@ -1,37 +1,10 @@
 import assert from 'assert';
 import ScriptDat from '../../util/scriptdat/ScriptDat';
 import { ShopItemData } from '../../util/scriptdat/ShopItemsData';
+import Item from './Item';
 import Spot from './Spot';
-import { Item, Storage, Supplements } from './types';
-
-export function getAllRequirements(supplements: Supplements) {
-  return [...new Set([
-    ...getAllRequirementsFromItems(supplements.mainWeapons),
-    ...getAllRequirementsFromItems(supplements.subWeapons),
-    ...getAllRequirementsFromItems(supplements.chests),
-    ...getAllRequirementsFromItems(supplements.shops),
-  ])].sort();
-}
-
-function getAllRequirementsFromItems(
-  items: ReadonlyArray<{ requirements?: ReadonlyArray<ReadonlyArray<string>> }>,
-) {
-  return items
-    .filter(x => x.requirements != null)
-    .map(x => x.requirements!.reduce((p, c) => [...p, ...c], []))
-    .reduce((p, c) => [...p, ...c], []);
-}
-
-export function getAllItemNames(supplements: Supplements) {
-  return [
-    ...supplements.mainWeapons.map(x => x.name),
-    ...supplements.subWeapons.map(x => x.name),
-    ...supplements.chests.map(x => x.name),
-    ...supplements.shops
-      .map(x => x.names.split(',').map(y => y.trim()))
-      .reduce((p, c) => [...p, ...c], []),
-  ];
-}
+import Supplements from './Supplements';
+import { Storage } from './types';
 
 function getAllItems(scriptDat: ScriptDat, supplements: Supplements) {
   const nightSurfaceCount = 3;
@@ -97,29 +70,29 @@ export function getSource(scriptDat: ScriptDat, supplements: Supplements): Stora
 function createItemFromChest(
   name: string,
   data: { chestItemNumber: number; flag: number },
-): Item {
-  return {
+) {
+  return new Item(
     name,
-    type: data.chestItemNumber >= 100 ? 'rom' : 'equipment',
-    number: (
+    data.chestItemNumber >= 100 ? 'rom' : 'equipment',
+    (
       data.chestItemNumber >= 100 ? data.chestItemNumber - 100 : data.chestItemNumber
     ),
-    count: 1, // Count of chest item is always 1.
-    flag: data.flag,
-  };
+    1, // Count of chest item is always 1.
+    data.flag,
+  );
 }
 
-function createItemFromShop(name: string, data: ShopItemData): Item {
-  return {
+function createItemFromShop(name: string, data: ShopItemData) {
+  return new Item(
     name,
-    type: data.type === 0 ? 'subWeapon'
+    data.type === 0 ? 'subWeapon'
       : data.type === 1 ? 'equipment'
         : data.type === 2 ? 'rom'
           : (() => { throw new Error(); })(),
-    number: data.number,
-    count: data.count,
-    flag: data.flag,
-  };
+    data.number,
+    data.count,
+    data.flag,
+  );
 }
 
 function parseRequirements(

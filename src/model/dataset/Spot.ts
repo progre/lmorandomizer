@@ -1,5 +1,5 @@
 import assert from 'assert';
-import { Item } from './types';
+import Item from './Item';
 
 export default class Spot {
   constructor(
