@@ -10,13 +10,13 @@ export default async function randomize(
   config: { rng: prng },
 ) {
   randomizeItems(scriptDat, supplements, config.rng);
-  if ((<any>1) === 1) {
+  if ((<any>1) === 0) {
     scriptDat.addStartingItems(
       [
         // ...`${items.sacredOrb},`.repeat(5).split(',').map(Number),
-        // equipmentNumbers.feather,
-        // equipmentNumbers.grappleClaw,
-        // equipmentNumbers.boots,
+        equipmentNumbers.feather,
+        equipmentNumbers.grappleClaw,
+        equipmentNumbers.boots,
         // equipmentNumbers.serpentStaff,
       ],
       [

@@ -1,4 +1,3 @@
-import assert from 'assert';
 import { Item, Storage } from '../dataset/types';
 
 export default function validate(storage: Storage) {
