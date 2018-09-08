@@ -19,6 +19,7 @@ export default class SettingsRepo {
     } catch (err) {
       console.error(err);
       return {
+        // tslint:disable-next-line:insecure-random
         seed: Math.random().toString(36).slice(-8),
       };
     }

@@ -5,11 +5,12 @@ const { app, BrowserWindow, ipcMain } = electron;
 import fs from 'fs';
 import seedrandom from 'seedrandom';
 import util from 'util';
+import randomize from './app/randomize';
 import { initMacMenu } from './macmenu';
-import { randomize } from './model/randomizer/randomize';
-import ScriptDatRepo from './repo/ScriptDatRepo';
 import SettingsRepo from './repo/SettingsRepo';
+import SupplementsRepo from './repo/SupplementsRepo';
 import { InitialParameters, Settings } from './types';
+import ScriptDatRepo from './util/scriptdat/ScriptDatRepo';
 
 const readFile = util.promisify(fs.readFile);
 
@@ -21,9 +22,9 @@ export default class App {
     const settingsRepo = new SettingsRepo(settingsFilePath);
     const settings = await settingsRepo.get();
     const version = JSON.parse(
-      await readFile(`${__dirname}/../package.json`, { encoding: 'utf8' })
+      await readFile(`${__dirname}/../package.json`, { encoding: 'utf8' }),
     ).version;
-    return new this(version, settingsRepo, settings, );
+    return new this(version, settingsRepo, settings);
   }
 
   private win: electron.BrowserWindow;
@@ -105,30 +106,31 @@ async function apply(
   workingFilePath: string,
   seed: string,
 ) {
-  let { data: workingFile } = await scriptDatRepo.readValidScriptDat(workingFilePath);
-  if (workingFile == null) {
-    const { error, data: srcFile } = await scriptDatRepo.readValidScriptDat(targetFilePath);
+  let { scriptDat } = await scriptDatRepo.readValidScriptDat(workingFilePath);
+  if (scriptDat == null) {
+    const { error, scriptDat: srcFile } = await scriptDatRepo.readValidScriptDat(targetFilePath);
     if (error != null) {
       return {
         noentry: 'Unable to find La-Mulana install directory.',
         invalidfile: 'Valid script is not found. Please re-install La-Mulana.',
       }[error.reason];
     }
-    workingFile = srcFile!;
-    await scriptDatRepo.writeScriptDat(workingFilePath, workingFile);
+    scriptDat = srcFile!;
+    await scriptDatRepo.writeScriptDat(workingFilePath, scriptDat);
     if ((await scriptDatRepo.isValidScriptDat(workingFilePath)) == null) {
       assert.fail();
     }
   }
 
-  const modifiedFile = await randomize(
-    workingFile,
+  await randomize(
+    scriptDat,
+    await new SupplementsRepo(`${__dirname}/res`).read(),
     {
       rng: seedrandom(seed),
     },
   );
 
-  await scriptDatRepo.writeScriptDat(targetFilePath, <ArrayBuffer>modifiedFile.buffer);
+  await scriptDatRepo.writeScriptDat(targetFilePath, scriptDat);
   return 'Succeeded.';
 }
 
@@ -140,11 +142,11 @@ async function restore(
   if (await scriptDatRepo.isValidScriptDat(targetFilePath)) {
     return 'Already clean.';
   }
-  const { data: workingFile } = await scriptDatRepo.readValidScriptDat(workingFilePath);
-  if (workingFile == null) {
+  const { scriptDat } = await scriptDatRepo.readValidScriptDat(workingFilePath);
+  if (scriptDat == null) {
     return 'Backup is broken. Please re-install La-Mulana.';
   }
-  await scriptDatRepo.writeScriptDat(targetFilePath, workingFile);
+  await scriptDatRepo.writeScriptDat(targetFilePath, scriptDat);
   if ((await scriptDatRepo.isValidScriptDat(targetFilePath)) == null) {
     assert.fail();
   }

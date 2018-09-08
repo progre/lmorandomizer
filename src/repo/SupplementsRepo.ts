@@ -1,0 +1,43 @@
+import fs from 'fs';
+import yaml from 'js-yaml';
+import util from 'util';
+import { Supplements } from '../model/dataset/types';
+
+const readFile = util.promisify(fs.readFile);
+
+export default class SupplementsRepo {
+  constructor(
+    private directoryPath: string,
+  ) {
+  }
+
+  async read(): Promise<Supplements> {
+    const [weaponsYml, chestsYml, shopsYml] = await Promise.all([
+      readFile(`${this.directoryPath}/weapons.yml`, 'utf-8'),
+      readFile(`${this.directoryPath}/chests.yml`, 'utf-8'),
+      readFile(`${this.directoryPath}/shops.yml`, 'utf-8'),
+    ]);
+    const { mainWeapons, subWeapons } = yaml.safeLoad(weaponsYml);
+    const chests = yaml.safeLoad(chestsYml);
+    const shops = yaml.safeLoad(shopsYml);
+    return {
+      mainWeapons: <any>parseRequirements(mainWeapons),
+      subWeapons: <any>parseRequirements(subWeapons),
+      chests: <any>parseRequirements(chests),
+      shops: <any>parseRequirements(shops),
+    };
+  }
+}
+
+function parseRequirements(
+  items: ReadonlyArray<{ requirements?: ReadonlyArray<string> }>,
+) {
+  return items.map(x => ({
+    ...x,
+    requirements: (
+      x.requirements == null
+        ? null
+        : x.requirements.map(y => y.split(',').map(z => z.trim()))
+    ),
+  }));
+}

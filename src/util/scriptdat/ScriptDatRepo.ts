@@ -1,6 +1,9 @@
 import fs from 'fs';
 import sha3 from 'js-sha3';
 import util from 'util';
+import { decode, encode } from './codec';
+import createScriptDat from './createScriptDat';
+import ScriptDat from './ScriptDat';
 
 const readFile = util.promisify(fs.readFile);
 const writeFile = util.promisify(fs.writeFile);
@@ -12,8 +15,8 @@ const SCRIPT_DAT_EN_HASH = '146e1b6e9e63ed22fb84b3c38f4d25a0723b07fe3fefe9395af6
 
 export default class ScriptDatRepo {
   async isValidScriptDat(path: string) {
-    const { data } = await this.readValidScriptDat(path);
-    return data != null;
+    const { scriptDat } = await this.readValidScriptDat(path);
+    return scriptDat != null;
   }
 
   async readValidScriptDat(path: string) {
@@ -24,11 +27,13 @@ export default class ScriptDatRepo {
     if (!isValidScriptDatFile(data)) {
       return { error: { reason: <'invalidfile'>'invalidfile' } };
     }
-    return { data };
+    const txt = await decode(data);
+    return { scriptDat: createScriptDat(txt) };
   }
 
-  async writeScriptDat(path: string, file: ArrayBuffer) {
-    await writeFile(path, Buffer.from(file));
+  async writeScriptDat(path: string, scriptDat: ScriptDat) {
+    const dat = await encode(scriptDat.txt);
+    await writeFile(path, Buffer.from(<ArrayBuffer>dat.buffer));
   }
 }
 

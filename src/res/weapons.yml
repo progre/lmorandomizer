@@ -1,0 +1,53 @@
+mainWeapons:
+  - name: knife
+    requirements:
+      - shuriken
+  - name: chainWhip
+    requirements:
+      - birthSeal, grappleClaw
+  - name: keySword
+    requirements:
+      - keyOfEternity
+  - name: katana
+    requirements:
+      - event:releasedTwins
+  - name: mace
+    requirements:
+      - event:reachedTowerOfTheGoddess
+  - name: axe
+    requirements:
+      - event:reachedGrailOfTempleOfMoonlight
+subWeapons:
+  - name: shuriken
+  - name: anhkJewel:gateOfGuidance
+  - name: pistol
+    requirements:
+      - event:reachedBackDoorOfSurface, bomb
+  - name: touken
+  - name: anhkJewel:mausoleumOfTheGiants
+  - name: anhkJewel:templeOfTheSun
+  - name: anhkJewel:springInTheSky
+    requirements:
+      - scalesphere
+  - name: flareGun
+  - name: anhkJewel:twinLabyrinths
+    requirements:
+      - releasedTwins
+  - name: silverShield
+    requirements:
+      - event:reachedLiarOfGraveyardOfTheGiants, katana
+  - name: bomb
+    requirements:
+      - event:reachedBackDoorOfGraveyardOfTheGiants, katana
+  - name: ankhJewel:towerOfRuin
+    requirements:
+      - event:reachedFrontOfTowerOfRuin
+  - name: spear
+    requirements:
+      - event:reachedFrontOfTowerOfRuin
+  - name: angelShield
+    requirements:
+      - event:reachedDimensionalCorridor
+  - name: ankhJewel:dimensionalCorridor
+    requirements:
+      - event:reachedDimensionalCorridor

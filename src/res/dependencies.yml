@@ -1,0 +1,32 @@
+- name: gateOfGuidance
+  chests:
+    - name: hoge
+      location: index
+      requirements:
+        - cond,doen
+        - cond
+    - requirements:
+        - cond
+        - cond
+  shops:
+    - - cond
+    - - cond
+
+- name: hoge
+  location: hoge/hoge
+  requirements:
+    - a,b,
+    - ced,s
+- name: hogege
+
+- name: hoge/hoge
+  requirements:
+    - a,b,c
+
+field/location/spot
+最終的にspotに対して必要なアイテム・生命の宝珠の数が定まる
+spot=chest/shop/worldKey/weapon
+chest <- worldKey以外
+shop <- worldKey以外
+worldKey <- すべて
+weapon <- すべて
