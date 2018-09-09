@@ -11,6 +11,7 @@ ReactDOM.render(
     <Index
       defaultSeed={json.seed}
       defaultInstallDirectory={json.installDirectory}
+      defaultEasyMode={json.easyMode}
     />
   ),
   document.getElementById('root'),

@@ -3,7 +3,6 @@ import assert from 'assert';
 import electron from 'electron';
 const { app, BrowserWindow, ipcMain } = electron;
 import fs from 'fs';
-import seedrandom from 'seedrandom';
 import util from 'util';
 import randomize from './app/randomize';
 import { initMacMenu } from './macmenu';
@@ -39,7 +38,7 @@ export default class App {
     this.win = new BrowserWindow({
       title: `La-Mulana Original Randomizer v${version}`,
       width: 800,
-      height: 306,
+      height: 331,
       resizable: true,
       show: false,
     });
@@ -62,13 +61,24 @@ export default class App {
         console.error(err);
       }
     });
+    ipcMain.on('setEasyMode', async (ev: any, easyMode: boolean) => {
+      try {
+        this.settings.easyMode = easyMode;
+        await this.settingsRepo.set(this.settings);
+      } catch (err) {
+        console.error(err);
+      }
+    });
     ipcMain.on('apply', async (ev: any) => {
       try {
         const result = await apply(
           this.scriptDatRepo,
           `${this.settings.installDirectory}/data/script.dat`,
           `${app.getPath('userData')}/script.dat.bak`,
-          this.settings.seed || '',
+          {
+            seed: this.settings.seed || '',
+            easyMode: this.settings.easyMode || false,
+          },
         );
         ev.sender.send('result', result);
       } catch (err) {
@@ -92,6 +102,7 @@ export default class App {
     const initialParams: InitialParameters = {
       seed: this.settings.seed || '',
       installDirectory: this.settings.installDirectory || '',
+      easyMode: this.settings.easyMode || false,
     };
     const search = encodeURIComponent(JSON.stringify(initialParams));
     this.win.loadURL(
@@ -104,7 +115,10 @@ async function apply(
   scriptDatRepo: ScriptDatRepo,
   targetFilePath: string,
   workingFilePath: string,
-  seed: string,
+  options: {
+    seed: string;
+    easyMode: boolean;
+  },
 ) {
   let { scriptDat } = await scriptDatRepo.readValidScriptDat(workingFilePath);
   if (scriptDat == null) {
@@ -125,9 +139,7 @@ async function apply(
   await randomize(
     scriptDat,
     await new SupplementsRepo(`${__dirname}/res`).read(),
-    {
-      rng: seedrandom(seed),
-    },
+    options,
   );
 
   await scriptDatRepo.writeScriptDat(targetFilePath, scriptDat);

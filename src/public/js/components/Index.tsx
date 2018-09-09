@@ -1,7 +1,9 @@
 import {
   Button,
+  Checkbox,
   CircularProgress,
   CssBaseline,
+  FormControlLabel,
   IconButton,
   Paper,
   Snackbar,
@@ -13,12 +15,14 @@ import React from 'react';
 export default function Index(props: {
   seed: string;
   installDirectory: string;
+  easyMode: boolean;
   snackbar: string;
   isProcessingApply: boolean;
   isProcessingRestore: boolean;
 
   onChangeSeed(seed: string): void;
   onChangeInstallDirectory(path: string): void;
+  onChangeEasyMode(easyMode: boolean): void;
   onClickApply(): void;
   onClickRestore(): void;
   onCloseSnackbar(event: React.SyntheticEvent<any>, reason?: string): void;
@@ -35,25 +39,7 @@ export default function Index(props: {
         display: 'flex',
         flexDirection: 'column',
       }}>
-        <Paper elevation={1} style={{ flex: 1, padding: 16 }}>
-          <Typography style={{ fontSize: 14 }}>
-            General settings
-          </Typography>
-          <TextField
-            label="Seed"
-            value={props.seed}
-            onChange={buildOnChangeTextField(props.onChangeSeed)}
-            margin="dense"
-            fullWidth
-          />
-          <TextField
-            label="La-Mulana install directory"
-            value={props.installDirectory}
-            onChange={buildOnChangeTextField(props.onChangeInstallDirectory)}
-            margin="dense"
-            fullWidth
-          />
-        </Paper>
+        <Configs {...props} />
         <div style={{
           marginTop: 16,
           display: 'flex',
@@ -122,8 +108,56 @@ export default function Index(props: {
   );
 }
 
-function buildOnChangeTextField(callback: (value: string) => void) {
+function Configs(props: {
+  seed: string;
+  installDirectory: string;
+  easyMode: boolean;
+
+  onChangeSeed(seed: string): void;
+  onChangeInstallDirectory(path: string): void;
+  onChangeEasyMode(easyMode: boolean): void;
+}) {
+  return (
+    <Paper elevation={1} style={{ flex: 1, padding: 16 }}>
+      <Typography style={{ fontSize: 14 }}>
+        General settings
+      </Typography>
+      <TextField
+        label="Seed"
+        value={props.seed}
+        onChange={buildOnChangeInputElement(props.onChangeSeed)}
+        margin="dense"
+        fullWidth
+      />
+      <TextField
+        label="La-Mulana install directory"
+        value={props.installDirectory}
+        onChange={buildOnChangeInputElement(props.onChangeInstallDirectory)}
+        margin="dense"
+        fullWidth
+      />
+      <FormControlLabel
+        control={
+          <Checkbox
+            color="primary"
+            checked={props.easyMode}
+            onChange={buildOnChangeCheckbox(props.onChangeEasyMode)}
+          />
+        }
+        label="Easy mode"
+      />
+    </Paper>
+  );
+}
+
+function buildOnChangeInputElement(callback: (value: string) => void) {
   return (ev: React.ChangeEvent<HTMLInputElement>) => {
     callback(ev.target.value);
+  };
+}
+
+function buildOnChangeCheckbox(callback: (value: boolean) => void) {
+  return (ev: React.ChangeEvent<HTMLInputElement>) => {
+    callback(ev.target.checked);
   };
 }

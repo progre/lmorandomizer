@@ -1,4 +1,3 @@
-import { prng } from 'seedrandom';
 import Supplements from '../model/dataset/Supplements';
 import { equipmentNumbers, subWeaponNumbers } from '../model/randomizer/items';
 import randomizeItems from '../model/randomizer/randomizeItems';
@@ -7,20 +6,21 @@ import ScriptDat from '../util/scriptdat/ScriptDat';
 export default async function randomize(
   scriptDat: ScriptDat,
   supplements: Supplements,
-  config: { rng: prng },
+  config: {
+    seed: string;
+    easyMode: boolean;
+  },
 ) {
-  randomizeItems(scriptDat, supplements, config.rng);
-  if ((<any>1) === 0) {
+  randomizeItems(scriptDat, supplements, config.seed);
+  if (config.easyMode) {
     scriptDat.addStartingItems(
       [
-        // ...`${items.sacredOrb},`.repeat(5).split(',').map(Number),
-        equipmentNumbers.feather,
-        equipmentNumbers.grappleClaw,
-        equipmentNumbers.boots,
-        // equipmentNumbers.serpentStaff,
+        equipmentNumbers.holyGrail,
+        100,
+        102,
       ],
       [
-        subWeaponNumbers.shuriken,
+        subWeaponNumbers.handScanner,
       ],
     );
   }

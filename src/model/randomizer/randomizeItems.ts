@@ -1,23 +1,23 @@
 import assert from 'assert';
-import { prng } from 'seedrandom';
+import seedrandom, { prng } from 'seedrandom';
 import ScriptDat from '../../util/scriptdat/ScriptDat';
 import createSource from '../dataset/createSource';
 import Item from '../dataset/Item';
 import Spot from '../dataset/Spot';
-import Supplements from '../dataset/Supplements';
 import Storage from '../dataset/Storage';
+import Supplements from '../dataset/Supplements';
 import { selectRandom, shuffleSimply } from './shuffleUtils';
 import validate from './validate';
 
 export default function randomizeItems(
   scriptDat: ScriptDat,
   supplements: Supplements,
-  rng: prng,
+  seed: string,
 ) {
   const source = createSource(scriptDat, supplements);
   assert(validate(source));
   assertUnique(source);
-  const shuffled = randomizeStorage(source, rng);
+  const shuffled = randomizeStorage(source, seedrandom(seed));
   assertUnique(shuffled);
   scriptDat.replaceChests(shuffled);
   scriptDat.replaceShops(shuffled.shops);
@@ -91,7 +91,7 @@ function distributeItems(items: ReadonlyArray<Item>, source: Storage, rng: prng)
             return { tmp, list };
           },
           { tmp: [], list: [] },
-        )
+      )
         .list
     ),
   };

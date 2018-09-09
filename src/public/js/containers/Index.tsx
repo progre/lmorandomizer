@@ -7,11 +7,13 @@ import { default as Component } from '../components/Index';
 interface Props {
   defaultSeed: string;
   defaultInstallDirectory: string;
+  defaultEasyMode: boolean;
 }
 
 const initialState = {
   seed: '',
   installDirectory: '',
+  easyMode: false,
   snackbar: '',
   isProcessingApply: false,
   isProcessingRestore: false,
@@ -22,6 +24,7 @@ export default class Index extends React.Component<Props, typeof initialState> {
     super(props);
     this.onChangeSeed = this.onChangeSeed.bind(this);
     this.onChangeInstallDirectory = this.onChangeInstallDirectory.bind(this);
+    this.onChangeEasyMode = this.onChangeEasyMode.bind(this);
     this.onClickApply = this.onClickApply.bind(this);
     this.onClickRestore = this.onClickRestore.bind(this);
     this.onCloseSnackbar = this.onCloseSnackbar.bind(this);
@@ -29,6 +32,7 @@ export default class Index extends React.Component<Props, typeof initialState> {
       ...initialState,
       seed: props.defaultSeed,
       installDirectory: props.defaultInstallDirectory,
+      easyMode: props.defaultEasyMode,
     };
 
     ipcRenderer.on('result', (ev: any, message: string) => {
@@ -54,6 +58,14 @@ export default class Index extends React.Component<Props, typeof initialState> {
     this.setState({
       ...this.state,
       installDirectory: path,
+    });
+  }
+
+  private onChangeEasyMode(easyMode: boolean) {
+    ipcRenderer.send('setEasyMode', easyMode);
+    this.setState({
+      ...this.state,
+      easyMode,
     });
   }
 
@@ -91,6 +103,7 @@ export default class Index extends React.Component<Props, typeof initialState> {
         {...this.state}
         onChangeSeed={this.onChangeSeed}
         onChangeInstallDirectory={this.onChangeInstallDirectory}
+        onChangeEasyMode={this.onChangeEasyMode}
         onClickApply={this.onClickApply}
         onClickRestore={this.onClickRestore}
         onCloseSnackbar={this.onCloseSnackbar}

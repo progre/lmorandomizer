@@ -22,11 +22,15 @@ export default function addStartingItems(
       // tslint:disable:no-increment-decrement
       return (
         // tslint:disable-next-line:prefer-template
-        `<OBJECT 7,38912,14336,7,999,-1,-1></OBJECT>`
+        `<OBJECT 7,43008,22528,7,999,-1,-1></OBJECT>`
         + `<OBJECT 22,26624,10240,2,2,${unusedOneTimeFlagNo},-1></OBJECT>`
         + subWeaponList.map(y => (
-          `<OBJECT 13,26624,10240,${y},0,${unusedSaveFlagNo},-1></OBJECT>`
-          + `<OBJECT 13,26624,10240,${y},255,${unusedSaveFlagNo},-1></OBJECT>`
+          `<OBJECT 13,26624,10240,${y},0,${unusedSaveFlagNo},-1>`
+          + `<START ${unusedSaveFlagNo},0>`
+          + `</OBJECT>`
+          + `<OBJECT 13,26624,10240,${y},255,${unusedSaveFlagNo},-1>`
+          + `<START ${unusedSaveFlagNo},0>`
+          + `</OBJECT>`
         )).join('')
         + equipmentList.map(y => (
           `<OBJECT 1,26624,14336,${unusedOneTimeFlagNo},${y},${unusedSaveFlagNo},-1></OBJECT>`
