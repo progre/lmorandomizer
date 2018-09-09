@@ -5,7 +5,7 @@ import createSource from '../dataset/createSource';
 import Item from '../dataset/Item';
 import Spot from '../dataset/Spot';
 import Supplements from '../dataset/Supplements';
-import { Storage } from '../dataset/types';
+import Storage from '../dataset/Storage';
 import { selectRandom, shuffleSimply } from './shuffleUtils';
 import validate from './validate';
 
@@ -40,7 +40,7 @@ function randomizeStorage(source: Storage, rng: prng) {
 }
 
 function shuffle(source: Storage, rng: prng): Storage {
-  const allItems = mergeAllItems(source);
+  const allItems = source.allItems();
   const { newChestItems, newShopItems } = distributeItems(allItems, source, rng);
   assert.equal(source.chests.length, newChestItems.length);
   assert.equal(source.shops.length, newShopItems.length);
@@ -49,14 +49,7 @@ function shuffle(source: Storage, rng: prng): Storage {
   const shops = shuffleSimply(newShopItems, rng)
     .map((items, i) => ({ items, spot: source.shops[i].spot }));
   assert(shops.every(x => x.spot.talkNumber != null));
-  return { chests, shops };
-}
-
-function mergeAllItems(source: Storage): ReadonlyArray<Item> {
-  return [
-    ...source.chests.map(x => x.item),
-    ...source.shops.map(x => x.items).reduce((p, c) => [...p, ...c], <Item[]>[]),
-  ];
+  return new Storage(chests, shops);
 }
 
 function distributeItems(items: ReadonlyArray<Item>, source: Storage, rng: prng) {

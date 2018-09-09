@@ -4,9 +4,9 @@ import { ShopItemData } from '../../util/scriptdat/ShopItemsData';
 import Item from './Item';
 import Spot from './Spot';
 import Supplements from './Supplements';
-import { Storage } from './types';
+import Storage from './Storage';
 
-export default function createSource(scriptDat: ScriptDat, supplements: Supplements): Storage {
+export default function createSource(scriptDat: ScriptDat, supplements: Supplements) {
   const allItems = getAllItems(scriptDat, supplements);
   const enumerateItems = [
     ...allItems.chests,
@@ -17,8 +17,8 @@ export default function createSource(scriptDat: ScriptDat, supplements: Suppleme
   const chestDataList = scriptDat.chests();
   assert.equal(chestDataList.length, supplements.chests.length + nightSurfaceCount);
   const shops = scriptDat.shops();
-  return {
-    chests: supplements.chests.map((supplement, i) => {
+  return new Storage(
+    supplements.chests.map((supplement, i) => {
       const datum = chestDataList[i];
       const spot = new Spot(
         'chest',
@@ -27,7 +27,7 @@ export default function createSource(scriptDat: ScriptDat, supplements: Suppleme
       );
       return { spot, item: createItemFromChest(supplement.name, datum) };
     }),
-    shops: <{ spot: Spot; items: [Item, Item, Item] }[]>allItems.shops.map((items, i) => {
+    <{ spot: Spot; items: [Item, Item, Item] }[]>allItems.shops.map((items, i) => {
       const supplement = supplements.shops[i];
       const shop = shops[i];
       const spot = new Spot(
@@ -40,7 +40,7 @@ export default function createSource(scriptDat: ScriptDat, supplements: Suppleme
         items,
       };
     }),
-  };
+  );
 }
 
 function getAllItems(scriptDat: ScriptDat, supplements: Supplements) {

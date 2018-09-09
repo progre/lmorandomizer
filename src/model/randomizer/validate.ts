@@ -1,23 +1,21 @@
-import Item from '../dataset/Item';
-import { Storage } from '../dataset/types';
+import assert from 'assert';
+import Storage from '../dataset/Storage';
 
 export default function validate(storage: Storage) {
-  const requirements = getAllRequirements(storage);
+  const allRequirements = storage.allRequirements();
+  const allItems = storage.allItems();
   let currentItems
-    = requirements.filter(x => storage.chests.every(y => y.item.name !== x.name));
+    = allRequirements.filter(x => allItems.every(y => y.name !== x.name));
+  assert.equal(currentItems.length, 0);
   let playing = storage;
   for (; ;) {
-    const reached = playing.chests
-      .filter(x => x.spot.isReachable(currentItems))
-      .map(x => x.item);
+    const reached = playing.reachableItems(currentItems);
     if (reached.length <= 0) {
+      // console.warn(JSON.stringify(currentItems), JSON.stringify(playing));
       return false;
     }
-    playing = {
-      ...playing,
-      chests: playing.chests.filter(x => !x.spot.isReachable(currentItems)),
-    };
-    if (playing.chests.length <= 0) {
+    playing = playing.unreachables(currentItems);
+    if (playing.allItems().length <= 0) {
       return true;
     }
     currentItems = [
@@ -25,22 +23,4 @@ export default function validate(storage: Storage) {
       ...reached,
     ];
   }
-}
-
-function getAllRequirements(storage: Storage) {
-  return [...new Set([
-    // ...getAllRequirementsFromItems(this.mainWeapons),
-    // ...getAllRequirementsFromItems(this.subWeapons),
-    ...getAllRequirementsFromItems(storage.chests.map(x => x.spot)),
-    ...getAllRequirementsFromItems(storage.shops.map(x => x.spot)),
-  ])].sort();
-}
-
-function getAllRequirementsFromItems(
-  items: ReadonlyArray<{ requirementItems: ReadonlyArray<ReadonlyArray<Item>> | null }>,
-) {
-  return items
-    .filter(x => x.requirementItems != null)
-    .map(x => x.requirementItems!.reduce((p, c) => [...p, ...c], []))
-    .reduce((p, c) => [...p, ...c], []);
 }
