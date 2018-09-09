@@ -42,8 +42,8 @@
     "source-map-support": "^0.5.9",
     "ts-loader": "^5.0.0",
     "tslint": "^5.11.0",
-    "tslint-language-service": "angelozerr/tslint-language-service#3c6e13e7ee219968af2df6130fd8b57742c9ae74",
-    "typescript": "^3.0.3",
+    "tslint-language-service": "^0.9.9",
+    "typescript": "^2.9.2",
     "webpack": "^4.17.2",
     "webpack-cli": "^3.1.0"
   },
