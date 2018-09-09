@@ -1,11 +1,11 @@
 import assert from 'assert';
 import { prng } from 'seedrandom';
 import ScriptDat from '../../util/scriptdat/ScriptDat';
+import createSource from '../dataset/createSource';
 import Item from '../dataset/Item';
 import Spot from '../dataset/Spot';
 import Supplements from '../dataset/Supplements';
 import { Storage } from '../dataset/types';
-import { getSource } from '../dataset/utils';
 import { selectRandom, shuffleSimply } from './shuffleUtils';
 import validate from './validate';
 
@@ -14,7 +14,7 @@ export default function randomizeItems(
   supplements: Supplements,
   rng: prng,
 ) {
-  const source = getSource(scriptDat, supplements);
+  const source = createSource(scriptDat, supplements);
   assert(validate(source));
   assertUnique(source);
   const shuffled = randomizeStorage(source, rng);
@@ -98,7 +98,7 @@ function distributeItems(items: ReadonlyArray<Item>, source: Storage, rng: prng)
             return { tmp, list };
           },
           { tmp: [], list: [] },
-      )
+        )
         .list
     ),
   };

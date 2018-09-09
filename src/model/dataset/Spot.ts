@@ -4,7 +4,7 @@ import Item from './Item';
 export default class Spot {
   constructor(
     public readonly type: 'chest' | 'shop',
-    public readonly requirements: ReadonlyArray<ReadonlyArray<Item>> | null,
+    public readonly requirementItems: ReadonlyArray<ReadonlyArray<Item>> | null,
     public readonly talkNumber: number | null,
   ) {
     if (type === 'shop') {
@@ -15,10 +15,10 @@ export default class Spot {
   }
 
   isReachable(currentItems: ReadonlyArray<Item>) {
-    if (this.requirements == null) {
+    if (this.requirementItems == null) {
       return true;
     }
-    return this.requirements.some(group => (
+    return this.requirementItems.some(group => (
       group.every(x => currentItems.some(y => y.name === x.name))
     ));
   }
