@@ -5,6 +5,32 @@ import Storage from '../../model/dataset/Storage';
 import { equipmentNumbers, subWeaponNumbers } from '../../model/randomizer/items';
 import ShopItemsData, { ShopItemData } from './ShopItemsData';
 
+export function replaceSubWeapon(txt: string, subWeaponShutters: ReadonlyArray<Item>) {
+  let idx = 0;
+  return txt.split('\n').map((line) => {
+    if (idx >= subWeaponShutters.length) {
+      return line;
+    }
+    if (!line.startsWith('<OBJECT 13,')) {
+      return line;
+    }
+    const [x, y]
+      = line.slice('<OBJECT 13,'.length, line.length - 1).split(',');
+    const item = subWeaponShutters[idx];
+    idx += 1;
+    switch (item.type) {
+      case 'subWeapon':
+        assert(!(item.number === subWeaponNumbers.ankhJewel && item.count > 1));
+        return `<OBJECT 13,${x},${y},${item.number},${item.count},${item.flag},-1>`;
+      case 'equipment':
+        return `<OBJECT 1,${x},${y},40,${item.number},${item.flag},-1>`;
+      case 'rom':
+        return `<OBJECT 1,${x},${y},40,${100 + item.number},${item.flag},-1>`;
+      default: throw new Error();
+    }
+  }).join('\n');
+}
+
 export function replaceChests(txt: string, shuffled: Storage) {
   let idx = 0;
   return txt.split('\n').map((x) => {

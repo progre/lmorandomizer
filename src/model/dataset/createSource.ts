@@ -3,12 +3,13 @@ import ScriptDat from '../../util/scriptdat/ScriptDat';
 import { ShopItemData } from '../../util/scriptdat/ShopItemsData';
 import Item from './Item';
 import Spot from './Spot';
-import Supplements from './Supplements';
 import Storage from './Storage';
+import Supplements from './Supplements';
 
 export default function createSource(scriptDat: ScriptDat, supplements: Supplements) {
   const allItems = getAllItems(scriptDat, supplements);
   const enumerateItems = [
+    ...allItems.subWeapons,
     ...allItems.chests,
     ...allItems.shops.reduce<Item[]>((p, c) => [...p, ...c], []),
   ];
@@ -18,7 +19,19 @@ export default function createSource(scriptDat: ScriptDat, supplements: Suppleme
   assert.equal(chestDataList.length, supplements.chests.length + nightSurfaceCount);
   const shops = scriptDat.shops();
   return new Storage(
-    supplements.chests.map((supplement, i) => {
+    allItems.subWeapons.map((item, i) => {
+      const supplement = supplements.subWeapons[i];
+      const spot = new Spot(
+        'weaponShutter',
+        parseRequirements(supplement.requirements || null, enumerateItems),
+        null,
+      );
+      return {
+        spot,
+        item,
+      };
+    }),
+    supplements.chests.map((supplement, i) => { // TODO: foreach allItems.chests
       const datum = chestDataList[i];
       const spot = new Spot(
         'chest',
@@ -44,13 +57,29 @@ export default function createSource(scriptDat: ScriptDat, supplements: Suppleme
 }
 
 function getAllItems(scriptDat: ScriptDat, supplements: Supplements) {
-  const nightSurfaceCount = 3;
+  const nightSurfaceSubWeaponCount = 1;
+  const nightSurfaceChestCount = 3;
   const wareNoMiseCount = 1;
+  const subWeaponsDataList = scriptDat.subWeapons();
+  assert.equal(
+    subWeaponsDataList.length,
+    supplements.subWeapons.length + nightSurfaceSubWeaponCount,
+  );
   const chestDataList = scriptDat.chests();
-  assert.equal(chestDataList.length, supplements.chests.length + nightSurfaceCount);
+  assert.equal(chestDataList.length, supplements.chests.length + nightSurfaceChestCount);
   const shopDataList = scriptDat.shops();
   assert.equal(shopDataList.length, supplements.shops.length + wareNoMiseCount);
   return {
+    subWeapons: supplements.subWeapons.map((supplement, i) => {
+      const data = subWeaponsDataList[i];
+      return new Item(
+        supplement.name,
+        'subWeapon',
+        data.subweaponNumber,
+        data.count,
+        data.flag,
+      );
+    }),
     chests: supplements.chests.map((supplement, i) => {
       const datum = chestDataList[i];
       return createItemFromChest(supplement.name, datum);
@@ -106,7 +135,7 @@ function parseRequirements(
   const missings = [...new Set(
     requirements
       .reduce((p, c) => [...p, ...c], [])
-      .filter(x => allItems.every(y => y.name !== x))
+      .filter(x => allItems.every(y => y.name !== x)),
   )].sort();
   missings.forEach((missing) => {
     // console.warn(`WARN: missing item: ${missing}`);
@@ -130,11 +159,11 @@ function warnMissingRequirements(
     ]
       .reduce((p, c) => [...p, ...c], [])
       .reduce((p, c) => [...p, ...c], [])
-      .reduce((p, c) => [...p, ...c], [])
+      .reduce((p, c) => [...p, ...c], []),
   )]
     .filter(x => allItems.every(y => y.name !== x))
     .sort()
-    .forEach(x => {
+    .forEach((x) => {
       console.warn(`WARN: missing item: ${x}`);
     });
 }

@@ -5,7 +5,7 @@ import Storage from '../../model/dataset/Storage';
 import { EquipmentNumber, equipmentNumbers, SubWeaponNumber } from '../../model/randomizer/items';
 import addStartingItems from './addStartingItems';
 import ShopItemsData from './ShopItemsData';
-import { replaceChests, replaceShops } from './utils';
+import { replaceChests, replaceShops, replaceSubWeapon } from './utils';
 
 export default class ScriptDat {
   constructor(
@@ -17,10 +17,17 @@ export default class ScriptDat {
   //   .filter(x => x.startsWith('<OBJECT 77,'))
   //   .map(x => x.slice('<OBJECT 77,'.length, x.length - 1).split(','))
   //   .map(x => ({ mainWeaponNumber: Number(x[2]), flag: Number(x[3]) })),
-  // subWeapons: txt.split('\n')
-  //   .filter(x => x.startsWith('<OBJECT 13,'))
-  //   .map(x => x.slice('<OBJECT 13,'.length, x.length - 1).split(','))
-  //   .map(x => ({ subweaponNumber: Number(x[2]), flag: Number(x[4]) })),
+
+  subWeapons() {
+    return this.txt.split('\n')
+      .filter(x => x.startsWith('<OBJECT 13,'))
+      .map(x => x.slice('<OBJECT 13,'.length, x.length - 1).split(','))
+      .map(x => ({
+        subweaponNumber: Number(x[2]),
+        count: Number(x[3]),
+        flag: Number(x[4]),
+      }));
+  }
 
   chests() {
     return this.txt.split('\n')
@@ -59,6 +66,10 @@ export default class ScriptDat {
     subWeaponList: SubWeaponNumber[],
   ) {
     this.txt = addStartingItems(this.txt, equipmentList, subWeaponList);
+  }
+
+  replaceSubWeapons(subWeaponShutters: ReadonlyArray<Item>) {
+    this.txt = replaceSubWeapon(this.txt, subWeaponShutters);
   }
 
   replaceChests(shuffled: Storage) {

@@ -19,6 +19,7 @@ export default function randomizeItems(
   assertUnique(source);
   const shuffled = randomizeStorage(source, seedrandom(seed));
   assertUnique(shuffled);
+  scriptDat.replaceSubWeapons(shuffled.subWeaponShutters.map(x => x.item));
   scriptDat.replaceChests(shuffled);
   scriptDat.replaceShops(shuffled.shops);
 }
@@ -41,19 +42,30 @@ function randomizeStorage(source: Storage, rng: prng) {
 
 function shuffle(source: Storage, rng: prng): Storage {
   const allItems = source.allItems();
-  const { newChestItems, newShopItems } = distributeItems(allItems, source, rng);
+  const {
+    newSubWeaponShutters,
+    newChestItems,
+    newShopItems,
+  } = distributeItems(allItems, source, rng);
+  assert.equal(source.subWeaponShutters.length, newSubWeaponShutters.length);
   assert.equal(source.chests.length, newChestItems.length);
   assert.equal(source.shops.length, newShopItems.length);
+  const subWeaponShutters = shuffleSimply(newSubWeaponShutters, rng)
+    .map((item, i) => ({ item, spot: source.subWeaponShutters[i].spot }));
   const chests = shuffleSimply(newChestItems, rng)
     .map((item, i) => ({ item, spot: source.chests[i].spot }));
   const shops = shuffleSimply(newShopItems, rng)
     .map((items, i) => ({ items, spot: source.shops[i].spot }));
   assert(shops.every(x => x.spot.talkNumber != null));
-  return new Storage(chests, shops);
+  return new Storage(subWeaponShutters, chests, shops);
 }
 
 function distributeItems(items: ReadonlyArray<Item>, source: Storage, rng: prng) {
-  assert.equal(items.length, source.chests.length + source.shops.length * 3);
+  assert.equal(
+    items.length,
+    source.subWeaponShutters.length + source.chests.length + source.shops.length * 3,
+  );
+  const newSubWeaponShutters: Item[] = [];
   const newChestItems: Item[] = [];
   const newShopItems: Item[] = [];
   const sorted = [...items].sort((a, b) => (
@@ -62,15 +74,19 @@ function distributeItems(items: ReadonlyArray<Item>, source: Storage, rng: prng)
   sorted.forEach((item) => {
     switch (selectRandom(
       [
+        source.subWeaponShutters.length - newSubWeaponShutters.length,
         source.chests.length - newChestItems.length,
         !item.canDisplayInShop() ? 0 : source.shops.length * 3 - newShopItems.length,
       ],
       rng,
     )) {
       case 0:
-        newChestItems.push(item);
+        newSubWeaponShutters.push(item);
         break;
       case 1:
+        newChestItems.push(item);
+        break;
+      case 2:
         newShopItems.push(item);
         break;
       default:
@@ -78,6 +94,7 @@ function distributeItems(items: ReadonlyArray<Item>, source: Storage, rng: prng)
     }
   });
   return {
+    newSubWeaponShutters,
     newChestItems,
     newShopItems: (
       newShopItems
