@@ -3,7 +3,7 @@ import { equipmentNumbers } from '../randomizer/items';
 export default class Item {
   constructor(
     public name: string,
-    public type: 'subWeapon' | 'equipment' | 'rom',
+    public type: 'mainWeapon' | 'subWeapon' | 'equipment' | 'rom',
     public number: number,
     public count: number,
     public flag: number,
@@ -15,11 +15,16 @@ export default class Item {
   // shops -> equipments / rom
   // shops <- subWeapon / subWeaponAmmo / equipments / rom
   canDisplayInShop() {
-    return this.flag % 256 !== 0
-      && (
-        this.type !== 'equipment'
-        || this.number !== equipmentNumbers.map
-        && this.number !== equipmentNumbers.sacredOrb
-      );
+    return (
+      this.flag % 256 !== 0
+      && !(
+        this.type === 'equipment'
+        && (
+          this.number === equipmentNumbers.map
+          || this.number === equipmentNumbers.sacredOrb
+        )
+      )
+      && this.type !== 'mainWeapon'
+    );
   }
 }

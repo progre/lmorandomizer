@@ -3,6 +3,7 @@ import Spot from './Spot';
 
 export default class Storage {
   constructor(
+    public mainWeaponShutters: ReadonlyArray<{ spot: Spot; item: Item }>,
     public subWeaponShutters: ReadonlyArray<{ spot: Spot; item: Item }>,
     public chests: ReadonlyArray<{ spot: Spot; item: Item }>,
     public shops: ReadonlyArray<{ spot: Spot; items: [Item, Item, Item] }>,
@@ -11,6 +12,7 @@ export default class Storage {
 
   allItems(): ReadonlyArray<Item> {
     return [
+      ...this.mainWeaponShutters.map(x => x.item),
       ...this.subWeaponShutters.map(x => x.item),
       ...this.chests.map(x => x.item),
       ...this.shops.map(x => x.items).reduce((p, c) => [...p, ...c], <Item[]>[]),
@@ -19,7 +21,7 @@ export default class Storage {
 
   allRequirements() {
     return [...new Set([
-      // ...getAllRequirementsFromItems(this.mainWeapons),
+      ...getAllRequirementsFromItems(this.mainWeaponShutters.map(x => x.spot)),
       ...getAllRequirementsFromItems(this.subWeaponShutters.map(x => x.spot)),
       ...getAllRequirementsFromItems(this.chests.map(x => x.spot)),
       ...getAllRequirementsFromItems(this.shops.map(x => x.spot)),
@@ -28,6 +30,9 @@ export default class Storage {
 
   reachableItems(currentItems: ReadonlyArray<Item>) {
     return [
+      ...this.mainWeaponShutters
+        .filter(x => x.spot.isReachable(currentItems))
+        .map(x => x.item),
       ...this.subWeaponShutters
         .filter(x => x.spot.isReachable(currentItems))
         .map(x => x.item),
@@ -43,6 +48,7 @@ export default class Storage {
 
   unreachables(currentItems: ReadonlyArray<Item>) {
     return new Storage(
+      this.mainWeaponShutters.filter(x => !x.spot.isReachable(currentItems)),
       this.subWeaponShutters.filter(x => !x.spot.isReachable(currentItems)),
       this.chests.filter(x => !x.spot.isReachable(currentItems)),
       this.shops.filter(x => !x.spot.isReachable(currentItems)),
