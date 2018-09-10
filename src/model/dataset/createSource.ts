@@ -14,9 +14,11 @@ export default function createSource(scriptDat: ScriptDat, supplements: Suppleme
     ...allItems.shops.reduce<Item[]>((p, c) => [...p, ...c], []),
   ];
   warnMissingRequirements(supplements, enumerateItems);
-  const nightSurfaceCount = 3;
   const chestDataList = scriptDat.chests();
-  assert.equal(chestDataList.length, supplements.chests.length + nightSurfaceCount);
+  assert.equal(
+    chestDataList.length,
+    supplements.chests.length + Supplements.nightSurfaceChestCount,
+  );
   const shops = scriptDat.shops();
   return new Storage(
     allItems.subWeapons.map((item, i) => {
@@ -26,21 +28,18 @@ export default function createSource(scriptDat: ScriptDat, supplements: Suppleme
         parseRequirements(supplement.requirements || null, enumerateItems),
         null,
       );
-      return {
-        spot,
-        item,
-      };
+      return { spot, item };
     }),
-    supplements.chests.map((supplement, i) => { // TODO: foreach allItems.chests
-      const datum = chestDataList[i];
+    allItems.chests.map((item, i) => {
+      const supplement = supplements.chests[i];
       const spot = new Spot(
         'chest',
         parseRequirements(supplement.requirements || null, enumerateItems),
         null,
       );
-      return { spot, item: createItemFromChest(supplement.name, datum) };
+      return { spot, item };
     }),
-    <{ spot: Spot; items: [Item, Item, Item] }[]>allItems.shops.map((items, i) => {
+    allItems.shops.map((items, i) => {
       const supplement = supplements.shops[i];
       const shop = shops[i];
       const spot = new Spot(
@@ -48,27 +47,27 @@ export default function createSource(scriptDat: ScriptDat, supplements: Suppleme
         parseRequirements(supplement.requirements || null, enumerateItems),
         shop.talkNumber,
       );
-      return {
-        spot,
-        items,
-      };
+      return { spot, items };
     }),
   );
 }
 
 function getAllItems(scriptDat: ScriptDat, supplements: Supplements) {
-  const nightSurfaceSubWeaponCount = 1;
-  const nightSurfaceChestCount = 3;
-  const wareNoMiseCount = 1;
   const subWeaponsDataList = scriptDat.subWeapons();
   assert.equal(
     subWeaponsDataList.length,
-    supplements.subWeapons.length + nightSurfaceSubWeaponCount,
+    supplements.subWeapons.length + Supplements.nightSurfaceSubWeaponCount,
   );
   const chestDataList = scriptDat.chests();
-  assert.equal(chestDataList.length, supplements.chests.length + nightSurfaceChestCount);
+  assert.equal(
+    chestDataList.length,
+    supplements.chests.length + Supplements.nightSurfaceChestCount,
+  );
   const shopDataList = scriptDat.shops();
-  assert.equal(shopDataList.length, supplements.shops.length + wareNoMiseCount);
+  assert.equal(
+    shopDataList.length,
+    supplements.shops.length + Supplements.wareNoMiseCount,
+  );
   return {
     subWeapons: supplements.subWeapons.map((supplement, i) => {
       const data = subWeaponsDataList[i];
@@ -81,8 +80,18 @@ function getAllItems(scriptDat: ScriptDat, supplements: Supplements) {
       );
     }),
     chests: supplements.chests.map((supplement, i) => {
-      const datum = chestDataList[i];
-      return createItemFromChest(supplement.name, datum);
+      const data = chestDataList[i];
+      return new Item(
+        supplement.name,
+        data.chestItemNumber < 100
+          ? 'equipment'
+          : 'rom',
+        data.chestItemNumber < 100
+          ? data.chestItemNumber
+          : data.chestItemNumber - 100,
+        1, // Count of chest item is always 1.
+        data.flag,
+      );
     }),
     shops: supplements.shops.map<[Item, Item, Item]>((supplement, i) => {
       const shop = shopDataList[i];
@@ -95,21 +104,6 @@ function getAllItems(scriptDat: ScriptDat, supplements: Supplements) {
       ];
     }),
   };
-}
-
-function createItemFromChest(
-  name: string,
-  data: { chestItemNumber: number; flag: number },
-) {
-  return new Item(
-    name,
-    data.chestItemNumber >= 100 ? 'rom' : 'equipment',
-    (
-      data.chestItemNumber >= 100 ? data.chestItemNumber - 100 : data.chestItemNumber
-    ),
-    1, // Count of chest item is always 1.
-    data.flag,
-  );
 }
 
 function createItemFromShop(name: string, data: ShopItemData) {

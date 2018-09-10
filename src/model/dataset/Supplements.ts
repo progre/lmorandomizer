@@ -1,6 +1,10 @@
 export type Requirement = string;
 
 export default class Supplements {
+  static readonly nightSurfaceSubWeaponCount = 1;
+  static readonly nightSurfaceChestCount = 3;
+  static readonly wareNoMiseCount = 1;
+
   constructor(
     public mainWeapons: ReadonlyArray<{
       name: string;
