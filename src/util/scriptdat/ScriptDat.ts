@@ -5,7 +5,7 @@ import Storage from '../../model/dataset/Storage';
 import { EquipmentNumber, equipmentNumbers, SubWeaponNumber } from '../../model/randomizer/items';
 import addStartingItems from './addStartingItems';
 import ShopItemsData from './ShopItemsData';
-import { replaceChests, replaceMainWeapon, replaceShops, replaceSubWeapon } from './utils';
+import { replaceItems, replaceShops } from './utils';
 
 export default class ScriptDat {
   constructor(
@@ -49,6 +49,16 @@ export default class ScriptDat {
       ));
   }
 
+  seals() {
+    return this.txt.split('\n')
+      .filter(x => x.startsWith('<OBJECT 71,'))
+      .map(x => x.slice('<OBJECT 71,'.length, x.length - 1).split(','))
+      .map(x => ({
+        sealNumber: Number(x[2]),
+        flag: Number(x[3]),
+      }));
+  }
+
   shops() {
     const talks = getTalks(this.txt);
     assert(talks.every(x => x != null));
@@ -70,16 +80,8 @@ export default class ScriptDat {
     this.txt = addStartingItems(this.txt, equipmentList, subWeaponList);
   }
 
-  replaceMainWeapons(mainWeaponShutters: ReadonlyArray<Item>) {
-    this.txt = replaceMainWeapon(this.txt, mainWeaponShutters);
-  }
-
-  replaceSubWeapons(subWeaponShutters: ReadonlyArray<Item>) {
-    this.txt = replaceSubWeapon(this.txt, subWeaponShutters);
-  }
-
-  replaceChests(shuffled: Storage) {
-    this.txt = replaceChests(this.txt, shuffled);
+  replaceItems(shuffled: Storage) {
+    this.txt = replaceItems(this.txt, shuffled);
   }
 
   replaceShops(shops: ReadonlyArray<{ spot: Spot; items: [Item, Item, Item] }>) {

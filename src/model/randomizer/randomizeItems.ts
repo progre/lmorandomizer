@@ -19,9 +19,7 @@ export default function randomizeItems(
   assertUnique(source);
   const shuffled = randomizeStorage(source, seedrandom(seed));
   assertUnique(shuffled);
-  scriptDat.replaceMainWeapons(shuffled.mainWeaponShutters.map(x => x.item));
-  scriptDat.replaceSubWeapons(shuffled.subWeaponShutters.map(x => x.item));
-  scriptDat.replaceChests(shuffled);
+  scriptDat.replaceItems(shuffled);
   scriptDat.replaceShops(shuffled.shops);
 }
 
@@ -47,11 +45,13 @@ function shuffle(source: Storage, rng: prng): Storage {
     newMainWeaponShutters,
     newSubWeaponShutters,
     newChestItems,
+    newSealChestItems,
     newShopItems,
   } = distributeItems(allItems, source, rng);
   assert.equal(source.mainWeaponShutters.length, newMainWeaponShutters.length);
   assert.equal(source.subWeaponShutters.length, newSubWeaponShutters.length);
   assert.equal(source.chests.length, newChestItems.length);
+  assert.equal(source.sealChests.length, newSealChestItems.length);
   assert.equal(source.shops.length, newShopItems.length);
   const mainWeaponShutters = shuffleSimply(newMainWeaponShutters, rng)
     .map((item, i) => ({ item, spot: source.mainWeaponShutters[i].spot }));
@@ -59,10 +59,12 @@ function shuffle(source: Storage, rng: prng): Storage {
     .map((item, i) => ({ item, spot: source.subWeaponShutters[i].spot }));
   const chests = shuffleSimply(newChestItems, rng)
     .map((item, i) => ({ item, spot: source.chests[i].spot }));
+  const sealChests = shuffleSimply(newSealChestItems, rng)
+    .map((item, i) => ({ item, spot: source.sealChests[i].spot }));
   const shops = shuffleSimply(newShopItems, rng)
     .map((items, i) => ({ items, spot: source.shops[i].spot }));
   assert(shops.every(x => x.spot.talkNumber != null));
-  return new Storage(mainWeaponShutters, subWeaponShutters, chests, shops);
+  return new Storage(mainWeaponShutters, subWeaponShutters, chests, sealChests, shops);
 }
 
 function distributeItems(items: ReadonlyArray<Item>, source: Storage, rng: prng) {
@@ -71,11 +73,13 @@ function distributeItems(items: ReadonlyArray<Item>, source: Storage, rng: prng)
     source.mainWeaponShutters.length
     + source.subWeaponShutters.length
     + source.chests.length
+    + source.sealChests.length
     + source.shops.length * 3,
   );
   const newMainWeaponShutters: Item[] = [];
   const newSubWeaponShutters: Item[] = [];
   const newChestItems: Item[] = [];
+  const newSealChestItems: Item[] = [];
   const newShopItems: Item[] = [];
   const sorted = [...items].sort((a, b) => (
     Number(a.canDisplayInShop()) - Number(b.canDisplayInShop())
@@ -86,6 +90,7 @@ function distributeItems(items: ReadonlyArray<Item>, source: Storage, rng: prng)
         source.mainWeaponShutters.length - newMainWeaponShutters.length,
         source.subWeaponShutters.length - newSubWeaponShutters.length,
         source.chests.length - newChestItems.length,
+        source.sealChests.length - newSealChestItems.length,
         !item.canDisplayInShop() ? 0 : source.shops.length * 3 - newShopItems.length,
       ],
       rng,
@@ -100,6 +105,9 @@ function distributeItems(items: ReadonlyArray<Item>, source: Storage, rng: prng)
         newChestItems.push(item);
         break;
       case 3:
+        newSealChestItems.push(item);
+        break;
+      case 4:
         newShopItems.push(item);
         break;
       default:
@@ -110,6 +118,7 @@ function distributeItems(items: ReadonlyArray<Item>, source: Storage, rng: prng)
     newMainWeaponShutters,
     newSubWeaponShutters,
     newChestItems,
+    newSealChestItems,
     newShopItems: (
       newShopItems
         .reduce<{ tmp: Item[]; list: [Item, Item, Item][] }>(
@@ -135,6 +144,7 @@ function assertUnique(storage: Storage) {
     ...storage.mainWeaponShutters,
     ...storage.subWeaponShutters,
     ...storage.chests,
+    ...storage.sealChests,
     ...storage.shops
       .map(x => x.items.map(item => ({ item, spot: x.spot })))
       .reduce<ReadonlyArray<{ spot: Spot; item: Item }>>((p, c) => [...p, ...c], []),

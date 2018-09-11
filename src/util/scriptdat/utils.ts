@@ -2,106 +2,118 @@ import assert from 'assert';
 import Item from '../../model/dataset/Item';
 import Spot from '../../model/dataset/Spot';
 import Storage from '../../model/dataset/Storage';
-import { equipmentNumbers, subWeaponNumbers } from '../../model/randomizer/items';
+import { equipmentNumbers } from '../../model/randomizer/items';
 import ShopItemsData, { ShopItemData } from './ShopItemsData';
+import { toTagsForChest, toTagsForSealChest, toTagsForShutter } from './tagsfactory';
 
-export function replaceMainWeapon(txt: string, mainWeaponShutters: ReadonlyArray<Item>) {
-  let idx = 0;
-  return txt.split('\n').map((line) => {
-    if (idx >= mainWeaponShutters.length) {
-      return line;
+export function replaceItems(txt: string, source: Storage) {
+  let mainWeaponShutterItemsIdx = 0;
+  let subWeaponShutterItemsIdx = 0;
+  let chestItemsIdx = 0;
+  let sealChestItemsIdx = 0;
+  const lines = txt.split('\n');
+  return lines.map((line, i) => {
+    if (mainWeaponShutterItemsIdx < source.mainWeaponShutters.length) {
+      const item = source.mainWeaponShutters[mainWeaponShutterItemsIdx].item;
+      const newLine = replaceMainWeaponShutterItem(line, lines.slice(i), item);
+      if (newLine != null) {
+        mainWeaponShutterItemsIdx += 1;
+        return newLine;
+      }
     }
-    if (!line.startsWith('<OBJECT 77,')) {
-      return line;
+    if (subWeaponShutterItemsIdx < source.subWeaponShutters.length) {
+      const item = source.subWeaponShutters[subWeaponShutterItemsIdx].item;
+      const newLine = replaceSubWeaponShutterItem(line, lines.slice(i), item);
+      if (newLine != null) {
+        subWeaponShutterItemsIdx += 1;
+        return newLine;
+      }
     }
-    const [x, y] = line.slice('<OBJECT 77,'.length, line.length - 1).split(',');
-    const item = mainWeaponShutters[idx];
-    idx += 1;
-    return toObjectForShutter(Number(x), Number(y), item);
+    if (chestItemsIdx < source.chests.length) {
+      const item = source.chests[chestItemsIdx].item;
+      const newLine = replaceChestItem(line, item);
+      if (newLine != null) {
+        chestItemsIdx += 1;
+        return newLine;
+      }
+    }
+    if (sealChestItemsIdx < source.sealChests.length) {
+      const item = source.sealChests[sealChestItemsIdx].item;
+      const newLine = replaceSealChestItem(line, item);
+      if (newLine != null) {
+        sealChestItemsIdx += 1;
+        return newLine;
+      }
+    }
+    return line;
   }).join('\n');
 }
 
-export function replaceSubWeapon(txt: string, subWeaponShutters: ReadonlyArray<Item>) {
-  let idx = 0;
-  return txt.split('\n').map((line) => {
-    if (idx >= subWeaponShutters.length) {
-      return line;
-    }
-    if (!line.startsWith('<OBJECT 13,')) {
-      return line;
-    }
-    const [x, y] = line.slice('<OBJECT 13,'.length, line.length - 1).split(',');
-    const item = subWeaponShutters[idx];
-    idx += 1;
-    return toObjectForShutter(Number(x), Number(y), item);
-  }).join('\n');
-}
-
-function toObjectForShutter(x: number, y: number, item: Item) {
-  switch (item.type) {
-    case 'mainWeapon':
-      return `<OBJECT 77,${x},${y},${item.number},${item.flag},-1,-1>`;
-    case 'subWeapon':
-      assert(!(item.number === subWeaponNumbers.ankhJewel && item.count > 1));
-      return `<OBJECT 13,${x},${y},${item.number},${item.count},${item.flag},-1>`;
-    case 'equipment':
-      return `<OBJECT 1,${x},${y},40,${item.number},${item.flag},-1>`;
-    case 'rom':
-      return `<OBJECT 1,${x},${y},40,${100 + item.number},${item.flag},-1>`;
-    default: throw new Error();
+export function replaceMainWeaponShutterItem(
+  line: string,
+  nextLines: ReadonlyArray<string>,
+  item: Item,
+) {
+  if (!line.startsWith('<OBJECT 77,')) {
+    return null;
   }
+  const checkFlag = getNextShutterCheckFlag(nextLines);
+  const [x, y] = line.slice('<OBJECT 77,'.length, line.length - 1).split(',');
+  return toTagsForShutter(Number(x), Number(y), checkFlag, item);
 }
 
-export function replaceChests(txt: string, shuffled: Storage) {
-  let idx = 0;
-  return txt.split('\n').map((line) => {
-    if (idx >= shuffled.chests.length) {
-      return line;
-    }
-    if (!line.startsWith('<OBJECT 1,')) {
-      return line;
-    }
-    const params = line.slice('<OBJECT 1,'.length, line.length - 1).split(',');
-    // アンクジュエル、印、手前より開けは無視
-    if (
-      params[3] === '-1'
-      || params[3] === String(equipmentNumbers.twinStatue)
-      || params[3] === String(equipmentNumbers.sweetClothing)
-    ) {
-      return line;
-    }
-    assert.equal(shuffled.chests[idx].spot.type, 'chest');
-    const item = shuffled.chests[idx].item;
-    idx += 1;
-    const [x, y, open] = line.slice('<OBJECT 1,'.length, line.length - 1).split(',');
-    return toObjectForChest(Number(x), Number(y), Number(open), item);
-  }).join('\n');
-}
-
-function toObjectForChest(x: number, y: number, open: number, item: Item) {
-  switch (item.type) {
-    case 'mainWeapon':
-      assert(!(item.number === subWeaponNumbers.ankhJewel && item.count > 1));
-      return `<OBJECT 77,${x},${y},${item.number},${item.flag},-1,-1>`
-        + '<START 99999,1>'
-        + `<START ${open},1>`
-        + `<START ${item.flag},0>`
-        + `</OBJECT>`
-        + `<OBJECT 1,${x},${y},${open},-1,${open},-1>`;
-    case 'subWeapon':
-      assert(!(item.number === subWeaponNumbers.ankhJewel && item.count > 1));
-      return `<OBJECT 13,${x},${y},${item.number},${item.count},${item.flag},-1>`
-        + '<START 99999,1>'
-        + `<START ${open},1>`
-        + `<START ${item.flag},0>`
-        + `</OBJECT>`
-        + `<OBJECT 1,${x},${y},${open},-1,${open},-1>`;
-    case 'equipment':
-      return `<OBJECT 1,${x},${y},${open},${item.number},${item.flag},-1>`;
-    case 'rom':
-      return `<OBJECT 1,${x},${y},${open},${100 + item.number},${item.flag},-1>`;
-    default: throw new Error();
+export function replaceSubWeaponShutterItem(
+  line: string,
+  nextLines: ReadonlyArray<string>,
+  item: Item,
+) {
+  if (!line.startsWith('<OBJECT 13,')) {
+    return null;
   }
+  const checkFlag = getNextShutterCheckFlag(nextLines);
+  const [x, y] = line.slice('<OBJECT 13,'.length, line.length - 1).split(',');
+  return toTagsForShutter(Number(x), Number(y), checkFlag, item);
+}
+
+function getNextShutterCheckFlag(lines: ReadonlyArray<string>) {
+  for (const line of lines) {
+    if (line === '</MAP>') {
+      return 40;
+    }
+    if (!line.startsWith('<OBJECT 20,')) {
+      continue;
+    }
+    const [, , checkFlag]
+      = line.slice('<OBJECT 20,'.length, line.length - 1).split(',');
+    return Number(checkFlag);
+  }
+  console.error(lines);
+  throw new Error();
+}
+
+export function replaceChestItem(line: string, item: Item) {
+  if (!line.startsWith('<OBJECT 1,')) {
+    return null;
+  }
+  const params = line.slice('<OBJECT 1,'.length, line.length - 1).split(',');
+  // アンクジュエル、印、手前より開けは無視
+  if (
+    params[3] === '-1'
+    || params[3] === String(equipmentNumbers.twinStatue)
+    || params[3] === String(equipmentNumbers.sweetClothing)
+  ) {
+    return null;
+  }
+  const [x, y, open] = line.slice('<OBJECT 1,'.length, line.length - 1).split(',');
+  return toTagsForChest(Number(x), Number(y), Number(open), item);
+}
+
+export function replaceSealChestItem(line: string, item: Item) {
+  if (!line.startsWith('<OBJECT 71,')) {
+    return null;
+  }
+  const [x, y] = line.slice('<OBJECT 71,'.length, line.length - 1).split(',');
+  return toTagsForSealChest(Number(x), Number(y), item);
 }
 
 export function replaceShops(
@@ -136,13 +148,14 @@ export function replaceShops(
 }
 
 function toIntegerItemType(
-  stringItemType: 'mainWeapon' | 'subWeapon' | 'equipment' | 'rom',
+  stringItemType: 'mainWeapon' | 'subWeapon' | 'equipment' | 'rom' | 'seal',
 ) {
   switch (stringItemType) {
     case 'mainWeapon': throw new Error();
     case 'subWeapon': return 0;
     case 'equipment': return 1;
     case 'rom': return 2;
+    case 'seal': throw new Error();
     default: throw new Error();
   }
 }

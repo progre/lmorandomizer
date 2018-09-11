@@ -3,7 +3,7 @@ import Item from './Item';
 
 export default class Spot {
   constructor(
-    public readonly type: 'weaponShutter' | 'chest' | 'shop',
+    public readonly type: 'weaponShutter' | 'chest' | 'shop' | 'sealChest',
     public readonly requirementItems: ReadonlyArray<ReadonlyArray<Item>> | null,
     public readonly talkNumber: number | null,
   ) {

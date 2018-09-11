@@ -1,6 +1,5 @@
 import assert from 'assert';
 import ScriptDat from '../../util/scriptdat/ScriptDat';
-import { ShopItemData } from '../../util/scriptdat/ShopItemsData';
 import getAllItems from './getAllItems';
 import Item from './Item';
 import Spot from './Spot';
@@ -13,6 +12,7 @@ export default function createSource(scriptDat: ScriptDat, supplements: Suppleme
     ...allItems.mainWeapons,
     ...allItems.subWeapons,
     ...allItems.chests,
+    ...allItems.seals,
     ...allItems.shops.reduce<Item[]>((p, c) => [...p, ...c], []),
   ];
   warnMissingRequirements(supplements, enumerateItems);
@@ -45,6 +45,15 @@ export default function createSource(scriptDat: ScriptDat, supplements: Suppleme
       const supplement = supplements.chests[i];
       const spot = new Spot(
         'chest',
+        parseRequirements(supplement.requirements || null, enumerateItems),
+        null,
+      );
+      return { spot, item };
+    }),
+    allItems.seals.map((item, i) => {
+      const supplement = supplements.seals[i];
+      const spot = new Spot(
+        'sealChest',
         parseRequirements(supplement.requirements || null, enumerateItems),
         null,
       );
@@ -93,6 +102,7 @@ function warnMissingRequirements(
       supplements.mainWeapons.map(x => x.requirements || []),
       supplements.subWeapons.map(x => x.requirements || []),
       supplements.chests.map(x => x.requirements || []),
+      supplements.seals.map(x => x.requirements || []),
       supplements.shops.map(x => x.requirements || []),
     ]
       .reduce((p, c) => [...p, ...c], [])

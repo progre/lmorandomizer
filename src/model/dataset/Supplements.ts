@@ -3,6 +3,8 @@ export type Requirement = string;
 export default class Supplements {
   static readonly nightSurfaceSubWeaponCount = 1;
   static readonly nightSurfaceChestCount = 3;
+  static readonly trueShrineOfTheMotherSealCount = 1;
+  static readonly nightSurfacSealCount = 1;
   static readonly wareNoMiseCount = 1;
 
   constructor(
@@ -18,10 +20,10 @@ export default class Supplements {
       name: string;
       requirements?: ReadonlyArray<ReadonlyArray<Requirement>>;
     }>,
-    // public seals: ReadonlyArray<{
-    //   name: string;
-    //   requirements?: ReadonlyArray<ReadonlyArray<Requirement>>;
-    // }>,
+    public seals: ReadonlyArray<{
+      name: string;
+      requirements?: ReadonlyArray<ReadonlyArray<Requirement>>;
+    }>,
     public shops: ReadonlyArray<{
       names: string;
       requirements?: ReadonlyArray<ReadonlyArray<Requirement>>;
@@ -34,6 +36,7 @@ export default class Supplements {
       ...getAllRequirementsFromItems(this.mainWeapons),
       ...getAllRequirementsFromItems(this.subWeapons),
       ...getAllRequirementsFromItems(this.chests),
+      ...getAllRequirementsFromItems(this.seals),
       ...getAllRequirementsFromItems(this.shops),
     ])].sort();
   }
@@ -43,6 +46,7 @@ export default class Supplements {
       ...this.mainWeapons.map(x => x.name),
       ...this.subWeapons.map(x => x.name),
       ...this.chests.map(x => x.name),
+      ...this.seals.map(x => x.name),
       ...this.shops
         .map(x => x.names.split(',').map(y => y.trim()))
         .reduce((p, c) => [...p, ...c], []),

@@ -1,0 +1,14 @@
+- name: birthSeal
+  requirements:
+    - originSeal
+- name: originSeal
+  requirements:
+    - sacredOrd:2, helmet
+- name: lifeSeal
+  requirements:
+    - birthSeal
+- name: deathSeal
+  requirements:
+    - keyOfEternity, dragonBone, bomb, bombAmmo
+# skip deathSeal
+# skip birthSeal

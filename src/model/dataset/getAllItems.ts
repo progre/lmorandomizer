@@ -9,6 +9,7 @@ export default function getAllItems(scriptDat: ScriptDat, supplements: Supplemen
     mainWeapons: mainWeapons(scriptDat, supplements),
     subWeapons: subWeapons(scriptDat, supplements),
     chests: chests(scriptDat, supplements),
+    seals: seals(scriptDat, supplements),
     shops: shops(scriptDat, supplements),
   };
 }
@@ -63,6 +64,26 @@ function chests(scriptDat: ScriptDat, supplements: Supplements) {
         ? data.chestItemNumber
         : data.chestItemNumber - 100,
       1, // Count of chest item is always 1.
+      data.flag,
+    );
+  });
+}
+
+function seals(scriptDat: ScriptDat, supplements: Supplements) {
+  const sealDataList = scriptDat.seals();
+  assert.equal(
+    sealDataList.length,
+    supplements.seals.length
+    + Supplements.trueShrineOfTheMotherSealCount
+    + Supplements.nightSurfacSealCount,
+  );
+  return supplements.seals.map((supplement, i) => {
+    const data = sealDataList[i];
+    return new Item(
+      supplement.name,
+      'seal',
+      data.sealNumber,
+      1, // Count of seal is always 1.
       data.flag,
     );
   });

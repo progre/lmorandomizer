@@ -3,7 +3,7 @@ import { equipmentNumbers } from '../randomizer/items';
 export default class Item {
   constructor(
     public name: string,
-    public type: 'mainWeapon' | 'subWeapon' | 'equipment' | 'rom',
+    public type: 'mainWeapon' | 'subWeapon' | 'equipment' | 'rom' | 'seal',
     public number: number,
     public count: number,
     public flag: number,
@@ -25,6 +25,7 @@ export default class Item {
         )
       )
       && this.type !== 'mainWeapon'
+      && this.type !== 'seal'
     );
   }
 }
