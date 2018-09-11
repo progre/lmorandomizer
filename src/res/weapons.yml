@@ -10,7 +10,7 @@ mainWeapons:
       - keyOfEternity
   - name: katana
     requirements:
-      - event:releasedTwins
+      - twinStatue
   - name: mace
     requirements:
       - event:reachedTowerOfTheGoddess
@@ -19,20 +19,20 @@ mainWeapons:
       - event:reachedGrailOfTempleOfMoonlight
 subWeapons:
   - name: shuriken
-  - name: anhkJewel:gateOfGuidance
+  - name: ankhJewel:gateOfGuidance
   - name: pistol
     requirements:
       - event:reachedBackDoorOfSurface, bomb
   - name: touken
-  - name: anhkJewel:mausoleumOfTheGiants
-  - name: anhkJewel:templeOfTheSun
-  - name: anhkJewel:springInTheSky
+  - name: ankhJewel:mausoleumOfTheGiants
+  - name: ankhJewel:templeOfTheSun
+  - name: ankhJewel:springInTheSky
     requirements:
       - scalesphere
   - name: flareGun
-  - name: anhkJewel:twinLabyrinths
+  - name: ankhJewel:twinLabyrinths
     requirements:
-      - event:releasedTwins
+      - twinStatue
   - name: silverShield
     requirements:
       - event:reachedLiarOfGraveyardOfTheGiants, katana

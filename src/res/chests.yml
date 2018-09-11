@@ -9,7 +9,7 @@
 - name: map:gateOfGuidance
 - name: gameMaster2
   requirements:
-    - event:reachGrailOfGateOfIllusion, event:defeatedAmphisbaena, bronzeMirror
+    - event:reachedGrailOfGateOfIllusion, event:defeatedAmphisbaena, bronzeMirror
 - name: holyGrail
 
 # Surface
@@ -41,7 +41,7 @@
 - name: map:templeOfTheSun
 - name: talisman
   requirements:
-    - event:beatViy
+    - event:defeatedViy
 - name: boots
   requirements:
     - event:floodedTempleOfTheSun, feather
@@ -75,11 +75,11 @@
 - name: sacredOrb:chamberOfExtinction
   requirements:
     - flareGun
-    - event:lightUpChamberOfExtinction
+    - event:lightedUpChamberOfExtinction
 - name: map:chamberOfExtinction
   requirements:
     - flareGun
-    - event:lightUpChamberOfExtinction
+    - event:lightedUpChamberOfExtinction
 # skip lifeSeal
 
 # Endless Corridor
@@ -99,19 +99,19 @@
     - event:reachedFrontOfShrineOfTheMother, talisman, lifeSeal, lampOfTime
 - name: map:shrineOfTheMother
   requirements:
-    - event:releasedTwins, dragonBone
+    - twinStatue, dragonBone
 # skip deathSeal
 
 # Twin Labyrinths (front)
 - name: ring
   requirements:
-    - event:releasedTwins
+    - twinStatue
 - name: map:twinLabyrinths
   requirements:
-    - event:releasedTwins
+    - twinStatue
 - name: sacredOrb:twinLabyrinths
   requirements:
-    - event:releasedTwins
+    - twinStatue
 
 # Twin Labyrinths (back)
 # skip fake ankhJewel

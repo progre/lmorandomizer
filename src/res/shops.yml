@@ -47,13 +47,13 @@
 - names: helmet, bombAmmo, fakeHandScanner
 - names: lampOfTime, shurikenAmmo, toukenAmmo
   requirements:
-    - event:releasedTwins, bomb
-    - event:releasedTwins, feather
+    - twinStatue, bomb
+    - twinStatue, feather
 
 # Twin Labyrinths (back)
 - names: scriptures, bombAmmo, spearAmmo
   requirements:
-    - event:releasedTwins
+    - twinStatue
 - names: dragonBone, spearAmmo, flareGunAmmo
   requirements:
     - fakeHandScanner
