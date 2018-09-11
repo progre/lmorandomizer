@@ -156,7 +156,7 @@ function assertUnique(storage: Storage) {
       && x.item.name !== 'spearAmmo'
       && x.item.name !== 'flareGunAmmo'
       && x.item.name !== 'bombAmmo'
-      && x.item.name !== 'ammuition'
+      && x.item.name !== 'ammunition'
       && x.item.name !== 'shellHorn'
       && x.item.name !== 'finder'
     ) {

@@ -31,7 +31,7 @@ export default class ScriptDatRepo {
   }
 
   async writeScriptDat(path: string, scriptDat: ScriptDat) {
-    await writeFile('./tmp.txt', scriptDat.txt);
+    // await writeFile('./tmp.txt', scriptDat.txt);
     const dat = await encode(scriptDat.txt);
     await writeFile(path, Buffer.from(<ArrayBuffer>dat.buffer));
   }

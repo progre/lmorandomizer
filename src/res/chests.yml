@@ -17,7 +17,7 @@
   requirements:
     - serpentStaff, shuriken, shurikenAmmo
     - serpentStaff, bomb, bombAmmo
-    - serpentStaff, pistol, pistolAmmo
+    - serpentStaff, pistol, ammunition
     - serpentStaff, chainWhip
     - serpentStaff, mace
     - serpentStaff, knife
@@ -177,18 +177,18 @@
     - flareGun, womanStatue
 - name: serpentStaff
   requirements:
-    - reachedFrontOfTempleOfMoonlight, grappleClaw
+    - event:reachedFrontOfTempleOfMoonlight, grappleClaw
 
 # Tower of Ruin
 - name: djedPillar
   requirments:
-    - reachedBackDoorOfTowerOfRuin
+    - event:reachedBackDoorOfTowerOfRuin
 - name: map:towerOfRuin
   requirements:
-    - reachedFrontOfTowerOfRuin
+    - event:reachedFrontOfTowerOfRuin
 - name: sacredOrb:towerOfRuin
   requirements:
-    - reachedFrontOfTowerOfRuin
+    - event:reachedFrontOfTowerOfRuin
 
 # Chamber of Birth
 - name: vessel

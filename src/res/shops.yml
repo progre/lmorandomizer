@@ -5,7 +5,7 @@
 
 # Surface
 - names: gameMaster, glyphReader, ruinsRAM8k
-- names: handScanner, ammuition, buckler
+- names: handScanner, ammunition, buckler
 - names: msx2, waterproofCase, shurikenAmmo
 
 # Mausoleum of the Giants
@@ -14,7 +14,7 @@
 # Temple of the Sun
 - names: toukenAmmo, spearAmmo, flareGunAmmo
 - names: heatproofCase, divinerSensation, weights
-- names: ammuition, bombAmmo, shurikenAmmo
+- names: ammunition, bombAmmo, shurikenAmmo
   requirements:
     - deathSeal
 
@@ -69,11 +69,11 @@
     - event:reachedFrontOfGraveyardOfTheGiants
 
 # Tower of the Goddess
-- names: bracelet, shurikenAmmo, ammuition
-  requirements:
-    - event:reachedFrontOfTempleOfMoonlight, bomb
 
 # Temple of Moonlight
+- names: bracelet, shurikenAmmo, ammunition
+  requirements:
+    - event:reachedFrontOfTempleOfMoonlight, bomb
 
 # Tower of Ruin
 - names: knightmare, bombAmmo, flareGunAmmo
@@ -81,7 +81,7 @@
     - event:reachedFrontOfTowerOfRuin, katana
 
 # Chamber of Birth
-- names: ammuition, ankhJewel:chamberOfBirth, weights
+- names: ammunition, ankhJewel:chamberOfBirth, weights
   requirements:
     - event:reachedLowerOfChamberOfBirth, cogOfTheSoul
 
