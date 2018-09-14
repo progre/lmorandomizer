@@ -25,7 +25,7 @@ export default {
         (x.price >> 8) + 1, x.price % 256,
         x.count + 1,
         (x.flag >> 8) + 1, x.flag % 256,
-      ]).reduce((p, c) => [...p, ...c], []),
+      ]).reduce((p, c) => p.concat(c), []),
     );
     return shopItemDataToText(data);
   },

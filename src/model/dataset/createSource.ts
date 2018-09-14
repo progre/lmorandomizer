@@ -13,7 +13,7 @@ export default function createSource(scriptDat: ScriptDat, supplements: Suppleme
     ...allItems.subWeapons,
     ...allItems.chests,
     ...allItems.seals,
-    ...allItems.shops.reduce<Item[]>((p, c) => [...p, ...c], []),
+    ...allItems.shops.reduce<Item[]>((p, c) => p.concat(c), []),
   ];
   warnMissingRequirements(supplements, enumerateItems);
   const chestDataList = scriptDat.chests();
@@ -79,14 +79,6 @@ function parseRequirements(
   if (requirements == null) {
     return null;
   }
-  const missings = [...new Set(
-    requirements
-      .reduce((p, c) => [...p, ...c], [])
-      .filter(x => allItems.every(y => y.name !== x)),
-  )].sort();
-  missings.forEach((missing) => {
-    // console.warn(`WARN: missing item: ${missing}`);
-  });
   return requirements.map(y => (
     y.map(z => allItems.filter(w => w.name === z)[0])
       .filter(z => z != null)
@@ -97,21 +89,29 @@ function warnMissingRequirements(
   supplements: Supplements,
   allItems: ReadonlyArray<Item>,
 ) {
-  [...new Set(
-    [
-      supplements.mainWeapons.map(x => x.requirements || []),
-      supplements.subWeapons.map(x => x.requirements || []),
-      supplements.chests.map(x => x.requirements || []),
-      supplements.seals.map(x => x.requirements || []),
-      supplements.shops.map(x => x.requirements || []),
-    ]
-      .reduce((p, c) => [...p, ...c], [])
-      .reduce((p, c) => [...p, ...c], [])
-      .reduce((p, c) => [...p, ...c], []),
-  )]
+  const set = new Set();
+  addSupplementTo(set, supplements.mainWeapons);
+  addSupplementTo(set, supplements.subWeapons);
+  addSupplementTo(set, supplements.chests);
+  addSupplementTo(set, supplements.seals);
+  addSupplementTo(set, supplements.shops);
+  [...set]
     .filter(x => allItems.every(y => y.name !== x))
     .sort()
     .forEach((x) => {
       console.warn(`WARN: missing item: ${x}`);
     });
+}
+
+function addSupplementTo(
+  set: Set<string>,
+  supplement: ReadonlyArray<{ requirements?: ReadonlyArray<ReadonlyArray<string>> }>,
+) {
+  supplement.map(x => x.requirements || []).forEach((item) => {
+    item.forEach((group) => {
+      group.forEach((requirement) => {
+        set.add(requirement);
+      });
+    });
+  });
 }

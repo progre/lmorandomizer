@@ -3,7 +3,7 @@
     - originSeal
 - name: originSeal
   requirements:
-    - sacredOrd:2, helmet
+    - sacredOrb:2, helmet
 - name: lifeSeal
   requirements:
     - birthSeal

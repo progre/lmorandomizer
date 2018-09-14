@@ -1,3 +1,5 @@
+import assert from 'assert';
+
 export type Requirement = string;
 
 export default class Supplements {
@@ -29,6 +31,18 @@ export default class Supplements {
       requirements?: ReadonlyArray<ReadonlyArray<Requirement>>;
     }>,
   ) {
+    assert.deepEqual(
+      chests.find(x => x.name === 'iceCape')!.requirements,
+      [
+        ['ankhJewel:templeOfTheSun', 'bronzeMirror', 'shuriken', 'shurikenAmmo'],
+        ['holyGrail', 'flareGun', 'grappleClaw'],
+        ['anchor', 'knife', 'bronzeMirror', 'ankhJewel:gateOfGuidance', 'flareGun', 'grappleClaw'],
+        ['bronzeMirror', 'ankhJewel:mausoleumOfTheGiants', 'flareGun', 'grappleClaw'],
+        ['holyGrail', 'flareGun', 'feather'],
+        ['anchor', 'knife', 'bronzeMirror', 'ankhJewel:gateOfGuidance', 'flareGun', 'feather'],
+        ['bronzeMirror', 'ankhJewel:mausoleumOfTheGiants', 'flareGun', 'feather'],
+      ],
+    );
   }
 
   getAllRequirements() {
@@ -49,7 +63,7 @@ export default class Supplements {
       ...this.seals.map(x => x.name),
       ...this.shops
         .map(x => x.names.split(',').map(y => y.trim()))
-        .reduce((p, c) => [...p, ...c], []),
+        .reduce((p, c) => p.concat(c), []),
     ];
   }
 }
@@ -59,6 +73,6 @@ function getAllRequirementsFromItems(
 ) {
   return items
     .filter(x => x.requirements != null)
-    .map(x => x.requirements!.reduce((p, c) => [...p, ...c], []))
-    .reduce((p, c) => [...p, ...c], []);
+    .map(x => x.requirements!.reduce((p, c) => p.concat(c), []))
+    .reduce((p, c) => p.concat(c), []);
 }

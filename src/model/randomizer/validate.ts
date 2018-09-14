@@ -8,7 +8,7 @@ export default function validate(storage: Storage) {
     = allRequirements.filter(x => allItems.every(y => y.name !== x.name));
   assert.equal(currentItems.length, 0);
   let playing = storage;
-  for (; ;) {
+  for (let i = 0; i < 100; i += 1) {
     const reached = playing.reachableItems(currentItems);
     if (reached.length <= 0) {
       // console.warn(JSON.stringify(currentItems), JSON.stringify(playing));
@@ -23,4 +23,5 @@ export default function validate(storage: Storage) {
       ...reached,
     ];
   }
+  throw new Error();
 }

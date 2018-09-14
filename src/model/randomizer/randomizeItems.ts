@@ -147,7 +147,7 @@ function assertUnique(storage: Storage) {
     ...storage.sealChests,
     ...storage.shops
       .map(x => x.items.map(item => ({ item, spot: x.spot })))
-      .reduce<ReadonlyArray<{ spot: Spot; item: Item }>>((p, c) => [...p, ...c], []),
+      .reduce<ReadonlyArray<{ spot: Spot; item: Item }>>((p, c) => p.concat(c), []),
   ].forEach((x) => {
     if (
       x.item.name !== 'weights'

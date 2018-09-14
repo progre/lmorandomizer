@@ -1,0 +1,117 @@
+- name: event:reachedBackDoorOfSurface
+  requirements:
+    - event:defeatedPalenque, bronzeMirror, feather
+
+- name: event:defeatedAmphisbaena
+  requirements:
+    - ankhJewel:gateOfGuidance
+
+- name: event:floodedTempleOfTheSun
+  requirements:
+    - knife, scalesphere
+    - knife, sacredOrb:8
+
+- name: event:floodedSpringInTheSky
+  requirements:
+    - sacredOrb:2, helmet, originSeal, scalesphere
+    - sacredOrb:8, helmet, originSeal
+- name: event:escapeFromSpringInTheSky
+  requirements:
+    - scalesphere
+    - holyGrail
+- name: event:defeatedBahamut
+  requirements:
+    - event:floodedSpringInTheSky, event:escapeFromSpringInTheSky, ankhJewel:springInTheSky
+
+- name: event:defeatedViy
+  requirements:
+    - event:reachedFrontOfTowerOfRuin, spear, spearAmmo, ankhJewel:towerOfRuin, iceCape
+    - event:reachedFrontOfTowerOfRuin, spear, spearAmmo, ankhJewel:towerOfRuin, sacredOrb:8
+
+- name: event:reachedPalenque
+  requirements:
+    - event:reachedUpperOfChamberOfBirth, feather
+- name: event:defeatedPalenque
+  requirements:
+    - event:reachedPalenque, event:lightedUpChamberOfExtinction, pochetteKey, ankhJewel:chamberOfBirth
+
+- name: event:releasedTwins
+  requirements:
+    - ankhJewel:templeOfTheSun, twinStatue
+
+- name: event:reachedFrontOfShrineOfTheMother
+  requirements:
+    - keyOfEternity, handScanner, glyphReader, feather
+    - keyOfEternity, handScanner, glyphReader, grappleClaw
+
+- name: event:reachedFrontOfGateOfIllusion
+  requirements:
+    - event:reachedGrailOfTempleOfMoonlight
+- name: event:reachedElevatorOfGateOfIllusion
+  requirements:
+    - event:reachedGrailOfTempleOfMoonlight, anchor, knife
+- name: event:reachedGrailOfGateOfIllusion
+  requirements:
+    - event:reachedElevatorOfGateOfIllusion
+    - event:reachedBackDoorOfGateOfIllusion
+- name: event:reachedBackDoorOfGateOfIllusion
+  requirements:
+    - event:reachedTowerOfTheGoddess, feather, grappleClaw, planeModel
+
+- name: event:reachedFrontOfGraveyardOfTheGiants
+  requirements:
+    - bronzeMirror, ankhJewel:mausoleumOfTheGiants
+    - event:reachedBackDoorOfGraveyardOfTheGiants, bomb, bombAmmo
+- name: event:reachedBackDoorOfGraveyardOfTheGiants
+  requirements:
+    - event:reachedTowerOfTheGoddess, feather, grappleClaw, planeModel
+- name: event:reachedLiarOfGraveyardOfTheGiants
+  requirements:
+    - event:reachedFrontOfGraveyardOfTheGiants, feather
+    - event:reachedFrontOfGateOfIllusion
+
+- name: event:reachedFrontOfTempleOfMoonlight
+  requirements:
+    - ankhJewel:templeOfTheSun, bronzeMirror
+- name: event:reachedGrailOfTempleOfMoonlight
+  requirements:
+    - event:reachedFrontOfTempleOfMoonlight, shuriken, shurikenAmmo
+    - flareGun, grappleClaw, event:escapeFromTempleOfMoonlight
+    - flareGun, feather, event:escapeFromTempleOfMoonlight
+- name: event:escapeFromTempleOfMoonlight
+  requirements:
+    - holyGrail
+    - anchor, knife, bronzeMirror, ankhJewel:gateOfGuidance
+    - bronzeMirror, ankhJewel:mausoleumOfTheGiants
+
+- name: event:reachedTowerOfTheGoddess
+  requirements:
+    - bronzeMirror, event:defeatedBahamut
+
+- name: event:reachedFrontOfTowerOfRuin
+  requirements:
+    - event:reachedFrontOfGraveyardOfTheGiants
+    - event:reachedGrailOfGateOfIllusion, miniDoll
+# - name: event:reachedBackDoorOfTowerOfRuin
+#   requirements:
+#     - event:reachedBackDoorOfSurface, event:defeatedViy, bronzeMirror
+
+- name: event:reachedLowerOfChamberOfBirth
+  requirements:
+    - event:reachedTowerOfTheGoddess, handScanner, glyphReader, planeModel, scalesphere
+    - event:reachedTowerOfTheGoddess, handScanner, glyphReader, planeModel, sacredOrb:8
+- name: event:reachedUpperOfChamberOfBirth
+  requirements:
+    - event:reachedLowerOfChamberOfBirth
+    - event:reachedBackDoorOfGraveyardOfTheGiants
+- name: event:lightedUpChamberOfExtinction
+  requirements:
+    - event:reachedUpperOfChamberOfBirth, feather
+    - flareGun
+
+- name: event:reachedDimensionalCorridor
+  requirements:
+    - event:releasedTwins, crystalSkull, feather
+- name: event:defeatedTiamat
+  requirements:
+    - event:reachedDimensionalCorridor, ankhJewel:dimensionalCorridor

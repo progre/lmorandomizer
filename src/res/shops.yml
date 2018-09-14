@@ -21,11 +21,11 @@
 # Spring in the Sky
 - names: weights, shurikenAmmo, toukenAmmo
   requirements:
-    - sacredOrd:2, originSeal
+    - sacredOrb:2, originSeal
     - scalesphere, originSeal
 - names: shellHorn, finder, castlevania
   requirements:
-    - sacredOrd:2, originSeal, divinerSensation, qBert
+    - sacredOrb:2, originSeal, divinerSensation, qBert
     - scalesphere, originSeal, divinerSensation, qBert
 
 # Inferno Cavern

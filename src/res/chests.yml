@@ -38,6 +38,8 @@
 
 # Temple of the Sun
 - name: bronzeMirror
+  requirements:
+    - ankhJewel:templeOfTheSun
 - name: map:templeOfTheSun
 - name: talisman
   requirements:
@@ -60,7 +62,7 @@
     - helmet
 - name: scalesphere
   requirements:
-    - sacredOrd:2, helmet, originSeal
+    - sacredOrb:2, helmet, originSeal
 # skip originSeal
 # skip ankhJewel
 
@@ -74,11 +76,9 @@
 # Chamber of Extinction
 - name: sacredOrb:chamberOfExtinction
   requirements:
-    - flareGun
     - event:lightedUpChamberOfExtinction
 - name: map:chamberOfExtinction
   requirements:
-    - flareGun
     - event:lightedUpChamberOfExtinction
 # skip lifeSeal
 
@@ -99,19 +99,19 @@
     - event:reachedFrontOfShrineOfTheMother, talisman, lifeSeal, lampOfTime
 - name: map:shrineOfTheMother
   requirements:
-    - twinStatue, dragonBone
+    - event:releasedTwins, dragonBone
 # skip deathSeal
 
 # Twin Labyrinths (front)
 - name: ring
   requirements:
-    - twinStatue
+    - event:releasedTwins
 - name: map:twinLabyrinths
   requirements:
-    - twinStatue
+    - event:releasedTwins
 - name: sacredOrb:twinLabyrinths
   requirements:
-    - twinStatue
+    - event:releasedTwins
 
 # Twin Labyrinths (back)
 # skip fake ankhJewel
@@ -119,7 +119,7 @@
 # Gate of Illusion
 - name: keyOfEternity
   requirements:
-    - event:reachedGrailOfGateOfIllusion
+    - event:reachedElevatorOfGateOfIllusion, axe
 - name: protectiveClothes
   requirements:
     - event:reachedElevatorOfGateOfIllusion, katana, divinerSensation, qBert
@@ -128,7 +128,7 @@
     - event:reachedFrontOfGateOfIllusion
 - name: cogOfTheSoul
   requirements:
-    - event:reachedBackDoorOfGateOfIllusion, event:reachedFrontOfGateOfIllusion, lampOfTime
+    - event:reachedBackDoorOfGateOfIllusion, event:reachedElevatorOfGateOfIllusion, lampOfTime
 
 # Graveyard of the Giants
 - name: contra
@@ -173,7 +173,7 @@
 # skip open from front
 # skip open from front
 - name: ocarina
-  requirments:
+  requirements:
     - flareGun, womanStatue
 - name: serpentStaff
   requirements:
@@ -181,7 +181,7 @@
 
 # Tower of Ruin
 - name: djedPillar
-  requirments:
+  requirements:
     - event:reachedBackDoorOfTowerOfRuin
 - name: map:towerOfRuin
   requirements:
