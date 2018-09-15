@@ -55,7 +55,12 @@ export function toTagsForChest(x: number, y: number, open: number, item: Item) {
     case 'rom':
       return `<OBJECT 1,${x},${y},${open},${100 + item.number},${item.flag},-1>`;
     case 'seal':
-      return `<OBJECT 71,${x},${y},${item.number},${item.flag},-1,-1>`;
+      return `<OBJECT 71,${x},${y},${item.number},${item.flag},-1,-1>`
+        + '<START 99999,1>'
+        + `<START ${open},1>`
+        + `<START ${item.flag},0>`
+        + `</OBJECT>`
+        + `<OBJECT 1,${x},${y},${open},-1,${open},-1>`;
     default: throw new Error();
   }
 }
