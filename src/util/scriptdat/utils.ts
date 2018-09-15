@@ -15,7 +15,7 @@ export function replaceItems(txt: string, source: Storage) {
   return lines.map((line, i) => {
     if (mainWeaponShutterItemsIdx < source.mainWeaponShutters.length) {
       const item = source.mainWeaponShutters[mainWeaponShutterItemsIdx].item;
-      const newLine = replaceMainWeaponShutterItem(line, lines.slice(i), item);
+      const newLine = replaceMainWeaponShutterItem(line, lines.slice(i + 1), item);
       if (newLine != null) {
         mainWeaponShutterItemsIdx += 1;
         return newLine;
@@ -23,7 +23,7 @@ export function replaceItems(txt: string, source: Storage) {
     }
     if (subWeaponShutterItemsIdx < source.subWeaponShutters.length) {
       const item = source.subWeaponShutters[subWeaponShutterItemsIdx].item;
-      const newLine = replaceSubWeaponShutterItem(line, lines.slice(i), item);
+      const newLine = replaceSubWeaponSpot(line, lines.slice(i + 1), item);
       if (newLine != null) {
         subWeaponShutterItemsIdx += 1;
         return newLine;
@@ -62,7 +62,7 @@ export function replaceMainWeaponShutterItem(
   return toTagsForShutter(Number(x), Number(y), checkFlag, item);
 }
 
-export function replaceSubWeaponShutterItem(
+export function replaceSubWeaponSpot(
   line: string,
   nextLines: ReadonlyArray<string>,
   item: Item,
@@ -70,8 +70,15 @@ export function replaceSubWeaponShutterItem(
   if (!line.startsWith('<OBJECT 13,')) {
     return null;
   }
+  const [x, y, number] = line.slice('<OBJECT 13,'.length, line.length - 1).split(',');
+  if (number === '7') {
+    if (nextLines[0] === '<START 743,0>') {
+      const wallCheckFlag = getNextWallCheckFlag(nextLines);
+      return toTagsForShutter(Number(x), Number(y), wallCheckFlag, item);
+    }
+    return toTagsForSealChest(Number(x), Number(y), item);
+  }
   const checkFlag = getNextShutterCheckFlag(nextLines);
-  const [x, y] = line.slice('<OBJECT 13,'.length, line.length - 1).split(',');
   return toTagsForShutter(Number(x), Number(y), checkFlag, item);
 }
 
@@ -85,6 +92,22 @@ function getNextShutterCheckFlag(lines: ReadonlyArray<string>) {
     }
     const [, , checkFlag]
       = line.slice('<OBJECT 20,'.length, line.length - 1).split(',');
+    return Number(checkFlag);
+  }
+  console.error(lines);
+  throw new Error();
+}
+
+function getNextWallCheckFlag(lines: ReadonlyArray<string>) {
+  for (const line of lines) {
+    if (line === '</MAP>') {
+      return 40;
+    }
+    if (!line.startsWith('<OBJECT 59,')) {
+      continue;
+    }
+    const [, , , , checkFlag]
+      = line.slice('<OBJECT 59,'.length, line.length - 1).split(',');
     return Number(checkFlag);
   }
   console.error(lines);
