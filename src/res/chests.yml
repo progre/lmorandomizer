@@ -2,7 +2,7 @@
 - name: sacredOrb:gateOfGuidance
 - name: treasures
   requirements:
-    - pepper
+    - event:pepper
 - name: crucifix
   requirements:
     - flareGun, birthSeal
@@ -84,13 +84,14 @@
 
 # Endless Corridor
 - name: map:endlessCorridor
-# skip TODO: twinStatue
-# skip TODO: twinStatue
+- name: twinStatue
+  requirements:
+    - keyOfEternity, feather
 
 # Shrine of the Mother
 - name: crystalSkull
   requirements:
-    - event:reachedFrontOfShrineOfTheMother, lifeSeal, mulanaTalisman
+    - event:reachedFrontOfShrineOfTheMother, lifeSeal, event:mulanaTalisman
 - name: sacredOrb:shrineOfTheMother
   requirements:
     - event:reachedFrontOfShrineOfTheMother, originSeal, birthSeal, lifeSeal, deathSeal
@@ -122,7 +123,7 @@
     - event:reachedElevatorOfGateOfIllusion, axe
 - name: protectiveClothes
   requirements:
-    - event:reachedElevatorOfGateOfIllusion, katana, divinerSensation, qBert
+    - event:reachedElevatorOfGateOfIllusion, katana, divinerSensation, event:qBert
 - name: map:gateOfIllusion
   requirements:
     - event:reachedFrontOfGateOfIllusion

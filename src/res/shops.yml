@@ -25,8 +25,8 @@
     - scalesphere, originSeal
 - names: shellHorn, finder, castlevania
   requirements:
-    - sacredOrb:2, originSeal, divinerSensation, qBert
-    - scalesphere, originSeal, divinerSensation, qBert
+    - sacredOrb:2, originSeal, divinerSensation, event:qBert
+    - scalesphere, originSeal, divinerSensation, event:qBert
 
 # Inferno Cavern
 - names: mahjongWizard, spearAmmo, toukenAmmo

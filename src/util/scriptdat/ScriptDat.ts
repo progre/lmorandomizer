@@ -33,18 +33,17 @@ export default class ScriptDat {
 
   chests() {
     return this.txt.split('\n')
+      .filter(x => x !== '<OBJECT 1,8192,6144,420,14,766,0>') // twinStatue
       .filter(x => x.startsWith('<OBJECT 1,'))
       .map((x) => {
         const array = x.slice('<OBJECT 1,'.length, x.length - 1).split(',');
         return {
-          source: x,
           chestItemNumber: Number(array[3]),
           flag: Number(array[4]),
         };
       })
       .filter(({ chestItemNumber }) => (
         chestItemNumber !== -1
-        && chestItemNumber !== equipmentNumbers.twinStatue // TODO: 双子像対応
         && chestItemNumber !== equipmentNumbers.sweetClothing
       ));
   }

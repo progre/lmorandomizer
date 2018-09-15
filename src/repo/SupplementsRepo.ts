@@ -67,6 +67,9 @@ function parseRequirementsOfEvents(
       requirements: parseEvents(x.requirements, events),
     }));
   }
+  console.error(JSON.stringify(current.filter(
+    x => x.requirements.some(y => y.some(z => z.startsWith('event:'))),
+  )));
   throw new Error();
 }
 

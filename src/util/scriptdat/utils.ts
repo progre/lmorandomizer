@@ -33,7 +33,9 @@ export function replaceItems(txt: string, source: Storage) {
       const item = source.chests[chestItemsIdx].item;
       const newLine = replaceChestItem(line, item);
       if (newLine != null) {
-        chestItemsIdx += 1;
+        if (line !== '<OBJECT 1,8192,6144,419,14,766,-1>') { // twinStatue
+          chestItemsIdx += 1;
+        }
         return newLine;
       }
     }
@@ -122,7 +124,6 @@ export function replaceChestItem(line: string, item: Item) {
   // アンクジュエル、印、手前より開けは無視
   if (
     params[3] === '-1'
-    || params[3] === String(equipmentNumbers.twinStatue)
     || params[3] === String(equipmentNumbers.sweetClothing)
   ) {
     return null;

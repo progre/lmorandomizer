@@ -1,3 +1,20 @@
+# TODO: unsupported events
+- name: event:qBert
+  requirements:
+    - event:reachedFrontOfGateOfIllusion
+- name: event:miniDoll
+  requirements:
+    - event:reachedFrontOfGateOfIllusion
+- name: event:pepper
+  requirements:
+    - event:reachedFrontOfGateOfIllusion
+- name: event:anchor
+  requirements:
+    - event:reachedFrontOfGateOfIllusion, treasures
+- name: event:mulanaTalisman
+  requirements:
+    - diary
+
 - name: event:reachedBackDoorOfSurface
   requirements:
     - event:defeatedPalenque, bronzeMirror, feather
@@ -49,7 +66,7 @@
     - event:reachedGrailOfTempleOfMoonlight
 - name: event:reachedElevatorOfGateOfIllusion
   requirements:
-    - event:reachedGrailOfTempleOfMoonlight, anchor, knife
+    - event:reachedGrailOfTempleOfMoonlight, event:anchor, knife
 - name: event:reachedGrailOfGateOfIllusion
   requirements:
     - event:reachedElevatorOfGateOfIllusion
@@ -81,7 +98,7 @@
 - name: event:escapeFromTempleOfMoonlight
   requirements:
     - holyGrail
-    - anchor, knife, bronzeMirror, ankhJewel:gateOfGuidance
+    # - anchor, knife, bronzeMirror, ankhJewel:gateOfGuidance # TODO: anchor randomize
     - bronzeMirror, ankhJewel:mausoleumOfTheGiants
 
 - name: event:reachedTowerOfTheGoddess
@@ -91,7 +108,7 @@
 - name: event:reachedFrontOfTowerOfRuin
   requirements:
     - event:reachedFrontOfGraveyardOfTheGiants
-    - event:reachedGrailOfGateOfIllusion, miniDoll
+    - event:reachedGrailOfGateOfIllusion, event:miniDoll
 - name: event:reachedBackDoorOfTowerOfRuin
   requirements:
     - event:reachedBackDoorOfSurface, event:defeatedViy, bronzeMirror
