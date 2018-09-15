@@ -14,12 +14,15 @@ export default class Spot {
     }
   }
 
-  isReachable(currentItemNames: ReadonlyArray<string>) {
+  isReachable(currentItemNames: ReadonlyArray<string>, sacredOrbCount: number) {
     if (this.requirementItems == null) {
       return true;
     }
     return this.requirementItems.some(group => (
-      group.every(x => currentItemNames.includes(x.name))
+      group.every(x => (
+        x.name === 'sacredOrb' && x.count <= sacredOrbCount
+        || currentItemNames.includes(x.name)
+      ))
     ));
   }
 }

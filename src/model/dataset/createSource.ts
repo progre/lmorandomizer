@@ -80,8 +80,14 @@ function parseRequirements(
     return null;
   }
   return requirements.map(y => (
-    y.map(z => allItems.filter(w => w.name === z)[0])
-      .filter(z => z != null)
+    y.map(z => (
+      allItems.find(w => w.name === z)
+      || (
+        z.startsWith('sacredOrb:')
+          ? new Item('sacredOrb', 'equipment', -1, Number(z.split(':')[1]), -1)
+          : (() => { throw new Error(); })()
+      )
+    ))
   ));
 }
 
@@ -89,7 +95,7 @@ function warnMissingRequirements(
   supplements: Supplements,
   allItems: ReadonlyArray<Item>,
 ) {
-  const set = new Set();
+  const set = new Set<string>();
   addSupplementTo(set, supplements.mainWeapons);
   addSupplementTo(set, supplements.subWeapons);
   addSupplementTo(set, supplements.chests);
@@ -97,6 +103,7 @@ function warnMissingRequirements(
   addSupplementTo(set, supplements.shops);
   [...set]
     .filter(x => allItems.every(y => y.name !== x))
+    .filter(x => !x.startsWith('sacredOrb:'))
     .sort()
     .forEach((x) => {
       console.warn(`WARN: missing item: ${x}`);
