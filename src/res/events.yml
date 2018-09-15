@@ -92,9 +92,9 @@
   requirements:
     - event:reachedFrontOfGraveyardOfTheGiants
     - event:reachedGrailOfGateOfIllusion, miniDoll
-# - name: event:reachedBackDoorOfTowerOfRuin
-#   requirements:
-#     - event:reachedBackDoorOfSurface, event:defeatedViy, bronzeMirror
+- name: event:reachedBackDoorOfTowerOfRuin
+  requirements:
+    - event:reachedBackDoorOfSurface, event:defeatedViy, bronzeMirror
 
 - name: event:reachedLowerOfChamberOfBirth
   requirements:

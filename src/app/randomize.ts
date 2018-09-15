@@ -11,7 +11,7 @@ export default async function randomize(
     easyMode: boolean;
   },
 ) {
-  randomizeItems(scriptDat, supplements, config.seed);
+  await randomizeItems(scriptDat, supplements, config.seed);
   if (config.easyMode) {
     scriptDat.addStartingItems(
       [

@@ -6,15 +6,15 @@ import Spot from './Spot';
 import Storage from './Storage';
 import Supplements from './Supplements';
 
-export default function createSource(scriptDat: ScriptDat, supplements: Supplements) {
+export default async function createSource(scriptDat: ScriptDat, supplements: Supplements) {
   const allItems = getAllItems(scriptDat, supplements);
-  const enumerateItems = [
-    ...allItems.mainWeapons,
-    ...allItems.subWeapons,
-    ...allItems.chests,
-    ...allItems.seals,
-    ...allItems.shops.reduce<Item[]>((p, c) => p.concat(c), []),
-  ];
+  const enumerateItems = (
+    allItems.mainWeapons
+      .concat(allItems.subWeapons)
+      .concat(allItems.chests)
+      .concat(allItems.seals)
+      .concat(allItems.shops.reduce<Item[]>((p, c) => p.concat(c), []))
+  );
   warnMissingRequirements(supplements, enumerateItems);
   const chestDataList = scriptDat.chests();
   assert.equal(

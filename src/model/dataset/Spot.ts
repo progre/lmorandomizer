@@ -14,12 +14,12 @@ export default class Spot {
     }
   }
 
-  isReachable(currentItems: ReadonlyArray<Item>) {
+  isReachable(currentItemNames: ReadonlyArray<string>) {
     if (this.requirementItems == null) {
       return true;
     }
     return this.requirementItems.some(group => (
-      group.every(x => currentItems.some(y => y.name === x.name))
+      group.every(x => currentItemNames.includes(x.name))
     ));
   }
 }

@@ -115,7 +115,7 @@ function parseEvents(
           return [targetGroup];
         }
         return event.requirements.map(eventGroup => (
-          [...eventGroup, ...targetGroup.filter(x => x !== event.name)]
+          eventGroup.concat(targetGroup.filter(x => x !== event.name))
         ));
       })
       .reduce((p, c) => p.concat(c), []);

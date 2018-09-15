@@ -44,35 +44,4 @@ export default class Supplements {
       ],
     );
   }
-
-  getAllRequirements() {
-    return [...new Set([
-      ...getAllRequirementsFromItems(this.mainWeapons),
-      ...getAllRequirementsFromItems(this.subWeapons),
-      ...getAllRequirementsFromItems(this.chests),
-      ...getAllRequirementsFromItems(this.seals),
-      ...getAllRequirementsFromItems(this.shops),
-    ])].sort();
-  }
-
-  getAllItemNames() {
-    return [
-      ...this.mainWeapons.map(x => x.name),
-      ...this.subWeapons.map(x => x.name),
-      ...this.chests.map(x => x.name),
-      ...this.seals.map(x => x.name),
-      ...this.shops
-        .map(x => x.names.split(',').map(y => y.trim()))
-        .reduce((p, c) => p.concat(c), []),
-    ];
-  }
-}
-
-function getAllRequirementsFromItems(
-  items: ReadonlyArray<{ requirements?: ReadonlyArray<ReadonlyArray<string>> }>,
-) {
-  return items
-    .filter(x => x.requirements != null)
-    .map(x => x.requirements!.reduce((p, c) => p.concat(c), []))
-    .reduce((p, c) => p.concat(c), []);
 }

@@ -9,29 +9,31 @@ import Supplements from '../dataset/Supplements';
 import { selectRandom, shuffleSimply } from './shuffleUtils';
 import validate from './validate';
 
-export default function randomizeItems(
+export default async function randomizeItems(
   scriptDat: ScriptDat,
   supplements: Supplements,
   seed: string,
 ) {
-  const source = createSource(scriptDat, supplements);
-  assert(validate(source));
+  const source = await createSource(scriptDat, supplements);
+  assert(await validate(source));
   assertUnique(source);
-  const shuffled = randomizeStorage(source, seedrandom(seed));
+  const shuffled = await randomizeStorage(source, seedrandom(seed));
   assertUnique(shuffled);
   scriptDat.replaceItems(shuffled);
   scriptDat.replaceShops(shuffled.shops);
 }
 
-function randomizeStorage(source: Storage, rng: prng) {
+async function randomizeStorage(source: Storage, rng: prng) {
   let shuffled;
   for (let i = 0; i < 10000; i += 1) {
     // itemをshuffleしてplaceと合わせる
     const storage = shuffle(source, rng);
-    if (validate(storage)) {
+    await new Promise((resolve) => { setImmediate(resolve); });
+    if (await validate(storage)) {
       shuffled = storage;
       break;
     }
+    await new Promise((resolve) => { setImmediate(resolve); });
   }
   if (shuffled == null) {
     throw new Error();
@@ -40,7 +42,7 @@ function randomizeStorage(source: Storage, rng: prng) {
 }
 
 function shuffle(source: Storage, rng: prng): Storage {
-  const allItems = source.allItems();
+  const allItems = source.allItems;
   const {
     newMainWeaponShutters,
     newSubWeaponShutters,
@@ -140,43 +142,45 @@ function distributeItems(items: ReadonlyArray<Item>, source: Storage, rng: prng)
 function assertUnique(storage: Storage) {
   const nameMap = new Map<string, { spot: Spot; item: Item }>();
   const flagMap = new Map<string, { spot: Spot; item: Item }>();
-  [
-    ...storage.mainWeaponShutters,
-    ...storage.subWeaponShutters,
-    ...storage.chests,
-    ...storage.sealChests,
-    ...storage.shops
-      .map(x => x.items.map(item => ({ item, spot: x.spot })))
-      .reduce<ReadonlyArray<{ spot: Spot; item: Item }>>((p, c) => p.concat(c), []),
-  ].forEach((x) => {
-    if (
-      x.item.name !== 'weights'
-      && x.item.name !== 'shurikenAmmo'
-      && x.item.name !== 'toukenAmmo'
-      && x.item.name !== 'spearAmmo'
-      && x.item.name !== 'flareGunAmmo'
-      && x.item.name !== 'bombAmmo'
-      && x.item.name !== 'ammunition'
-      && x.item.name !== 'shellHorn'
-      && x.item.name !== 'finder'
-    ) {
-      const key = `${x.item.type}:${x.item.name}`;
-      if (nameMap.has(key)) {
-        console.error(nameMap.get(key), x);
-        assert.fail();
-      }
-      nameMap.set(key, x);
-    }
 
-    if (x.item.flag !== 65279
-      && x.item.flag !== 753
-      && x.item.flag !== 754) {
-      const key = `${x.item.flag}`;
-      if (flagMap.has(key)) {
-        console.error(flagMap.get(key), x);
-        assert.fail();
+  storage.mainWeaponShutters
+    .concat(storage.subWeaponShutters)
+    .concat(storage.chests)
+    .concat(storage.sealChests)
+    .concat(
+      storage.shops
+        .map(x => x.items.map(item => ({ item, spot: x.spot })))
+        .reduce<ReadonlyArray<{ spot: Spot; item: Item }>>((p, c) => p.concat(c), []),
+  )
+    .forEach((x) => {
+      if (
+        x.item.name !== 'weights'
+        && x.item.name !== 'shurikenAmmo'
+        && x.item.name !== 'toukenAmmo'
+        && x.item.name !== 'spearAmmo'
+        && x.item.name !== 'flareGunAmmo'
+        && x.item.name !== 'bombAmmo'
+        && x.item.name !== 'ammunition'
+        && x.item.name !== 'shellHorn'
+        && x.item.name !== 'finder'
+      ) {
+        const key = `${x.item.type}:${x.item.name}`;
+        if (nameMap.has(key)) {
+          console.error(nameMap.get(key), x);
+          assert.fail();
+        }
+        nameMap.set(key, x);
       }
-      flagMap.set(key, x);
-    }
-  });
+
+      if (x.item.flag !== 65279
+        && x.item.flag !== 753
+        && x.item.flag !== 754) {
+        const key = `${x.item.flag}`;
+        if (flagMap.has(key)) {
+          console.error(flagMap.get(key), x);
+          assert.fail();
+        }
+        flagMap.set(key, x);
+      }
+    });
 }

@@ -3,6 +3,9 @@ import Item from './Item';
 import Spot from './Spot';
 
 export default class Storage {
+  readonly allItems: ReadonlyArray<Item>;
+  readonly allRequirementNames: ReadonlyArray<string>;
+
   constructor(
     public mainWeaponShutters: ReadonlyArray<{ spot: Spot; item: Item }>,
     public subWeaponShutters: ReadonlyArray<{ spot: Spot; item: Item }>,
@@ -15,71 +18,76 @@ export default class Storage {
     assert(chests.every(x => x.spot.type === 'chest'));
     assert(sealChests.every(x => x.spot.type === 'sealChest'));
     assert(shops.every(x => x.spot.type === 'shop'));
+
+    this.allItems = (
+      this.mainWeaponShutters.map(x => x.item)
+        .concat(this.subWeaponShutters.map(x => x.item))
+        .concat(this.chests.map(x => x.item))
+        .concat(this.sealChests.map(x => x.item))
+        .concat(this.shops.map(x => x.items).reduce((p, c) => p.concat(c), <Item[]>[]))
+    );
+
+    this.allRequirementNames = (() => {
+      const set = new Set<string>();
+      addSpotRequirementItemNamesTo(set, this.mainWeaponShutters);
+      addSpotRequirementItemNamesTo(set, this.subWeaponShutters);
+      addSpotRequirementItemNamesTo(set, this.chests);
+      addSpotRequirementItemNamesTo(set, this.sealChests);
+      addSpotRequirementItemNamesTo(set, this.shops);
+      return [...set].sort();
+    })();
   }
 
-  allItems(): ReadonlyArray<Item> {
-    return [
-      ...this.mainWeaponShutters.map(x => x.item),
-      ...this.subWeaponShutters.map(x => x.item),
-      ...this.chests.map(x => x.item),
-      ...this.sealChests.map(x => x.item),
-      ...this.shops.map(x => x.items).reduce((p, c) => p.concat(c), <Item[]>[]),
-    ];
+  reachableItemNames(currentItemNames: ReadonlyArray<string>) {
+    return (
+      this.mainWeaponShutters
+        .filter(x => x.spot.isReachable(currentItemNames))
+        .map(x => x.item.name)
+        .concat((
+          this.subWeaponShutters
+            .filter(x => x.spot.isReachable(currentItemNames))
+            .map(x => x.item.name)
+        ))
+        .concat((
+          this.chests
+            .filter(x => x.spot.isReachable(currentItemNames))
+            .map(x => x.item.name)
+        ))
+        .concat((
+          this.sealChests
+            .filter(x => x.spot.isReachable(currentItemNames))
+            .map(x => x.item.name)
+        ))
+        .concat((
+          this.shops
+            .filter(x => x.spot.isReachable(currentItemNames))
+            .map(x => x.items)
+            .reduce<ReadonlyArray<Item>>((p, c) => p.concat(c), [])
+            .map(x => x.name)
+        ))
+    );
   }
 
-  allRequirements() {
-    const set = new Set<Item>();
-    [
-      getAllRequirementsFromItems(this.mainWeaponShutters.map(x => x.spot)),
-      getAllRequirementsFromItems(this.subWeaponShutters.map(x => x.spot)),
-      getAllRequirementsFromItems(this.chests.map(x => x.spot)),
-      getAllRequirementsFromItems(this.sealChests.map(x => x.spot)),
-      getAllRequirementsFromItems(this.shops.map(x => x.spot)),
-    ].forEach((x) => {
-      x.forEach((y) => {
-        set.add(y);
-      });
-    });
-    return [...set].sort();
-  }
-
-  reachableItems(currentItems: ReadonlyArray<Item>) {
-    return [
-      ...this.mainWeaponShutters
-        .filter(x => x.spot.isReachable(currentItems))
-        .map(x => x.item),
-      ...this.subWeaponShutters
-        .filter(x => x.spot.isReachable(currentItems))
-        .map(x => x.item),
-      ...this.chests
-        .filter(x => x.spot.isReachable(currentItems))
-        .map(x => x.item),
-      ...this.sealChests
-        .filter(x => x.spot.isReachable(currentItems))
-        .map(x => x.item),
-      ...this.shops
-        .filter(x => x.spot.isReachable(currentItems))
-        .map(x => x.items)
-        .reduce<ReadonlyArray<Item>>((p, c) => p.concat(c), []),
-    ];
-  }
-
-  unreachables(currentItems: ReadonlyArray<Item>) {
+  unreachables(currentItemNames: ReadonlyArray<string>) {
     return new Storage(
-      this.mainWeaponShutters.filter(x => !x.spot.isReachable(currentItems)),
-      this.subWeaponShutters.filter(x => !x.spot.isReachable(currentItems)),
-      this.chests.filter(x => !x.spot.isReachable(currentItems)),
-      this.sealChests.filter(x => !x.spot.isReachable(currentItems)),
-      this.shops.filter(x => !x.spot.isReachable(currentItems)),
+      this.mainWeaponShutters.filter(x => !x.spot.isReachable(currentItemNames)),
+      this.subWeaponShutters.filter(x => !x.spot.isReachable(currentItemNames)),
+      this.chests.filter(x => !x.spot.isReachable(currentItemNames)),
+      this.sealChests.filter(x => !x.spot.isReachable(currentItemNames)),
+      this.shops.filter(x => !x.spot.isReachable(currentItemNames)),
     );
   }
 }
 
-function getAllRequirementsFromItems(
-  items: ReadonlyArray<{ requirementItems: ReadonlyArray<ReadonlyArray<Item>> | null }>,
+function addSpotRequirementItemNamesTo(
+  set: Set<string>,
+  items: ReadonlyArray<{ spot: Spot }>,
 ) {
-  return items
-    .filter(x => x.requirementItems != null)
-    .map(x => x.requirementItems!.reduce((p, c) => p.concat(c), []))
-    .reduce((p, c) => p.concat(c), []);
+  for (const item of items) {
+    for (const group of item.spot.requirementItems || []) {
+      for (const i of group) {
+        set.add(i.name);
+      }
+    }
+  }
 }
