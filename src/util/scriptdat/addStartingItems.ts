@@ -10,7 +10,7 @@ export default function addStartingItems(
   const unusedOneTimeFlagNo = 7400;
   const unusedSaveFlagNo = 6000;
   const startingItems = [
-    new LMObject(7, 43008, 22528, 7, 999, -1, -1, []),
+    // new LMObject(7, 43008, 22528, 7, 999, -1, -1, []), // money
     new LMObject(22, 26624, 10240, 2, 2, unusedOneTimeFlagNo, -1, []),
     ...subWeaponList.map(x => [
       new LMObject(

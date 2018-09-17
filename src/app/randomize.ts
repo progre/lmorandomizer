@@ -15,12 +15,12 @@ export default async function randomize(
   if (config.easyMode) {
     script.addStartingItems(
       [
-        equipmentNumbers.holyGrail,
+        // equipmentNumbers.holyGrail,
         100,
-        102,
+        // 102,
       ],
       [
-        subWeaponNumbers.handScanner,
+        // subWeaponNumbers.handScanner,
       ],
     );
   }

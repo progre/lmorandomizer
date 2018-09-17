@@ -144,7 +144,7 @@ function Configs(props: {
             onChange={buildOnChangeCheckbox(props.onChangeEasyMode)}
           />
         }
-        label="Easy mode"
+        label="Starting item (Game Master)"
       />
     </Paper>
   );
