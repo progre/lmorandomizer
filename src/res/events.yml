@@ -111,7 +111,7 @@
 - name: event:reachedFrontOfTowerOfRuin
   requirements:
     - event:reachedFrontOfGraveyardOfTheGiants
-    - event:reachedGrailOfGateOfIllusion, event:miniDoll
+    # - event:reachedGrailOfGateOfIllusion, event:miniDoll # TODO: performance
 - name: event:reachedBackDoorOfTowerOfRuin
   requirements:
     - event:reachedBackDoorOfSurface, event:defeatedBaphomet, bronzeMirror
