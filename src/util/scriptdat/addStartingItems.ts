@@ -1,5 +1,6 @@
 import { EquipmentNumber, SubWeaponNumber } from '../../model/randomizer/items';
 import { LMWorld } from './Script';
+import LMObject from './LMObject';
 
 export default function addStartingItems(
   worlds: ReadonlyArray<LMWorld>,
@@ -9,33 +10,22 @@ export default function addStartingItems(
   const unusedOneTimeFlagNo = 7400;
   const unusedSaveFlagNo = 6000;
   const startingItems = [
-    {
-      number: 7, x: 43008, y: 22528,
-      op1: 7, op2: 999, op3: -1, op4: -1,
-      starts: [],
-    },
-    {
-      number: 22, x: 26624, y: 10240,
-      op1: 2, op2: 2, op3: unusedOneTimeFlagNo, op4: -1,
-      starts: [],
-    },
+    new LMObject(7, 43008, 22528, 7, 999, -1, -1, []),
+    new LMObject(22, 26624, 10240, 2, 2, unusedOneTimeFlagNo, -1, []),
     ...subWeaponList.map(x => [
-      {
-        number: 13, x: 26624, y: 10240,
-        op1: x, op2: 0, op3: unusedSaveFlagNo, op4: -1,
-        starts: [{ number: unusedSaveFlagNo, value: false }],
-      },
-      {
-        number: 13, x: 26624, y: 10240,
-        op1: x, op2: 255, op3: unusedSaveFlagNo, op4: -1,
-        starts: [{ number: unusedSaveFlagNo, value: false }],
-      },
+      new LMObject(
+        13, 26624, 10240, x, 0, unusedSaveFlagNo, -1,
+        [{ number: unusedSaveFlagNo, value: false }],
+      ),
+      new LMObject(
+        13, 26624, 10240, x, 255, unusedSaveFlagNo, -1,
+        [{ number: unusedSaveFlagNo, value: false }],
+      ),
     ]).reduce((p, c) => p.concat(c), []),
-    ...equipmentList.map(x => ({
-      number: 1, x: 26624, y: 14336,
-      op1: unusedOneTimeFlagNo, op2: x, op3: unusedSaveFlagNo, op4: -1,
-      starts: [],
-    })),
+    ...equipmentList.map(x => new LMObject(
+      1, 26624, 14336, unusedOneTimeFlagNo, x, unusedSaveFlagNo, -1,
+      [],
+    )),
   ];
   return worlds.map(world => ({
     value: world.value,

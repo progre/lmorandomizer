@@ -32,8 +32,8 @@ export default class ScriptDatRepo {
 
   async writeScriptDat(path: string, scriptDat: Script) {
     if (<any>1 === 1) {
-      await writeFile('./tmp.txt', scriptDat.stringify());
-      await writeFile('./tmp-shop.json', JSON.stringify(scriptDat.shops()));
+      // await writeFile('./tmp.txt', scriptDat.stringify());
+      // await writeFile('./tmp-shop.json', JSON.stringify(scriptDat.shops()));
     }
     const dat = await encode(scriptDat.stringify());
     await writeFile(path, Buffer.from(<ArrayBuffer>dat.buffer));

@@ -6,8 +6,9 @@ import {
   equipmentNumbers,
   subWeaponNumbers,
 } from '../../model/randomizer/items';
+import LMObject from './LMObject';
 import { toObjectForShutter, toObjectForSpecialChest, toObjectsForChest } from './objectfactory';
-import { List, LMObject, LMWorld } from './Script';
+import { List, LMWorld } from './Script';
 import ShopItemsData, { ShopItemData } from './ShopItemsData';
 
 export function replaceShops(

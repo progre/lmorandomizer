@@ -4,6 +4,7 @@ import Spot from '../../model/dataset/Spot';
 import Storage from '../../model/dataset/Storage';
 import { EquipmentNumber, equipmentNumbers, SubWeaponNumber } from '../../model/randomizer/items';
 import addStartingItems from './addStartingItems';
+import LMObject from './LMObject';
 import { replaceItems, replaceShops } from './scripteditor';
 import { parseScriptTxt, stringifyScriptTxt } from './scripttxtparser';
 import ShopItemsData from './ShopItemsData';
@@ -26,22 +27,6 @@ export interface LMMap {
   attrs: List<number>;
   children: List<LMChild>;
   objects: List<LMObject>;
-}
-
-export interface LMObject {
-  number: number;
-  x: number;
-  y: number;
-  op1: number;
-  op2: number;
-  op3: number;
-  op4: number;
-  starts: List<LMStart>;
-}
-
-export interface LMStart {
-  number: number;
-  value: boolean;
 }
 
 export interface LMChild {
@@ -70,17 +55,13 @@ export default class Script {
   mainWeapons() {
     return this.viewObjects()
       .filter(x => x.number === 77)
-      .map(x => ({ mainWeaponNumber: x.op1, flag: x.op2 }));
+      .map(x => x.asMainWeapon());
   }
 
   subWeapons() {
     return this.viewObjects()
       .filter(x => x.number === 13)
-      .map(x => ({
-        subWeaponNumber: x.op1,
-        count: x.op2,
-        flag: x.op3,
-      }));
+      .map(x => x.asSubWeapon());
   }
 
   chests() {
@@ -95,10 +76,7 @@ export default class Script {
         && x.op4 === 0
       ))
       .filter(x => x.number === 1)
-      .map(x => ({
-        chestItemNumber: x.op2,
-        flag: x.op3,
-      }))
+      .map(x => x.asChestItem())
       .filter(({ chestItemNumber }) => (
         chestItemNumber !== -1
         && chestItemNumber !== equipmentNumbers.sweetClothing
@@ -108,10 +86,7 @@ export default class Script {
   seals() {
     return this.viewObjects()
       .filter(x => x.number === 71)
-      .map(x => ({
-        sealNumber: x.op1,
-        flag: x.op2,
-      }));
+      .map(x => x.asSeal());
   }
 
   shops() {

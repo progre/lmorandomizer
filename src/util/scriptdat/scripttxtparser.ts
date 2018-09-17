@@ -1,6 +1,7 @@
 import assert from 'assert';
 import parse5 from 'parse5';
-import { LMChild, LMObject, LMWorld } from './Script';
+import LMObject from './LMObject';
+import { LMChild, LMWorld } from './Script';
 
 export function parseScriptTxt(txt: string) {
   const root: ReadonlyArray<any> = (
@@ -104,28 +105,26 @@ function parseChild(child: any): LMChild {
   };
 }
 
-function parseObject(object: any): LMObject {
+function parseObject(object: any) {
   const attrs = parseAttrs(object.attrs);
-  return {
-    number: attrs[0],
-    x: attrs[1],
-    y: attrs[2],
-    op1: attrs[3],
-    op2: attrs[4],
-    op3: attrs[5],
-    op4: attrs[6],
-    starts: (
-      flatChildren(object)
-        .filter(x => x.nodeName !== '#text')
-        .map((x) => {
-          const startAttrs = parseAttrs(x.attrs);
-          return {
-            number: startAttrs[0],
-            value: Boolean(startAttrs[1]),
-          };
-        })
-    ),
-  };
+  return new LMObject(
+    attrs[0],
+    attrs[1],
+    attrs[2],
+    attrs[3],
+    attrs[4],
+    attrs[5],
+    attrs[6],
+    flatChildren(object)
+      .filter(x => x.nodeName !== '#text')
+      .map((x) => {
+        const startAttrs = parseAttrs(x.attrs);
+        return {
+          number: startAttrs[0],
+          value: Boolean(startAttrs[1]),
+        };
+      }),
+  );
 }
 
 export function stringifyScriptTxt(
