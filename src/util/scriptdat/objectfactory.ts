@@ -119,11 +119,11 @@ function createMainWeapon(oldObj: LMObject, item: Item) {
 function createMainWeaponChest(oldObj: LMObject, item: Item) {
   const starts = createChestStarts(oldObj, item.flag);
   return [
+    createEmptyChest(oldObj, starts),
     new LMObject(
       77, oldObj.x, oldObj.y, item.number, item.flag, -1, -1,
       starts,
     ),
-    createEmptyChest(oldObj, starts),
   ];
 }
 
@@ -139,11 +139,11 @@ function createSubWeapon(oldObj: LMObject, item: Item) {
 function createSubWeaponChest(oldObj: LMObject, item: Item) {
   const starts = createChestStarts(oldObj, item.flag);
   return [
+    createEmptyChest(oldObj, starts),
     new LMObject(
       13, oldObj.x, oldObj.y, item.number, item.count, item.flag, -1,
       starts,
     ),
-    createEmptyChest(oldObj, starts),
   ];
 }
 
@@ -159,10 +159,10 @@ function createSeal(oldObj: LMObject, item: Item) {
 function createSealChest(oldObj: LMObject, item: Item) {
   const starts = createChestStarts(oldObj, item.flag);
   return [
+    createEmptyChest(oldObj, starts),
     new LMObject(
       71, oldObj.x, oldObj.y, item.number, item.flag, -1, -1, starts,
     ),
-    createEmptyChest(oldObj, starts),
   ];
 }
 
