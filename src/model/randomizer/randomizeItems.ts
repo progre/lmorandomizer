@@ -1,6 +1,6 @@
 import assert from 'assert';
 import seedrandom, { prng } from 'seedrandom';
-import ScriptDat from '../../util/scriptdat/ScriptDat';
+import Script from '../../util/scriptdat/Script';
 import createSource from '../dataset/createSource';
 import Item from '../dataset/Item';
 import Spot from '../dataset/Spot';
@@ -10,17 +10,17 @@ import { selectRandom, shuffleSimply } from './shuffleUtils';
 import validate from './validate';
 
 export default async function randomizeItems(
-  scriptDat: ScriptDat,
+  script: Script,
   supplements: Supplements,
   seed: string,
 ) {
-  const source = await createSource(scriptDat, supplements);
+  const source = await createSource(script, supplements);
   assert(await validate(source));
   assertUnique(source);
   const shuffled = await randomizeStorage(source, seedrandom(seed));
   assertUnique(shuffled);
-  scriptDat.replaceItems(shuffled);
-  scriptDat.replaceShops(shuffled.shops);
+  script.replaceItems(shuffled);
+  script.replaceShops(shuffled.shops);
 }
 
 async function randomizeStorage(source: Storage, rng: prng) {

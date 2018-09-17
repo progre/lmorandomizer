@@ -1,13 +1,13 @@
 import assert from 'assert';
-import ScriptDat from '../../util/scriptdat/ScriptDat';
+import Script from '../../util/scriptdat/Script';
 import getAllItems from './getAllItems';
 import Item from './Item';
 import Spot from './Spot';
 import Storage from './Storage';
 import Supplements from './Supplements';
 
-export default async function createSource(scriptDat: ScriptDat, supplements: Supplements) {
-  const allItems = getAllItems(scriptDat, supplements);
+export default async function createSource(script: Script, supplements: Supplements) {
+  const allItems = getAllItems(script, supplements);
   const enumerateItems = (
     allItems.mainWeapons
       .concat(allItems.subWeapons)
@@ -16,12 +16,12 @@ export default async function createSource(scriptDat: ScriptDat, supplements: Su
       .concat(allItems.shops.reduce<Item[]>((p, c) => p.concat(c), []))
   );
   warnMissingRequirements(supplements, enumerateItems);
-  const chestDataList = scriptDat.chests();
+  const chestDataList = script.chests();
   assert.equal(
     chestDataList.length,
     supplements.chests.length + Supplements.nightSurfaceChestCount,
   );
-  const shops = scriptDat.shops();
+  const shops = script.shops();
   return new Storage(
     allItems.mainWeapons.map((item, i) => {
       const supplement = supplements.mainWeapons[i];

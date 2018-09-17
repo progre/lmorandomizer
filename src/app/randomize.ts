@@ -1,19 +1,19 @@
 import Supplements from '../model/dataset/Supplements';
 import { equipmentNumbers, subWeaponNumbers } from '../model/randomizer/items';
 import randomizeItems from '../model/randomizer/randomizeItems';
-import ScriptDat from '../util/scriptdat/ScriptDat';
+import Script from '../util/scriptdat/Script';
 
 export default async function randomize(
-  scriptDat: ScriptDat,
+  script: Script,
   supplements: Supplements,
   config: {
     seed: string;
     easyMode: boolean;
   },
 ) {
-  await randomizeItems(scriptDat, supplements, config.seed);
+  await randomizeItems(script, supplements, config.seed);
   if (config.easyMode) {
-    scriptDat.addStartingItems(
+    script.addStartingItems(
       [
         equipmentNumbers.holyGrail,
         100,

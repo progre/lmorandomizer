@@ -2,7 +2,7 @@ import fs from 'fs';
 import sha3 from 'js-sha3';
 import util from 'util';
 import { decode, encode } from './codec';
-import ScriptDat from './ScriptDat';
+import Script from './Script';
 
 const readFile = util.promisify(fs.readFile);
 const writeFile = util.promisify(fs.writeFile);
@@ -27,12 +27,15 @@ export default class ScriptDatRepo {
       return { error: { reason: <'invalidfile'>'invalidfile' } };
     }
     const txt = await decode(data);
-    return { scriptDat: new ScriptDat(txt) };
+    return { scriptDat: Script.parse(txt) };
   }
 
-  async writeScriptDat(path: string, scriptDat: ScriptDat) {
-    // await writeFile('./tmp.txt', scriptDat.txt);
-    const dat = await encode(scriptDat.txt);
+  async writeScriptDat(path: string, scriptDat: Script) {
+    if (<any>1 === 1) {
+      await writeFile('./tmp.txt', scriptDat.stringify());
+      await writeFile('./tmp-shop.json', JSON.stringify(scriptDat.shops()));
+    }
+    const dat = await encode(scriptDat.stringify());
     await writeFile(path, Buffer.from(<ArrayBuffer>dat.buffer));
   }
 }

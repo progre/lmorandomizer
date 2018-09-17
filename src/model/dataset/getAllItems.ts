@@ -1,21 +1,21 @@
 import assert from 'assert';
-import ScriptDat from '../../util/scriptdat/ScriptDat';
+import Script from '../../util/scriptdat/Script';
 import { ShopItemData } from '../../util/scriptdat/ShopItemsData';
 import Item from './Item';
 import Supplements from './Supplements';
 
-export default function getAllItems(scriptDat: ScriptDat, supplements: Supplements) {
+export default function getAllItems(script: Script, supplements: Supplements) {
   return {
-    mainWeapons: mainWeapons(scriptDat, supplements),
-    subWeapons: subWeapons(scriptDat, supplements),
-    chests: chests(scriptDat, supplements),
-    seals: seals(scriptDat, supplements),
-    shops: shops(scriptDat, supplements),
+    mainWeapons: mainWeapons(script, supplements),
+    subWeapons: subWeapons(script, supplements),
+    chests: chests(script, supplements),
+    seals: seals(script, supplements),
+    shops: shops(script, supplements),
   };
 }
 
-function mainWeapons(scriptDat: ScriptDat, supplements: Supplements) {
-  const mainWeaponsDataList = scriptDat.mainWeapons();
+function mainWeapons(script: Script, supplements: Supplements) {
+  const mainWeaponsDataList = script.mainWeapons();
   assert.equal(mainWeaponsDataList.length, supplements.mainWeapons.length);
   return supplements.mainWeapons.map((supplement, i) => {
     const data = mainWeaponsDataList[i];
@@ -29,8 +29,8 @@ function mainWeapons(scriptDat: ScriptDat, supplements: Supplements) {
   });
 }
 
-function subWeapons(scriptDat: ScriptDat, supplements: Supplements) {
-  const subWeaponsDataList = scriptDat.subWeapons();
+function subWeapons(script: Script, supplements: Supplements) {
+  const subWeaponsDataList = script.subWeapons();
   assert.equal(
     subWeaponsDataList.length,
     supplements.subWeapons.length + Supplements.nightSurfaceSubWeaponCount,
@@ -47,8 +47,8 @@ function subWeapons(scriptDat: ScriptDat, supplements: Supplements) {
   });
 }
 
-function chests(scriptDat: ScriptDat, supplements: Supplements) {
-  const chestDataList = scriptDat.chests();
+function chests(script: Script, supplements: Supplements) {
+  const chestDataList = script.chests();
   assert.equal(
     chestDataList.length,
     supplements.chests.length + Supplements.nightSurfaceChestCount,
@@ -69,8 +69,8 @@ function chests(scriptDat: ScriptDat, supplements: Supplements) {
   });
 }
 
-function seals(scriptDat: ScriptDat, supplements: Supplements) {
-  const sealDataList = scriptDat.seals();
+function seals(script: Script, supplements: Supplements) {
+  const sealDataList = script.seals();
   assert.equal(
     sealDataList.length,
     supplements.seals.length
@@ -89,8 +89,8 @@ function seals(scriptDat: ScriptDat, supplements: Supplements) {
   });
 }
 
-function shops(scriptDat: ScriptDat, supplements: Supplements) {
-  const shopDataList = scriptDat.shops();
+function shops(script: Script, supplements: Supplements) {
+  const shopDataList = script.shops();
   assert.equal(
     shopDataList.length,
     supplements.shops.length + Supplements.wareNoMiseCount,
