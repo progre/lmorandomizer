@@ -39,14 +39,14 @@
 # Temple of the Sun
 - name: bronzeMirror
   requirements:
-    - ankhJewel:templeOfTheSun
+    - ankhJewel:templeOfTheSun, handScanner, glyphReader
 - name: map:templeOfTheSun
 - name: talisman
   requirements:
     - event:defeatedViy
 - name: boots
   requirements:
-    - event:floodedTempleOfTheSun, feather
+    - event:floodedTempleOfTheSun, originSeal, feather
 - name: sacredOrb:templeOfTheSun
 # skip ankhJewel
 
@@ -71,7 +71,8 @@
 - name: grappleClaw
   requirements:
     - iceCape
-    - sacredOrb:3 # TODO: いくつあれば足りるのか？
+    - glove, sacredOrb:3 # TODO: test
+    - sacredOrb:5 # tested
 
 # Chamber of Extinction
 - name: sacredOrb:chamberOfExtinction
@@ -137,7 +138,7 @@
     - event:reachedBackDoorOfGraveyardOfTheGiants
 - name: map:graveyardOfTheGiants
   requirements:
-    - event:reachedFrontOfGraveyardOfTheGiants, feather
+    - event:reachedFrontOfGraveyardOfTheGiants
 - name: gauntlet
   requirements:
     - event:reachedFrontOfGraveyardOfTheGiants, birthSeal, grappleClaw

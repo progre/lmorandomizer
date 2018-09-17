@@ -55,6 +55,9 @@
 - name: event:releasedTwins
   requirements:
     - ankhJewel:templeOfTheSun, twinStatue
+- name: event:defeatedBaphomet
+  requirements:
+    - event:releasedTwins, flareGun, ankhJewel:twinLabyrinths
 
 - name: event:reachedFrontOfShrineOfTheMother
   requirements:
@@ -70,15 +73,15 @@
 - name: event:reachedGrailOfGateOfIllusion
   requirements:
     - event:reachedElevatorOfGateOfIllusion
-    - event:reachedBackDoorOfGateOfIllusion
+    # - event:reachedBackDoorOfGateOfIllusion # circular reference
 - name: event:reachedBackDoorOfGateOfIllusion
   requirements:
     - event:reachedTowerOfTheGoddess, feather, grappleClaw, planeModel
 
 - name: event:reachedFrontOfGraveyardOfTheGiants
   requirements:
-    - bronzeMirror, ankhJewel:mausoleumOfTheGiants
-    - event:reachedBackDoorOfGraveyardOfTheGiants, bomb, bombAmmo
+    - bronzeMirror, ankhJewel:mausoleumOfTheGiants, holyGrail
+    # - event:reachedBackDoorOfGraveyardOfTheGiants, bomb, bombAmmo # circular reference
 - name: event:reachedBackDoorOfGraveyardOfTheGiants
   requirements:
     - event:reachedTowerOfTheGoddess, feather, grappleClaw, planeModel
@@ -103,7 +106,7 @@
 
 - name: event:reachedTowerOfTheGoddess
   requirements:
-    - bronzeMirror, event:defeatedBahamut
+    - bronzeMirror, event:defeatedViy
 
 - name: event:reachedFrontOfTowerOfRuin
   requirements:
@@ -111,7 +114,7 @@
     - event:reachedGrailOfGateOfIllusion, event:miniDoll
 - name: event:reachedBackDoorOfTowerOfRuin
   requirements:
-    - event:reachedBackDoorOfSurface, event:defeatedViy, bronzeMirror
+    - event:reachedBackDoorOfSurface, event:defeatedBaphomet, bronzeMirror
 
 - name: event:reachedLowerOfChamberOfBirth
   requirements:

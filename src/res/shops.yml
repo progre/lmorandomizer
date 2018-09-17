@@ -47,13 +47,13 @@
 - names: helmet, bombAmmo, fakeHandScanner
 - names: lampOfTime, shurikenAmmo, toukenAmmo
   requirements:
-    - twinStatue, bomb
-    - twinStatue, feather
+    - event:releasedTwins, bomb
+    - event:releasedTwins, feather
 
 # Twin Labyrinths (back)
 - names: scriptures, bombAmmo, spearAmmo
   requirements:
-    - twinStatue
+    - event:releasedTwins, feather
 - names: dragonBone, spearAmmo, flareGunAmmo
   requirements:
     - fakeHandScanner
@@ -73,7 +73,7 @@
 # Temple of Moonlight
 - names: bracelet, shurikenAmmo, ammunition
   requirements:
-    - event:reachedFrontOfTempleOfMoonlight, bomb
+    - event:reachedFrontOfTempleOfMoonlight, shuriken, bomb
 
 # Tower of Ruin
 - names: knightmare, bombAmmo, flareGunAmmo
