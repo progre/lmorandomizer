@@ -108,6 +108,18 @@ export function replaceItems(
               sealChestIdx += 1;
               return [toObjectForSpecialChest(obj, item)];
             }
+            case 140: {
+              // mausoleumOfTheGiants ankhJewel
+              if (obj.x === 49152 && obj.y === 16384) {
+                return [new LMObject(
+                  obj.number, obj.x, obj.y,
+                  shuffled.subWeaponShutters[subWeaponSpotIdx - 1].item.flag,
+                  obj.op2, obj.op3, obj.op4,
+                  obj.starts,
+                )];
+              }
+              return [obj];
+            }
             default:
               return [obj];
           }

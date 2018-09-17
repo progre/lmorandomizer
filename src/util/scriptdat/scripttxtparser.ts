@@ -1,7 +1,9 @@
 import assert from 'assert';
 import parse5 from 'parse5';
+import { subWeaponNumbers } from '../../model/randomizer/items';
 import LMObject from './LMObject';
 import { LMChild, LMWorld } from './Script';
+import ShopItemsData from './ShopItemsData';
 
 export function parseScriptTxt(txt: string) {
   const root: ReadonlyArray<any> = (
@@ -17,6 +19,15 @@ export function parseScriptTxt(txt: string) {
         return (<string>x.childNodes[0].value).slice(1);
       })
   );
+  assert.equal(ShopItemsData.parse(talks[252])[0].number, subWeaponNumbers.handScanner);
+  assert.equal(ShopItemsData.parse(talks[252])[0].price, 20);
+  assert.equal(ShopItemsData.parse(talks[252])[0].flag, 65279);
+  assert.equal(ShopItemsData.parse(talks[252])[1].number, subWeaponNumbers.ammunition);
+  assert.equal(ShopItemsData.parse(talks[252])[1].price, 500);
+  assert.equal(ShopItemsData.parse(talks[252])[1].flag, 65279);
+  assert.equal(ShopItemsData.parse(talks[252])[2].number, subWeaponNumbers.buckler);
+  assert.equal(ShopItemsData.parse(talks[252])[2].price, 80);
+  assert.equal(ShopItemsData.parse(talks[252])[2].flag, 697);
   const worlds = (
     root
       .filter(world => world.tagName === 'world')

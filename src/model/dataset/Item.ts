@@ -1,3 +1,4 @@
+import assert from 'assert';
 import { equipmentNumbers } from '../randomizer/items';
 
 export default class Item {
@@ -8,6 +9,14 @@ export default class Item {
     public count: number,
     public flag: number,
   ) {
+    assert(
+      flag === -1
+      || flag === 494
+      || flag === 524
+      || 684 <= flag && flag <= 883
+      || type === 'subWeapon' && flag === 65279,
+      `invalid value: ${flag} (${number})`,
+    );
   }
 
   // chests -> equipments / rom

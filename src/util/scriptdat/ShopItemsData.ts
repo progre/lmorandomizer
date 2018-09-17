@@ -3,6 +3,7 @@ import { shopItemDataToText, textToShopData } from './codec';
 
 export default {
   parse(text: string) {
+    assert.equal(text.length, 7 * 3);
     const data = textToShopData(text);
     assert.equal(data.length, 7 * 3);
     return <[ShopItemData, ShopItemData, ShopItemData]>[...Array(3).keys()]

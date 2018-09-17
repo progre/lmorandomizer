@@ -1,6 +1,6 @@
 import { EquipmentNumber, SubWeaponNumber } from '../../model/randomizer/items';
-import { LMWorld } from './Script';
 import LMObject from './LMObject';
+import { LMWorld } from './Script';
 
 export default function addStartingItems(
   worlds: ReadonlyArray<LMWorld>,
