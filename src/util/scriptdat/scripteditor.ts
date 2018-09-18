@@ -1,4 +1,3 @@
-import assert from 'assert';
 import Item from '../../model/dataset/Item';
 import Spot from '../../model/dataset/Spot';
 import Storage from '../../model/dataset/Storage';

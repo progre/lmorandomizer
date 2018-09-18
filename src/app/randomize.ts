@@ -1,5 +1,5 @@
 import Supplements from '../model/dataset/Supplements';
-import { equipmentNumbers, subWeaponNumbers } from '../model/randomizer/items';
+// import { equipmentNumbers, subWeaponNumbers } from '../model/randomizer/items';
 import randomizeItems from '../model/randomizer/randomizeItems';
 import Script from '../util/scriptdat/Script';
 

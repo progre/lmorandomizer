@@ -1,7 +1,7 @@
 import assert from 'assert';
 import Item from '../../model/dataset/Item';
 import { subWeaponNumbers } from '../../model/randomizer/items';
-import LMObject, { LMStart } from './LMObject';
+import LMObject from './LMObject';
 
 export function toObjectForShutter(
   oldObj: LMObject,
