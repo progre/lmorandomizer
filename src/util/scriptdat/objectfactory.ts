@@ -15,30 +15,14 @@ export function toObjectForShutter(
       assert(!(item.number === subWeaponNumbers.ankhJewel && item.count > 1));
       return createSubWeapon(oldObj, item);
     case 'equipment':
-      // assert(oldObj.starts.some(z => z.number === 99999 && z.value));
       return new LMObject(
         1, oldObj.x, oldObj.y, 40, item.number, item.flag, -1,
-        [
-          { number: 99999, value: true },
-          { number: startFlag, value: true },
-          ...oldObj.starts.filter(x => (
-            x.number !== 99999
-            && x.number !== oldObj.getItemFlag()
-          )),
-        ],
+        startsThatHideWhenStartup(oldObj, startFlag),
       );
     case 'rom':
-      // assert(oldObj.starts.some(z => z.number === 99999 && z.value));
       return new LMObject(
         1, oldObj.x, oldObj.y, 40, 100 + item.number, item.flag, -1,
-        [
-          { number: 99999, value: true },
-          { number: startFlag, value: true },
-          ...oldObj.starts.filter(x => (
-            x.number !== 99999
-            && x.number !== oldObj.getItemFlag()
-          )),
-        ],
+        startsThatHideWhenStartup(oldObj, startFlag),
       );
     case 'seal':
       return createSeal(oldObj, item);
@@ -54,16 +38,14 @@ export function toObjectForSpecialChest(oldObj: LMObject, item: Item) {
       assert(!(item.number === subWeaponNumbers.ankhJewel && item.count > 1));
       return createSubWeapon(oldObj, item);
     case 'equipment':
-      // assert(oldObj.starts.some(z => z.number === 99999 && z.value));
       return new LMObject(
         1, oldObj.x, oldObj.y, 40, item.number, item.flag, -1,
-        oldObj.starts.filter(x => x.number !== oldObj.getItemFlag()),
+        getStartsWithoutOldFlag(oldObj),
       );
     case 'rom':
-      // assert(oldObj.starts.some(z => z.number === 99999 && z.value));
       return new LMObject(
         1, oldObj.x, oldObj.y, 40, 100 + item.number, item.flag, -1,
-        oldObj.starts.filter(x => x.number !== oldObj.getItemFlag()),
+        getStartsWithoutOldFlag(oldObj),
       );
     case 'seal':
       return createSeal(oldObj, item);
@@ -82,24 +64,12 @@ export function toObjectsForChest(oldObj: LMObject, item: Item): ReadonlyArray<L
     case 'equipment':
       return [new LMObject(
         1, oldObj.x, oldObj.y, oldObj.op1, item.number, item.flag, -1,
-        oldObj.starts
-          .filter(x => x.number !== oldObj.getItemFlag())
-          .concat((// ex.talisman
-            oldObj.starts.some(x => x.number === oldObj.getItemFlag())
-              ? { number: item.flag, value: false }
-              : []
-          )),
+        startsAsIs(oldObj, item),
       )];
     case 'rom':
       return [new LMObject(
         1, oldObj.x, oldObj.y, oldObj.op1, 100 + item.number, item.flag, -1,
-        oldObj.starts
-          .filter(x => x.number !== oldObj.getItemFlag())
-          .concat((
-            oldObj.starts.some(x => x.number === oldObj.getItemFlag())
-              ? { number: item.flag, value: false }
-              : []
-          )),
+        startsAsIs(oldObj, item),
       )];
     case 'seal':
       return createSealChest(oldObj, item);
@@ -110,19 +80,16 @@ export function toObjectsForChest(oldObj: LMObject, item: Item): ReadonlyArray<L
 function createMainWeapon(oldObj: LMObject, item: Item) {
   return new LMObject(
     77, oldObj.x, oldObj.y, item.number, item.flag, -1, -1,
-    oldObj.starts
-      .filter(x => x.number !== oldObj.getItemFlag())
-      .concat({ number: item.flag, value: false }),
+    startsAsIs(oldObj, item),
   );
 }
 
 function createMainWeaponChest(oldObj: LMObject, item: Item) {
-  const starts = createChestStarts(oldObj, item.flag);
   return [
-    createEmptyChest(oldObj, starts),
+    createEmptyChest(oldObj, item),
     new LMObject(
       77, oldObj.x, oldObj.y, item.number, item.flag, -1, -1,
-      starts,
+      startsThatHideWhenStartupAndTaken(oldObj, item),
     ),
   ];
 }
@@ -130,19 +97,16 @@ function createMainWeaponChest(oldObj: LMObject, item: Item) {
 function createSubWeapon(oldObj: LMObject, item: Item) {
   return new LMObject(
     13, oldObj.x, oldObj.y, item.number, item.count, item.flag, -1,
-    oldObj.starts
-      .filter(x => x.number !== oldObj.getItemFlag())
-      .concat({ number: item.flag, value: false }),
+    startsAsIs(oldObj, item),
   );
 }
 
 function createSubWeaponChest(oldObj: LMObject, item: Item) {
-  const starts = createChestStarts(oldObj, item.flag);
   return [
-    createEmptyChest(oldObj, starts),
+    createEmptyChest(oldObj, item),
     new LMObject(
       13, oldObj.x, oldObj.y, item.number, item.count, item.flag, -1,
-      starts,
+      startsThatHideWhenStartupAndTaken(oldObj, item),
     ),
   ];
 }
@@ -150,36 +114,56 @@ function createSubWeaponChest(oldObj: LMObject, item: Item) {
 function createSeal(oldObj: LMObject, item: Item) {
   return new LMObject(
     71, oldObj.x, oldObj.y, item.number, item.flag, -1, -1,
-    oldObj.starts
-      .filter(x => x.number !== oldObj.getItemFlag())
-      .concat({ number: item.flag, value: false }),
+    startsAsIs(oldObj, item),
   );
 }
 
 function createSealChest(oldObj: LMObject, item: Item) {
-  const starts = createChestStarts(oldObj, item.flag);
   return [
-    createEmptyChest(oldObj, starts),
+    createEmptyChest(oldObj, item),
     new LMObject(
-      71, oldObj.x, oldObj.y, item.number, item.flag, -1, -1, starts,
+      71, oldObj.x, oldObj.y, item.number, item.flag, -1, -1,
+      startsThatHideWhenStartupAndTaken(oldObj, item),
     ),
   ];
 }
 
-function createEmptyChest(oldObj: LMObject, starts: ReadonlyArray<LMStart>) {
+function createEmptyChest(oldObj: LMObject, item: Item) {
   return new LMObject(
-    1, oldObj.x, oldObj.y, oldObj.op1, -1, oldObj.op1, -1, starts,
+    1, oldObj.x, oldObj.y, oldObj.op1, -1, oldObj.op1, -1,
+    startsAsIs(oldObj, item),
   );
 }
 
-function createChestStarts(oldObj: LMObject, flag: number) {
+function startsThatHideWhenStartupAndTaken(oldChestObj: LMObject, item: Item) {
+  assert.equal(oldChestObj.number, 1);
   return [
     { number: 99999, value: true },
-    { number: oldObj.asChestItem().openFlag, value: true },
-    { number: flag, value: false },
-    ...oldObj.starts.filter(x => (
-      x.number !== 99999
-      && x.number !== oldObj.getItemFlag()
-    )),
+    { number: oldChestObj.asChestItem().openFlag, value: true },
+    { number: item.flag, value: false },
+    ...getStartsWithoutOldFlag(oldChestObj).filter(x => x.number !== 99999),
   ];
+}
+
+function startsThatHideWhenStartup(oldObj: LMObject, startFlag: number) {
+  return [
+    { number: 99999, value: true },
+    { number: startFlag, value: true },
+    ...getStartsWithoutOldFlag(oldObj).filter(x => x.number !== 99999),
+  ];
+}
+
+function startsAsIs(oldObj: LMObject, item: Item) {
+  return [
+    ...getStartsWithoutOldFlag(oldObj),
+    ...(
+      oldObj.starts.some(x => x.number === oldObj.getItemFlag())
+        ? [{ number: item.flag, value: false }]
+        : []
+    ),
+  ];
+}
+
+function getStartsWithoutOldFlag(oldObj: LMObject) {
+  return oldObj.starts.filter(x => x.number !== oldObj.getItemFlag());
 }
