@@ -79,11 +79,15 @@ export function replaceItems(
               const item = shuffled.subWeaponShutters[subWeaponSpotIdx].item;
               subWeaponSpotIdx += 1;
               if (obj.op1 === subWeaponNumbers.ankhJewel) {
-                // TODO: 巨人のアンクジュエルが塞がるやつ
-                return [toObjectForSpecialChest(obj, item)];
+                if (obj.op3 !== 743) {
+                  return [toObjectForSpecialChest(obj, item)];
+                }
+                // gateOfGuidance ankhJewel
+                const wallCheckFlag = getNextWallCheckFlag(map.objects.slice(i + 1));
+                return [toObjectForShutter(obj, wallCheckFlag, item)];
               }
               const nextShutterCheckFlag = obj.op1 === subWeaponNumbers.pistol
-                ? 40
+                ? getNextBreakableWallCheckFlag(map.objects.slice(i + 1))
                 : getNextShutterCheckFlag(map.objects.slice(i + 1));
               return [toObjectForShutter(obj, nextShutterCheckFlag, item)];
             }
@@ -136,4 +140,9 @@ function getNextShutterCheckFlag(objs: List<LMObject>) {
 
 function getNextWallCheckFlag(objs: List<LMObject>) {
   return objs.find(x => x.number === 59)!.op3;
+}
+
+function getNextBreakableWallCheckFlag(objs: List<LMObject>) {
+  const data = objs.find(x => x.number === 70)!.op4;
+  return (data - (data / 10000 | 0) * 10000) / 10 | 0;
 }
