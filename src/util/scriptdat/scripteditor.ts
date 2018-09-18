@@ -1,6 +1,14 @@
+import assert from 'assert';
 import Item from '../../model/dataset/Item';
 import Spot from '../../model/dataset/Spot';
 import Storage from '../../model/dataset/Storage';
+import Supplements from '../../model/dataset/Supplements';
+const {
+  nightSurfaceChestCount,
+  nightSurfacSealCount,
+  nightSurfaceSubWeaponCount,
+  trueShrineOfTheMotherSealCount,
+} = Supplements;
 import {
   equipmentNumbers,
   subWeaponNumbers,
@@ -47,6 +55,7 @@ function toIntegerItemType(
   }
 }
 
+// tslint:disable-next-line:max-func-body-length
 export function replaceItems(
   worlds: ReadonlyArray<LMWorld>,
   shuffled: Storage,
@@ -71,8 +80,13 @@ export function replaceItems(
               return [toObjectForShutter(obj, nextShutterCheckFlag, item)];
             }
             case 13: {
-              // TODO: night surface
+              // TODO: nightSurface
               if (subWeaponSpotIdx >= shuffled.subWeaponShutters.length) {
+                const sum = (
+                  shuffled.subWeaponShutters.length + nightSurfaceSubWeaponCount
+                );
+                assert(subWeaponSpotIdx < sum);
+                subWeaponSpotIdx += 1;
                 return [obj];
               }
               const item = shuffled.subWeaponShutters[subWeaponSpotIdx].item;
@@ -94,17 +108,34 @@ export function replaceItems(
               if (obj.op2 === -1 || obj.op2 === equipmentNumbers.sweetClothing) {
                 return [obj];
               }
-              // TODO: night surface
+              // TODO: nightSurface
               if (chestIdx >= shuffled.chests.length) {
+                const sum = shuffled.chests.length + nightSurfaceChestCount;
+                assert(chestIdx < sum);
+                chestIdx += 1;
                 return [obj];
               }
-              const item = shuffled.chests[chestIdx].item;
-              chestIdx += 1;
+              let item: Item;
+              // twinStatue
+              if (obj.op1 === 420) {
+                item = shuffled.chests[chestIdx - 1].item;
+              } else {
+                item = shuffled.chests[chestIdx].item;
+                chestIdx += 1;
+              }
               return toObjectsForChest(obj, item);
             }
             case 71: {
-              // TODO: night surface
+              // TODO: trueShrineOfTheMother
+              // TODO: nightSurface
               if (sealChestIdx >= shuffled.sealChests.length) {
+                const sum = (
+                  shuffled.sealChests.length
+                  + trueShrineOfTheMotherSealCount
+                  + nightSurfacSealCount
+                );
+                assert(sealChestIdx < sum, JSON.stringify(obj));
+                sealChestIdx += 1;
                 return [obj];
               }
               const item = shuffled.sealChests[sealChestIdx].item;
