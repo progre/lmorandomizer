@@ -1,5 +1,5 @@
 import assert from 'assert';
-import { equipmentNumbers } from '../randomizer/items';
+import { equipmentNumbers, subWeaponNumbers } from '../randomizer/items';
 
 export default class Item {
   constructor(
@@ -26,15 +26,19 @@ export default class Item {
   canDisplayInShop() {
     return (
       this.flag % 256 !== 0
-      && !(
+      && (
         this.type === 'equipment'
+        && this.number !== equipmentNumbers.map
+        && this.number !== equipmentNumbers.sacredOrb
+        || this.type === 'rom'
+        || this.type === 'subWeapon'
         && (
-          this.number === equipmentNumbers.map
-          || this.number === equipmentNumbers.sacredOrb
+          this.count > 0
+          || this.number === subWeaponNumbers.pistol
+          || this.number === subWeaponNumbers.buckler
+          || this.number === subWeaponNumbers.handScanner
         )
       )
-      && this.type !== 'mainWeapon'
-      && this.type !== 'seal'
     );
   }
 }
