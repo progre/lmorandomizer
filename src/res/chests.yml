@@ -15,6 +15,7 @@
 # Surface
 - name: feather
   requirements:
+    - serpentStaff, gauntlet
     - serpentStaff, shuriken, shurikenAmmo
     - serpentStaff, bomb, bombAmmo
     - serpentStaff, pistol, ammunition
@@ -60,6 +61,7 @@
 - name: map:springInTheSky
   requirements:
     - helmet
+    - boots
 - name: scalesphere
   requirements:
     - sacredOrb:2, helmet, originSeal
@@ -87,7 +89,8 @@
 - name: map:endlessCorridor
 - name: twinStatue
   requirements:
-    - keyOfEternity, feather
+    - keyOfEternity, handScanner, glyphReader, feather
+    - keyOfEternity, handScanner, glyphReader, grappleClaw
 
 # Shrine of the Mother
 - name: crystalSkull
