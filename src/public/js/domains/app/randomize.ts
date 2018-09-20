@@ -1,7 +1,7 @@
 import Supplements from '../model/dataset/Supplements';
 // import { equipmentNumbers, subWeaponNumbers } from '../model/randomizer/items';
 import randomizeItems from '../model/randomizer/randomizeItems';
-import Script from '../util/scriptdat/Script';
+import Script from '../util/scriptdat/data/Script';
 
 export default async function randomize(
   script: Script,

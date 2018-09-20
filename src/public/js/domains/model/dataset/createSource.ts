@@ -1,5 +1,5 @@
 import assert from 'assert';
-import Script from '../../util/scriptdat/Script';
+import Script from '../../util/scriptdat/data/Script';
 import getAllItems from './getAllItems';
 import Item from './Item';
 import Spot from './Spot';

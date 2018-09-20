@@ -1,13 +1,17 @@
 import assert from 'assert';
-import Item from '../../model/dataset/Item';
-import Spot from '../../model/dataset/Spot';
-import Storage from '../../model/dataset/Storage';
-import { EquipmentNumber, equipmentNumbers, SubWeaponNumber } from '../../model/randomizer/items';
+import Item from '../../../model/dataset/Item';
+import Spot from '../../../model/dataset/Spot';
+import Storage from '../../../model/dataset/Storage';
+import {
+  EquipmentNumber,
+  equipmentNumbers,
+  SubWeaponNumber,
+} from '../../../model/randomizer/items';
+import { parseScriptTxt, stringifyScriptTxt } from '../format/scripttxtparser';
+import ShopItemsData from '../format/ShopItemsData';
 import addStartingItems from './addStartingItems';
 import LMObject from './LMObject';
 import { replaceItems, replaceShops } from './scripteditor';
-import { parseScriptTxt, stringifyScriptTxt } from './scripttxtparser';
-import ShopItemsData from './ShopItemsData';
 
 export type List<T> = ReadonlyArray<Readonly<T>>;
 

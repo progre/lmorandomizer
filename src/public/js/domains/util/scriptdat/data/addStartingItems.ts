@@ -1,4 +1,4 @@
-import { EquipmentNumber, SubWeaponNumber } from '../../model/randomizer/items';
+import { EquipmentNumber, SubWeaponNumber } from '../../../model/randomizer/items';
 import LMObject from './LMObject';
 import { LMWorld } from './Script';
 

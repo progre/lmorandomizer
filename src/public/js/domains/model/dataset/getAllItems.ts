@@ -1,6 +1,6 @@
 import assert from 'assert';
-import Script from '../../util/scriptdat/Script';
-import { ShopItemData } from '../../util/scriptdat/ShopItemsData';
+import Script from '../../util/scriptdat/data/Script';
+import { ShopItemData } from '../../util/scriptdat/format/ShopItemsData';
 import Item from './Item';
 import Supplements from './Supplements';
 

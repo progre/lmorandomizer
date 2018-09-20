@@ -1,6 +1,6 @@
 import assert from 'assert';
 import seedrandom, { prng } from 'seedrandom';
-import Script from '../../util/scriptdat/Script';
+import Script from '../../util/scriptdat/data/Script';
 import createSource from '../dataset/createSource';
 import Item from '../dataset/Item';
 import Spot from '../dataset/Spot';

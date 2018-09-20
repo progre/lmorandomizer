@@ -5,7 +5,7 @@ const { ipcRenderer } = electron;
 import React from 'react';
 import { apply, restore } from '../applications/app';
 import { default as Component } from '../components/Index';
-import ScriptDatRepo from '../domains/util/scriptdat/ScriptDatRepo';
+import ScriptDatRepo from '../infrastructures/ScriptDatRepo';
 
 interface Props {
   defaultSeed: string;

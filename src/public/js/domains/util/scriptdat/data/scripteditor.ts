@@ -1,8 +1,8 @@
 import assert from 'assert';
-import Item from '../../model/dataset/Item';
-import Spot from '../../model/dataset/Spot';
-import Storage from '../../model/dataset/Storage';
-import Supplements from '../../model/dataset/Supplements';
+import Item from '../../../model/dataset/Item';
+import Spot from '../../../model/dataset/Spot';
+import Storage from '../../../model/dataset/Storage';
+import Supplements from '../../../model/dataset/Supplements';
 const {
   nightSurfaceChestCount,
   nightSurfacSealCount,
@@ -12,11 +12,11 @@ const {
 import {
   equipmentNumbers,
   subWeaponNumbers,
-} from '../../model/randomizer/items';
+} from '../../../model/randomizer/items';
+import ShopItemsData, { ShopItemData } from '../format/ShopItemsData';
 import LMObject from './LMObject';
 import { toObjectForShutter, toObjectForSpecialChest, toObjectsForChest } from './objectfactory';
 import { List, LMWorld } from './Script';
-import ShopItemsData, { ShopItemData } from './ShopItemsData';
 
 export function replaceShops(
   talks: ReadonlyArray<string>,

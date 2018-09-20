@@ -1,7 +1,12 @@
 import assert from 'assert';
 import randomize from '../domains/app/randomize';
 import Supplements from '../domains/model/dataset/Supplements';
-import ScriptDatRepo from '../domains/util/scriptdat/ScriptDatRepo';
+import {
+  buildScriptDat,
+  isValidScriptDat,
+  readScriptDat,
+} from '../domains/util/scriptdat/format/scriptconverter';
+import ScriptDatRepo from '../infrastructures/ScriptDatRepo';
 import SupplementFileRepo from '../infrastructures/SupplementFileRepo';
 
 export async function apply(
@@ -13,31 +18,33 @@ export async function apply(
     easyMode: boolean;
   },
 ) {
-  let { scriptDat } = await scriptDatRepo.readValidScriptDat(workingFilePath);
-  if (scriptDat == null) {
-    const { error, scriptDat: srcFile } = await scriptDatRepo.readValidScriptDat(targetFilePath);
-    if (error != null) {
-      return {
-        noentry: 'Unable to find La-Mulana install directory.',
-        invalidfile: 'Valid script is not found. Please re-install La-Mulana.',
-      }[error.reason];
+  let scriptDat = await scriptDatRepo.readFileOrNullIfNoEntry(workingFilePath);
+  if (scriptDat == null || !isValidScriptDat(scriptDat)) {
+    const srcFile = await scriptDatRepo.readFileOrNullIfNoEntry(targetFilePath);
+    if (srcFile == null) {
+      return 'Unable to find La-Mulana install directory.';
     }
-    scriptDat = srcFile!;
+    if (!isValidScriptDat(srcFile)) {
+      return 'Valid script is not found. Please re-install La-Mulana.';
+    }
+    scriptDat = srcFile;
     await scriptDatRepo.writeScriptDat(workingFilePath, scriptDat);
-    if ((await scriptDatRepo.isValidScriptDat(workingFilePath)) == null) {
+    const outputed = await scriptDatRepo.readFileOrNullIfNoEntry(workingFilePath);
+    if (outputed == null || !isValidScriptDat(outputed)) {
       assert.fail();
     }
   }
 
   const supplementFiles = await new SupplementFileRepo().read();
 
+  const script = await readScriptDat(scriptDat);
   await randomize(
-    scriptDat,
+    script,
     new Supplements(supplementFiles),
     options,
   );
 
-  await scriptDatRepo.writeScriptDat(targetFilePath, scriptDat);
+  await scriptDatRepo.writeScriptDat(targetFilePath, await buildScriptDat(script));
   return 'Succeeded.';
 }
 
@@ -46,15 +53,17 @@ export async function restore(
   targetFilePath: string,
   workingFilePath: string,
 ) {
-  if (await scriptDatRepo.isValidScriptDat(targetFilePath)) {
+  const targetFile = await scriptDatRepo.readFileOrNullIfNoEntry(targetFilePath);
+  if (targetFile != null && isValidScriptDat(targetFile)) {
     return 'Already clean.';
   }
-  const { scriptDat } = await scriptDatRepo.readValidScriptDat(workingFilePath);
-  if (scriptDat == null) {
+  const working = await scriptDatRepo.readFileOrNullIfNoEntry(workingFilePath);
+  if (working == null || !isValidScriptDat(working)) {
     return 'Backup is broken. Please re-install La-Mulana.';
   }
-  await scriptDatRepo.writeScriptDat(targetFilePath, scriptDat);
-  if ((await scriptDatRepo.isValidScriptDat(targetFilePath)) == null) {
+  await scriptDatRepo.writeScriptDat(targetFilePath, working);
+  const outputed = await scriptDatRepo.readFileOrNullIfNoEntry(targetFilePath);
+  if (outputed == null || !isValidScriptDat(outputed)) {
     assert.fail();
   }
   return 'Succeeded.';

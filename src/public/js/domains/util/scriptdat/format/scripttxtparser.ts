@@ -1,8 +1,8 @@
 import assert from 'assert';
 import parse5 from 'parse5';
-import { subWeaponNumbers } from '../../model/randomizer/items';
-import LMObject from './LMObject';
-import { LMChild, LMWorld } from './Script';
+import { subWeaponNumbers } from '../../../model/randomizer/items';
+import LMObject from '../data/LMObject';
+import { LMChild, LMWorld } from '../data/Script';
 import ShopItemsData from './ShopItemsData';
 
 export function parseScriptTxt(txt: string) {
