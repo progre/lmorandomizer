@@ -1,14 +1,3 @@
-export type Item = MainWeaponItem | SubWeaponItem | EquipmentItem | ROMItem;
-export interface MainWeaponItem { type: 'mainWeapon'; payload: MainWeapon; }
-export interface SubWeaponItem { type: 'subWeapon'; payload: SubWeapon; }
-export interface EquipmentItem { type: 'equipment'; payload: Equipment; }
-export interface ROMItem { type: 'rom'; payload: ROM; }
-
-export interface MainWeapon {
-  num: MainWeaponNumber;
-  flag: number;
-}
-
 export type MainWeaponNumber = mainWeaponNumbers;
 export enum mainWeaponNumbers {
   whip,
@@ -18,11 +7,6 @@ export enum mainWeaponNumbers {
   keySword,
   axe,
   katana,
-}
-
-export interface SubWeapon {
-  num: SubWeaponNumber;
-  flag: number;
 }
 
 export type SubWeaponNumber = subWeaponNumbers;
@@ -40,11 +24,6 @@ export enum subWeaponNumbers {
   silverShield,
   angelShield,
   ammunition,
-}
-
-export interface Equipment {
-  num: EquipmentNumber;
-  flag: number;
 }
 
 export type EquipmentNumber = equipmentNumbers;
@@ -109,9 +88,4 @@ export enum equipmentNumbers {
   lifeSeal, // 57 営みの印
   deathSeal, // 58 滅びの印
   sweetClothing, // 59 あぶねぇ水着
-}
-
-export interface ROM {
-  num: number;
-  flag: number;
 }
