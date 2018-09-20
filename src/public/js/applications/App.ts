@@ -1,13 +1,8 @@
 import assert from 'assert';
-import randomize from '../domains/app/randomize';
-import Supplements from '../domains/model/dataset/Supplements';
-import {
-  buildScriptDat,
-  isValidScriptDat,
-  readScriptDat,
-} from '../domains/util/scriptdat/format/scriptconverter';
+import { isValidScriptDat } from '../domains/util/scriptdat/format/scriptconverter';
 import ScriptDatRepo from '../infrastructures/ScriptDatRepo';
 import SupplementFileRepo from '../infrastructures/SupplementFileRepo';
+import randomize from './randomize';
 
 export default class App {
   private scriptDatRepo = new ScriptDatRepo();
@@ -37,17 +32,9 @@ export default class App {
         assert.fail();
       }
     }
-
     const supplementFiles = await this.supplementFileRepo.read();
-
-    const script = await readScriptDat(scriptDat);
-    await randomize(
-      script,
-      new Supplements(supplementFiles),
-      options,
-    );
-
-    await this.scriptDatRepo.writeScriptDat(targetFilePath, await buildScriptDat(script));
+    const randomized = await randomize(scriptDat, supplementFiles, options);
+    await this.scriptDatRepo.writeScriptDat(targetFilePath, randomized);
     return 'Succeeded.';
   }
 
