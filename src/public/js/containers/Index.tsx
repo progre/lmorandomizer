@@ -3,9 +3,8 @@ import electron from 'electron';
 const { app } = electron.remote;
 const { ipcRenderer } = electron;
 import React from 'react';
-import { apply, restore } from '../applications/app';
+import App from '../applications/app';
 import { default as Component } from '../components/Index';
-import ScriptDatRepo from '../infrastructures/ScriptDatRepo';
 
 interface Props {
   defaultSeed: string;
@@ -23,6 +22,8 @@ const initialState = {
 };
 
 export default class Index extends React.Component<Props, typeof initialState> {
+  private app = new App();
+
   constructor(props: Props) {
     super(props);
     this.onChangeSeed = this.onChangeSeed.bind(this);
@@ -80,8 +81,7 @@ export default class Index extends React.Component<Props, typeof initialState> {
     });
     let result;
     try {
-      result = await apply(
-        new ScriptDatRepo(),
+      result = await this.app.apply(
         `${this.state.installDirectory}/data/script.dat`,
         `${app.getPath('userData')}/script.dat.bak`,
         {
@@ -109,8 +109,7 @@ export default class Index extends React.Component<Props, typeof initialState> {
     });
     let result;
     try {
-      result = await restore(
-        new ScriptDatRepo(),
+      result = await this.app.restore(
         `${this.state.installDirectory}/data/script.dat`,
         `${app.getPath('userData')}/script.dat.bak`,
       );
