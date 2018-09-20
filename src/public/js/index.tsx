@@ -1,3 +1,11 @@
+(window as any).eval = global.eval = (arg) => {
+  // seedrandom
+  if (arg === 'this') {
+    return global;
+  }
+  throw new Error(`Sorry, this app does not support window.eval().`);
+};
+
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { InitialParameters } from '../../types';
@@ -9,6 +17,7 @@ const json: InitialParameters
 ReactDOM.render(
   (
     <Index
+      dirName={json.dirName}
       defaultSeed={json.seed}
       defaultInstallDirectory={json.installDirectory}
       defaultEasyMode={json.easyMode}

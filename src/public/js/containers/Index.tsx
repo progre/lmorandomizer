@@ -1,10 +1,14 @@
 // tslint:disable-next-line:no-implicit-dependencies
 import electron from 'electron';
+const { app } = electron.remote;
 const { ipcRenderer } = electron;
 import React from 'react';
+import { apply, restore } from '../applications/app';
 import { default as Component } from '../components/Index';
+import ScriptDatRepo from '../domains/util/scriptdat/ScriptDatRepo';
 
 interface Props {
+  dirName: string;
   defaultSeed: string;
   defaultInstallDirectory: string;
   defaultEasyMode: boolean;
@@ -69,22 +73,59 @@ export default class Index extends React.Component<Props, typeof initialState> {
     });
   }
 
-  private onClickApply() {
+  private async onClickApply() {
     this.setState({
       ...this.state,
       isProcessingApply: true,
       snackbar: '',
     });
-    ipcRenderer.send('apply');
+    let result;
+    try {
+      result = await apply(
+        new ScriptDatRepo(),
+        `${this.state.installDirectory}/data/script.dat`,
+        `${app.getPath('userData')}/script.dat.bak`,
+        this.props.dirName,
+        {
+          seed: this.state.seed || '',
+          easyMode: this.state.easyMode || false,
+        },
+      );
+    } catch (err) {
+      console.error(err);
+      result = err.toString();
+    }
+    this.setState({
+      ...this.state,
+      isProcessingApply: false,
+      isProcessingRestore: false,
+      snackbar: result,
+    });
   }
 
-  private onClickRestore() {
+  private async onClickRestore() {
     this.setState({
       ...this.state,
       isProcessingRestore: true,
       snackbar: '',
     });
-    ipcRenderer.send('restore');
+    let result;
+    try {
+      result = await restore(
+        new ScriptDatRepo(),
+        `${this.state.installDirectory}/data/script.dat`,
+        `${app.getPath('userData')}/script.dat.bak`,
+      );
+    } catch (err) {
+      console.error(err);
+      result = err.toString();
+    }
+    this.setState({
+      ...this.state,
+      isProcessingApply: false,
+      isProcessingRestore: false,
+      snackbar: result,
+    });
   }
 
   private onCloseSnackbar(event: React.SyntheticEvent<any>, reason?: string) {
