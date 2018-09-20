@@ -8,7 +8,6 @@ import { default as Component } from '../components/Index';
 import ScriptDatRepo from '../domains/util/scriptdat/ScriptDatRepo';
 
 interface Props {
-  dirName: string;
   defaultSeed: string;
   defaultInstallDirectory: string;
   defaultEasyMode: boolean;
@@ -85,7 +84,6 @@ export default class Index extends React.Component<Props, typeof initialState> {
         new ScriptDatRepo(),
         `${this.state.installDirectory}/data/script.dat`,
         `${app.getPath('userData')}/script.dat.bak`,
-        this.props.dirName,
         {
           seed: this.state.seed || '',
           easyMode: this.state.easyMode || false,

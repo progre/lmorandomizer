@@ -65,7 +65,6 @@ export default class App {
       }
     });
     const initialParams: InitialParameters = {
-      dirName: __dirname,
       seed: this.settings.seed || '',
       installDirectory: this.settings.installDirectory || '',
       easyMode: this.settings.easyMode || false,

@@ -1,13 +1,13 @@
 import assert from 'assert';
 import randomize from '../domains/app/randomize';
-import SupplementsRepo from '../domains/repo/SupplementsRepo';
+import Supplements from '../domains/model/dataset/Supplements';
 import ScriptDatRepo from '../domains/util/scriptdat/ScriptDatRepo';
+import SupplementFileRepo from '../infrastructures/SupplementFileRepo';
 
 export async function apply(
   scriptDatRepo: ScriptDatRepo,
   targetFilePath: string,
   workingFilePath: string,
-  dirName: string,
   options: {
     seed: string;
     easyMode: boolean;
@@ -29,9 +29,11 @@ export async function apply(
     }
   }
 
+  const supplementFiles = await new SupplementFileRepo().read();
+
   await randomize(
     scriptDat,
-    await new SupplementsRepo(`${dirName}/res`).read(),
+    new Supplements(supplementFiles),
     options,
   );
 

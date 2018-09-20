@@ -1,5 +1,4 @@
 export interface InitialParameters {
-  dirName: string;
   seed: string;
   installDirectory: string;
   easyMode: boolean;

@@ -17,7 +17,6 @@ const json: InitialParameters
 ReactDOM.render(
   (
     <Index
-      dirName={json.dirName}
       defaultSeed={json.seed}
       defaultInstallDirectory={json.installDirectory}
       defaultEasyMode={json.easyMode}
