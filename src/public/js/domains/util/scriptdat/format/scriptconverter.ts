@@ -7,16 +7,16 @@ const SCRIPT_DAT_HASH = 'd18f3a643bee62db6870b35b1a1781bcc4067bd7409fa620168e160
 const SCRIPT_DAT_EN_HASH = '146e1b6e9e63ed22fb84b3c38f4d25a0723b07fe3fefe9395af68d6eeaa3b1108b288847ec50114efff4e7600afccc68a983d681b94cbb55a507b21f45d52db7';
 // tslint:enable:max-line-length
 
-export async function readScriptDat(file: ArrayBuffer) {
+export function readScriptDat(file: ArrayBuffer) {
   if (!isValidScriptDat(file)) {
     throw new Error('invalidfile');
   }
-  const txt = await decode(file);
+  const txt = decode(file);
   return Script.parse(txt);
 }
 
-export async function buildScriptDat(script: Script) {
-  const dat = await encode(script.stringify());
+export function buildScriptDat(script: Script) {
+  const dat = encode(script.stringify());
   return <ArrayBuffer>dat.buffer;
 }
 

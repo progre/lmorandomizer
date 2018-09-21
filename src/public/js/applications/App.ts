@@ -2,11 +2,11 @@ import assert from 'assert';
 import { isValidScriptDat } from '../domains/util/scriptdat/format/scriptconverter';
 import ScriptDatRepo from '../infrastructures/ScriptDatRepo';
 import SupplementFileRepo from '../infrastructures/SupplementFileRepo';
-import randomize from './randomize';
 
 export default class App {
   private scriptDatRepo = new ScriptDatRepo();
   private supplementFileRepo = new SupplementFileRepo();
+  private worker = new Worker('js/randomizer.js');
 
   async apply(
     targetFilePath: string,
@@ -33,7 +33,18 @@ export default class App {
       }
     }
     const supplementFiles = await this.supplementFileRepo.read();
-    const randomized = await randomize(scriptDat, supplementFiles, options);
+
+    const randomized = await new Promise<ArrayBuffer>((resolve, reject) => {
+      this.worker.onmessage = (e) => {
+        this.worker.onmessage = null;
+        resolve(e.data);
+      };
+      this.worker.postMessage(
+        { supplementFiles, options, scriptDat },
+        [scriptDat],
+      );
+    });
+
     await this.scriptDatRepo.writeScriptDat(targetFilePath, randomized);
     return 'Succeeded.';
   }

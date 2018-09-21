@@ -9,31 +9,29 @@ import Supplements from '../dataset/Supplements';
 import { selectRandom, shuffleSimply } from './shuffleUtils';
 import validate from './validate';
 
-export default async function randomizeItems(
+export default function randomizeItems(
   script: Script,
   supplements: Supplements,
   seed: string,
 ) {
-  const source = await createSource(script, supplements);
-  assert(await validate(source));
+  const source = createSource(script, supplements);
+  assert(validate(source));
   assertUnique(source);
-  const shuffled = await randomizeStorage(source, seedrandom(seed));
+  const shuffled = randomizeStorage(source, seedrandom(seed));
   assertUnique(shuffled);
   script.replaceItems(shuffled);
   script.replaceShops(shuffled.shops);
 }
 
-async function randomizeStorage(source: Storage, rng: prng) {
+function randomizeStorage(source: Storage, rng: prng) {
   let shuffled;
   for (let i = 0; i < 10000; i += 1) {
     // itemをshuffleしてplaceと合わせる
     const storage = shuffle(source, rng);
-    await new Promise((resolve) => { setImmediate(resolve); });
-    if (await validate(storage)) {
+    if (validate(storage)) {
       shuffled = storage;
       break;
     }
-    await new Promise((resolve) => { setImmediate(resolve); });
   }
   if (shuffled == null) {
     throw new Error();

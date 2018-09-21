@@ -1,7 +1,7 @@
 import assert from 'assert';
 import Storage from '../dataset/Storage';
 
-export default async function validate(storage: Storage) {
+export default function validate(storage: Storage) {
   let currentItemNames = (
     storage.allRequirementNames.filter(x => !storage.allItems.map(y => y.name).includes(x))
   );

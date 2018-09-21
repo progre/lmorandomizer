@@ -5,7 +5,7 @@ import {
   readScriptDat,
 } from '../domains/util/scriptdat/format/scriptconverter';
 
-export default async function randomize(
+export default function randomize(
   scriptDat: ArrayBuffer,
   supplementFiles: {
     weaponsYml: string;
@@ -19,8 +19,8 @@ export default async function randomize(
     easyMode: boolean;
   },
 ) {
-  const script = await readScriptDat(scriptDat);
-  await randomizeItems(script, new Supplements(supplementFiles), options.seed);
+  const script = readScriptDat(scriptDat);
+  randomizeItems(script, new Supplements(supplementFiles), options.seed);
   if (options.easyMode) {
     script.addStartingItems(
       [

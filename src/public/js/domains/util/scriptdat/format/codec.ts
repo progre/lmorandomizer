@@ -35,28 +35,18 @@ const CODE_MAP: ReadonlyArray<Readonly<{
   return list;
 })();
 
-export async function decode(bin: ArrayBuffer): Promise<string> {
+export function decode(bin: ArrayBuffer) {
   let str = '';
-  for (const [i, item] of new Uint8Array(bin).entries()) {
+  for (const item of new Uint8Array(bin)) {
     str += toChar(item ^ KEY);
-    if (i % 1000 === 0) {
-      await new Promise((resolve) => {
-        setImmediate(resolve);
-      });
-    }
   }
   return str;
 }
 
-export async function encode(txt: string) {
+export function encode(txt: string) {
   const array: number[] = [];
-  for (const [i, char] of txt.split('').entries()) {
+  for (const char of txt.split('')) {
     array.push(toCode(char) ^ KEY);
-    if (i % 1000 === 0) {
-      await new Promise((resolve) => {
-        setImmediate(resolve);
-      });
-    }
   }
   return Uint8Array.from(array);
 }

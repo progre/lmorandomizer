@@ -6,7 +6,7 @@ import Spot from './Spot';
 import Storage from './Storage';
 import Supplements from './Supplements';
 
-export default async function createSource(script: Script, supplements: Supplements) {
+export default function createSource(script: Script, supplements: Supplements) {
   const allItems = getAllItems(script, supplements);
   const enumerateItems = (
     allItems.mainWeapons
