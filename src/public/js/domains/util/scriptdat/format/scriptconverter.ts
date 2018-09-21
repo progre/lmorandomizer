@@ -16,8 +16,10 @@ export function readScriptDat(file: ArrayBuffer) {
 }
 
 export function buildScriptDat(script: Script) {
-  const dat = encode(script.stringify());
-  return <ArrayBuffer>dat.buffer;
+  const str = script.stringify();
+  const array = new Uint8Array(str.length);
+  encode(str, array.byteLength, array);
+  return array;
 }
 
 export function isValidScriptDat(file: ArrayBuffer) {

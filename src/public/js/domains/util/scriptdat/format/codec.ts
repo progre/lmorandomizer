@@ -43,12 +43,10 @@ export function decode(bin: ArrayBuffer) {
   return str;
 }
 
-export function encode(txt: string) {
-  const array: number[] = [];
-  for (const char of txt.split('')) {
-    array.push(toCode(char) ^ KEY);
+export function encode(txt: string, len: number, buf: Uint8Array) {
+  for (let i = 0; i < txt.length; i += 1) {
+    buf[i] = toCode(txt.charAt(i)) ^ KEY;
   }
-  return Uint8Array.from(array);
 }
 
 export function textToShopData(text: string) {
