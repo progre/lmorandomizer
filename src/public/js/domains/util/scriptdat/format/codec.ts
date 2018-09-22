@@ -8,7 +8,7 @@ const CODE_MAP: ReadonlyArray<Readonly<{
   char: string;
 }>> = (() => {
   const src = [
-    0x00, '０１２３４５６７８９\nｂｃｄｅｆ',
+    0x00, '０１２３４５６７８９\nＢＣＤＥＦ',
     0x10, 'ＳｄＯ新⑩倍母天道書者闇死地古文',
     0x7F, '代'
     + '形勇気年杯体をぁぃぅぇぉゃゅょっ'
@@ -35,6 +35,13 @@ const CODE_MAP: ReadonlyArray<Readonly<{
   return list;
 })();
 
+const CHAR_TO_CODE: { [char: string]: number }
+  // tslint:disable-next-line:prefer-object-spread
+  = CODE_MAP.reduce((p, c) => ({ ...p, [c.char]: c.code }), {});
+const CODE_TO_CHAR: { [code: number]: string }
+  // tslint:disable-next-line:prefer-object-spread
+  = CODE_MAP.reduce((p, c) => Object.assign(p, { [c.code]: c.char }), {});
+
 export function decode(bin: ArrayBuffer) {
   let str = '';
   for (const item of new Uint8Array(bin)) {
@@ -58,11 +65,11 @@ export function textToShopData(text: string) {
 }
 
 function toCode(char: string) {
-  const idx = CODE_MAP.findIndex(y => y.char === char);
-  if (idx < 0) {
+  const code = CHAR_TO_CODE[char];
+  if (code == null) {
     return iconv.encode(char, 'Shift_JIS')[0];
   }
-  return CODE_MAP[idx].code;
+  return code;
 }
 
 export function shopItemDataToText(shopItemData: Uint8Array) {
@@ -71,9 +78,9 @@ export function shopItemDataToText(shopItemData: Uint8Array) {
 }
 
 function toChar(code: number) {
-  const idx = CODE_MAP.findIndex(y => y.code === code);
-  if (idx < 0) {
+  const char = CODE_TO_CHAR[code];
+  if (char == null) {
     return iconv.decode(<any>[code], 'Shift_JIS');
   }
-  return CODE_MAP[idx].char;
+  return char;
 }
