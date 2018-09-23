@@ -50,7 +50,7 @@ export function decode(bin: ArrayBuffer) {
   return str;
 }
 
-export function encode(txt: string, len: number, buf: Uint8Array) {
+export function encode(txt: string, buf: Uint8Array) {
   for (let i = 0; i < txt.length; i += 1) {
     buf[i] = toCode(txt.charAt(i)) ^ KEY;
   }
