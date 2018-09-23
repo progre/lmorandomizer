@@ -30,6 +30,7 @@ function randomizeStorage(source: Storage, rng: prng) {
     const storage = shuffle(source, rng);
     if (validate(storage)) {
       shuffled = storage;
+      console.log(`Shuffle was tryed: ${i} times`);
       break;
     }
   }

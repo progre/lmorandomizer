@@ -19,9 +19,15 @@ export default function randomize(
     easyMode: boolean;
   },
 ) {
+  console.time('read');
   const script = readScriptDat(scriptDat);
-  randomizeItems(script, new Supplements(supplementFiles), options.seed);
+  console.timeEnd('read');
+  console.time('randomize');
+  const supplements = new Supplements(supplementFiles);
+  randomizeItems(script, supplements, options.seed);
+  console.timeEnd('randomize');
   if (options.easyMode) {
+    console.time('addItems');
     script.addStartingItems(
       [
         // equipmentNumbers.holyGrail,
@@ -32,6 +38,10 @@ export default function randomize(
         // subWeaponNumbers.handScanner,
       ],
     );
+    console.timeEnd('addItems');
   }
-  return buildScriptDat(script);
+  console.time('build');
+  const output = buildScriptDat(script);
+  console.timeEnd('build');
+  return output;
 }

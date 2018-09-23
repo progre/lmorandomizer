@@ -10,5 +10,5 @@ import randomize from './applications/randomize';
 
 onmessage = (e) => {
   const randomized = randomize(e.data.scriptDat, e.data.supplementFiles, e.data.options);
-  postMessage(randomized, <any>undefined, [randomized]);
+  postMessage(randomized.buffer, <any>undefined, [randomized.buffer]);
 };

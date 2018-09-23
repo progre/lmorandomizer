@@ -39,6 +39,10 @@ export default class App {
         this.worker.onmessage = null;
         resolve(e.data);
       };
+      this.worker.onerror = (err) => {
+        this.worker.onerror = null;
+        reject(err.error);
+      };
       this.worker.postMessage(
         { supplementFiles, options, scriptDat },
         [scriptDat],
