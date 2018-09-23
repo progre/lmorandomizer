@@ -13,6 +13,9 @@
 
 # Temple of the Sun
 - names: toukenAmmo, spearAmmo, flareGunAmmo
+  requirements:
+    - shuriken, shurikenAmmo
+    - feather
 - names: heatproofCase, divinerSensation, weights
 - names: ammunition, bombAmmo, shurikenAmmo
   requirements:
@@ -73,12 +76,12 @@
 # Temple of Moonlight
 - names: bracelet, shurikenAmmo, ammunition
   requirements:
-    - event:reachedFrontOfTempleOfMoonlight, shuriken, bomb
+    - event:reachedFrontOfTempleOfMoonlight, bomb, bombAmmo
 
 # Tower of Ruin
 - names: knightmare, bombAmmo, flareGunAmmo
   requirements:
-    - event:reachedFrontOfTowerOfRuin, katana
+    - event:reachedFrontOfTowerOfRuin, katana, feather
 
 # Chamber of Birth
 - names: ammunition, ankhJewel:chamberOfBirth, weights

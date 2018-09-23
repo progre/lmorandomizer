@@ -19,11 +19,13 @@ export default function randomize(
     easyMode: boolean;
   },
 ) {
-  console.time('read');
+  console.time('readScriptDat');
   const script = readScriptDat(scriptDat);
-  console.timeEnd('read');
-  console.time('randomize');
+  console.timeEnd('readScriptDat');
+  console.time('readSupplements');
   const supplements = new Supplements(supplementFiles);
+  console.timeEnd('readSupplements');
+  console.time('randomize');
   randomizeItems(script, supplements, options.seed);
   console.timeEnd('randomize');
   if (options.easyMode) {

@@ -4,7 +4,7 @@
     - event:reachedFrontOfGateOfIllusion
 - name: event:miniDoll
   requirements:
-    - event:reachedFrontOfGateOfIllusion
+    - event:reachedFrontOfGateOfIllusion, event:reachedGrailOfGateOfIllusion, handScanner, glyphReader
 - name: event:pepper
   requirements:
     - event:reachedFrontOfGateOfIllusion
@@ -42,8 +42,8 @@
 
 - name: event:defeatedViy
   requirements:
-    - event:reachedFrontOfTowerOfRuin, spear, spearAmmo, ankhJewel:towerOfRuin, iceCape
-    - event:reachedFrontOfTowerOfRuin, spear, spearAmmo, ankhJewel:towerOfRuin, sacredOrb:8
+    - event:reachedFrontOfTowerOfRuin, spear, spearAmmo, bronzeMirror, event:defeatedBahamut, ankhJewel:towerOfRuin, iceCape
+    - event:reachedFrontOfTowerOfRuin, spear, spearAmmo, bronzeMirror, event:defeatedBahamut, ankhJewel:towerOfRuin, sacredOrb:8
 
 - name: event:reachedPalenque
   requirements:
@@ -61,8 +61,7 @@
 
 - name: event:reachedFrontOfShrineOfTheMother
   requirements:
-    - keyOfEternity, handScanner, glyphReader, feather
-    - keyOfEternity, handScanner, glyphReader, grappleClaw
+    - keyOfEternity, handScanner, glyphReader, feather, spear, spearAmmo, boots, glove, dragonBone
 
 - name: event:reachedFrontOfGateOfIllusion
   requirements:
@@ -76,7 +75,7 @@
     # - event:reachedBackDoorOfGateOfIllusion # circular reference
 - name: event:reachedBackDoorOfGateOfIllusion
   requirements:
-    - event:reachedTowerOfTheGoddess, feather, grappleClaw, planeModel
+    - event:reachedTowerOfTheGoddess, feather, grappleClaw, keySword, planeModel
 
 - name: event:reachedFrontOfGraveyardOfTheGiants
   requirements:
@@ -126,7 +125,7 @@
     - event:reachedBackDoorOfGraveyardOfTheGiants
 - name: event:lightedUpChamberOfExtinction
   requirements:
-    - event:reachedUpperOfChamberOfBirth, feather
+    - event:reachedUpperOfChamberOfBirth
     - flareGun
 
 - name: event:reachedDimensionalCorridor
@@ -134,4 +133,4 @@
     - event:releasedTwins, crystalSkull, feather
 - name: event:defeatedTiamat
   requirements:
-    - event:reachedDimensionalCorridor, ankhJewel:dimensionalCorridor
+    - event:reachedDimensionalCorridor, ankhJewel:dimensionalCorridor, keySword

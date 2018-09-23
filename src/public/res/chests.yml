@@ -47,7 +47,8 @@
     - event:defeatedViy
 - name: boots
   requirements:
-    - event:floodedTempleOfTheSun, originSeal, feather
+    - event:floodedTempleOfTheSun
+    - feather
 - name: sacredOrb:templeOfTheSun
 # skip ankhJewel
 
@@ -149,7 +150,7 @@
 # Tower of the Goddess
 - name: a1Spirit
   requirements:
-    - event:reachedTowerOfTheGoddess, planeModel
+    - event:reachedTowerOfTheGoddess, planeModel, pistol, ammunition
 - name: planeModel
   requirements:
     - event:reachedTowerOfTheGoddess, feather, grappleClaw
@@ -183,6 +184,7 @@
 - name: serpentStaff
   requirements:
     - event:reachedFrontOfTempleOfMoonlight, grappleClaw
+    - event:reachedFrontOfTempleOfMoonlight, feather
 
 # Tower of Ruin
 - name: djedPillar
@@ -211,7 +213,7 @@
     - event:reachedLowerOfChamberOfBirth
 - name: pochetteKey
   requirements:
-    - event:reachedLowerOfChamberOfBirth, cogOfTheSoul
+    - event:reachedLowerOfChamberOfBirth, bomb, bombAmmo, cogOfTheSoul
 
 # Dimensional Corridor
 - name: magatamaJewel

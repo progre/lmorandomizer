@@ -16,7 +16,7 @@ mainWeapons:
       - event:reachedTowerOfTheGoddess
   - name: axe
     requirements:
-      - event:reachedGrailOfTempleOfMoonlight
+      - event:reachedFrontOfTempleOfMoonlight, shuriken, shurikenAmmo, knife
 subWeapons:
   - name: shuriken
   - name: ankhJewel:gateOfGuidance
