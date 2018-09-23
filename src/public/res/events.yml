@@ -100,7 +100,7 @@
 - name: event:escapeFromTempleOfMoonlight
   requirements:
     - holyGrail
-    # - anchor, knife, bronzeMirror, ankhJewel:gateOfGuidance # TODO: anchor randomize
+    # - event:anchor, knife, bronzeMirror, ankhJewel:gateOfGuidance # circular reference
     - bronzeMirror, ankhJewel:mausoleumOfTheGiants
 
 - name: event:reachedTowerOfTheGoddess
