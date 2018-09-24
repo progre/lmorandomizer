@@ -129,7 +129,7 @@
 
 - name: event:reachedDimensionalCorridor
   requirements:
-    - event:releasedTwins, crystalSkull, feather
+    - event:releasedTwins, crystalSkull, feather, bronzeMirror
 - name: event:defeatedTiamat
   requirements:
     - event:reachedDimensionalCorridor, ankhJewel:dimensionalCorridor, keySword
