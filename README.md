@@ -6,7 +6,7 @@ La-Mulana (Original version) Randomizer
 
 Randomizer for La-Mulana (Original version). Original game will be found in [Internet Archive](https://archive.org/details/La-Mulana)
 
-This tool is inspired by [La-Mulana Randomizer](https://github.com/thezerothcat/LaMulanaRandomizer/wiki).
+This tool was inspired by [La-Mulana Randomizer](https://github.com/thezerothcat/LaMulanaRandomizer/wiki).
 
 <img width="750" src="window.png">
 
@@ -19,7 +19,7 @@ Information
 
 This application replace items in script.dat of La-Mulana with random. Even after repalce, you can finish the game (but it may contain bugs...).
 
-### Currently restriction
+### Currently restrictions
 
 - Items in *True Shrine of the Mother* and *Night Surface* aren't replace. You must collect items in *(normal) Shrine of the Mother* and *Surface* before it.
 - NPCs' items are't replace. (*Mini Doll*, *Pepper*, *Anchor*, and *Mulana Talisman*)
