@@ -1,6 +1,5 @@
 // tslint:disable-next-line:no-implicit-dependencies
 import electron from 'electron';
-const { app } = electron.remote;
 const { ipcRenderer } = electron;
 import React from 'react';
 import App from '../applications/app';
@@ -82,8 +81,7 @@ export default class Index extends React.Component<Props, typeof initialState> {
     let result;
     try {
       result = await this.app.apply(
-        `${this.state.installDirectory}/data/script.dat`,
-        `${app.getPath('userData')}/script.dat.bak`,
+        this.state.installDirectory,
         {
           seed: this.state.seed || '',
           easyMode: this.state.easyMode || false,
@@ -109,10 +107,7 @@ export default class Index extends React.Component<Props, typeof initialState> {
     });
     let result;
     try {
-      result = await this.app.restore(
-        `${this.state.installDirectory}/data/script.dat`,
-        `${app.getPath('userData')}/script.dat.bak`,
-      );
+      result = await this.app.restore(this.state.installDirectory);
     } catch (err) {
       console.error(err);
       result = err.toString();
