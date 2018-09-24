@@ -55,7 +55,6 @@ function toIntegerItemType(
   }
 }
 
-// tslint:disable-next-line:max-func-body-length
 export function replaceItems(
   worlds: ReadonlyArray<LMWorld>,
   shuffled: Storage,
@@ -71,6 +70,7 @@ export function replaceItems(
       ...field,
       maps: field.maps.map(map => ({
         ...map,
+        // tslint:disable-next-line:max-func-body-length
         objects: map.objects.map((obj, i) => {
           switch (obj.number) {
             case 77: {
@@ -150,6 +150,17 @@ export function replaceItems(
                   shuffled.subWeaponShutters[subWeaponSpotIdx - 1].item.flag,
                   obj.op2, obj.op3, obj.op4,
                   obj.starts,
+                )];
+              }
+              return [obj];
+            }
+            case 186: {
+              // Vimana
+              if (obj.starts.length === 1 && obj.starts[0].number === 788) {
+                return [new LMObject(
+                  obj.number, obj.x, obj.y,
+                  obj.op1, obj.op2, obj.op3, obj.op4,
+                  [{ number: 891, value: obj.starts[0].value }],
                 )];
               }
               return [obj];
