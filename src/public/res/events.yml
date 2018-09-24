@@ -26,7 +26,7 @@
 - name: event:floodedTempleOfTheSun
   requirements:
     - knife, scalesphere
-    - knife, sacredOrb:8
+    - knife, sacredOrb:6 # tested
 
 - name: event:floodedSpringInTheSky
   requirements:
@@ -43,7 +43,6 @@
 - name: event:defeatedViy
   requirements:
     - event:reachedFrontOfTowerOfRuin, spear, spearAmmo, bronzeMirror, event:defeatedBahamut, ankhJewel:towerOfRuin, iceCape
-    - event:reachedFrontOfTowerOfRuin, spear, spearAmmo, bronzeMirror, event:defeatedBahamut, ankhJewel:towerOfRuin, sacredOrb:8
 
 - name: event:reachedPalenque
   requirements:
