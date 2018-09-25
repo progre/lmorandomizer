@@ -54,15 +54,20 @@ function shuffle(source: Storage, rng: prng): Storage {
   assert.equal(source.chests.length, newChestItems.length);
   assert.equal(source.sealChests.length, newSealChestItems.length);
   assert.equal(source.shops.length, newShopItems.length);
-  const mainWeaponShutters = shuffleSimply(newMainWeaponShutters, rng)
+  shuffleSimply(newMainWeaponShutters, rng);
+  const mainWeaponShutters = newMainWeaponShutters
     .map((item, i) => ({ item, spot: source.mainWeaponShutters[i].spot }));
-  const subWeaponShutters = shuffleSimply(newSubWeaponShutters, rng)
+  shuffleSimply(newSubWeaponShutters, rng);
+  const subWeaponShutters = newSubWeaponShutters
     .map((item, i) => ({ item, spot: source.subWeaponShutters[i].spot }));
-  const chests = shuffleSimply(newChestItems, rng)
+  shuffleSimply(newChestItems, rng);
+  const chests = newChestItems
     .map((item, i) => ({ item, spot: source.chests[i].spot }));
-  const sealChests = shuffleSimply(newSealChestItems, rng)
+  shuffleSimply(newSealChestItems, rng);
+  const sealChests = newSealChestItems
     .map((item, i) => ({ item, spot: source.sealChests[i].spot }));
-  const shops = shuffleSimply(newShopItems, rng)
+  shuffleSimply(newShopItems, rng);
+  const shops = newShopItems
     .map((items, i) => ({ items, spot: source.shops[i].spot }));
   assert(shops.every(x => x.spot.talkNumber != null));
   return new Storage(mainWeaponShutters, subWeaponShutters, chests, sealChests, shops);

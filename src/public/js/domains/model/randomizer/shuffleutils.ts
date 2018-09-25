@@ -12,11 +12,9 @@ export function selectRandom(biases: number[], rng: prng) {
   throw new Error();
 }
 
-export function shuffleSimply<T>(list: ReadonlyArray<T>, rng: prng): ReadonlyArray<T> {
-  const array = [...list];
-  for (let i = array.length - 1; i >= 0; i -= 1) {
-    const rand = Math.floor(rng() * (i + 1));
-    [array[i], array[rand]] = [array[rand], array[i]];
+export function shuffleSimply<T>(list: T[], rng: prng) {
+  for (let i = list.length - 1; i >= 0; i -= 1) {
+    const rand = rng() * (i + 1) | 0;
+    [list[i], list[rand]] = [list[rand], list[i]];
   }
-  return array;
 }
