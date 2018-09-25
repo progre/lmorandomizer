@@ -4,14 +4,39 @@ import Spot from './Spot';
 
 export default class Storage {
   readonly allItems: ReadonlyArray<Item>;
-  readonly allRequirementNames: ReadonlyArray<string>;
+
+  static create(
+    mainWeaponShutters: ReadonlyArray<{ spot: Spot; item: Item }>,
+    subWeaponShutters: ReadonlyArray<{ spot: Spot; item: Item }>,
+    chests: ReadonlyArray<{ spot: Spot; item: Item }>,
+    sealChests: ReadonlyArray<{ spot: Spot; item: Item }>,
+    shops: ReadonlyArray<{ spot: Spot; items: [Item, Item, Item] }>,
+  ) {
+    return new this(
+      (() => {
+        const set = new Set<string>();
+        addSpotRequirementItemNamesTo(set, mainWeaponShutters);
+        addSpotRequirementItemNamesTo(set, subWeaponShutters);
+        addSpotRequirementItemNamesTo(set, chests);
+        addSpotRequirementItemNamesTo(set, sealChests);
+        addSpotRequirementItemNamesTo(set, shops);
+        return [...set].sort();
+      })(),
+      mainWeaponShutters,
+      subWeaponShutters,
+      chests,
+      sealChests,
+      shops,
+    );
+  }
 
   constructor(
-    public mainWeaponShutters: ReadonlyArray<{ spot: Spot; item: Item }>,
-    public subWeaponShutters: ReadonlyArray<{ spot: Spot; item: Item }>,
-    public chests: ReadonlyArray<{ spot: Spot; item: Item }>,
-    public sealChests: ReadonlyArray<{ spot: Spot; item: Item }>,
-    public shops: ReadonlyArray<{ spot: Spot; items: [Item, Item, Item] }>,
+    public readonly allRequirementNames: ReadonlyArray<string>,
+    public readonly mainWeaponShutters: ReadonlyArray<{ spot: Spot; item: Item }>,
+    public readonly subWeaponShutters: ReadonlyArray<{ spot: Spot; item: Item }>,
+    public readonly chests: ReadonlyArray<{ spot: Spot; item: Item }>,
+    public readonly sealChests: ReadonlyArray<{ spot: Spot; item: Item }>,
+    public readonly shops: ReadonlyArray<{ spot: Spot; items: [Item, Item, Item] }>,
   ) {
     assert(mainWeaponShutters.every(x => x.spot.type === 'weaponShutter'));
     assert(subWeaponShutters.every(x => x.spot.type === 'weaponShutter'));
@@ -19,23 +44,17 @@ export default class Storage {
     assert(sealChests.every(x => x.spot.type === 'sealChest'));
     assert(shops.every(x => x.spot.type === 'shop'));
 
-    this.allItems = (
+    const allItems = (
       this.mainWeaponShutters.map(x => x.item)
         .concat(this.subWeaponShutters.map(x => x.item))
         .concat(this.chests.map(x => x.item))
         .concat(this.sealChests.map(x => x.item))
         .concat(this.shops.map(x => x.items).reduce((p, c) => p.concat(c), <Item[]>[]))
     );
-
-    this.allRequirementNames = (() => {
-      const set = new Set<string>();
-      addSpotRequirementItemNamesTo(set, this.mainWeaponShutters);
-      addSpotRequirementItemNamesTo(set, this.subWeaponShutters);
-      addSpotRequirementItemNamesTo(set, this.chests);
-      addSpotRequirementItemNamesTo(set, this.sealChests);
-      addSpotRequirementItemNamesTo(set, this.shops);
-      return [...set].sort();
-    })();
+    allItems.sort((a, b) => (
+      Number(a.canDisplayInShop()) - Number(b.canDisplayInShop())
+    ));
+    this.allItems = allItems;
   }
 
   reachableItemNames(
@@ -76,6 +95,7 @@ export default class Storage {
     sacredOrbCount: number,
   ) {
     return new Storage(
+      this.allRequirementNames,
       this.mainWeaponShutters
         .filter(x => !x.spot.isReachable(currentItemNames, sacredOrbCount)),
       this.subWeaponShutters

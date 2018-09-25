@@ -22,7 +22,7 @@ export default function createSource(script: Script, supplements: Supplements) {
     supplements.chests.length + Supplements.nightSurfaceChestCount,
   );
   const shops = script.shops();
-  return new Storage(
+  return Storage.create(
     allItems.mainWeapons.map((item, i) => {
       const supplement = supplements.mainWeapons[i];
       const spot = new Spot(

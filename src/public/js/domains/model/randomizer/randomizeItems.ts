@@ -70,7 +70,14 @@ function shuffle(source: Storage, rng: prng): Storage {
   const shops = newShopItems
     .map((items, i) => ({ items, spot: source.shops[i].spot }));
   assert(shops.every(x => x.spot.talkNumber != null));
-  return new Storage(mainWeaponShutters, subWeaponShutters, chests, sealChests, shops);
+  return new Storage(
+    source.allRequirementNames,
+    mainWeaponShutters,
+    subWeaponShutters,
+    chests,
+    sealChests,
+    shops,
+  );
 }
 
 function distributeItems(items: ReadonlyArray<Item>, source: Storage, rng: prng) {
@@ -87,10 +94,7 @@ function distributeItems(items: ReadonlyArray<Item>, source: Storage, rng: prng)
   const newChestItems: Item[] = [];
   const newSealChestItems: Item[] = [];
   const newShopItems: Item[] = [];
-  const sorted = [...items].sort((a, b) => (
-    Number(a.canDisplayInShop()) - Number(b.canDisplayInShop())
-  ));
-  sorted.forEach((item) => {
+  items.forEach((item) => {
     switch (selectRandom(
       [
         source.mainWeaponShutters.length - newMainWeaponShutters.length,
