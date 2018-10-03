@@ -6,6 +6,7 @@ import {
 } from '../domains/util/scriptdat/format/scriptconverter';
 
 export default function randomize(
+  wasm: any,
   scriptDat: ArrayBuffer,
   supplementFiles: {
     weaponsYml: string;
@@ -20,7 +21,7 @@ export default function randomize(
   },
 ) {
   console.time('readScriptDat');
-  const script = readScriptDat(scriptDat);
+  const script = readScriptDat(wasm, scriptDat);
   console.timeEnd('readScriptDat');
   console.time('readSupplements');
   const supplements = new Supplements(supplementFiles);

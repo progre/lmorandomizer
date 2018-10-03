@@ -57,7 +57,7 @@
     "url": "git+https://github.com/progre/lmoriginalrandomizer.git"
   },
   "scripts": {
-    "build": "run-s clean release-build",
+    "build": "run-s clean wasm-release-build release-build",
     "clean": "del-cli dist tmp",
     "commitmsg": "commitlint -e $GIT_PARAMS",
     "debug-build": "webpack --mode development --progress",
@@ -65,7 +65,9 @@
     "test": "npx -q -p typescript -p ts-node ts-node src/test/test.ts",
     "package": "electron-builder --win zip --mac zip --publish onTag",
     "release-build": "webpack --mode production --progress",
-    "start": "electron ."
+    "start": "electron .",
+    "wasm-debug-build": "cargo build --target wasm32-unknown-unknown && mkdir -p dist/public/wasm/ && cp target/wasm32-unknown-unknown/debug/lib.wasm dist/public/wasm/",
+    "wasm-release-build": "cargo build --release --target wasm32-unknown-unknown && mkdir -p dist/public/wasm/ && cp target/wasm32-unknown-unknown/release/lib.wasm dist/public/wasm/"
   },
   "typings": "dist/index.d.ts"
 }

@@ -11,9 +11,14 @@ cache:
     - node_modules
     - "$HOME/.cache/electron"
     - "$HOME/.cache/electron-builder"
+
+before_install:
+  - curl https://sh.rustup.rs -sSf | sh -s -- -y
+  - ~/.cargo/bin/rustup install stable
+  - ~/.cargo/bin/rustup target add wasm32-unknown-unknown
 script:
   - npm run debug-build
-  - npm run build
+  - PATH=$PATH:~/.cargo/bin/ npm run build
   - npm run package
 before_cache:
   - rm -rf $HOME/.cache/electron-builder/wine
