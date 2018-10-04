@@ -15,21 +15,20 @@ export function readScriptDat(wasm: any, file: ArrayBuffer) {
 }
 
 function decode(wasm: any, file: ArrayBuffer) {
-  const fromAsciiPtr: number = wasm.alloc(file.byteLength);
-  const toUtf16Ptr: number = wasm.alloc(file.byteLength * 2);
-  const buffer: ArrayBuffer = wasm.memory.buffer;
-  const heap = new Uint8Array(buffer);
-  heap.set(new Uint8Array(file), fromAsciiPtr);
-  wasm.decode(file.byteLength, fromAsciiPtr, toUtf16Ptr);
-  wasm.free(fromAsciiPtr);
-  const to = new Uint16Array(
-    buffer.slice(toUtf16Ptr, toUtf16Ptr + file.byteLength * 2),
-  );
-  let str = '';
-  for (const code of to) {
-    str += String.fromCodePoint(code);
-  }
-  wasm.free(toUtf16Ptr);
+  let str: string = <any>null;
+  useNativeMemory(wasm, file.byteLength * 2, (toUtf16Ptr) => {
+    let buffer: ArrayBuffer = <any>null;
+    useNativeMemory(wasm, file.byteLength, (fromAsciiPtr) => {
+      buffer = wasm.memory.buffer;
+      const heap = new Uint8Array(buffer);
+      heap.set(new Uint8Array(file), fromAsciiPtr);
+      wasm.decode(file.byteLength, fromAsciiPtr, toUtf16Ptr);
+    });
+    const to = new Uint16Array(
+      buffer.slice(toUtf16Ptr, toUtf16Ptr + file.byteLength * 2),
+    );
+    str = fromUtf16(to);
+  });
   return str;
 }
 
@@ -39,19 +38,38 @@ export function buildScriptDat(wasm: any, script: Script) {
 }
 
 function encode(wasm: any, str: string) {
-  const fromStringBuilderPtr: number
-    = wasm.create_string_builder_with_capacity(str.length);
-  for (const char of str) {
-    wasm.string_builder_append_unchecked(fromStringBuilderPtr, char.codePointAt(0));
-  }
-  const toAsciiPtr: number = wasm.alloc(str.length);
-  wasm.encode(fromStringBuilderPtr, str.length, toAsciiPtr);
-  wasm.destroy_string_builder(fromStringBuilderPtr);
-  const buffer: ArrayBuffer = wasm.memory.buffer;
   const result = new Uint8Array(str.length);
-  result.set(new Uint8Array(buffer.slice(toAsciiPtr, toAsciiPtr + str.length)), 0);
-  wasm.free(toAsciiPtr);
+  useNativeStringBuilder(wasm, str, (fromStringBuilderPtr) => {
+    useNativeMemory(wasm, str.length, (toAsciiPtr) => {
+      wasm.encode(fromStringBuilderPtr, str.length, toAsciiPtr);
+      const buffer: ArrayBuffer = wasm.memory.buffer;
+      result.set(new Uint8Array(buffer.slice(toAsciiPtr, toAsciiPtr + str.length)), 0);
+    });
+  });
   return result;
+}
+
+function useNativeStringBuilder(wasm: any, str: string, callback: (ptr: number) => void) {
+  const ptr: number = wasm.create_string_builder_with_capacity(str.length);
+  for (const char of str) {
+    wasm.string_builder_append_unchecked(ptr, char.codePointAt(0));
+  }
+  callback(ptr);
+  wasm.destroy_string_builder(ptr);
+}
+
+function useNativeMemory(wasm: any, size: number, callback: (ptr: number) => void) {
+  const ptr: number = wasm.alloc(size);
+  callback(ptr);
+  wasm.free(ptr);
+}
+
+function fromUtf16(buffer: Uint16Array) {
+  let str = '';
+  for (let i = 0; i < buffer.length; i += 1024) {
+    str += String.fromCodePoint.apply(null, buffer.slice(i, i + 1024));
+  }
+  return str;
 }
 
 export function isValidScriptDat(file: ArrayBuffer) {
