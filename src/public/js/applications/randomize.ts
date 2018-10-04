@@ -44,7 +44,7 @@ export default function randomize(
     console.timeEnd('addItems');
   }
   console.time('build');
-  const output = buildScriptDat(script);
+  const output = buildScriptDat(wasm, script);
   console.timeEnd('build');
   return output;
 }

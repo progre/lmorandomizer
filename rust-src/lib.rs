@@ -23,3 +23,30 @@ pub fn free(ptr: *mut c_void, size: usize) {
         let _buf = Vec::from_raw_parts(ptr, 0, size);
     }
 }
+
+pub struct StringBuilder {
+    str: String,
+}
+
+#[no_mangle]
+pub fn create_string_builder_with_capacity(size: i32) -> *mut StringBuilder {
+    Box::into_raw(Box::new(StringBuilder {
+        str: String::with_capacity(size as usize),
+    }))
+}
+
+#[no_mangle]
+pub fn destroy_string_builder(b: *mut StringBuilder) {
+    unsafe {
+        Box::from_raw(b);
+    }
+}
+
+#[no_mangle]
+pub fn string_builder_append_unchecked(sb: *mut StringBuilder, code_point: i32) {
+    unsafe {
+        (*sb)
+            .str
+            .push(::std::char::from_u32_unchecked(code_point as u32));
+    }
+}

@@ -1,6 +1,5 @@
 import sha3 from 'js-sha3';
 import Script from '../data/Script';
-import { encode } from './codec';
 
 // tslint:disable:max-line-length
 const SCRIPT_DAT_HASH = 'd18f3a643bee62db6870b35b1a1781bcc4067bd7409fa620168e16054ddc7ce645463b59e06d0768d87eff9ad9bdc1f0efd04dbc498d2e5de73d5a863a692a90';
@@ -22,6 +21,7 @@ function decode(wasm: any, file: ArrayBuffer) {
   const heap = new Uint8Array(buffer);
   heap.set(new Uint8Array(file), fromAsciiPtr);
   wasm.decode(file.byteLength, fromAsciiPtr, toUtf16Ptr);
+  wasm.free(fromAsciiPtr);
   const to = new Uint16Array(
     buffer.slice(toUtf16Ptr, toUtf16Ptr + file.byteLength * 2),
   );
@@ -29,14 +29,29 @@ function decode(wasm: any, file: ArrayBuffer) {
   for (const code of to) {
     str += String.fromCodePoint(code);
   }
+  wasm.free(toUtf16Ptr);
   return str;
 }
 
-export function buildScriptDat(script: Script) {
+export function buildScriptDat(wasm: any, script: Script) {
   const str = script.stringify();
-  const array = new Uint8Array(str.length);
-  encode(str, array);
-  return array;
+  return encode(wasm, str);
+}
+
+function encode(wasm: any, str: string) {
+  const fromStringBuilderPtr: number
+    = wasm.create_string_builder_with_capacity(str.length);
+  for (const char of str) {
+    wasm.string_builder_append_unchecked(fromStringBuilderPtr, char.codePointAt(0));
+  }
+  const toAsciiPtr: number = wasm.alloc(str.length);
+  wasm.encode(fromStringBuilderPtr, str.length, toAsciiPtr);
+  wasm.destroy_string_builder(fromStringBuilderPtr);
+  const buffer: ArrayBuffer = wasm.memory.buffer;
+  const result = new Uint8Array(str.length);
+  result.set(new Uint8Array(buffer.slice(toAsciiPtr, toAsciiPtr + str.length)), 0);
+  wasm.free(toAsciiPtr);
+  return result;
 }
 
 export function isValidScriptDat(file: ArrayBuffer) {
