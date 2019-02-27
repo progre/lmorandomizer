@@ -1,14 +1,16 @@
 - name: birthSeal
   requirements:
-    - originSeal
+    - originSeal, sacredOrb:2 # need more than default health
+    - originSeal, scalesphere # replace sacred orbs
+    - originSeal, holyGrail # warp out
 - name: originSeal
   requirements:
     - sacredOrb:2, helmet
 - name: lifeSeal
   requirements:
-    - birthSeal
+    - birthSeal, axe # need axe to break wall
 - name: deathSeal
   requirements:
-    - keyOfEternity, dragonBone, bomb, bombAmmo
+    - keyOfEternity, dragonBone, bomb, bombAmmo, ocarina, flareGun # need to talk to sage in Temple of Moonlight
 # skip deathSeal
 # skip birthSeal
