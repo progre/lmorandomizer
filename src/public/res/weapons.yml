@@ -2,6 +2,8 @@ mainWeapons:
   - name: knife
     requirements:
       - shuriken
+      - pistol, ammunition # can shoot face with pistol
+      - bomb, bombAmmo # can throw bomb and hit face
   - name: chainWhip
     requirements:
       - birthSeal, grappleClaw
@@ -26,7 +28,7 @@ subWeapons:
   - name: touken
   - name: ankhJewel:mausoleumOfTheGiants
   - name: ankhJewel:templeOfTheSun
-  - name: ankhJewel:springInTheSky
+  - name: ankhJewel:springInTheSky # could probably reach this with enough sacred orbs and sub weapons
     requirements:
       - scalesphere
   - name: flareGun
