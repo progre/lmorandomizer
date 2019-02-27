@@ -16,20 +16,24 @@
   requirements:
     - shuriken, shurikenAmmo
     - feather
+    - pistol, ammunition # pistol can hit face
+    - bomb, bombAmmo # bombs can be thrown over wall and hit face
 - names: heatproofCase, divinerSensation, weights
 - names: ammunition, bombAmmo, shurikenAmmo
   requirements:
-    - deathSeal
+    - deathSeal, feather # need feather to reach seal location
 
 # Spring in the Sky
 - names: weights, shurikenAmmo, toukenAmmo
   requirements:
-    - sacredOrb:2, originSeal
-    - scalesphere, originSeal
+    - sacredOrb:2, originSeal, helmet # need way past waterfall
+    - scalesphere, originSeal, helmet # need way past waterfall
+    - sacredOrb:4, originSeal, feather, grappleClaw # need way past waterfall
+    - scalesphere, originSeal, feather, grappleClaw # need way past waterfall
 - names: shellHorn, finder, castlevania
   requirements:
-    - sacredOrb:2, originSeal, divinerSensation, event:qBert
-    - scalesphere, originSeal, divinerSensation, event:qBert
+    - sacredOrb:2, originSeal, divinerSensation, event:qBert, helmet # need way past waterfall
+    - scalesphere, originSeal, divinerSensation, event:qBert, helmet # need way past waterfall
 
 # Inferno Cavern
 - names: mahjongWizard, spearAmmo, toukenAmmo
@@ -50,8 +54,7 @@
 - names: helmet, bombAmmo, fakeHandScanner
 - names: lampOfTime, shurikenAmmo, toukenAmmo
   requirements:
-    - event:releasedTwins, bomb
-    - event:releasedTwins, feather
+    - event:releasedTwins, feather, boots # can not solve puzzle. need boots and feather to reach door.
 
 # Twin Labyrinths (back)
 - names: scriptures, bombAmmo, spearAmmo
@@ -69,19 +72,21 @@
 # Graveyard of the Giants
 - names: spearAmmo, fakeSilverShield, weights
   requirements:
-    - event:reachedFrontOfGraveyardOfTheGiants
+    - event:reachedLiarOfGraveyardOfTheGiants
 
 # Tower of the Goddess
 
 # Temple of Moonlight
 - names: bracelet, shurikenAmmo, ammunition
   requirements:
-    - event:reachedFrontOfTempleOfMoonlight, bomb, bombAmmo
+    - event:reachedFrontOfTempleOfMoonlight, bomb, bombAmmo, bookOfTheDead # need to survive anubis
+    - event:reachedFrontOfTempleOfMoonlight, bomb, bombAmmo, sacredOrb:3 # untested sacred orb amount
 
 # Tower of Ruin
 - names: knightmare, bombAmmo, flareGunAmmo
   requirements:
     - event:reachedFrontOfTowerOfRuin, katana, feather
+    - event:reachedFrontOfTowerOfRuin, katana, grappleClaw, boots # possible to grab wall and get on platform with door
 
 # Chamber of Birth
 - names: ammunition, ankhJewel:chamberOfBirth, weights
