@@ -2,6 +2,8 @@ mainWeapons:
   - name: knife
     requirements:
       - shuriken
+      - pistol, ammunition # can shoot face with pistol
+      - bomb, bombAmmo # can throw bomb and hit face
   - name: chainWhip
     requirements:
       - birthSeal, grappleClaw
