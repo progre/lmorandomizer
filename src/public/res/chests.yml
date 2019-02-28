@@ -55,7 +55,7 @@
 # Spring in the Sky
 - name: sacredOrb:springInTheSky
   requirements:
-    - lifeSeal
+    - birthSeal # this requires birth seal. not life seal
 - name: glove
   requirements:
     - event:floodedSpringInTheSky
