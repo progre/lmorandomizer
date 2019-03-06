@@ -77,7 +77,7 @@
     # - event:reachedBackDoorOfGateOfIllusion # circular reference
 - name: event:reachedBackDoorOfGateOfIllusion
   requirements:
-    - event:reachedTowerOfTheGoddess, feather, grappleClaw, keySword, planeModel
+    - event:reachedTowerOfTheGoddess, feather, grappleClaw, boots, keySword, planeModel
 
 - name: event:reachedFrontOfGraveyardOfTheGiants
   requirements:
