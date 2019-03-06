@@ -136,7 +136,7 @@
     - event:reachedFrontOfGateOfIllusion
 - name: cogOfTheSoul
   requirements:
-    - event:reachedBackDoorOfGateOfIllusion, event:reachedElevatorOfGateOfIllusion, lampOfTime
+    - event:reachedBackDoorOfGateOfIllusion, lampOfTime, event:miniDoll # need to kill Shu to open chest
 
 # Graveyard of the Giants
 - name: contra
