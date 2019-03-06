@@ -110,7 +110,8 @@
 - name: event:reachedTowerOfTheGoddess
   requirements:
     - bronzeMirror, event:defeatedViy
-    - event:reachedBackDoorOfGraveyardOfTheGiants, planeModel # bomb in from Graveyard
+    - event:reachedBackDoorOfGraveyardOfTheGiants, planeModel, holyGrail # bomb in from Graveyard
+    - event:reachedBackDoorOfGraveyardOfTheGiants, planeModel, feather, boots, grappleClaw # need a way back out
 
 - name: event:reachedFrontOfTowerOfRuin
   requirements:
