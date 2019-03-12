@@ -142,16 +142,17 @@
 - name: contra
   requirements:
     - event:reachedLiarOfGraveyardOfTheGiants # need to reach top of Graveyard to acquire
-    - event:reachedFrontOfTempleOfMoonlight, katana, keySword, knife, shuriken 
+    - event:reachedFrontOfTempleOfMoonlight, katana, keySword, knife, shuriken
+    - event:reachedFrontOfTempleOfMoonlight, katana, keySword, knife, flaregun
+    - event:reachedFrontOfTempleOfMoonlight, katana, keySword, knife, spear
 - name: map:graveyardOfTheGiants
   requirements:
     - event:reachedFrontOfGraveyardOfTheGiants, feather # need help reaching weight dais
     - event:reachedFrontOfGraveyardOfTheGiants, boots # need help reaching weight dais
 - name: gauntlet
   requirements:
-    - event:reachedFrontOfGraveyardOfTheGiants, birthSeal, grappleClaw, boots # need boots or feather to reach
-    - event:reachedFrontOfGraveyardOfTheGiants, birthSeal, grappleClaw, feather
-
+    - event:reachedFrontOfGraveyardOfTheGiants, birthSeal, grappleClaw
+    
 # Tower of the Goddess
 - name: a1Spirit
   requirements:
