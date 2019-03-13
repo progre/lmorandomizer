@@ -34,6 +34,8 @@
   requirements:
     - sacredOrb:2, originSeal, divinerSensation, event:qBert, msx2, helmet # need way past waterfall. 
     - scalesphere, originSeal, divinerSensation, event:qBert, msx2, helmet # msx2 required to equip diviner sensation.
+    - sacredOrb:4, originSeal, feather, grappleClaw, divinerSensation, event:qBert, msx2 # need a way past waterfall
+    - scalesphere, originSeal, feather, grappleClaw, divinerSensation, event:qBert, msx2 # need a way past waterfall
 
 # Inferno Cavern
 - names: mahjongWizard, spearAmmo, toukenAmmo
