@@ -49,7 +49,7 @@
 - name: event:reachedPalenque # this is for getting to the area with palenque, not fighting him
   requirements:
     - event:defeatedViy, feather
-    - divinerSensation, event:qBert, msx2, feather # reach from Maze of Gallious area
+    - divinerSensation, event:qBert, msx2, feather, bronzeMirror # reach from Maze of Gallious area
 - name: event:defeatedPalenque
   requirements:
     - event:reachedPalenque, event:reachedUpperOfChamberOfBirth, event:lightedUpChamberOfExtinction, pochetteKey, ankhJewel:chamberOfBirth, shuriken # should have a sub weapon to beat
