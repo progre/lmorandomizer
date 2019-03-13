@@ -62,9 +62,9 @@
 - name: map:springInTheSky # can make jumps over waterfalls from the start of the game
 - name: scalesphere
   requirements:
-    - sacredOrb:2, helmet, originSeal
+    - sacredOrb:2, helmet, originSeal, holyGrail
     - scalesphere, helmet, originSeal # scalesphere as substitute for sacredOrbs
-    - sacredOrb:4, feather, grappleClaw, originSeal # sacredOrb amount untested
+    - sacredOrb:4, feather, grappleClaw, originSeal, holyGrail # sacredOrb amount untested
     - scalesphere, feather, grappleClaw, originSeal # can double jump and grapple on to wall and elevator goes through you
 # skip originSeal
 # skip ankhJewel
