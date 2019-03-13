@@ -1,12 +1,12 @@
 - name: birthSeal
   requirements:
-    - originSeal
     - originSeal, sacredOrb:2 # need more than default health
     - originSeal, scalesphere # replace sacred orbs
     - originSeal, holyGrail # warp out
 - name: originSeal
   requirements:
     - sacredOrb:2, helmet
+    - scalesphere, helmet
 - name: lifeSeal
   requirements:
     - birthSeal, axe # need axe to break wall
