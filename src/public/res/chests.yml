@@ -201,7 +201,7 @@
 # Tower of Ruin
 - name: djedPillar
   requirements:
-    - event:reachedBackDoorOfTowerOfRuin, ocarina # need to talk to sage in Spring in the Sky
+    - event:reachedBackDoorOfTowerOfRuin, ocarina, event:mulanaTalisman # need to talk to sage in Spring in the Sky
 - name: map:towerOfRuin
   requirements:
     - event:reachedFrontOfTowerOfRuin, feather # need help making jump past Thunderbird
@@ -231,7 +231,7 @@
 # Dimensional Corridor
 - name: magatamaJewel
   requirements:
-    - event:defeatedTiamat
+    - event:defeatedTiamat, event:mulanaTalisman
 - name: sacredOrb:dimensionalCorridor
   requirements:
     - event:reachedDimensionalCorridor, feather, lampOfTime # do not need grapple claw
