@@ -145,6 +145,7 @@
     - event:reachedFrontOfTempleOfMoonlight, katana, keySword, knife, shuriken
     - event:reachedFrontOfTempleOfMoonlight, katana, keySword, knife, flaregun
     - event:reachedFrontOfTempleOfMoonlight, katana, keySword, knife, spear
+    - event:reachedFrontOfTempleOfMoonlight, katana, keySword, knife, touken
 - name: map:graveyardOfTheGiants
   requirements:
     - event:reachedFrontOfGraveyardOfTheGiants, feather # need help reaching weight dais
