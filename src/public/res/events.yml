@@ -31,8 +31,9 @@
 
 - name: event:floodedSpringInTheSky
   requirements:
-    - sacredOrb:2, helmet, originSeal, scalesphere
+    - scalesphere, helmet, originSeal
     - sacredOrb:8, helmet, originSeal
+    - scalesphere, feather, grappleclaw, originSeal
 - name: event:escapeFromSpringInTheSky
   requirements:
     - scalesphere
