@@ -62,9 +62,9 @@
 - name: map:springInTheSky # can make jumps over waterfalls from the start of the game
 - name: scalesphere
   requirements:
-    - sacredOrb:2, helmet, originSeal
+    - sacredOrb:2, helmet, originSeal, holyGrail
     - scalesphere, helmet, originSeal # scalesphere as substitute for sacredOrbs
-    - sacredOrb:4, feather, grappleClaw, originSeal # sacredOrb amount untested
+    - sacredOrb:4, feather, grappleClaw, originSeal, holyGrail # sacredOrb amount untested
     - scalesphere, feather, grappleClaw, originSeal # can double jump and grapple on to wall and elevator goes through you
 # skip originSeal
 # skip ankhJewel
@@ -136,22 +136,24 @@
     - event:reachedFrontOfGateOfIllusion
 - name: cogOfTheSoul
   requirements:
-    - event:reachedBackDoorOfGateOfIllusion, event:reachedElevatorOfGateOfIllusion, lampOfTime
+    - event:reachedBackDoorOfGateOfIllusion, lampOfTime, event:miniDoll # need to kill Shu to open chest
 
 # Graveyard of the Giants
 - name: contra
   requirements:
     - event:reachedLiarOfGraveyardOfTheGiants # need to reach top of Graveyard to acquire
-    - event:reachedFrontOfTempleOfMoonlight, katana, keySword, knife, shuriken 
+    - event:reachedFrontOfTempleOfMoonlight, katana, keySword, knife, shuriken
+    - event:reachedFrontOfTempleOfMoonlight, katana, keySword, knife, flaregun
+    - event:reachedFrontOfTempleOfMoonlight, katana, keySword, knife, spear
+    - event:reachedFrontOfTempleOfMoonlight, katana, keySword, knife, touken
 - name: map:graveyardOfTheGiants
   requirements:
     - event:reachedFrontOfGraveyardOfTheGiants, feather # need help reaching weight dais
     - event:reachedFrontOfGraveyardOfTheGiants, boots # need help reaching weight dais
 - name: gauntlet
   requirements:
-    - event:reachedFrontOfGraveyardOfTheGiants, birthSeal, grappleClaw, boots # need boots or feather to reach
-    - event:reachedFrontOfGraveyardOfTheGiants, birthSeal, grappleClaw, feather
-
+    - event:reachedFrontOfGraveyardOfTheGiants, birthSeal, grappleClaw
+    
 # Tower of the Goddess
 - name: a1Spirit
   requirements:
@@ -200,7 +202,7 @@
 # Tower of Ruin
 - name: djedPillar
   requirements:
-    - event:reachedBackDoorOfTowerOfRuin, ocarina # need to talk to sage in Spring in the Sky
+    - event:reachedBackDoorOfTowerOfRuin, ocarina, event:mulanaTalisman # need to talk to sage in Spring in the Sky
 - name: map:towerOfRuin
   requirements:
     - event:reachedFrontOfTowerOfRuin, feather # need help making jump past Thunderbird
@@ -230,7 +232,7 @@
 # Dimensional Corridor
 - name: magatamaJewel
   requirements:
-    - event:defeatedTiamat
+    - event:defeatedTiamat, event:mulanaTalisman
 - name: sacredOrb:dimensionalCorridor
   requirements:
     - event:reachedDimensionalCorridor, feather, lampOfTime # do not need grapple claw
