@@ -3,7 +3,7 @@
   "description": "Randomizer for La-Mulana Original.",
   "version": "0.4.3",
   "bugs": {
-    "url": "https://github.com/progre/lmoriginalrandomizer/issues"
+    "url": "https://github.com/solairflaire/lmoriginalrandomizer/issues"
   },
   "build": {
     "directories": {
@@ -16,50 +16,59 @@
     ]
   },
   "dependencies": {
-    "@material-ui/core": "^3.0.2",
+    "@material-ui/core": "^3.9.2",
+    "commitlint": "^7.5.2",
+    "event-stream": "^4.0.1",
     "js-sha3": "^0.8.0",
-    "js-yaml": "^3.12.0",
+    "js-yaml": "^3.13.0",
+    "node": "^11.12.0",
     "parse5": "^5.1.0",
     "react": "^16.5.0",
     "react-dom": "^16.5.0",
-    "seedrandom": "^2.4.4"
+    "run-all": "^1.0.1",
+    "seedrandom": "^2.4.4",
+    "webpack-config": "^7.5.0"
   },
   "devDependencies": {
-    "@commitlint/cli": "^7.1.2",
-    "@commitlint/config-conventional": "^7.1.2",
+    "@commitlint/cli": "^7.5.2",
+    "@commitlint/config-conventional": "^7.5.0",
     "@progre/tslint-config": "~5.10.0",
     "@progre/webpack-config": "^0.0.6",
-    "@types/js-yaml": "^3.11.2",
-    "@types/node": "^10.10.3",
+    "@types/js-yaml": "^3.12.0",
+    "@types/node": "^10.15.3",
     "@types/parse5": "^5.0.0",
-    "@types/react": "^16.4.13",
+    "@types/react": "^16.8.8",
     "@types/react-dom": "^16.0.7",
     "@types/seedrandom": "^2.4.27",
     "del-cli": "^1.1.0",
-    "electron": "^3.0.0",
-    "electron-builder": "^20.28.4",
-    "husky": "^1.0.0-rc.15",
-    "npm-run-all": "^4.1.3",
+    "electron": "^3.1.7",
+    "electron-builder": "^20.39.0",
+    "husky": "^1.3.1",
+    "npm-run-all": "^4.1.5",
     "source-map-support": "^0.5.9",
-    "ts-loader": "5.2.0",
-    "tslint": "^5.11.0",
+    "ts-loader": "^5.2.0",
+    "tslint": "^5.14.0",
     "tslint-language-service": "^0.9.9",
     "typescript": "^2.9.2",
-    "webpack": "~4.18.1",
-    "webpack-cli": "^3.1.1"
+    "webpack": "^4.18.1",
+    "webpack-cli": "^3.3.0"
   },
-  "homepage": "https://github.com/progre/lmoriginalrandomizer#readme",
+  "homepage": "https://github.com/solairflaire/lmoriginalrandomizer#readme",
   "license": "MIT",
   "main": "dist/index.js",
   "private": true,
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/progre/lmoriginalrandomizer.git"
+    "url": "git+https://github.com/solairflaire/lmoriginalrandomizer.git"
+  },
+  "husky": {
+    "hooks": {
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+    }
   },
   "scripts": {
     "build": "run-s clean wasm-release-build release-build",
     "clean": "del-cli dist tmp",
-    "commitmsg": "commitlint -e $GIT_PARAMS",
     "debug-build": "webpack --mode development --progress",
     "dev": "webpack --mode development --progress --watch",
     "test": "npx -q -p typescript -p ts-node ts-node src/test/test.ts",
