@@ -1,9 +1,9 @@
 {
   "name": "lmorandomizer",
   "description": "Randomizer for La-Mulana Original.",
-  "version": "0.4.3",
+  "version": "0.4.4",
   "bugs": {
-    "url": "https://github.com/progre/lmoriginalrandomizer/issues"
+    "url": "https://github.com/solairflaire/lmoriginalrandomizer/issues"
   },
   "build": {
     "directories": {
@@ -53,13 +53,13 @@
     "webpack": "^4.18.1",
     "webpack-cli": "^3.3.0"
   },
-  "homepage": "https://github.com/progre/lmoriginalrandomizer#readme",
+  "homepage": "https://github.com/solairflaire/lmoriginalrandomizer#readme",
   "license": "MIT",
   "main": "dist/index.js",
   "private": true,
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/progre/lmoriginalrandomizer.git"
+    "url": "git+https://github.com/solairflaire/lmoriginalrandomizer.git"
   },
   "husky": {
     "hooks": {
