@@ -144,7 +144,7 @@ function Configs(props: {
             onChange={buildOnChangeCheckbox(props.onChangeEasyMode)}
           />
         }
-        label="Starting item (Game Master)"
+        label="Xelpud Care Package"
       />
     </Paper>
   );
