@@ -1,7 +1,7 @@
 {
   "name": "lmorandomizer",
   "description": "Randomizer for La-Mulana Original.",
-  "version": "0.4.4",
+  "version": "0.4.5",
   "bugs": {
     "url": "https://github.com/solairflaire/lmorandomizer/issues"
   },
@@ -59,7 +59,7 @@
   "scripts": {
     "build": "run-s clean wasm-release-build release-build",
     "clean": "del-cli dist tmp",
-    "commitmsg": "commitlint -e $GIT_PARAMS",
+    "commitmsg": "commitlint -e",
     "debug-build": "webpack --mode development --progress",
     "dev": "webpack --mode development --progress --watch",
     "test": "npx -q -p typescript -p ts-node ts-node src/test/test.ts",
