@@ -9,12 +9,14 @@ interface Props {
   defaultSeed: string;
   defaultInstallDirectory: string;
   defaultEasyMode: boolean;
+  defaultTabletSave: boolean;
 }
 
 const initialState = {
   seed: '',
   installDirectory: '',
   easyMode: false,
+  tabletSave: false,
   snackbar: '',
   isProcessingApply: false,
   isProcessingRestore: false,
@@ -28,6 +30,7 @@ export default class Index extends React.Component<Props, typeof initialState> {
     this.onChangeSeed = this.onChangeSeed.bind(this);
     this.onChangeInstallDirectory = this.onChangeInstallDirectory.bind(this);
     this.onChangeEasyMode = this.onChangeEasyMode.bind(this);
+    this.onChangeTabletSave = this.onChangeTabletSave.bind(this);
     this.onClickApply = this.onClickApply.bind(this);
     this.onClickRestore = this.onClickRestore.bind(this);
     this.onCloseSnackbar = this.onCloseSnackbar.bind(this);
@@ -36,6 +39,7 @@ export default class Index extends React.Component<Props, typeof initialState> {
       seed: props.defaultSeed,
       installDirectory: props.defaultInstallDirectory,
       easyMode: props.defaultEasyMode,
+      tabletSave: props.defaultTabletSave,
     };
 
     ipcRenderer.on('result', (ev: any, message: string) => {
@@ -69,6 +73,14 @@ export default class Index extends React.Component<Props, typeof initialState> {
     this.setState({
       ...this.state,
       easyMode,
+    });
+  }
+  
+  private onChangeTabletSave(tabletSave: boolean) {
+    ipcRenderer.send('setTabletSave', tabletSave);
+    this.setState({
+      ...this.state,
+      tabletSave,
     });
   }
 
@@ -137,6 +149,7 @@ export default class Index extends React.Component<Props, typeof initialState> {
         onChangeSeed={this.onChangeSeed}
         onChangeInstallDirectory={this.onChangeInstallDirectory}
         onChangeEasyMode={this.onChangeEasyMode}
+		onChangeTabletSave={this.onChangeTabletSave}
         onClickApply={this.onClickApply}
         onClickRestore={this.onClickRestore}
         onCloseSnackbar={this.onCloseSnackbar}

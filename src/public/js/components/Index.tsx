@@ -16,6 +16,7 @@ export default function Index(props: {
   seed: string;
   installDirectory: string;
   easyMode: boolean;
+  tabletSave: boolean;
   snackbar: string;
   isProcessingApply: boolean;
   isProcessingRestore: boolean;
@@ -23,6 +24,7 @@ export default function Index(props: {
   onChangeSeed(seed: string): void;
   onChangeInstallDirectory(path: string): void;
   onChangeEasyMode(easyMode: boolean): void;
+  onChangeTabletSave(tabletSave: boolean): void;
   onClickApply(): void;
   onClickRestore(): void;
   onCloseSnackbar(event: React.SyntheticEvent<any>, reason?: string): void;
@@ -112,10 +114,12 @@ function Configs(props: {
   seed: string;
   installDirectory: string;
   easyMode: boolean;
+  tabletSave: boolean;
 
   onChangeSeed(seed: string): void;
   onChangeInstallDirectory(path: string): void;
   onChangeEasyMode(easyMode: boolean): void;
+  onChangeTabletSave(tabletSave: boolean): void;
 }) {
   return (
     <Paper elevation={1} style={{ flex: 1, padding: 16 }}>
@@ -145,6 +149,16 @@ function Configs(props: {
           />
         }
         label="Xelpud Care Package"
+      />
+      <FormControlLabel
+        control={
+          <Checkbox
+            color="primary"
+            checked={props.tabletSave}
+            onChange={buildOnChangeCheckbox(props.onChangeTabletSave)}
+          />
+        }
+        label="Save at tablets"
       />
     </Paper>
   );

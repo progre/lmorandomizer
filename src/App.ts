@@ -64,10 +64,19 @@ export default class App {
         console.error(err);
       }
     });
+	ipcMain.on('setTabletSave', async (ev:any, tabletSave: boolean) => {
+	  try {
+	    this.settings.tabletSave = tabletSave;
+		await this.settingsRepo.set(this.settings);
+	  } catch (err) {
+	    console.error(err);
+	  }
+	})
     const initialParams: InitialParameters = {
       seed: this.settings.seed || '',
       installDirectory: this.settings.installDirectory || '',
       easyMode: this.settings.easyMode || false,
+	  tabletSave: this.settings.tabletSave || false,
     };
     const search = encodeURIComponent(JSON.stringify(initialParams));
     this.win.loadURL(
