@@ -97,6 +97,7 @@ export default class Index extends React.Component<Props, typeof initialState> {
         {
           seed: this.state.seed || '',
           easyMode: this.state.easyMode || false,
+          tabletSave: this.state.tabletSave || false,
         },
       );
     } catch (err) {

@@ -22,6 +22,7 @@ export default function randomize(
   options: {
     seed: string;
     easyMode: boolean;
+	tabletSave: boolean;
   },
 ) {
   console.time('readScriptDat');
