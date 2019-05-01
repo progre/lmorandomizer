@@ -48,6 +48,11 @@ export default function randomize(
     );
     console.timeEnd('addItems');
   }
+  if (options.tabletSave) {
+    console.time('tabletSave');
+    script.tabletSave();
+	console.timeEnd('tabletSave');
+  }
   console.time('build');
   const output = buildScriptDat(wasm, script);
   console.timeEnd('build');
