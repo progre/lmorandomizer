@@ -63,7 +63,7 @@ pub fn encode(from_sb: *mut StringBuilder, len: usize, to_ascii_ptr: *mut u8) {
     let char_to_code = create_char_to_code();
     debug_assert_eq!(from.chars().count(), len);
     let to = unsafe { from_raw_parts_mut(to_ascii_ptr, len) };
-    debug_assert_eq!(to.len(), len + 1);
+    debug_assert_eq!(to.len(), len);
     for (i, ascii) in from
         .chars()
         .map(|c| char_to_code.get(&c).unwrap())

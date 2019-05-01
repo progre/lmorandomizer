@@ -18,6 +18,8 @@ import LMObject from './LMObject';
 import { toObjectForShutter, toObjectForSpecialChest, toObjectsForChest } from './objectfactory';
 import { List, LMWorld } from './Script';
 
+import {getNewPrice} from '../../../model/randomizer/prices';
+
 export function replaceShops(
   talks: ReadonlyArray<string>,
   shops: ReadonlyArray<{ spot: Spot; items: [Item, Item, Item] }>,
@@ -33,7 +35,7 @@ export function replaceShops(
       return {
         type: toIntegerItemType(newShopItem.type),
         number: newShopItem.number,
-        price: item.price,
+        price: getNewPrice(newShopItem.type,newShopItem.number),
         count: newShopItem.count,
         flag: newShopItem.flag,
       };
