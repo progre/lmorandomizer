@@ -6,6 +6,7 @@ import {
 } from '../domains/util/scriptdat/format/scriptconverter';
 import {
   equipmentNumbers,
+  romNumbers,
   subWeaponNumbers,
 } from '../domains/model/randomizer/items'
 
@@ -39,8 +40,8 @@ export default function randomize(
     script.addStartingItems(
       [
         equipmentNumbers.holyGrail,
-        100,
-        102,
+        100 + romNumbers.gameMaster,
+        100 + romNumbers.glyphReader,
       ],
       [
         subWeaponNumbers.handScanner,
@@ -50,7 +51,7 @@ export default function randomize(
   }
   if (options.tabletSave) {
     console.time('tabletSave');
-    script.tabletSave();
+    script.tabletSave(options.easyMode);
 	console.timeEnd('tabletSave');
   }
   console.time('build');
