@@ -158,7 +158,7 @@ function Configs(props: {
             onChange={buildOnChangeCheckbox(props.onChangeTabletSave)}
           />
         }
-        label="Save at tablets"
+        label="↓ to save at Grail tablets"
       />
     </Paper>
   );
