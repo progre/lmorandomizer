@@ -1,4 +1,4 @@
-import assert from 'assert';
+﻿import assert from 'assert';
 import Item from '../../../model/dataset/Item';
 import Spot from '../../../model/dataset/Spot';
 import Storage from '../../../model/dataset/Storage';
@@ -11,6 +11,8 @@ import { parseScriptTxt, stringifyScriptTxt } from '../format/scripttxtparser';
 import ShopItemsData from '../format/ShopItemsData';
 import addStartingItems from './addStartingItems';
 import LMObject from './LMObject';
+import addObject from './addObject';
+import tabletSave from './tabletSave';
 import { replaceItems, replaceShops } from './scripteditor';
 
 export type List<T> = ReadonlyArray<Readonly<T>>;
@@ -117,6 +119,24 @@ export default class Script {
     subWeaponList: SubWeaponNumber[],
   ) {
     this.worlds = addStartingItems(this.worlds, equipmentList, subWeaponList);
+  }
+  
+  addObject(
+	field: Number,
+	screenx: 0 | 1 | 2 | 3,
+	screeny: 0 | 1 | 2 | 3 | 4,
+	objects: LMObject[],
+  ) {
+    this.worlds = addObject(this.worlds, field, screenx, screeny, objects);
+  }
+
+  tabletSave(easyMode : boolean) {
+      //guidance
+      this.worlds = tabletSave(this.worlds, easyMode);
+      this.talks = this.talks.map(talks => (
+          (talks == this.talks[84] ? "２５\x4c".concat(this.talks[84]) : talks) // set flag 1100 in save prompt
+      ));
+
   }
 
   private viewObjects() {

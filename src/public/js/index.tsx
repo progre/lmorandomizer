@@ -12,6 +12,7 @@ ReactDOM.render(
       defaultSeed={json.seed}
       defaultInstallDirectory={json.installDirectory}
       defaultEasyMode={json.easyMode}
+	  defaultTabletSave={json.tabletSave}
     />
   ),
   document.getElementById('root'),
