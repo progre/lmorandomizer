@@ -13,6 +13,7 @@ import addStartingItems from './addStartingItems';
 import LMObject from './LMObject';
 import addObject from './addObject';
 import tabletSave from './tabletSave';
+import autoRegistration from './autoRegistration';
 import { replaceItems, replaceShops } from './scripteditor';
 
 export type List<T> = ReadonlyArray<Readonly<T>>;
@@ -137,6 +138,10 @@ export default class Script {
           (talks == this.talks[84] ? "２５\x4c".concat(this.talks[84]) : talks) // set flag 1100 in save prompt
       ));
 
+  }
+
+  autoRegistration() {
+      this.worlds = autoRegistration(this.worlds);
   }
 
   private viewObjects() {

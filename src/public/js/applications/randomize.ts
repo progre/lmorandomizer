@@ -24,7 +24,7 @@ export default function randomize(
     seed: string;
     easyMode: boolean;
     tabletSave: boolean;
-    automaticRegistration: boolean;
+    autoRegistration: boolean;
   },
 ) {
   console.time('readScriptDat');
@@ -54,6 +54,11 @@ export default function randomize(
     console.time('tabletSave');
     script.tabletSave(options.easyMode);
 	console.timeEnd('tabletSave');
+  }
+  if (options.autoRegistration) {
+      console.time('autoRegistration');
+      script.autoRegistration();
+      console.timeEnd('autoRegistration');
   }
   console.time('build');
   const output = buildScriptDat(wasm, script);
