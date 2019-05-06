@@ -71,12 +71,21 @@ export default class App {
 	  } catch (err) {
 	    console.error(err);
 	  }
-	})
+    })
+    ipcMain.on('setAutoRegistration', async (ev: any, autoRegistration: boolean) => {
+        try {
+            this.settings.autoRegistration = autoRegistration;
+            await this.settingsRepo.set(this.settings);
+        } catch (err) {
+            console.error(err);
+        }
+    })
     const initialParams: InitialParameters = {
       seed: this.settings.seed || '',
       installDirectory: this.settings.installDirectory || '',
       easyMode: this.settings.easyMode || false,
-	  tabletSave: this.settings.tabletSave || false,
+      tabletSave: this.settings.tabletSave || false,
+      autoRegistration: this.settings.autoRegistration || false,
     };
     const search = encodeURIComponent(JSON.stringify(initialParams));
     this.win.loadURL(

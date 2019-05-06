@@ -3,6 +3,7 @@ export interface InitialParameters {
   installDirectory: string;
   easyMode: boolean;
   tabletSave: boolean;
+  autoRegistration: boolean;
 }
 
 export interface Settings {
@@ -10,4 +11,5 @@ export interface Settings {
   installDirectory?: string;
   easyMode?: boolean;
   tabletSave?: boolean;
+  autoRegistration?: boolean;
 }

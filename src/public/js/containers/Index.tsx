@@ -10,6 +10,7 @@ interface Props {
   defaultInstallDirectory: string;
   defaultEasyMode: boolean;
   defaultTabletSave: boolean;
+  defaultAutoRegistration: boolean;
 }
 
 const initialState = {
@@ -17,6 +18,7 @@ const initialState = {
   installDirectory: '',
   easyMode: false,
   tabletSave: false,
+  autoRegistration: false,
   snackbar: '',
   isProcessingApply: false,
   isProcessingRestore: false,
@@ -31,6 +33,7 @@ export default class Index extends React.Component<Props, typeof initialState> {
     this.onChangeInstallDirectory = this.onChangeInstallDirectory.bind(this);
     this.onChangeEasyMode = this.onChangeEasyMode.bind(this);
     this.onChangeTabletSave = this.onChangeTabletSave.bind(this);
+    this.onChangeAutoRegistration = this.onChangeAutoRegistration.bind(this);
     this.onClickApply = this.onClickApply.bind(this);
     this.onClickRestore = this.onClickRestore.bind(this);
     this.onCloseSnackbar = this.onCloseSnackbar.bind(this);
@@ -40,6 +43,7 @@ export default class Index extends React.Component<Props, typeof initialState> {
       installDirectory: props.defaultInstallDirectory,
       easyMode: props.defaultEasyMode,
       tabletSave: props.defaultTabletSave,
+      autoRegistration: props.defaultAutoRegistration
     };
 
     ipcRenderer.on('result', (ev: any, message: string) => {
@@ -84,6 +88,14 @@ export default class Index extends React.Component<Props, typeof initialState> {
     });
   }
 
+  private onChangeAutoRegistration(autoRegistration: boolean) {
+        ipcRenderer.send('setAutoRegistration', autoRegistration);
+        this.setState({
+            ...this.state,
+            autoRegistration,
+    });
+  }
+
   private async onClickApply() {
     this.setState({
       ...this.state,
@@ -98,6 +110,7 @@ export default class Index extends React.Component<Props, typeof initialState> {
           seed: this.state.seed || '',
           easyMode: this.state.easyMode || false,
           tabletSave: this.state.tabletSave || false,
+          autoRegistration: this.state.autoRegistration || false,
         },
       );
     } catch (err) {
@@ -150,7 +163,8 @@ export default class Index extends React.Component<Props, typeof initialState> {
         onChangeSeed={this.onChangeSeed}
         onChangeInstallDirectory={this.onChangeInstallDirectory}
         onChangeEasyMode={this.onChangeEasyMode}
-		onChangeTabletSave={this.onChangeTabletSave}
+        onChangeTabletSave={this.onChangeTabletSave}
+        onChangeAutoRegistration={this.onChangeAutoRegistration}
         onClickApply={this.onClickApply}
         onClickRestore={this.onClickRestore}
         onCloseSnackbar={this.onCloseSnackbar}

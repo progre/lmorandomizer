@@ -23,7 +23,8 @@ export default function randomize(
   options: {
     seed: string;
     easyMode: boolean;
-	tabletSave: boolean;
+    tabletSave: boolean;
+    automaticRegistration: boolean;
   },
 ) {
   console.time('readScriptDat');

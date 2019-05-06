@@ -21,6 +21,7 @@ export default class App {
       seed: string;
       easyMode: boolean;
       tabletSave: boolean;
+      autoRegistration: boolean;
     },
   ) {
     const targetFilePath = `${installDirectory}/data/script.dat`;
