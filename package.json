@@ -1,7 +1,7 @@
 {
   "name": "lmorandomizer",
   "description": "Randomizer for La-Mulana Original.",
-  "version": "0.4.5",
+  "version": "0.5.1-alpha",
   "bugs": {
     "url": "https://github.com/solairflaire/lmorandomizer/issues"
   },
@@ -18,7 +18,7 @@
   "dependencies": {
     "@material-ui/core": "^3.0.2",
     "js-sha3": "^0.8.0",
-    "js-yaml": "^3.12.0",
+    "js-yaml": "^3.13.1",
     "parse5": "^5.1.0",
     "react": "^16.5.0",
     "react-dom": "^16.5.0",
@@ -37,7 +37,7 @@
     "@types/seedrandom": "^2.4.27",
     "del-cli": "^1.1.0",
     "electron": "^3.0.0",
-    "electron-builder": "^20.28.4",
+    "electron-builder": "^20.40.2",
     "husky": "^1.0.0-rc.15",
     "npm-run-all": "^4.1.3",
     "source-map-support": "^0.5.9",
