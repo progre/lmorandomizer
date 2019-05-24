@@ -7,6 +7,7 @@ export interface InitialParameters {
   scannerStart: boolean;
   gameMasterStart: boolean;
   readerStart: boolean;
+  autoRegistration: boolean;
 }
 
 export interface Settings {
@@ -18,4 +19,5 @@ export interface Settings {
   scannerStart?: boolean;
   gameMasterStart?: boolean;
   readerStart?: boolean;
+  autoRegistration?: boolean;
 }

@@ -17,6 +17,7 @@ ReactDOM.render(
       defaultScannerStart={json.scannerStart}
       defaultGameMasterStart={json.gameMasterStart}
       defaultReaderStart={json.readerStart}
+      defaultAutoRegistration={json.autoRegistration}
     />
   ),
   document.getElementById('root'),

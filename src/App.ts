@@ -104,6 +104,14 @@ export default class App {
             console.error(err);
         }
     })
+    ipcMain.on('setAutoRegistration', async (ev: any, autoRegistration: boolean) => {
+        try {
+            this.settings.autoRegistration = autoRegistration;
+            await this.settingsRepo.set(this.settings);
+        } catch (err) {
+            console.error(err);
+        }
+    })
     const initialParams: InitialParameters = {
       seed: this.settings.seed || '',
       installDirectory: this.settings.installDirectory || '',
@@ -113,6 +121,7 @@ export default class App {
       scannerStart: this.settings.scannerStart || false,
       gameMasterStart: this.settings.gameMasterStart || false,
       readerStart: this.settings.readerStart || false,
+      autoRegistration: this.settings.autoRegistration || false,
     };
     const search = encodeURIComponent(JSON.stringify(initialParams));
     this.win.loadURL(

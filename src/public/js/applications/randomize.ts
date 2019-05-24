@@ -28,6 +28,7 @@ export default function randomize(
     scannerStart: boolean;
     gameMasterStart: boolean;
     readerStart: boolean;
+    autoRegistration: boolean;
   },
 ) {
   console.time('readScriptDat');
@@ -75,6 +76,11 @@ export default function randomize(
     console.time('tabletSave');
     script.tabletSave(options.easyMode || options.gameMasterStart);
 	console.timeEnd('tabletSave');
+  }
+  if (options.autoRegistration) {
+      console.time('autoRegistration');
+      script.autoRegistration();
+      console.timeEnd('autoRegistration');
   }
   console.time('build');
   const output = buildScriptDat(wasm, script);

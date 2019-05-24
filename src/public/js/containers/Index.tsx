@@ -14,6 +14,7 @@ interface Props {
   defaultScannerStart: boolean;
   defaultGameMasterStart: boolean;
   defaultReaderStart: boolean;
+  defaultAutoRegistration: boolean;
 }
 
 const initialState = {
@@ -25,6 +26,7 @@ const initialState = {
   scannerStart: false,
   gameMasterStart: true,
   readerStart: false,
+  autoRegistration: false,
   snackbar: '',
   isProcessingApply: false,
   isProcessingRestore: false,
@@ -43,6 +45,7 @@ export default class Index extends React.Component<Props, typeof initialState> {
     this.onChangeScannerStart = this.onChangeScannerStart.bind(this);
     this.onChangeGameMasterStart = this.onChangeGameMasterStart.bind(this);
     this.onChangeReaderStart = this.onChangeReaderStart.bind(this);
+    this.onChangeAutoRegistration = this.onChangeAutoRegistration.bind(this);
     this.onClickApply = this.onClickApply.bind(this);
     this.onClickRestore = this.onClickRestore.bind(this);
     this.onCloseSnackbar = this.onCloseSnackbar.bind(this);
@@ -56,6 +59,7 @@ export default class Index extends React.Component<Props, typeof initialState> {
       scannerStart: props.defaultScannerStart,
       gameMasterStart: props.defaultGameMasterStart,
       readerStart: props.defaultReaderStart,
+      autoRegistration: props.defaultAutoRegistration
     };
 
     ipcRenderer.on('result', (ev: any, message: string) => {
@@ -131,6 +135,13 @@ export default class Index extends React.Component<Props, typeof initialState> {
       readerStart,
     });
   }
+  private onChangeAutoRegistration(autoRegistration: boolean) {
+    ipcRenderer.send('setAutoRegistration', autoRegistration);
+    this.setState({
+      ...this.state,
+      autoRegistration,
+    });
+  }
 
   private async onClickApply() {
     this.setState({
@@ -150,6 +161,7 @@ export default class Index extends React.Component<Props, typeof initialState> {
           scannerStart: this.state.scannerStart || false,
           gameMasterStart: this.state.gameMasterStart || false,
           readerStart: this.state.readerStart || false,
+          autoRegistration: this.state.autoRegistration || false,
         },
       );
     } catch (err) {
@@ -202,11 +214,12 @@ export default class Index extends React.Component<Props, typeof initialState> {
         onChangeSeed={this.onChangeSeed}
         onChangeInstallDirectory={this.onChangeInstallDirectory}
         onChangeEasyMode={this.onChangeEasyMode}
-		onChangeTabletSave={this.onChangeTabletSave}
+        onChangeTabletSave={this.onChangeTabletSave}
         onChangeGrailStart={this.onChangeGrailStart}
         onChangeScannerStart={this.onChangeScannerStart}
         onChangeGameMasterStart={this.onChangeGameMasterStart}
         onChangeReaderStart={this.onChangeReaderStart}
+        onChangeAutoRegistration={this.onChangeAutoRegistration}
         onClickApply={this.onClickApply}
         onClickRestore={this.onClickRestore}
         onCloseSnackbar={this.onCloseSnackbar}

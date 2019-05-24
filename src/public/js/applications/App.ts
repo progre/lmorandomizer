@@ -25,6 +25,7 @@ export default class App {
       scannerStart: boolean;
       gameMasterStart: boolean;
       readerStart: boolean;
+      autoRegistration: boolean;
     },
   ) {
     const targetFilePath = `${installDirectory}/data/script.dat`;
