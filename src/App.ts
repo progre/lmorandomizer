@@ -33,7 +33,7 @@ export default class App {
     this.win = new BrowserWindow({
       title: `La-Mulana Original Randomizer v${version}`,
       width: 800,
-      height: 331,
+      height: 450,
       resizable: true,
       show: false,
     });
@@ -71,12 +71,57 @@ export default class App {
 	  } catch (err) {
 	    console.error(err);
 	  }
-	})
+    })
+    ipcMain.on('setGrailStart', async (ev: any, grailStart: boolean) => {
+        try {
+            this.settings.grailStart = grailStart;
+            await this.settingsRepo.set(this.settings);
+        } catch (err) {
+            console.error(err);
+        }
+    })
+    ipcMain.on('setScannerStart', async (ev: any, scannerStart: boolean) => {
+        try {
+            this.settings.scannerStart = scannerStart;
+            await this.settingsRepo.set(this.settings);
+        } catch (err) {
+            console.error(err);
+        }
+    })
+    ipcMain.on('setGameMasterStart', async (ev: any, gameMasterStart: boolean) => {
+        try {
+            this.settings.gameMasterStart = gameMasterStart;
+            await this.settingsRepo.set(this.settings);
+        } catch (err) {
+            console.error(err);
+        }
+    })
+    ipcMain.on('setReaderStart', async (ev: any, readerStart: boolean) => {
+        try {
+            this.settings.readerStart = readerStart;
+            await this.settingsRepo.set(this.settings);
+        } catch (err) {
+            console.error(err);
+        }
+    })
+    ipcMain.on('setAutoRegistration', async (ev: any, autoRegistration: boolean) => {
+        try {
+            this.settings.autoRegistration = autoRegistration;
+            await this.settingsRepo.set(this.settings);
+        } catch (err) {
+            console.error(err);
+        }
+    })
     const initialParams: InitialParameters = {
       seed: this.settings.seed || '',
       installDirectory: this.settings.installDirectory || '',
       easyMode: this.settings.easyMode || false,
-	  tabletSave: this.settings.tabletSave || false,
+      tabletSave: this.settings.tabletSave || false,
+      grailStart: this.settings.grailStart || false,
+      scannerStart: this.settings.scannerStart || false,
+      gameMasterStart: this.settings.gameMasterStart || false,
+      readerStart: this.settings.readerStart || false,
+      autoRegistration: this.settings.autoRegistration || false,
     };
     const search = encodeURIComponent(JSON.stringify(initialParams));
     this.win.loadURL(

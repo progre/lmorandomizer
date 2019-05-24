@@ -10,6 +10,11 @@ interface Props {
   defaultInstallDirectory: string;
   defaultEasyMode: boolean;
   defaultTabletSave: boolean;
+  defaultGrailStart: boolean;
+  defaultScannerStart: boolean;
+  defaultGameMasterStart: boolean;
+  defaultReaderStart: boolean;
+  defaultAutoRegistration: boolean;
 }
 
 const initialState = {
@@ -17,6 +22,11 @@ const initialState = {
   installDirectory: '',
   easyMode: false,
   tabletSave: false,
+  grailStart: true,
+  scannerStart: false,
+  gameMasterStart: true,
+  readerStart: false,
+  autoRegistration: false,
   snackbar: '',
   isProcessingApply: false,
   isProcessingRestore: false,
@@ -31,6 +41,11 @@ export default class Index extends React.Component<Props, typeof initialState> {
     this.onChangeInstallDirectory = this.onChangeInstallDirectory.bind(this);
     this.onChangeEasyMode = this.onChangeEasyMode.bind(this);
     this.onChangeTabletSave = this.onChangeTabletSave.bind(this);
+    this.onChangeGrailStart = this.onChangeGrailStart.bind(this);
+    this.onChangeScannerStart = this.onChangeScannerStart.bind(this);
+    this.onChangeGameMasterStart = this.onChangeGameMasterStart.bind(this);
+    this.onChangeReaderStart = this.onChangeReaderStart.bind(this);
+    this.onChangeAutoRegistration = this.onChangeAutoRegistration.bind(this);
     this.onClickApply = this.onClickApply.bind(this);
     this.onClickRestore = this.onClickRestore.bind(this);
     this.onCloseSnackbar = this.onCloseSnackbar.bind(this);
@@ -40,6 +55,11 @@ export default class Index extends React.Component<Props, typeof initialState> {
       installDirectory: props.defaultInstallDirectory,
       easyMode: props.defaultEasyMode,
       tabletSave: props.defaultTabletSave,
+      grailStart: props.defaultGrailStart,
+      scannerStart: props.defaultScannerStart,
+      gameMasterStart: props.defaultGameMasterStart,
+      readerStart: props.defaultReaderStart,
+      autoRegistration: props.defaultAutoRegistration
     };
 
     ipcRenderer.on('result', (ev: any, message: string) => {
@@ -84,6 +104,45 @@ export default class Index extends React.Component<Props, typeof initialState> {
     });
   }
 
+  private onChangeGrailStart(grailStart: boolean) {
+    ipcRenderer.send('setGrailStart', grailStart);
+    this.setState({
+      ...this.state,
+      grailStart,
+    });
+  }
+
+  private onChangeScannerStart(scannerStart: boolean) {
+    ipcRenderer.send('setScannerStart', scannerStart);
+    this.setState({
+      ...this.state,
+      scannerStart,
+    });
+  }
+
+  private onChangeGameMasterStart(gameMasterStart: boolean) {
+    ipcRenderer.send('setGameMasterStart', gameMasterStart);
+    this.setState({
+      ...this.state,
+      gameMasterStart,
+    });
+  }
+
+  private onChangeReaderStart(readerStart: boolean) {
+    ipcRenderer.send('setReaderStart', readerStart);
+    this.setState({
+      ...this.state,
+      readerStart,
+    });
+  }
+  private onChangeAutoRegistration(autoRegistration: boolean) {
+    ipcRenderer.send('setAutoRegistration', autoRegistration);
+    this.setState({
+      ...this.state,
+      autoRegistration,
+    });
+  }
+
   private async onClickApply() {
     this.setState({
       ...this.state,
@@ -98,6 +157,11 @@ export default class Index extends React.Component<Props, typeof initialState> {
           seed: this.state.seed || '',
           easyMode: this.state.easyMode || false,
           tabletSave: this.state.tabletSave || false,
+          grailStart: this.state.grailStart || false,
+          scannerStart: this.state.scannerStart || false,
+          gameMasterStart: this.state.gameMasterStart || false,
+          readerStart: this.state.readerStart || false,
+          autoRegistration: this.state.autoRegistration || false,
         },
       );
     } catch (err) {
@@ -150,7 +214,12 @@ export default class Index extends React.Component<Props, typeof initialState> {
         onChangeSeed={this.onChangeSeed}
         onChangeInstallDirectory={this.onChangeInstallDirectory}
         onChangeEasyMode={this.onChangeEasyMode}
-		onChangeTabletSave={this.onChangeTabletSave}
+        onChangeTabletSave={this.onChangeTabletSave}
+        onChangeGrailStart={this.onChangeGrailStart}
+        onChangeScannerStart={this.onChangeScannerStart}
+        onChangeGameMasterStart={this.onChangeGameMasterStart}
+        onChangeReaderStart={this.onChangeReaderStart}
+        onChangeAutoRegistration={this.onChangeAutoRegistration}
         onClickApply={this.onClickApply}
         onClickRestore={this.onClickRestore}
         onCloseSnackbar={this.onCloseSnackbar}

@@ -6,6 +6,8 @@ import {
   EquipmentNumber,
   equipmentNumbers,
   SubWeaponNumber,
+  subWeaponNumbers,
+  romNumbers,
 } from '../../../model/randomizer/items';
 import { parseScriptTxt, stringifyScriptTxt } from '../format/scripttxtparser';
 import ShopItemsData from '../format/ShopItemsData';
@@ -13,6 +15,7 @@ import addStartingItems from './addStartingItems';
 import LMObject from './LMObject';
 import addObject from './addObject';
 import tabletSave from './tabletSave';
+import autoRegistration from './autoRegistration';
 import { replaceItems, replaceShops } from './scripteditor';
 
 export type List<T> = ReadonlyArray<Readonly<T>>;
@@ -117,8 +120,27 @@ export default class Script {
   addStartingItems(
     equipmentList: EquipmentNumber[],
     subWeaponList: SubWeaponNumber[],
+    easyMode: boolean,
+    grail: boolean,
+    scanner: boolean,
+    gameMaster: boolean,
+    glyphReader: boolean,
   ) {
-    this.worlds = addStartingItems(this.worlds, equipmentList, subWeaponList);
+    if (!easyMode) {
+      if (grail) {
+        equipmentList.push(equipmentNumbers.holyGrail);
+      }
+      if (gameMaster) {
+        equipmentList.push(romNumbers.gameMaster + 100);
+      }
+      if (glyphReader) {
+        equipmentList.push(romNumbers.glyphReader + 100);
+      }
+      if (scanner) {
+        subWeaponList.push(subWeaponNumbers.handScanner);
+      }
+    }
+    this.worlds = addStartingItems(this.worlds, equipmentList, subWeaponList, easyMode);
   }
   
   addObject(
@@ -137,6 +159,10 @@ export default class Script {
           (talks == this.talks[84] ? "２５\x4c".concat(this.talks[84]) : talks) // set flag 1100 in save prompt
       ));
 
+  }
+
+  autoRegistration() {
+      this.worlds = autoRegistration(this.worlds);
   }
 
   private viewObjects() {
