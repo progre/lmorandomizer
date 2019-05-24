@@ -12,7 +12,11 @@ ReactDOM.render(
       defaultSeed={json.seed}
       defaultInstallDirectory={json.installDirectory}
       defaultEasyMode={json.easyMode}
-	  defaultTabletSave={json.tabletSave}
+      defaultTabletSave={json.tabletSave}
+      defaultGrailStart={json.grailStart}
+      defaultScannerStart={json.scannerStart}
+      defaultGameMasterStart={json.gameMasterStart}
+      defaultReaderStart={json.readerStart}
     />
   ),
   document.getElementById('root'),

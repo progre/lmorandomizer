@@ -8,10 +8,16 @@ export default function addStartingItems(
   worlds: ReadonlyArray<LMWorld>,
   equipmentList: EquipmentNumber[],
   subWeaponList: SubWeaponNumber[],
+  easyMode: boolean,
 ): ReadonlyArray<LMWorld> {
+  var startPot = new Array<LMObject>();
+  if (easyMode) {
+    startPot = [
+      new LMObject(7, 43008, 22528, 7, 46, -1, -1, []), // money
+      new LMObject(7, 43008, 22528, 6, 3, -1, -1, []), // weights
+    ];
+  }
   const startingItems = [
-    new LMObject(7, 43008, 22528, 7, 46, -1, -1, []), // money
-    new LMObject(7, 43008, 22528, 6, 3, -1, -1, []), // weights
     new LMObject(22, 26624, 10240, 2, 2, Flags.EASY_RESPAWN, -1, []),
     ...subWeaponList.map(x => [
       new LMObject(
@@ -28,5 +34,5 @@ export default function addStartingItems(
       [],
     )),
   ];
-  return addObject(worlds, 1, 3, 1, startingItems);
+  return addObject(worlds, 1, 3, 1, startingItems.concat(startPot));
 }

@@ -1,4 +1,8 @@
 export default class FLAGS {
+    public static W_SCANNER = 696;
+    public static W_GRAIL = 755;
+    public static W_GAMEMASTER = 800;
+    public static W_READER = 802;
     public static DO_WARP = 1100;
     public static WARP_GUI = 1101;
     public static WARP_SUR = 1102;

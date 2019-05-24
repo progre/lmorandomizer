@@ -17,6 +17,10 @@ export default function Index(props: {
   installDirectory: string;
   easyMode: boolean;
   tabletSave: boolean;
+  grailStart: boolean;
+  scannerStart: boolean;
+  gameMasterStart: boolean;
+  readerStart: boolean;
   snackbar: string;
   isProcessingApply: boolean;
   isProcessingRestore: boolean;
@@ -25,6 +29,10 @@ export default function Index(props: {
   onChangeInstallDirectory(path: string): void;
   onChangeEasyMode(easyMode: boolean): void;
   onChangeTabletSave(tabletSave: boolean): void;
+  onChangeGrailStart(grailStart: boolean): void;
+  onChangeScannerStart(scannerStart: boolean): void;
+  onChangeGameMasterStart(gameMasterStart: boolean): void;
+  onChangeReaderStart(readerStart: boolean): void;
   onClickApply(): void;
   onClickRestore(): void;
   onCloseSnackbar(event: React.SyntheticEvent<any>, reason?: string): void;
@@ -115,11 +123,20 @@ function Configs(props: {
   installDirectory: string;
   easyMode: boolean;
   tabletSave: boolean;
+  grailStart: boolean;
+  scannerStart: boolean;
+  gameMasterStart: boolean;
+  readerStart: boolean;
 
   onChangeSeed(seed: string): void;
   onChangeInstallDirectory(path: string): void;
   onChangeEasyMode(easyMode: boolean): void;
   onChangeTabletSave(tabletSave: boolean): void;
+  onChangeGrailStart(grailStart: boolean): void;
+  onChangeScannerStart(scannerStart: boolean): void;
+  onChangeGameMasterStart(gameMasterStart: boolean): void;
+  onChangeReaderStart(readerStart: boolean): void;
+
 }) {
   return (
     <Paper elevation={1} style={{ flex: 1, padding: 16 }}>
@@ -159,6 +176,50 @@ function Configs(props: {
           />
         }
         label="↓ to save at Grail tablets"
+      />
+      <Typography style={{ fontSize: 14 }}>
+        <hr />
+        Starting Items
+      </Typography>
+      <FormControlLabel
+        control={
+          <Checkbox
+            color="primary"
+            checked={props.grailStart}
+            onChange={buildOnChangeCheckbox(props.onChangeGrailStart) }
+          />
+        }
+        label="Holy Grail"
+      />
+      <FormControlLabel
+        control={
+          <Checkbox
+            color="primary"
+            checked={props.scannerStart}
+            onChange={buildOnChangeCheckbox(props.onChangeScannerStart) }
+          />
+        }
+        label="Hand Scanner"
+      />
+      <FormControlLabel
+        control={
+          <Checkbox
+            color="primary"
+            checked={props.gameMasterStart}
+            onChange={buildOnChangeCheckbox(props.onChangeGameMasterStart) }
+          />
+        }
+        label="Game Master"
+      />
+      <FormControlLabel
+        control={
+          <Checkbox
+            color="primary"
+            checked={props.readerStart}
+            onChange={buildOnChangeCheckbox(props.onChangeReaderStart) }
+          />
+        }
+        label="Glyph Reader"
       />
     </Paper>
   );

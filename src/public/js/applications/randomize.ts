@@ -23,7 +23,11 @@ export default function randomize(
   options: {
     seed: string;
     easyMode: boolean;
-	tabletSave: boolean;
+    tabletSave: boolean;
+    grailStart: boolean;
+    scannerStart: boolean;
+    gameMasterStart: boolean;
+    readerStart: boolean;
   },
 ) {
   console.time('readScriptDat');
@@ -46,12 +50,30 @@ export default function randomize(
       [
         subWeaponNumbers.handScanner,
       ],
+      options.easyMode,
+      options.grailStart,
+      options.scannerStart,
+      options.gameMasterStart,
+      options.readerStart,
+    );
+    console.timeEnd('addItems');
+  }
+  else if (options.grailStart || options.scannerStart || options.gameMasterStart || options.readerStart) {
+    console.time('addItems');
+    script.addStartingItems(
+      [],
+      [],
+      options.easyMode,
+      options.grailStart,
+      options.scannerStart,
+      options.gameMasterStart,
+      options.readerStart,
     );
     console.timeEnd('addItems');
   }
   if (options.tabletSave) {
     console.time('tabletSave');
-    script.tabletSave(options.easyMode);
+    script.tabletSave(options.easyMode || options.gameMasterStart);
 	console.timeEnd('tabletSave');
   }
   console.time('build');
