@@ -3,6 +3,11 @@ export interface InitialParameters {
   installDirectory: string;
   easyMode: boolean;
   tabletSave: boolean;
+  grailStart: boolean;
+  scannerStart: boolean;
+  gameMasterStart: boolean;
+  readerStart: boolean;
+  autoRegistration: boolean;
 }
 
 export interface Settings {
@@ -10,4 +15,9 @@ export interface Settings {
   installDirectory?: string;
   easyMode?: boolean;
   tabletSave?: boolean;
+  grailStart?: boolean;
+  scannerStart?: boolean;
+  gameMasterStart?: boolean;
+  readerStart?: boolean;
+  autoRegistration?: boolean;
 }

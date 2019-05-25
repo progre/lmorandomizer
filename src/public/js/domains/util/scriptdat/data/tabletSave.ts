@@ -136,7 +136,7 @@ export default function tabletSave(
     ];
     const birsaves = [
         new LMObject(14, 59392, 40960, 200, -1, 185, 0, []), // xelpud
-        new LMObject(157, 253952, 36864, 4, 4, 10000, F.WARP_BIR, []), // stoparea -- activate Flags.WARP_BIR
+        new LMObject(157, 57344, 36864, 4, 4, 10000, F.WARP_BIR, []), // stoparea -- activate Flags.WARP_BIR
         new LMObject(40, F.WARP_BIR, F.DO_WARP, F.WARP_GUI, F.WARP_SUR, F.WARP_MAU, F.WARP_SUN, []), // turn off other warp flags
         new LMObject(40, F.WARP_BIR, F.WARP_SPR, F.WARP_INF, F.WARP_EXT, F.WARP_TLF, F.WARP_END, []),     // ibid
         new LMObject(40, F.WARP_BIR, F.WARP_MOM, F.WARP_GRA, F.WARP_CON, F.WARP_MOO, F.WARP_GOD, []),     // ibid
@@ -144,8 +144,8 @@ export default function tabletSave(
         new LMObject(40, F.DO_WARP, F.DO_WARP, -1, -1, -1, -1, [{ number: 99999, value: true }]), // disable warp after save.
     ];
     const tlbsaves = [
-        new LMObject(14, 59392, 40960, 200, -1, 185, 0, []), // xelpud
-        new LMObject(157, 253952, 36864, 4, 4, 10000, F.WARP_TLB, []), // stoparea -- activate Flags.WARP_TLB
+        new LMObject(14, 51200, 40960, 200, -1, 185, 0, []), // xelpud
+        new LMObject(157, 49152, 36864, 4, 4, 10000, F.WARP_TLB, []), // stoparea -- activate Flags.WARP_TLB
         new LMObject(40, F.WARP_TLB, F.DO_WARP, F.WARP_GUI, F.WARP_SUR, F.WARP_MAU, F.WARP_SUN, []), // turn off other warp flags
         new LMObject(40, F.WARP_TLB, F.WARP_SPR, F.WARP_INF, F.WARP_EXT, F.WARP_TLF, F.WARP_END, []),     // ibid
         new LMObject(40, F.WARP_TLB, F.WARP_MOM, F.WARP_GRA, F.WARP_CON, F.WARP_MOO, F.WARP_GOD, []),     // ibid
@@ -153,8 +153,8 @@ export default function tabletSave(
         new LMObject(40, F.DO_WARP, F.DO_WARP, -1, -1, -1, -1, [{ number: 99999, value: true }]), // disable warp after save.
     ];
     const dimsaves = [
-        new LMObject(14, 59392, 40960, 200, -1, 185, 0, []), // xelpud
-        new LMObject(157, 253952, 36864, 4, 4, 10000, F.WARP_DIM, []), // stoparea -- activate Flags.WARP_TLB
+        new LMObject(14, 18432, 24576, 200, -1, 185, 0, []), // xelpud
+        new LMObject(157, 16384, 20480, 4, 4, 10000, F.WARP_DIM, []), // stoparea -- activate Flags.WARP_TLB
         new LMObject(40, F.WARP_DIM, F.DO_WARP, F.WARP_GUI, F.WARP_SUR, F.WARP_MAU, F.WARP_SUN, []), // turn off other warp flags
         new LMObject(40, F.WARP_DIM, F.WARP_SPR, F.WARP_INF, F.WARP_EXT, F.WARP_TLF, F.WARP_END, []),     // ibid
         new LMObject(40, F.WARP_DIM, F.WARP_MOM, F.WARP_GRA, F.WARP_CON, F.WARP_MOO, F.WARP_GOD, []),     // ibid
@@ -162,7 +162,7 @@ export default function tabletSave(
         new LMObject(40, F.DO_WARP, F.DO_WARP, -1, -1, -1, -1, [{ number: 99999, value: true }]), // disable warp after save.
     ];
     const surfsaves = [
-        new LMObject(87, 26624, 16384, 18, 1, 15, 4,
+        new LMObject(87, 26624, 12288, 18, 1, 15, 5,
             [{ number: F.DO_WARP, value: true },
                 { number: F.WARP_SUR, value: false },
             ]
@@ -171,16 +171,16 @@ export default function tabletSave(
         new LMObject(157, 16384, 12288, 4, 4, 10000, F.WARP_SUR, []), // set Flags.WARP_SUR when near tent
     ];
     const gotwarps = [
-        new LMObject(87, 30720, 16384, 1, 7, 13, 5, []), // warp to surface is lower. player should not reach this.
+        new LMObject(87, 30720, 16384, 1, 7, 13, 7, []), // warp to surface is lower. player should not reach this.
         new LMObject(87, 30720, 14336, 0, 6, 7, 19, [{ number: F.WARP_GUI, value: true }]), // warp to guidance
         new LMObject(87, 30720, 14336, 2, 8, 8, 15, [{ number: F.WARP_MAU, value: true }]), // warp to mausoleum
         new LMObject(87, 30720, 14336, 3, 2, 28, 7, [{ number: F.WARP_SUN, value: true }]), // warp to sun
-        new LMObject(87, 30720, 14336, 4, 7, 7, 7, [{ number: F.WARP_SPR, value: true }]), // warp to spring
+        new LMObject(87, 30720, 14336, 4, 13, 3, 3, [{ number: F.WARP_SPR, value: true }]), // warp to spring
         new LMObject(87, 30720, 14336, 5, 14, 15, 3, [{ number: F.WARP_INF, value: true }]), // warp to inferno
         new LMObject(87, 30720, 14336, 6, 19, 2, 7, [{ number: F.WARP_EXT, value: true }]), // warp to extinction
         new LMObject(87, 30720, 14336, 9, 0, 5, 19, [{ number: F.WARP_TLF, value: true }]), // warp to twin labyrinths (front)
         new LMObject(87, 30720, 14336, 7, 0, 22, 3, [{ number: F.WARP_END, value: true }]), // warp to endless corridor
-        new LMObject(87, 30720, 14336, 8, 17, 21, 30, [{ number: F.WARP_MOM, value: true }]), // warp to shrine of the mother
+        new LMObject(87, 30720, 14336, 8, 17, 21, 3, [{ number: F.WARP_MOM, value: true }]), // warp to shrine of the mother
         new LMObject(87, 30720, 14336, 11, 4, 14, 3, [{ number: F.WARP_CON, value: true }]), //warp to confusion gate
         new LMObject(87, 30720, 14336, 12, 7, 8, 7, [{ number: F.WARP_GRA, value: true }]), // warp to graveyard
         new LMObject(87, 30720, 14336, 14, 4, 11, 11, [{ number: F.WARP_MOO, value: true }]), // warp to moonlight
