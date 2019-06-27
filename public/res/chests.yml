@@ -89,8 +89,8 @@
 - name: map:endlessCorridor
 - name: twinStatue
   requirements:
-    - keyOfEternity, handScanner, glyphReader, feather
-    - keyOfEternity, handScanner, glyphReader, grappleClaw
+    - keyOfEternity, feather
+    - keyOfEternity, grappleClaw
 
 # Shrine of the Mother
 - name: crystalSkull
@@ -212,6 +212,7 @@
 - name: womanStatue
   requirements:
     - event:reachedUpperOfChamberOfBirth, feather
+    - event:reachedUpperOfChamberOfBirth, holyGrail
 - name: map:chamberOfBirth
   requirements:
     - event:reachedLowerOfChamberOfBirth
