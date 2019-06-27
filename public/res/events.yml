@@ -81,8 +81,8 @@
     - event:anchor, knife # event anchor already includes getting to Illusion
 - name: event:reachedGrailOfGateOfIllusion
   requirements:
-    - event:reachedElevatorOfGateOfIllusion, sacredOrb: 1 # need health to survive water
-    - event:reachedElevatorOfGateOfIllusion, 
+    - event:reachedElevatorOfGateOfIllusion, sacredOrb:1 # need health to survive water
+    - event:reachedElevatorOfGateOfIllusion, scalesphere
     # - event:reachedBackDoorOfGateOfIllusion # circular reference
 - name: event:reachedBackDoorOfGateOfIllusion
   requirements:
