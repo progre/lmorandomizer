@@ -5,7 +5,7 @@
     - originSeal, holyGrail
 - name: originSeal
   requirements:
-    - event:SpringElevator # more varied ways to get here
+    - event:SpringElevator, helmet
 - name: lifeSeal
   requirements:
     - event:lightedUpChamberOfExtinction, birthSeal, axe # need axe to open wall
