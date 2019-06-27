@@ -35,14 +35,17 @@ Place seed and La-Mulana install directory, select options, then push Apply.
 ### Constraints on the system
 
 - Certain situations can cause a softlock. For example, going to *Dimensional Corridor* without *Bronze Mirror*.
-- Shops can't display some items.
-  - Maps
-  - Sacred Orbs
-  - Main Weapons and Sub Weapons that aren't Ankh Jewels and Pistol
+- Shop restrictions:
+  - Maps are sold out if any map is acquired. Maps are not necessary to beat the game.
+  - Sacred Orbs have the same problem as maps but have a real impact on game play.
+  - Main Weapons severely break the shop interface if placed there.
+  - Shuriken, Throwing Knives, Flares, Spears, and Bombs are always ammo in shops.
+  - Silver Shield and Angel Shield don't sell out when bought. You do get the proper item if purchased.
 
 ### Stuck?
 
-- The *Talisman*, *Diary*, and *Treasure* are still there even if they're overwritten by a different item on the inventory screen.
+- The *Talisman*, *Diary*, and *Treasure* are still there even if they are overwritten by a different item on the inventory screen.
 - The top right section of *Spring in the Sky* is accessible without the helmet. Use the *Feather* and *Grapple Claw* to get on the elevator.
 - The bombable wall in *Graveyard of the Giants* can be opened from the left side if you have *Bombs* and enough health.
 - Palenque's section of *Chamber of Extinction* can be accessed through the Gate of Time. Climb up the ladder and you get warped there.
+- The door in *Tower of Ruin* leading to Viy can be accessed by using *Bombs* instead of *Spears*. Hold down to roll bombs.
