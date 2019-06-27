@@ -28,7 +28,9 @@ How to use
 Place seed and La-Mulana install directory, select options, then push Apply.
 
 *Automatic Grail Tablet Registration*: Makes it so you can just walk in front of a grail tablet and it is registered for *Holy Grail* use.
+
 *↓ to save at Grail tablets*: Pressing down at a Grail Tablet takes you to Xelpud. Loading brings you back to the last place saved at.
+
 *Starting Items*: Select which items you want to start with.
 
 Backside ROM combo is *Antarctic Adventure* and *Comic Bakery*. One is under the Birth Seal in *Inferno Cavern*.
