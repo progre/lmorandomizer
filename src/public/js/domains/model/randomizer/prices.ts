@@ -23,6 +23,14 @@ export function getNewPrice (
 	  }
 }
   
+// whip 20
+// chain whip 100
+// mace 200
+// knife 75
+// axe 130
+// keysword 50
+// katana 145
+
 function getMainWeaponPrice(
   itemNumber: Number,
 ) {
@@ -34,19 +42,19 @@ function getSubWeaponPrice(
   subNumber: SubWeaponNumber,
 ) {
 	switch (subNumber) {
-		case subWeaponNumbers.shuriken: return 20;
-		case subWeaponNumbers.touken: return 30;
-		case subWeaponNumbers.spear: return 40;
-		case subWeaponNumbers.flareGun: return 70;
-		case subWeaponNumbers.bomb: return 120;
-		// case subWeaponNumbers.pistol: 
-		case subWeaponNumbers.weights: return 20;
-		case subWeaponNumbers.ankhJewel: return 120;
+		case subWeaponNumbers.shuriken: return 5;
+		case subWeaponNumbers.touken: return 10;
+		case subWeaponNumbers.spear: return 10;
+		case subWeaponNumbers.flareGun: return 10;
+		case subWeaponNumbers.bomb: return 40;
+		case subWeaponNumbers.pistol: return 150;
+		case subWeaponNumbers.weights: return 10;
+		case subWeaponNumbers.ankhJewel: return 90;
 		case subWeaponNumbers.buckler: return 80;
-		case subWeaponNumbers.handScanner: return 20;
+		case subWeaponNumbers.handScanner: return 50;
 		case subWeaponNumbers.silverShield: return 150;
 		case subWeaponNumbers.angelShield: return 200;
-		case subWeaponNumbers.ammunition: return 500;
+		case subWeaponNumbers.ammunition: return 300;
 		default:
 			return 101;
 	}
@@ -61,48 +69,49 @@ function getEquipmentPrice(
 		case equipmentNumbers.waterproofCase: return 80;
 		case equipmentNumbers.heatproofCase: return 100;
 		case equipmentNumbers.finder: return 80;
-		case equipmentNumbers.lampOfTime: return 200;
-		// case equipmentNumbers.protectiveClothes: return 300;
-		// case equipmentNumbers.talisman: return 150;
+		case equipmentNumbers.lampOfTime: return 150;
+		case equipmentNumbers.protectiveClothes: return 300;
+		case equipmentNumbers.talisman: return 130;
 		case equipmentNumbers.scriptures: return 350;
-		case equipmentNumbers.gauntlet: return 100;
-		// case equipmentNumbers.ring: return 100;
-		// case equipmentNumbers.glove: return 150;
-		// case equipmentNumbers.keyOfEternity: return 60;
-		// case equipmentNumbers.twinStatue: return 60;
-		// case equipmentNumbers.bronzeMirror: return 50;
-		// case equipmentNumbers.boots: return 80;
-		// case equipmentNumbers.feather: return 100;
+		case equipmentNumbers.gauntlet: return 110;
+		case equipmentNumbers.ring: return 115;
+		case equipmentNumbers.glove: return 55;
+		case equipmentNumbers.keyOfEternity: return 40;
+		case equipmentNumbers.twinStatue: return 40;
+		case equipmentNumbers.bronzeMirror: return 30;
+		case equipmentNumbers.boots: return 60;
+		case equipmentNumbers.feather: return 75;
 		case equipmentNumbers.bracelet: return 150;
 		case equipmentNumbers.dragonBone: return 200;
-		// case equipmentNumbers.grappleClaw: return 80;
-		// case equipmentNumbers.magatamaJewel: return 80;
-		// case equipmentNumbers.crucifix: return 200;
-		// case equipmentNumbers.bookOfTheDead: return 200;
-		// case equipmentNumbers.perfume: return 300;
-		// case equipmentNumbers.ocarina: return 30;
+		case equipmentNumbers.dragonBone: return 115;
+		case equipmentNumbers.grappleClaw: return 60;
+		case equipmentNumbers.magatamaJewel: return 130;
+		case equipmentNumbers.crucifix: return 200;
+		case equipmentNumbers.bookOfTheDead: return 135;
+		case equipmentNumbers.perfume: return 300;
+		case equipmentNumbers.ocarina: return 30;
 		case equipmentNumbers.anchor: return 5;
-		// case equipmentNumbers.womanStatue: return 110;
-		// case equipmentNumbers.miniDoll: return 120;
-		// case equipmentNumbers.eyeOfTruth: return 90;
-		// case equipmentNumbers.serpentStaff: return 70;
-		case equipmentNumbers.iceCape: return 200;
+		case equipmentNumbers.womanStatue: return 100;
+		case equipmentNumbers.miniDoll: return 90;
+		case equipmentNumbers.eyeOfTruth: return 190;
+		case equipmentNumbers.serpentStaff: return 95;
+		case equipmentNumbers.iceCape: return 100;
 		case equipmentNumbers.helmet: return 90;
-		// case equipmentNumbers.scalesphere: return 250;
-		// case equipmentNumbers.crystalSkull: return 200;
-		// case equipmentNumbers.djedPillar: return 100;
-		// case equipmentNumbers.planeModel: return 160;
-		// case equipmentNumbers.cogOfTheSoul: return 200;
-		// case equipmentNumbers.pochetteKey: return ;
-		// case equipmentNumbers.vessel: return 
+		case equipmentNumbers.scalesphere: return 105;
+		case equipmentNumbers.crystalSkull: return 125;
+		case equipmentNumbers.djedPillar: return 75;
+		case equipmentNumbers.planeModel: return 115;
+		case equipmentNumbers.cogOfTheSoul: return 120;
+		case equipmentNumbers.pochetteKey: return 125;
+		case equipmentNumbers.vessel: return 160;
 		case equipmentNumbers.msx2: return 150;
-		// case equipmentNumbers.diary: return 
-		// case equipmentNumbers.mulanaTalisman: return 
+		case equipmentNumbers.diary: return 115;
+		case equipmentNumbers.mulanaTalisman: return 115;
 		case equipmentNumbers.lampOfTimeSpecified: throw new Error();
-		// case equipmentNumbers.maternityStatue: return 
-		case equipmentNumbers.fakeHandScanner: return 150;
-		// case equipmentNumbers.pepper: return 
-		case equipmentNumbers.treasures: return 500;
+		case equipmentNumbers.maternityStatue: throw new Error()
+		case equipmentNumbers.fakeHandScanner: return 50;
+		case equipmentNumbers.pepper: return 175;
+		case equipmentNumbers.treasures: return 200;
 		
 		case equipmentNumbers.medicineOfLifeYellow: 
 		case equipmentNumbers.medicineOfLifeGreen: 
@@ -111,8 +120,9 @@ function getEquipmentPrice(
 		case equipmentNumbers.fakeSilverShield: return 150;
 		
 		case equipmentNumbers.theTreasuresOfLaMurana: 
-		case equipmentNumbers.sacredOrb:
-		case equipmentNumbers.map: throw new Error()
+		case equipmentNumbers.sacredOrb: throw new Error() // make 90 if they can work in shops
+
+		case equipmentNumbers.map: return 10;
 		
 		case equipmentNumbers.originSeal:
 		case equipmentNumbers.birthSeal:
@@ -131,23 +141,47 @@ function getRomPrice(
 )  {
 	switch(romNumber) {
 		case romNumbers.gameMaster: return 10;
-		// case romNumbers.gameMaster2:
-		case romNumbers.glyphReader: return 100;
+		case romNumbers.gameMaster2: return 40;
+		case romNumbers.glyphReader: return 30;
 		case romNumbers.ruinsRam8k: return 30;
-		// ...
-		case romNumbers.knightmare: return 200;
-		// ...
-		case romNumbers.castlevania: return 130;
-		// ...
-		case romNumbers.f1Spirit: return 180;
-		// ...
-		case romNumbers.sealOfElGiza: return 100;
-		// ...
-		case romNumbers.mahjongWizard: return 50;
-		// ...
-		case romNumbers.divinerSensation: return 80;
-		// case romNumbers.snatcher: 
+		case romNumbers.ruinsRam16k: return 60;
+		case romNumbers.unreleasedRom: return 66;
+		case romNumbers.pr3: return 66;
+		case romNumbers.gr3: return 66;
+		case romNumbers.athleticLand: return 117;
+		case romNumbers.antarcticAdventure: return 57;
+		case romNumbers.videoHustler: return 127;
+		case romNumbers.comicBakery: return 57;
+		case romNumbers.cabbagePatchKids: return 117;
+		case romNumbers.hyperRally: return 22;
+		case romNumbers.yieArKungFu: return 102;
+		case romNumbers.roadFighter: return 22;
+		case romNumbers.yieArKungFu2: return 102;
+		case romNumbers.knightmare: return 17;
+		case romNumbers.twinbee: return 52;
+		case romNumbers.shinSynthesizer: return 12;
+		case romNumbers.penguinAdventure: return 52;
+		case romNumbers.castlevania: return 137;
+		case romNumbers.kingKong2: return 147;
+		case romNumbers.qbert: return 87;
+		case romNumbers.firebird: return 147
+		case romNumbers.mazeOfGalious: return 17;
+		case romNumbers.metalGear: return 32;
+		case romNumbers.gradius2: return 52;
+		case romNumbers.f1Spirit: return 180; // can be default, rom does nothing
+		case romNumbers.shalom: return 87;
+		case romNumbers.breakShot: return 127;
+		case romNumbers.salamander: return 52;
+		case romNumbers.sealOfElGiza: return 17;
+		case romNumbers.contra: return 5;
+		case romNumbers.mahjongWizard: return 137;
+		case romNumbers.metalGear2: return 32;
+		case romNumbers.divinerSensation: return 87;
+		case romNumbers.snatcher: return 12;
 		case romNumbers.f1Spirit3d: return 5;
+		case romNumbers.sdSnatcher: return 12;
+		case romNumbers.badlands: return 22;
+		case romNumbers.a1Spirit: return 22;
 		default: return 103
 	}
 	return 103;

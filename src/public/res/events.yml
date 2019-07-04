@@ -51,7 +51,7 @@
 
 - name: event:defeatedViy
   requirements:
-    - event:reachedFrontOfTowerOfRuin, spear, spearAmmo, bronzeMirror, event:defeatedBahamut, ankhJewel:towerOfRuin, iceCape, sacredOrb:3 # should have some health
+    - event:reachedFrontOfTowerOfRuin, spear, bronzeMirror, event:defeatedBahamut, ankhJewel:towerOfRuin, iceCape, sacredOrb:3 # should have some health
     - event:reachedFrontOfTowerOfRuin, bomb, bombAmmo, bronzeMirror, event:defeatedBahamut, ankhJewel:towerOfRuin, iceCape, sacredOrb:3 # can reach with bombs
 
 - name: event:reachedPalenque # this is to reach palenque, not fight him
@@ -71,7 +71,7 @@
 
 - name: event:reachedFrontOfShrineOfTheMother
   requirements:
-    - keyOfEternity, handScanner, glyphReader, feather, spear, spearAmmo, boots, glove, dragonBone # test if boots are necessary
+    - keyOfEternity, handScanner, glyphReader, feather, spear, glove, dragonBone # boots not necessary
 
 - name: event:reachedFrontOfGateOfIllusion
   requirements:
@@ -81,7 +81,8 @@
     - event:anchor, knife # event anchor already includes getting to Illusion
 - name: event:reachedGrailOfGateOfIllusion
   requirements:
-    - event:reachedElevatorOfGateOfIllusion
+    - event:reachedElevatorOfGateOfIllusion, sacredOrb:1 # need health to survive water
+    - event:reachedElevatorOfGateOfIllusion, scalesphere
     # - event:reachedBackDoorOfGateOfIllusion # circular reference
 - name: event:reachedBackDoorOfGateOfIllusion
   requirements:
@@ -144,7 +145,7 @@
     - event:reachedBackDoorOfGraveyardOfTheGiants
 - name: event:lightedUpChamberOfExtinction
   requirements:
-    - event:reachedUpperOfChamberOfBirth
+    - event:reachedUpperOfChamberOfBirth, feather
     - flareGun
 
 - name: event:reachedDimensionalCorridor

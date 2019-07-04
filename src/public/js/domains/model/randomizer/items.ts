@@ -122,7 +122,7 @@ export enum romNumbers {
   konamiTennis, // 27 ｺﾅﾐのﾃﾆｽ
   skyJaguar, // 28 ｽｶｲｼﾞｬｶﾞｰ
   konamiPinball, // 29 ｺﾅﾐのﾋﾟﾝﾎﾞｰﾙ
-  konabiGolf, // 30 ｺﾅﾐのｺﾞﾙﾌ
+  konamiGolf, // 30 ｺﾅﾐのｺﾞﾙﾌ
   konamiBaseball, // 31 ｺﾅﾐのﾍﾞｰｽﾎﾞｰﾙ
   yieArKungFu, // 32 ｲｰｱﾙｶﾝﾌｰ
   kingsValley, // 33 ｵｳｹのたに

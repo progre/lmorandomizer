@@ -18,7 +18,7 @@ mainWeapons:
       - event:reachedTowerOfTheGoddess
   - name: axe
     requirements:
-      - event:reachedFrontOfTempleOfMoonlight, shuriken, shurikenAmmo, knife
+      - event:reachedFrontOfTempleOfMoonlight, shuriken, knife, boots
 subWeapons:
   - name: shuriken
   - name: ankhJewel:gateOfGuidance
@@ -42,7 +42,7 @@ subWeapons:
       - event:reachedLiarOfGraveyardOfTheGiants, katana
   - name: bomb
     requirements:
-      - event:reachedBackDoorOfGraveyardOfTheGiants, katana
+      - event:reachedBackDoorOfGraveyardOfTheGiants
   - name: ankhJewel:towerOfRuin
     requirements:
       - event:reachedFrontOfTowerOfRuin

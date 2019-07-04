@@ -28,7 +28,7 @@ export default class Item {
       this.flag % 256 !== 0
       && (
         this.type === 'equipment'
-        && this.number !== equipmentNumbers.map
+        // && this.number !== equipmentNumbers.map
         && this.number !== equipmentNumbers.sacredOrb
         || this.type === 'rom'
         || this.type === 'subWeapon'
@@ -37,6 +37,8 @@ export default class Item {
           || this.number === subWeaponNumbers.pistol
           || this.number === subWeaponNumbers.buckler
           || this.number === subWeaponNumbers.handScanner
+          || this.number === subWeaponNumbers.silverShield
+          || this.number === subWeaponNumbers.angelShield
         )
       )
     );
