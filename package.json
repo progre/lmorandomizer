@@ -1,26 +1,38 @@
 {
   "name": "lmorandomizer",
-  "private": true,
   "version": "0.0.0",
-  "type": "module",
+  "dependencies": {
+    "@emotion/react": "^11.11.4",
+    "@emotion/styled": "^11.11.5",
+    "@mui/material": "^5.15.19",
+    "@tauri-apps/api": ">=2.0.0-beta.0",
+    "@tauri-apps/plugin-log": "^2.0.0-beta.6",
+    "@tauri-apps/plugin-shell": ">=2.0.0-beta.0",
+    "@tauri-apps/plugin-store": "^2.0.0-beta.5",
+    "js-sha3": "^0.8.0",
+    "js-yaml": "^3.12.0",
+    "parse5": "^5.1.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "seedrandom": "^2.4.4"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": ">=2.0.0-beta.0",
+    "@types/js-yaml": "^3.11.2",
+    "@types/parse5": "^5.0.0",
+    "@types/react": "^18.2.15",
+    "@types/react-dom": "^18.2.7",
+    "@types/seedrandom": "^2.4.27",
+    "@vitejs/plugin-react": "^4.2.1",
+    "typescript": "^5.0.2",
+    "vite": "^5.0.0"
+  },
+  "private": true,
   "scripts": {
-    "dev": "vite",
     "build": "tsc && vite build",
+    "dev": "vite",
     "preview": "vite preview",
     "tauri": "tauri"
   },
-  "dependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "@tauri-apps/api": ">=2.0.0-beta.0",
-    "@tauri-apps/plugin-shell": ">=2.0.0-beta.0"
-  },
-  "devDependencies": {
-    "@types/react": "^18.2.15",
-    "@types/react-dom": "^18.2.7",
-    "@vitejs/plugin-react": "^4.2.1",
-    "typescript": "^5.0.2",
-    "vite": "^5.0.0",
-    "@tauri-apps/cli": ">=2.0.0-beta.0"
-  }
+  "type": "module"
 }

@@ -1,0 +1,228 @@
+# Gate of Guidance
+- name: sacredOrb:gateOfGuidance
+- name: treasures
+  requirements:
+    - event:pepper
+- name: crucifix
+  requirements:
+    - flareGun, birthSeal
+- name: map:gateOfGuidance
+- name: gameMaster2
+  requirements:
+    - event:reachedGrailOfGateOfIllusion, event:defeatedAmphisbaena, bronzeMirror
+- name: holyGrail
+
+# Surface
+- name: feather
+  requirements:
+    - serpentStaff, gauntlet
+    - serpentStaff, shuriken, shurikenAmmo
+    - serpentStaff, bomb, bombAmmo
+    - serpentStaff, pistol, ammunition
+    - serpentStaff, chainWhip
+    - serpentStaff, mace
+    - serpentStaff, knife
+    - serpentStaff, axe
+    - serpentStaff, katana
+    - serpentStaff, castlevania, mahjongWizard
+- name: shellHorn
+# skip birthSeal
+- name: sacredOrb:surface
+  requirements:
+    - scalesphere
+    - sacredOrb:3 # TODO: いくつあれば足りるのか？
+
+# Mausoleum of the Giants
+- name: map:mausoleumOfTheGiants
+# skip ankhJewel
+- name: sacredOrb:mausoleumOfTheGiants
+
+# Temple of the Sun
+- name: bronzeMirror
+  requirements:
+    - ankhJewel:templeOfTheSun, handScanner, glyphReader
+- name: map:templeOfTheSun
+- name: talisman
+  requirements:
+    - event:defeatedViy
+- name: boots
+  requirements:
+    - event:floodedTempleOfTheSun
+    - feather
+- name: sacredOrb:templeOfTheSun
+# skip ankhJewel
+
+# Spring in the Sky
+- name: sacredOrb:springInTheSky
+  requirements:
+    - lifeSeal
+- name: glove
+  requirements:
+    - event:floodedSpringInTheSky
+- name: map:springInTheSky
+  requirements:
+    - helmet
+    - boots
+- name: scalesphere
+  requirements:
+    - sacredOrb:2, helmet, originSeal
+# skip originSeal
+# skip ankhJewel
+
+# Inferno Cavern
+- name: map:infernoCavern
+- name: grappleClaw
+  requirements:
+    - iceCape
+    - glove, sacredOrb:3 # TODO: test
+    - sacredOrb:5 # tested
+
+# Chamber of Extinction
+- name: sacredOrb:chamberOfExtinction
+  requirements:
+    - event:lightedUpChamberOfExtinction
+- name: map:chamberOfExtinction
+  requirements:
+    - event:lightedUpChamberOfExtinction
+# skip lifeSeal
+
+# Endless Corridor
+- name: map:endlessCorridor
+- name: twinStatue
+  requirements:
+    - keyOfEternity, handScanner, glyphReader, feather
+    - keyOfEternity, handScanner, glyphReader, grappleClaw
+
+# Shrine of the Mother
+- name: crystalSkull
+  requirements:
+    - event:reachedFrontOfShrineOfTheMother, lifeSeal, event:mulanaTalisman
+- name: sacredOrb:shrineOfTheMother
+  requirements:
+    - event:reachedFrontOfShrineOfTheMother, originSeal, birthSeal, lifeSeal, deathSeal
+- name: diary
+  requirements:
+    - event:reachedFrontOfShrineOfTheMother, talisman, lifeSeal, lampOfTime
+- name: map:shrineOfTheMother
+  requirements:
+    - event:releasedTwins, dragonBone
+# skip deathSeal
+
+# Twin Labyrinths (front)
+- name: ring
+  requirements:
+    - event:releasedTwins
+- name: map:twinLabyrinths
+  requirements:
+    - event:releasedTwins
+- name: sacredOrb:twinLabyrinths
+  requirements:
+    - event:releasedTwins
+
+# Twin Labyrinths (back)
+# skip fake ankhJewel
+
+# Gate of Illusion
+- name: keyOfEternity
+  requirements:
+    - event:reachedElevatorOfGateOfIllusion, axe
+- name: protectiveClothes
+  requirements:
+    - event:reachedElevatorOfGateOfIllusion, katana, divinerSensation, event:qBert
+- name: map:gateOfIllusion
+  requirements:
+    - event:reachedFrontOfGateOfIllusion
+- name: cogOfTheSoul
+  requirements:
+    - event:reachedBackDoorOfGateOfIllusion, event:reachedElevatorOfGateOfIllusion, lampOfTime
+
+# Graveyard of the Giants
+- name: contra
+  requirements:
+    - event:reachedBackDoorOfGraveyardOfTheGiants
+- name: map:graveyardOfTheGiants
+  requirements:
+    - event:reachedFrontOfGraveyardOfTheGiants
+- name: gauntlet
+  requirements:
+    - event:reachedFrontOfGraveyardOfTheGiants, birthSeal, grappleClaw
+
+# Tower of the Goddess
+- name: a1Spirit
+  requirements:
+    - event:reachedTowerOfTheGoddess, planeModel, pistol, ammunition
+- name: planeModel
+  requirements:
+    - event:reachedTowerOfTheGoddess, feather, grappleClaw
+- name: map:TowerOfTheGoddess
+  requirements:
+    - event:reachedTowerOfTheGoddess
+- name: gradius
+  requirements:
+    - event:reachedTowerOfTheGoddess, feather
+- name: eyeOfTruth
+  requirements:
+    - event:reachedTowerOfTheGoddess
+
+# Temple of Moonlight
+- name: bookOfTheDead
+  requirements:
+    - event:reachedFrontOfTempleOfMoonlight, birthSeal
+- name: iceCape
+  requirements:
+    - event:reachedGrailOfTempleOfMoonlight
+- name: map:TempleOfMoonlight
+  requirements:
+    - event:reachedGrailOfTempleOfMoonlight
+# skip open from front
+# skip open from front
+# skip open from front
+# skip open from front
+- name: ocarina
+  requirements:
+    - flareGun, womanStatue
+- name: serpentStaff
+  requirements:
+    - event:reachedFrontOfTempleOfMoonlight, grappleClaw
+    - event:reachedFrontOfTempleOfMoonlight, feather
+
+# Tower of Ruin
+- name: djedPillar
+  requirements:
+    - event:reachedBackDoorOfTowerOfRuin
+- name: map:towerOfRuin
+  requirements:
+    - event:reachedFrontOfTowerOfRuin
+- name: sacredOrb:towerOfRuin
+  requirements:
+    - event:reachedFrontOfTowerOfRuin
+
+# Chamber of Birth
+- name: vessel
+  requirements:
+    - event:reachedUpperOfChamberOfBirth, silverShield
+    - event:reachedUpperOfChamberOfBirth, angelShield
+- name: perfume
+  requirements:
+    - event:reachedUpperOfChamberOfBirth, cogOfTheSoul
+- name: womanStatue
+  requirements:
+    - event:reachedUpperOfChamberOfBirth, feather
+- name: map:chamberOfBirth
+  requirements:
+    - event:reachedLowerOfChamberOfBirth
+- name: pochetteKey
+  requirements:
+    - event:reachedLowerOfChamberOfBirth, bomb, bombAmmo, cogOfTheSoul
+
+# Dimensional Corridor
+- name: magatamaJewel
+  requirements:
+    - event:defeatedTiamat
+- name: sacredOrb:dimensionalCorridor
+  requirements:
+    - event:reachedDimensionalCorridor, feather, lampOfTime, grappleClaw
+# skip ankhJewel
+- name: map:dimensionalCorridor
+  requirements:
+    - event:reachedDimensionalCorridor

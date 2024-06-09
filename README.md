@@ -1,7 +1,36 @@
-# Tauri + React + Typescript
+# La-Mulana (Original version) Randomizer
 
-This template should help get you started developing with Tauri, React and Typescript in Vite.
+[![Build Status](https://travis-ci.org/progre/lmorandomizer.svg?branch=master)](https://travis-ci.org/progre/lmorandomizer) ![License](https://img.shields.io/github/license/progre/lmorandomizer.svg) [![Version](https://img.shields.io/github/release/progre/lmorandomizer/all.svg)](https://github.com/progre/lmorandomizer/releases)
 
-## Recommended IDE Setup
+Randomizer for La-Mulana (Original version). Original game will be found in [Internet Archive](https://archive.org/details/La-Mulana)
 
-- [VS Code](https://code.visualstudio.com/) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)
+This tool was inspired by [La-Mulana Randomizer](https://github.com/thezerothcat/LaMulanaRandomizer/wiki).
+
+<img width="750" src="window.png" alt="screenshot">
+
+**[Latest version is here](https://github.com/progre/lmorandomizer/releases)**
+
+----
+
+## Information
+
+This application replace items in script.dat of La-Mulana with random. Even after repalce, you can finish the game (but it may contain bugs...).
+
+### Currently restrictions
+
+- Items in *True Shrine of the Mother* and *Night Surface* aren't replace. You must collect items in *(normal) Shrine of the Mother* and *Surface* before it.
+- NPCs' items are't replace. (*Mini Doll*, *Pepper*, *Anchor*, and *Mulana Talisman*)
+- Roadside ROMs aren't replace.
+- Item names on shops are mismatch actual items.
+
+### Constraints on the system
+
+- If you make a mistake you will be unable to finish. For example, you go to *Dimentional Corridor* without *Bronze Mirror*.
+- Shops can't display some items.
+  - Maps
+  - Sacred Orbs
+  - Weapon bodies without Ankh Jewels and Pistol
+
+## How to use
+
+Place seed and La-Mulana install directory, and select options, then push Apply.

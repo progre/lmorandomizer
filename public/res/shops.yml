@@ -1,0 +1,91 @@
+# Gate of Guidance
+- names: shurikenAmmo, finder, weights
+  requirements:
+    - originSeal
+
+# Surface
+- names: gameMaster, glyphReader, ruinsRAM8k
+- names: handScanner, ammunition, buckler
+- names: msx2, waterproofCase, shurikenAmmo
+
+# Mausoleum of the Giants
+- names: toukenAmmo, sealOfElGiza, weights
+
+# Temple of the Sun
+- names: toukenAmmo, spearAmmo, flareGunAmmo
+  requirements:
+    - shuriken, shurikenAmmo
+    - feather
+- names: heatproofCase, divinerSensation, weights
+- names: ammunition, bombAmmo, shurikenAmmo
+  requirements:
+    - deathSeal
+
+# Spring in the Sky
+- names: weights, shurikenAmmo, toukenAmmo
+  requirements:
+    - sacredOrb:2, originSeal
+    - scalesphere, originSeal
+- names: shellHorn, finder, castlevania
+  requirements:
+    - sacredOrb:2, originSeal, divinerSensation, event:qBert
+    - scalesphere, originSeal, divinerSensation, event:qBert
+
+# Inferno Cavern
+- names: mahjongWizard, spearAmmo, toukenAmmo
+
+# Chamber of Extinction
+- names: spearAmmo, flareGunAmmo, bombAmmo
+  requirements:
+    - event:reachedPalenque
+
+# Endless Corridor
+- names: bombAmmo, toukenAmmo, weights
+  requirements:
+    - lifeSeal
+
+# Shrine of the Mother
+
+# Twin Labyrinths (front)
+- names: helmet, bombAmmo, fakeHandScanner
+- names: lampOfTime, shurikenAmmo, toukenAmmo
+  requirements:
+    - event:releasedTwins, bomb
+    - event:releasedTwins, feather
+
+# Twin Labyrinths (back)
+- names: scriptures, bombAmmo, spearAmmo
+  requirements:
+    - event:releasedTwins, feather
+- names: dragonBone, spearAmmo, flareGunAmmo
+  requirements:
+    - fakeHandScanner
+
+# Gate of Illusion
+- names: f1Spirit, f1Spirit3d, weights
+  requirements:
+    - event:reachedElevatorOfGateOfIllusion
+
+# Graveyard of the Giants
+- names: spearAmmo, fakeSilverShield, weights
+  requirements:
+    - event:reachedFrontOfGraveyardOfTheGiants
+
+# Tower of the Goddess
+
+# Temple of Moonlight
+- names: bracelet, shurikenAmmo, ammunition
+  requirements:
+    - event:reachedFrontOfTempleOfMoonlight, bomb, bombAmmo
+
+# Tower of Ruin
+- names: knightmare, bombAmmo, flareGunAmmo
+  requirements:
+    - event:reachedFrontOfTowerOfRuin, katana, feather
+
+# Chamber of Birth
+- names: ammunition, ankhJewel:chamberOfBirth, weights
+  requirements:
+    - event:reachedLowerOfChamberOfBirth, cogOfTheSoul
+
+# Dimensional Corridor
