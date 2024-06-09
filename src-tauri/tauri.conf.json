@@ -13,8 +13,8 @@
       {
         "title": "",
         "width": 800,
-        "height": 331,
-        "visible": true
+        "height": 315,
+        "visible": false
       }
     ],
     "security": {
