@@ -1,73 +1,38 @@
 {
   "name": "lmorandomizer",
-  "description": "Randomizer for La-Mulana Original.",
-  "version": "0.4.3",
-  "bugs": {
-    "url": "https://github.com/progre/lmoriginalrandomizer/issues"
-  },
-  "build": {
-    "directories": {
-      "output": "output"
-    },
-    "files": [
-      "dist",
-      "LICENSE",
-      "README.md"
-    ]
-  },
+  "version": "0.0.0",
   "dependencies": {
-    "@material-ui/core": "^3.0.2",
+    "@emotion/react": "^11.11.4",
+    "@emotion/styled": "^11.11.5",
+    "@mui/material": "^5.15.19",
+    "@tauri-apps/api": ">=2.0.0-beta.0",
+    "@tauri-apps/plugin-log": "^2.0.0-beta.6",
+    "@tauri-apps/plugin-shell": ">=2.0.0-beta.0",
+    "@tauri-apps/plugin-store": "^2.0.0-beta.5",
     "js-sha3": "^0.8.0",
     "js-yaml": "^3.12.0",
     "parse5": "^5.1.0",
-    "react": "^16.5.0",
-    "react-dom": "^16.5.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "seedrandom": "^2.4.4"
   },
   "devDependencies": {
-    "@commitlint/cli": "^7.1.2",
-    "@commitlint/config-conventional": "^7.1.2",
-    "@progre/tslint-config": "~5.10.0",
-    "@progre/webpack-config": "^0.0.6",
+    "@tauri-apps/cli": ">=2.0.0-beta.0",
     "@types/js-yaml": "^3.11.2",
-    "@types/node": "^10.10.3",
     "@types/parse5": "^5.0.0",
-    "@types/react": "^16.4.13",
-    "@types/react-dom": "^16.0.7",
+    "@types/react": "^18.2.15",
+    "@types/react-dom": "^18.2.7",
     "@types/seedrandom": "^2.4.27",
-    "del-cli": "^1.1.0",
-    "electron": "^3.0.0",
-    "electron-builder": "^20.28.4",
-    "husky": "^1.0.0-rc.15",
-    "npm-run-all": "^4.1.3",
-    "source-map-support": "^0.5.9",
-    "ts-loader": "5.2.0",
-    "tslint": "^5.11.0",
-    "tslint-language-service": "^0.9.9",
-    "typescript": "^2.9.2",
-    "webpack": "~4.18.1",
-    "webpack-cli": "^3.1.1"
+    "@vitejs/plugin-react": "^4.2.1",
+    "typescript": "^5.0.2",
+    "vite": "^5.0.0"
   },
-  "homepage": "https://github.com/progre/lmoriginalrandomizer#readme",
-  "license": "MIT",
-  "main": "dist/index.js",
   "private": true,
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/progre/lmoriginalrandomizer.git"
-  },
   "scripts": {
-    "build": "run-s clean wasm-release-build release-build",
-    "clean": "del-cli dist tmp",
-    "commitmsg": "commitlint -e $GIT_PARAMS",
-    "debug-build": "webpack --mode development --progress",
-    "dev": "webpack --mode development --progress --watch",
-    "test": "npx -q -p typescript -p ts-node ts-node src/test/test.ts",
-    "package": "electron-builder --win zip --mac zip --publish onTag",
-    "release-build": "webpack --mode production --progress",
-    "start": "electron .",
-    "wasm-debug-build": "cargo build --target wasm32-unknown-unknown && mkdir -p dist/public/wasm/ && cp target/wasm32-unknown-unknown/debug/lib.wasm dist/public/wasm/",
-    "wasm-release-build": "cargo build --release --target wasm32-unknown-unknown && mkdir -p dist/public/wasm/ && cp target/wasm32-unknown-unknown/release/lib.wasm dist/public/wasm/"
+    "build": "tsc && vite build",
+    "dev": "vite",
+    "preview": "vite preview",
+    "tauri": "tauri"
   },
-  "typings": "dist/index.d.ts"
+  "type": "module"
 }

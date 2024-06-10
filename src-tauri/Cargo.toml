@@ -1,0 +1,20 @@
+[package]
+name = "lmorandomizer"
+version = "0.0.0"
+description = "A Tauri App"
+authors = ["you"]
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[build-dependencies]
+tauri-build = { version = "2.0.0-beta", features = [] }
+
+[dependencies]
+log = "0.4.21"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tauri = { version = "2.0.0-beta", features = [] }
+tauri-plugin-log = "2.0.0-beta.6"
+tauri-plugin-shell = "2.0.0-beta"
+tauri-plugin-store = "2.0.0-beta.8"
+tokio = { version = "1.38.0", features = ["fs"] }

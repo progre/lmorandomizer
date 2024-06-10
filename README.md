@@ -1,21 +1,18 @@
-La-Mulana (Original version) Randomizer
-====
+# La-Mulana (Original version) Randomizer
 
-[![Electron](https://img.shields.io/badge/powered%20by-Electron-blue.svg)](https://electronjs.org/)
 [![Build Status](https://travis-ci.org/progre/lmorandomizer.svg?branch=master)](https://travis-ci.org/progre/lmorandomizer) ![License](https://img.shields.io/github/license/progre/lmorandomizer.svg) [![Version](https://img.shields.io/github/release/progre/lmorandomizer/all.svg)](https://github.com/progre/lmorandomizer/releases)
 
 Randomizer for La-Mulana (Original version). Original game will be found in [Internet Archive](https://archive.org/details/La-Mulana)
 
 This tool was inspired by [La-Mulana Randomizer](https://github.com/thezerothcat/LaMulanaRandomizer/wiki).
 
-<img width="750" src="window.png">
+<img width="750" src="window.png" alt="screenshot">
 
 **[Latest version is here](https://github.com/progre/lmorandomizer/releases)**
 
 ----
 
-Information
-----
+## Information
 
 This application replace items in script.dat of La-Mulana with random. Even after repalce, you can finish the game (but it may contain bugs...).
 
@@ -34,7 +31,6 @@ This application replace items in script.dat of La-Mulana with random. Even afte
   - Sacred Orbs
   - Weapon bodies without Ankh Jewels and Pistol
 
-How to use
-----
+## How to use
 
 Place seed and La-Mulana install directory, and select options, then push Apply.

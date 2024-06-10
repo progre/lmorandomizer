@@ -1,32 +1,25 @@
 {
   "compilerOptions": {
-    "declaration": true,
-    "declarationDir": "dist",
-    "esModuleInterop": true,
-    "jsx": "react",
-    "lib": [
-      "es2017",
-      "dom",
-      "dom.iterable"
-    ],
-    "module": "commonjs",
-    "noUnusedLocals": true,
-    "plugins": [
-      {
-        "name": "tslint-language-service"
-      }
-    ],
+    "target": "ES2020",
+    "useDefineForClassFields": true,
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
     "skipLibCheck": true,
+
+    /* Bundler mode */
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+
+    /* Linting */
     "strict": true,
-    "target": "es2017"
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true
   },
-  "files": [
-    "src/index.ts",
-    "src/public/js/index.tsx",
-    "src/public/js/randomizer.ts",
-  ],
-  "exclude": [
-    "dist",
-    "node_modules"
-  ]
+  "include": ["src"],
+  "references": [{ "path": "./tsconfig.node.json" }]
 }
