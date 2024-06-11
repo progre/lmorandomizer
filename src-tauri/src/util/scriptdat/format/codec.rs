@@ -55,7 +55,12 @@ pub fn decode(from: Vec<u8>) -> String {
 pub fn encode(from: &str) -> Vec<u8> {
     let char_to_code = create_char_to_code();
     from.chars()
-        .map(|c| char_to_code.get(&c).unwrap())
+        .map(|c| char_to_code[&c])
         .map(|ascii| ascii ^ KEY)
         .collect()
+}
+
+pub fn text_to_shop_data(text: &str) -> Vec<u8> {
+    let char_to_code = create_char_to_code();
+    text.chars().map(|c| char_to_code[&c]).collect()
 }

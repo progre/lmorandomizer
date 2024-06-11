@@ -14,11 +14,11 @@ export async function readScriptDat(file: ArrayBuffer) {
   const txt: string = await invoke('decode', {
     from: [...new Uint8Array(file)],
   });
-  return Script.parse(txt);
+  return await Script.parse(txt);
 }
 
 export async function buildScriptDat(script: Script) {
-  const str = script.stringify();
+  const str = await script.stringify();
   const array: number[] = await invoke('encode', { from: str });
   return Uint8Array.from(array);
 }

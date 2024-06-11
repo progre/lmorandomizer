@@ -1,11 +1,12 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-mod codec;
+mod randomizer;
+mod util;
 
 use std::path::PathBuf;
 
-use log::info;
+use log::{info, LevelFilter};
 use serde_json::json;
 use tauri::{AppHandle, Config, Manager, State, Wry};
 use tauri_plugin_store::{with_store, Store, StoreCollection};
@@ -14,7 +15,7 @@ use tokio::{
     io::{AsyncReadExt, AsyncWriteExt},
 };
 
-use codec::{decode, encode};
+use crate::util::scriptdat::format::codec::{decode, encode};
 
 #[derive(serde::Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -130,13 +131,30 @@ async fn write_file(path: String, contents: Vec<u8>) -> bool {
     true
 }
 
+#[tauri::command]
+fn parse_script_txt(text: &str) -> (Vec<String>, Vec<util::scriptdat::data::script::LMWorld>) {
+    util::scriptdat::format::scripttxtparser::parse_script_txt(text).unwrap()
+}
+
+#[tauri::command]
+fn stringify_script_txt(
+    talks: Vec<String>,
+    worlds: Vec<util::scriptdat::data::script::LMWorld>,
+) -> String {
+    util::scriptdat::format::scripttxtparser::stringify_script_txt(&talks, &worlds)
+}
+
 fn main() {
     let mut context = tauri::generate_context!();
     let Config { app, version, .. } = context.config_mut();
     let version = version.as_ref().unwrap();
     app.windows[0].title = format!("La-Mulana Original Randomizer v{version}",);
     tauri::Builder::default()
-        .plugin(tauri_plugin_log::Builder::new().build())
+        .plugin(
+            tauri_plugin_log::Builder::new()
+                .level_for("html5ever", LevelFilter::Warn)
+                .build(),
+        )
         .plugin(tauri_plugin_store::Builder::new().build())
         .plugin(tauri_plugin_shell::init())
         .invoke_handler(tauri::generate_handler![
@@ -149,6 +167,8 @@ fn main() {
             write_file,
             encode,
             decode,
+            parse_script_txt,
+            stringify_script_txt,
         ])
         .run(context)
         .expect("error while running tauri application");

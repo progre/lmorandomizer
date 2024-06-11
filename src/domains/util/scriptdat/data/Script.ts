@@ -1,3 +1,4 @@
+import { invoke } from '@tauri-apps/api/core';
 import assert from '../../../../assert';
 import Item from '../../../model/dataset/Item';
 import Spot from '../../../model/dataset/Spot';
@@ -7,7 +8,6 @@ import {
   equipmentNumbers,
   SubWeaponNumber,
 } from '../../../model/randomizer/items';
-import { parseScriptTxt, stringifyScriptTxt } from '../format/scripttxtparser';
 import ShopItemsData from '../format/ShopItemsData';
 import addStartingItems from './addStartingItems';
 import LMObject from './LMObject';
@@ -39,10 +39,21 @@ export interface LMChild {
 }
 
 export default class Script {
-  static parse(txt: string) {
-    const { talks, worlds } = parseScriptTxt(txt);
+  static async parse(txt: string) {
+    let [talks, worlds]: [string[], LMWorld[]] = <any>await invoke('parse_script_txt', { text: txt });
+    worlds = worlds.map((world): LMWorld => ({
+      ...world,
+      fields: world.fields.map((field) => ({
+        ...field,
+        maps: field.maps.map((map): LMMap => ({
+          ...map,
+          objects: map.objects.map(LMObject.fromObject),
+        })),
+        objects: field.objects.map(LMObject.fromObject),
+      })),
+    }));
     const script = new this(talks, worlds);
-    assert.equal(txt, script.stringify(), 'stringify mismatch');
+    assert.equal(txt, await script.stringify(), 'stringify mismatch');
     return script;
   }
 
@@ -52,8 +63,8 @@ export default class Script {
   ) {
   }
 
-  stringify() {
-    return stringifyScriptTxt(this.talks, this.worlds);
+  async stringify() {
+    return invoke('stringify_script_txt', { talks: this.talks, worlds: this.worlds });
   }
 
   mainWeapons() {

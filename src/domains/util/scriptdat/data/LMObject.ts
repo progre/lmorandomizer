@@ -1,6 +1,19 @@
 import assert from '../../../../assert';
 
 export default class LMObject {
+  static fromObject(object: LMObject) {
+    return new LMObject(
+      object.number,
+      object.x,
+      object.y,
+      object.op1,
+      object.op2,
+      object.op3,
+      object.op4,
+      object.starts.map((start) => ({ number: start.number, value: start.value })),
+    );
+  }
+
   constructor(
     public readonly number: number,
     public readonly x: number,
