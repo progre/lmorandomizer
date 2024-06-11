@@ -144,6 +144,25 @@ fn stringify_script_txt(
     util::scriptdat::format::scripttxtparser::stringify_script_txt(&talks, &worlds)
 }
 
+#[tauri::command]
+fn parse_shop_items_data(
+    text: String,
+) -> Vec<util::scriptdat::format::shop_items_data::ShopItemData> {
+    let items = util::scriptdat::format::shop_items_data::parse(&text);
+    vec![items.0, items.1, items.2]
+}
+
+#[tauri::command]
+fn stringify_shop_items_data(
+    mut items: Vec<util::scriptdat::format::shop_items_data::ShopItemData>,
+) -> String {
+    util::scriptdat::format::shop_items_data::stringify((
+        items.remove(0),
+        items.remove(0),
+        items.remove(0),
+    ))
+}
+
 fn main() {
     let mut context = tauri::generate_context!();
     let Config { app, version, .. } = context.config_mut();
@@ -169,6 +188,8 @@ fn main() {
             decode,
             parse_script_txt,
             stringify_script_txt,
+            parse_shop_items_data,
+            stringify_shop_items_data,
         ])
         .run(context)
         .expect("error while running tauri application");

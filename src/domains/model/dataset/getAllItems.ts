@@ -4,13 +4,13 @@ import { ShopItemData } from '../../util/scriptdat/format/ShopItemsData';
 import Item from './Item';
 import Supplements from './Supplements';
 
-export default function getAllItems(script: Script, supplements: Supplements) {
+export default async function getAllItems(script: Script, supplements: Supplements) {
   return {
     mainWeapons: mainWeapons(script, supplements),
     subWeapons: subWeapons(script, supplements),
     chests: chests(script, supplements),
     seals: seals(script, supplements),
-    shops: shops(script, supplements),
+    shops: await shops(script, supplements),
   };
 }
 
@@ -89,8 +89,8 @@ function seals(script: Script, supplements: Supplements) {
   });
 }
 
-function shops(script: Script, supplements: Supplements) {
-  const shopDataList = script.shops();
+async function shops(script: Script, supplements: Supplements) {
+  const shopDataList = await script.shops();
   assert.equal(
     shopDataList.length,
     supplements.shops.length + Supplements.wareNoMiseCount,

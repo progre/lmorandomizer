@@ -64,3 +64,11 @@ pub fn text_to_shop_data(text: &str) -> Vec<u8> {
     let char_to_code = create_char_to_code();
     text.chars().map(|c| char_to_code[&c]).collect()
 }
+
+pub fn shop_item_data_to_text(shop_item_data: &[u8]) -> String {
+    debug_assert_eq!(shop_item_data.len(), 7 * 3);
+    shop_item_data
+        .iter()
+        .map(|&x| CODE_MAP.chars().nth(x as usize).unwrap())
+        .collect()
+}

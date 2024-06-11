@@ -9,18 +9,18 @@ import Supplements from '../dataset/Supplements';
 import { selectRandom, shuffleSimply } from './shuffleUtils';
 import validate from './validate';
 
-export default function randomizeItems(
+export default async function randomizeItems(
   script: Script,
   supplements: Supplements,
   seed: string,
 ) {
-  const source = createSource(script, supplements);
+  const source = await createSource(script, supplements);
   assert(validate(source));
   assertUnique(source);
   const shuffled = randomizeStorage(source, seedrandom(seed));
   assertUnique(shuffled);
   script.replaceItems(shuffled);
-  script.replaceShops(shuffled.shops);
+  await script.replaceShops(shuffled.shops);
 }
 
 function randomizeStorage(source: Storage, rng: prng) {
@@ -141,7 +141,7 @@ function distributeItems(items: ReadonlyArray<Item>, source: Storage, rng: prng)
             return { tmp, list };
           },
           { tmp: [], list: [] },
-      )
+        )
         .list
     ),
   };
@@ -159,7 +159,7 @@ function assertUnique(storage: Storage) {
       storage.shops
         .map(x => x.items.map(item => ({ item, spot: x.spot })))
         .reduce<ReadonlyArray<{ spot: Spot; item: Item }>>((p, c) => p.concat(c), []),
-  )
+    )
     .forEach((x) => {
       if (
         x.item.name !== 'weights'

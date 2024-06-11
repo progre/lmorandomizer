@@ -1,5 +1,7 @@
 use crate::util::scriptdat::format::codec::text_to_shop_data;
 
+use super::codec::shop_item_data_to_text;
+
 pub fn parse(text: &str) -> (ShopItemData, ShopItemData, ShopItemData) {
     debug_assert_eq!(text.chars().count(), 7 * 3);
     let data = text_to_shop_data(text);
@@ -18,7 +20,25 @@ pub fn parse(text: &str) -> (ShopItemData, ShopItemData, ShopItemData) {
     )
 }
 
-#[derive(serde::Serialize)]
+pub fn stringify(items: (ShopItemData, ShopItemData, ShopItemData)) -> String {
+    let data = [items.0, items.1, items.2]
+        .iter()
+        .flat_map(|x| {
+            [
+                x.r#type + 1,
+                x.number + 1,
+                (x.price >> 8) as u8 + 1,
+                (x.price % 256) as u8,
+                x.count + 1,
+                (x.flag >> 8) as u8 + 1,
+                (x.flag % 256) as u8,
+            ]
+        })
+        .collect::<Vec<_>>();
+    shop_item_data_to_text(&data)
+}
+
+#[derive(serde::Deserialize, serde::Serialize)]
 pub struct ShopItemData {
     pub r#type: u8,
     pub number: u8,

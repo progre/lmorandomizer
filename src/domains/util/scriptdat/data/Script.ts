@@ -8,7 +8,7 @@ import {
   equipmentNumbers,
   SubWeaponNumber,
 } from '../../../model/randomizer/items';
-import ShopItemsData from '../format/ShopItemsData';
+import { ShopItemData } from '../format/ShopItemsData';
 import addStartingItems from './addStartingItems';
 import LMObject from './LMObject';
 import { replaceItems, replaceShops } from './scripteditor';
@@ -106,17 +106,17 @@ export default class Script {
 
   shops() {
     assert(this.talks.every(x => x != null));
-    return this.viewObjects()
+    return Promise.all(this.viewObjects()
       .filter(x => x.number === 14 && x.op1 <= 99)
-      .map(x => ({
+      .map(async x => ({
         talkNumber: x.op4,
         talking: this.talks[x.op3],
-        items: ShopItemsData.parse(this.talks[x.op4]),
-      }));
+        items: <ShopItemData[]>await invoke('parse_shop_items_data', { text: this.talks[x.op4] }),
+      })));
   }
 
-  replaceShops(shops: ReadonlyArray<{ spot: Spot; items: [Item, Item, Item] }>) {
-    this.talks = replaceShops(this.talks, shops);
+  async replaceShops(shops: ReadonlyArray<{ spot: Spot; items: [Item, Item, Item] }>) {
+    this.talks = await replaceShops(this.talks, shops);
   }
 
   replaceItems(shuffled: Storage) {

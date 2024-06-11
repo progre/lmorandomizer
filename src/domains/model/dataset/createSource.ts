@@ -6,8 +6,8 @@ import Spot from './Spot';
 import Storage from './Storage';
 import Supplements from './Supplements';
 
-export default function createSource(script: Script, supplements: Supplements) {
-  const allItems = getAllItems(script, supplements);
+export default async function createSource(script: Script, supplements: Supplements) {
+  const allItems = await getAllItems(script, supplements);
   const enumerateItems = (
     allItems.mainWeapons
       .concat(allItems.subWeapons)
@@ -21,7 +21,7 @@ export default function createSource(script: Script, supplements: Supplements) {
     chestDataList.length,
     supplements.chests.length + Supplements.nightSurfaceChestCount,
   );
-  const shops = script.shops();
+  const shops = await script.shops();
   return Storage.create(
     allItems.mainWeapons.map((item, i) => {
       const supplement = supplements.mainWeapons[i];

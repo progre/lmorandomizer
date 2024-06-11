@@ -27,7 +27,7 @@ export default async function randomize(
   const supplements = new Supplements(supplementFiles);
   console.timeEnd('readSupplements');
   console.time('randomize');
-  randomizeItems(script, supplements, options.seed);
+  await randomizeItems(script, supplements, options.seed);
   console.timeEnd('randomize');
   if (options.easyMode) {
     console.time('addItems');

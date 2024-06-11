@@ -1,3 +1,4 @@
+import { invoke } from '@tauri-apps/api/core';
 import assert from '../../../../assert';
 import Item from '../../../model/dataset/Item';
 import Spot from '../../../model/dataset/Spot';
@@ -13,21 +14,21 @@ import {
   equipmentNumbers,
   subWeaponNumbers,
 } from '../../../model/randomizer/items';
-import ShopItemsData, { ShopItemData } from '../format/ShopItemsData';
+import { ShopItemData } from '../format/ShopItemsData';
 import LMObject from './LMObject';
 import { toObjectForShutter, toObjectForSpecialChest, toObjectsForChest } from './objectfactory';
 import { List, LMWorld } from './Script';
 
-export function replaceShops(
+export async function replaceShops(
   talks: ReadonlyArray<string>,
   shops: ReadonlyArray<{ spot: Spot; items: [Item, Item, Item] }>,
 ) {
-  return talks.map((oldShopStr, i) => {
+  return await Promise.all(talks.map(async (oldShopStr, i): Promise<string> => {
     const newShop = shops.find(x => x.spot.talkNumber === i);
     if (newShop == null) {
-      return oldShopStr;
+      return Promise.resolve(oldShopStr);
     }
-    const old = ShopItemsData.parse(oldShopStr);
+    const old: ShopItemData[] = await invoke('parse_shop_items_data', { text: oldShopStr });
     const replaced = <[ShopItemData, ShopItemData, ShopItemData]>old.map((item, j) => {
       const newShopItem = newShop.items[j];
       return {
@@ -38,8 +39,8 @@ export function replaceShops(
         flag: newShopItem.flag,
       };
     });
-    return ShopItemsData.stringify(replaced);
-  });
+    return await invoke('stringify_shop_items_data', { items: replaced });
+  }));
 }
 
 function toIntegerItemType(
