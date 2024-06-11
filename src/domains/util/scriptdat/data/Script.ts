@@ -39,9 +39,8 @@ export interface LMChild {
 }
 
 export default class Script {
-  static async parse(txt: string) {
-    let [talks, worlds]: [string[], LMWorld[]] = <any>await invoke('parse_script_txt', { text: txt });
-    worlds = worlds.map((world): LMWorld => ({
+  static from_object(obj: Script) {
+    return new Script(obj.talks, obj.worlds.map((world): LMWorld => ({
       ...world,
       fields: world.fields.map((field) => ({
         ...field,
@@ -51,20 +50,13 @@ export default class Script {
         })),
         objects: field.objects.map(LMObject.fromObject),
       })),
-    }));
-    const script = new this(talks, worlds);
-    assert.equal(txt, await script.stringify(), 'stringify mismatch');
-    return script;
+    })));
   }
 
   private constructor(
     private talks: ReadonlyArray<string>,
     private worlds: ReadonlyArray<LMWorld>,
   ) {
-  }
-
-  async stringify() {
-    return invoke('stringify_script_txt', { talks: this.talks, worlds: this.worlds });
   }
 
   mainWeapons() {

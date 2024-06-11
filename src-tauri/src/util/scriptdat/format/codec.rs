@@ -36,8 +36,7 @@ fn create_char_to_code() -> HashMap<char, u8> {
         .collect::<HashMap<_, _>>();
 }
 
-#[tauri::command]
-pub fn decode(from: Vec<u8>) -> String {
+pub fn decode(from: &[u8]) -> String {
     let code_to_char = create_code_to_char();
     debug_assert_ne!(from[0], 0);
     let to: String = (0..from.len())
@@ -51,7 +50,6 @@ pub fn decode(from: Vec<u8>) -> String {
     to
 }
 
-#[tauri::command]
 pub fn encode(from: &str) -> Vec<u8> {
     let char_to_code = create_char_to_code();
     from.chars()

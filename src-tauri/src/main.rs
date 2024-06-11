@@ -15,8 +15,6 @@ use tokio::{
     io::{AsyncReadExt, AsyncWriteExt},
 };
 
-use crate::util::scriptdat::format::codec::{decode, encode};
-
 #[derive(serde::Serialize)]
 #[serde(rename_all = "camelCase")]
 struct InitialData {
@@ -137,14 +135,6 @@ fn parse_script_txt(text: &str) -> (Vec<String>, Vec<util::scriptdat::data::scri
 }
 
 #[tauri::command]
-fn stringify_script_txt(
-    talks: Vec<String>,
-    worlds: Vec<util::scriptdat::data::script::LMWorld>,
-) -> String {
-    util::scriptdat::format::scripttxtparser::stringify_script_txt(&talks, &worlds)
-}
-
-#[tauri::command]
 fn parse_shop_items_data(
     text: String,
 ) -> Vec<util::scriptdat::format::shop_items_data::ShopItemData> {
@@ -161,6 +151,21 @@ fn stringify_shop_items_data(
         items.remove(0),
         items.remove(0),
     ))
+}
+
+#[tauri::command]
+fn read_script_dat(file: Vec<u8>) -> util::scriptdat::data::script::Script {
+    util::scriptdat::format::scriptconverter::read_script_dat(&file).unwrap()
+}
+
+#[tauri::command]
+fn build_script_dat(script: util::scriptdat::data::script::Script) -> Vec<u8> {
+    util::scriptdat::format::scriptconverter::build_script_dat(&script)
+}
+
+#[tauri::command]
+fn is_valid_script_dat(file: Vec<u8>) -> bool {
+    util::scriptdat::format::scriptconverter::is_valid_script_dat(&file)
 }
 
 fn main() {
@@ -184,12 +189,12 @@ fn main() {
             set_easy_mode,
             read_file,
             write_file,
-            encode,
-            decode,
             parse_script_txt,
-            stringify_script_txt,
             parse_shop_items_data,
             stringify_shop_items_data,
+            read_script_dat,
+            build_script_dat,
+            is_valid_script_dat,
         ])
         .run(context)
         .expect("error while running tauri application");

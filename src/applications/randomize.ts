@@ -1,10 +1,8 @@
+import { invoke } from '@tauri-apps/api/core';
 import Supplements from '../domains/model/dataset/Supplements';
 import { EquipmentNumber } from '../domains/model/randomizer/items';
 import randomizeItems from '../domains/model/randomizer/randomizeItems';
-import {
-  buildScriptDat,
-  readScriptDat,
-} from '../domains/util/scriptdat/format/scriptconverter';
+import Script from '../domains/util/scriptdat/data/Script';
 
 export default async function randomize(
   scriptDat: ArrayBuffer,
@@ -21,7 +19,7 @@ export default async function randomize(
   },
 ) {
   console.time('readScriptDat');
-  const script = await readScriptDat(scriptDat);
+  const script = Script.from_object(await invoke('read_script_dat', { file: [...new Uint8Array(scriptDat)] }));
   console.timeEnd('readScriptDat');
   console.time('readSupplements');
   const supplements = new Supplements(supplementFiles);
@@ -44,7 +42,7 @@ export default async function randomize(
     console.timeEnd('addItems');
   }
   console.time('build');
-  const output = await buildScriptDat(script);
+  const output = Uint8Array.from(await invoke('build_script_dat', { script }));
   console.timeEnd('build');
   return output;
 }

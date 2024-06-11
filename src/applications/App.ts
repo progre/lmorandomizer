@@ -25,7 +25,7 @@ export default class App {
       if (working == null) {
         return 'Unable to find La-Mulana install directory.';
       }
-      if (!isValidScriptDat(working)) {
+      if (!await isValidScriptDat(working)) {
         return 'Valid script is not found. Please re-install La-Mulana.';
       }
       await this.writeValidScriptDat(backupFilePath, working);
@@ -43,13 +43,13 @@ export default class App {
     const backupFilePath = `${installDirectory}/data/script.dat.bak`;
 
     const targetFile = await this.scriptDatRepo.readFileOrNullIfNoEntry(targetFilePath);
-    if (targetFile != null && isValidScriptDat(targetFile)) {
+    if (targetFile != null && await isValidScriptDat(targetFile)) {
       return 'Already clean.';
     }
     let working;
     working = await this.readValidFileOrNull(backupFilePath);
     if (working == null) {
-        return 'Backup is broken. Please re-install La-Mulana.';
+      return 'Backup is broken. Please re-install La-Mulana.';
     }
     await this.writeValidScriptDat(targetFilePath, working);
     return 'Succeeded.';
@@ -57,7 +57,7 @@ export default class App {
 
   private async readValidFileOrNull(path: string) {
     const working = await this.scriptDatRepo.readFileOrNullIfNoEntry(path);
-    if (working == null || !isValidScriptDat(working)) {
+    if (working == null || !await isValidScriptDat(working)) {
       return null;
     }
     return working;
@@ -66,7 +66,7 @@ export default class App {
   private async writeValidScriptDat(path: string, scriptDat: ArrayBuffer) {
     await this.scriptDatRepo.writeScriptDat(path, scriptDat);
     const outputed = await this.scriptDatRepo.readFileOrNullIfNoEntry(path);
-    if (outputed == null || !isValidScriptDat(outputed)) {
+    if (outputed == null || !await isValidScriptDat(outputed)) {
       assert.fail();
     }
   }
