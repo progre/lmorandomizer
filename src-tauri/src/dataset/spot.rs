@@ -36,7 +36,7 @@ impl Spot {
         requirement_items.iter().any(|group| {
             group.iter().all(|x| {
                 x.name == "sacredOrb" && x.count as usize <= sacred_orb_count
-                    || current_item_names.contains(&&x.name)
+                    || current_item_names.contains(&x.name)
             })
         })
     }

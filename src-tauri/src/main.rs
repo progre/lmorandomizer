@@ -236,6 +236,11 @@ fn generate_random(seed: String) -> Vec<f64> {
         .collect()
 }
 
+#[tauri::command]
+fn validate(storage: dataset::storage::Storage) -> bool {
+    randomizer::validate::validate(&storage)
+}
+
 fn main() {
     let mut context = tauri::generate_context!();
     let Config { app, version, .. } = context.config_mut();
@@ -270,6 +275,7 @@ fn main() {
             get_all_items,
             create_source,
             generate_random,
+            validate,
         ])
         .run(context)
         .expect("error while running tauri application");

@@ -9,23 +9,23 @@ export default class Storage {
     const thiz = new this(
       obj.allRequirementNames,
       obj.mainWeaponShutters.map(x => ({
-        spot: new Spot(x.spot.type, x.spot.requirementItems, x.spot.talkNumber),
+        spot: x.spot,
         item: new Item(x.item.name, x.item.type, x.item.number, x.item.count, x.item.flag),
       })),
       obj.subWeaponShutters.map(x => ({
-        spot: new Spot(x.spot.type, x.spot.requirementItems, x.spot.talkNumber),
+        spot: x.spot,
         item: new Item(x.item.name, x.item.type, x.item.number, x.item.count, x.item.flag),
       })),
       obj.chests.map(x => ({
-        spot: new Spot(x.spot.type, x.spot.requirementItems, x.spot.talkNumber),
+        spot: x.spot,
         item: new Item(x.item.name, x.item.type, x.item.number, x.item.count, x.item.flag),
       })),
       obj.sealChests.map(x => ({
-        spot: new Spot(x.spot.type, x.spot.requirementItems, x.spot.talkNumber),
+        spot: x.spot,
         item: new Item(x.item.name, x.item.type, x.item.number, x.item.count, x.item.flag),
       })),
       obj.shops.map(x => ({
-        spot: new Spot(x.spot.type, x.spot.requirementItems, x.spot.talkNumber),
+        spot: x.spot,
         items: <[Item, Item, Item]>x.items.map(y =>
           new Item(y.name, y.type, y.number, y.count, y.flag),
         ),
@@ -60,57 +60,5 @@ export default class Storage {
       Number(a.canDisplayInShop()) - Number(b.canDisplayInShop())
     ));
     this.allItems = allItems;
-  }
-
-  reachableItemNames(
-    currentItemNames: ReadonlyArray<string>,
-    sacredOrbCount: number,
-  ) {
-    return (
-      this.mainWeaponShutters
-        .filter(x => x.spot.isReachable(currentItemNames, sacredOrbCount))
-        .map(x => x.item.name)
-        .concat((
-          this.subWeaponShutters
-            .filter(x => x.spot.isReachable(currentItemNames, sacredOrbCount))
-            .map(x => x.item.name)
-        ))
-        .concat((
-          this.chests
-            .filter(x => x.spot.isReachable(currentItemNames, sacredOrbCount))
-            .map(x => x.item.name)
-        ))
-        .concat((
-          this.sealChests
-            .filter(x => x.spot.isReachable(currentItemNames, sacredOrbCount))
-            .map(x => x.item.name)
-        ))
-        .concat((
-          this.shops
-            .filter(x => x.spot.isReachable(currentItemNames, sacredOrbCount))
-            .map(x => x.items)
-            .reduce<ReadonlyArray<Item>>((p, c) => p.concat(c), [])
-            .map(x => x.name)
-        ))
-    );
-  }
-
-  unreachables(
-    currentItemNames: ReadonlyArray<string>,
-    sacredOrbCount: number,
-  ) {
-    return new Storage(
-      this.allRequirementNames,
-      this.mainWeaponShutters
-        .filter(x => !x.spot.isReachable(currentItemNames, sacredOrbCount)),
-      this.subWeaponShutters
-        .filter(x => !x.spot.isReachable(currentItemNames, sacredOrbCount)),
-      this.chests
-        .filter(x => !x.spot.isReachable(currentItemNames, sacredOrbCount)),
-      this.sealChests
-        .filter(x => !x.spot.isReachable(currentItemNames, sacredOrbCount)),
-      this.shops
-        .filter(x => !x.spot.isReachable(currentItemNames, sacredOrbCount)),
-    );
   }
 }

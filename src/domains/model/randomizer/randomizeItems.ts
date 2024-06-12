@@ -6,7 +6,6 @@ import Spot from '../dataset/Spot';
 import Storage from '../dataset/Storage';
 import Supplements from '../dataset/Supplements';
 import { selectRandom, shuffleSimply } from './shuffleUtils';
-import validate from './validate';
 
 export default async function randomizeItems(
   script: Script,
@@ -14,21 +13,21 @@ export default async function randomizeItems(
   seed: string,
 ) {
   const source = Storage.fromObject(await invoke('create_source', { script, supplements }));
-  assert(validate(source));
+  assert(await invoke('validate', { storage: source }));
   assertUnique(source);
   const rng: number[] = await invoke('generate_random', { seed });
-  const shuffled = randomizeStorage(source, rng);
+  const shuffled = await randomizeStorage(source, rng);
   assertUnique(shuffled);
   await script.replaceItems(shuffled);
   await script.replaceShops(shuffled.shops);
 }
 
-function randomizeStorage(source: Storage, rng: number[]) {
+async function randomizeStorage(source: Storage, rng: number[]) {
   let shuffled;
   for (let i = 0; i < 10000; i += 1) {
     // itemをshuffleしてplaceと合わせる
     const storage = shuffle(source, rng);
-    if (validate(storage)) {
+    if (await invoke('validate', { storage })) {
       shuffled = storage;
       console.log(`Shuffle was tryed: ${i} times`);
       break;
