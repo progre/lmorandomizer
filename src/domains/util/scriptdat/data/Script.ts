@@ -11,7 +11,6 @@ import {
 import { ShopItemData } from '../format/ShopItemsData';
 import addStartingItems from './addStartingItems';
 import LMObject from './LMObject';
-import { replaceItems, replaceShops } from './scripteditor';
 
 export type List<T> = ReadonlyArray<Readonly<T>>;
 
@@ -108,11 +107,22 @@ export default class Script {
   }
 
   async replaceShops(shops: ReadonlyArray<{ spot: Spot; items: [Item, Item, Item] }>) {
-    this.talks = await replaceShops(this.talks, shops);
+    this.talks = await invoke('replace_shops', { talks: this.talks, shops });
   }
 
-  replaceItems(shuffled: Storage) {
-    this.worlds = replaceItems(this.worlds, shuffled);
+  async replaceItems(shuffled: Storage) {
+    this.worlds = await invoke('replace_items', { worlds: this.worlds, shuffled });
+    this.worlds = this.worlds.map(world => ({
+      ...world,
+      fields: world.fields.map(field => ({
+        ...field,
+        maps: field.maps.map(map => ({
+          ...map,
+          objects: map.objects.map(LMObject.fromObject),
+        })),
+        objects: field.objects.map(LMObject.fromObject),
+      })),
+    }));
   }
 
   addStartingItems(

@@ -19,7 +19,7 @@ export default async function randomizeItems(
   assertUnique(source);
   const shuffled = randomizeStorage(source, seedrandom(seed));
   assertUnique(shuffled);
-  script.replaceItems(shuffled);
+  await script.replaceItems(shuffled);
   await script.replaceShops(shuffled.shops);
 }
 

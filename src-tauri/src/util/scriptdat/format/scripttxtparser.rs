@@ -30,13 +30,13 @@ pub fn parse_script_txt(text: &str) -> Result<(Vec<String>, Vec<LMWorld>)> {
         .collect();
     if cfg!(debug_assertions) {
         let first_shop = shop_items_data::parse(&talks[252]);
-        debug_assert_eq!(first_shop.0.number, SubWeaponNumber::HandScanner as u8,);
+        debug_assert_eq!(first_shop.0.number, SubWeaponNumber::HandScanner as i8);
         debug_assert_eq!(first_shop.0.price, 20);
         debug_assert_eq!(first_shop.0.flag, 65279);
-        debug_assert_eq!(first_shop.1.number, SubWeaponNumber::Ammunition as u8,);
+        debug_assert_eq!(first_shop.1.number, SubWeaponNumber::Ammunition as i8);
         debug_assert_eq!(first_shop.1.price, 500);
         debug_assert_eq!(first_shop.1.flag, 65279);
-        debug_assert_eq!(first_shop.2.number, SubWeaponNumber::Buckler as u8,);
+        debug_assert_eq!(first_shop.2.number, SubWeaponNumber::Buckler as i8);
         debug_assert_eq!(first_shop.2.price, 80);
         debug_assert_eq!(first_shop.2.flag, 697);
     }
@@ -164,7 +164,7 @@ fn parse_object(object: ElementRef) -> Result<LMObject> {
             .map(|x| {
                 let start_attrs = parse_attrs(&x.value().attrs)?;
                 Ok(LMStart {
-                    number: u32::try_from(start_attrs[0])?,
+                    number: start_attrs[0],
                     value: start_attrs[1] != 0,
                 })
             })

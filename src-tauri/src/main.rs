@@ -1,6 +1,7 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+mod dataset;
 mod randomizer;
 mod util;
 
@@ -151,6 +152,7 @@ fn stringify_shop_items_data(
         items.remove(0),
         items.remove(0),
     ))
+    .unwrap()
 }
 
 #[tauri::command]
@@ -166,6 +168,19 @@ fn build_script_dat(script: util::scriptdat::data::script::Script) -> Vec<u8> {
 #[tauri::command]
 fn is_valid_script_dat(file: Vec<u8>) -> bool {
     util::scriptdat::format::scriptconverter::is_valid_script_dat(&file)
+}
+
+#[tauri::command]
+fn replace_shops(talks: Vec<String>, shops: Vec<dataset::storage::Shop>) -> Vec<String> {
+    util::scriptdat::data::scripteditor::replace_shops(&talks, &shops).unwrap()
+}
+
+#[tauri::command]
+fn replace_items(
+    worlds: Vec<util::scriptdat::data::script::LMWorld>,
+    shuffled: dataset::storage::Storage,
+) -> Vec<util::scriptdat::data::script::LMWorld> {
+    util::scriptdat::data::scripteditor::replace_items(worlds, &shuffled).unwrap()
 }
 
 fn main() {
@@ -195,6 +210,8 @@ fn main() {
             read_script_dat,
             build_script_dat,
             is_valid_script_dat,
+            replace_shops,
+            replace_items,
         ])
         .run(context)
         .expect("error while running tauri application");
