@@ -196,6 +196,13 @@ fn add_starting_items(
     )
 }
 
+#[tauri::command]
+fn create_supplements(
+    supplement_files: dataset::supplements::SupplementFiles,
+) -> dataset::supplements::Supplements {
+    dataset::supplements::Supplements::new(supplement_files)
+}
+
 fn main() {
     let mut context = tauri::generate_context!();
     let Config { app, version, .. } = context.config_mut();
@@ -226,6 +233,7 @@ fn main() {
             replace_shops,
             replace_items,
             add_starting_items,
+            create_supplements,
         ])
         .run(context)
         .expect("error while running tauri application");
