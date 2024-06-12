@@ -183,6 +183,19 @@ fn replace_items(
     util::scriptdat::data::scripteditor::replace_items(worlds, &shuffled).unwrap()
 }
 
+#[tauri::command]
+fn add_starting_items(
+    worlds: Vec<util::scriptdat::data::script::LMWorld>,
+    equipment_list: Vec<randomizer::items::EquipmentNumber>,
+    sub_weapon_list: Vec<randomizer::items::SubWeaponNumber>,
+) -> Vec<util::scriptdat::data::script::LMWorld> {
+    util::scriptdat::data::add_starting_items::add_starting_items(
+        worlds,
+        &equipment_list,
+        &sub_weapon_list,
+    )
+}
+
 fn main() {
     let mut context = tauri::generate_context!();
     let Config { app, version, .. } = context.config_mut();
@@ -212,6 +225,7 @@ fn main() {
             is_valid_script_dat,
             replace_shops,
             replace_items,
+            add_starting_items,
         ])
         .run(context)
         .expect("error while running tauri application");

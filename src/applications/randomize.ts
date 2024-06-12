@@ -29,7 +29,7 @@ export default async function randomize(
   console.timeEnd('randomize');
   if (options.easyMode) {
     console.time('addItems');
-    script.addStartingItems(
+    await script.addStartingItems(
       [
         // equipmentNumbers.holyGrail,
         <EquipmentNumber>100,

@@ -9,7 +9,6 @@ import {
   SubWeaponNumber,
 } from '../../../model/randomizer/items';
 import { ShopItemData } from '../format/ShopItemsData';
-import addStartingItems from './addStartingItems';
 import LMObject from './LMObject';
 
 export type List<T> = ReadonlyArray<Readonly<T>>;
@@ -125,11 +124,15 @@ export default class Script {
     }));
   }
 
-  addStartingItems(
+  async addStartingItems(
     equipmentList: EquipmentNumber[],
     subWeaponList: SubWeaponNumber[],
   ) {
-    this.worlds = addStartingItems(this.worlds, equipmentList, subWeaponList);
+    this.worlds = await invoke('add_starting_items', {
+      worlds: this.worlds,
+      equipmentList,
+      subWeaponList,
+    });
   }
 
   private viewObjects() {
