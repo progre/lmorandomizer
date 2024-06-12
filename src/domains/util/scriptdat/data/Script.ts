@@ -1,11 +1,9 @@
 import { invoke } from '@tauri-apps/api/core';
-import assert from '../../../../assert';
 import Item from '../../../model/dataset/Item';
 import Spot from '../../../model/dataset/Spot';
 import Storage from '../../../model/dataset/Storage';
 import {
   EquipmentNumber,
-  equipmentNumbers,
   SubWeaponNumber,
 } from '../../../model/randomizer/items';
 import { ShopItemData } from '../format/ShopItemsData';
@@ -36,19 +34,23 @@ export interface LMChild {
   attrs: List<number>;
 }
 
+function to_world(obj: LMWorld) {
+  return {
+    ...obj,
+    fields: obj.fields.map((field) => ({
+      ...field,
+      maps: field.maps.map((map): LMMap => ({
+        ...map,
+        objects: map.objects.map(LMObject.fromObject),
+      })),
+      objects: field.objects.map(LMObject.fromObject),
+    })),
+  };
+}
+
 export default class Script {
   static from_object(obj: Script) {
-    return new Script(obj.talks, obj.worlds.map((world): LMWorld => ({
-      ...world,
-      fields: world.fields.map((field) => ({
-        ...field,
-        maps: field.maps.map((map): LMMap => ({
-          ...map,
-          objects: map.objects.map(LMObject.fromObject),
-        })),
-        objects: field.objects.map(LMObject.fromObject),
-      })),
-    })));
+    return new Script(obj.talks, obj.worlds.map(to_world));
   }
 
   private constructor(
@@ -57,89 +59,43 @@ export default class Script {
   ) {
   }
 
-  mainWeapons() {
-    return this.viewObjects()
-      .filter(x => x.number === 77)
-      .map(x => x.asMainWeapon());
+  mainWeapons(): Promise<ReadonlyArray<{ mainWeaponNumber: number; flag: number }>> {
+    return invoke('script_main_weapons', { this: this });
   }
 
-  subWeapons() {
-    return this.viewObjects()
-      .filter(x => x.number === 13)
-      .map(x => x.asSubWeapon());
+  subWeapons(): Promise<ReadonlyArray<{ subWeaponNumber: number; count: number; flag: number }>> {
+    return invoke('script_sub_weapons', { this: this });
   }
 
-  chests() {
-    return this.viewObjects()
-      .filter(x => !(// without 2nd twinStatue
-        x.number === 1
-        && x.x === 8192
-        && x.y === 6144
-        && x.op1 === 420
-        && x.op2 === 14
-        && x.op3 === 766
-        && x.op4 === 0
-      ))
-      .filter(x => x.number === 1)
-      .map(x => x.asChestItem())
-      .filter(({ chestItemNumber }) => (
-        chestItemNumber !== -1
-        && chestItemNumber !== equipmentNumbers.sweetClothing
-      ));
+  chests(): Promise<ReadonlyArray<{ chestItemNumber: number; openFlag: number; flag: number }>> {
+    return invoke('script_chests', { this: this });
   }
 
-  seals() {
-    return this.viewObjects()
-      .filter(x => x.number === 71)
-      .map(x => x.asSeal());
+  seals(): Promise<ReadonlyArray<{ sealNumber: number; flag: number }>> {
+    return invoke('script_seals', { this: this });
   }
 
-  shops() {
-    assert(this.talks.every(x => x != null));
-    return Promise.all(this.viewObjects()
-      .filter(x => x.number === 14 && x.op1 <= 99)
-      .map(async x => ({
-        talkNumber: x.op4,
-        talking: this.talks[x.op3],
-        items: <ShopItemData[]>await invoke('parse_shop_items_data', { text: this.talks[x.op4] }),
-      })));
+  shops(): Promise<ReadonlyArray<{ talkNumber: number; talking: string; items: ShopItemData[] }>> {
+    return invoke('script_shops', { this: this });
   }
 
   async replaceShops(shops: ReadonlyArray<{ spot: Spot; items: [Item, Item, Item] }>) {
-    this.talks = await invoke('replace_shops', { talks: this.talks, shops });
+    this.talks = (<any>await invoke('script_replace_shops', { this: this, shops })).talks;
   }
 
   async replaceItems(shuffled: Storage) {
-    this.worlds = await invoke('replace_items', { worlds: this.worlds, shuffled });
-    this.worlds = this.worlds.map(world => ({
-      ...world,
-      fields: world.fields.map(field => ({
-        ...field,
-        maps: field.maps.map(map => ({
-          ...map,
-          objects: map.objects.map(LMObject.fromObject),
-        })),
-        objects: field.objects.map(LMObject.fromObject),
-      })),
-    }));
+    this.worlds = (<any>await invoke('script_replace_items', { this: this, shuffled })).worlds;
+    this.worlds = this.worlds.map(to_world);
   }
 
   async addStartingItems(
     equipmentList: EquipmentNumber[],
     subWeaponList: SubWeaponNumber[],
   ) {
-    this.worlds = await invoke('add_starting_items', {
-      worlds: this.worlds,
+    this.worlds = (<any>await invoke('script_add_starting_items', {
+      this: this,
       equipmentList,
       subWeaponList,
-    });
-  }
-
-  private viewObjects() {
-    return this.worlds[0]
-      .fields
-      .map(x => x.maps.map(y => y.objects))
-      .reduce((p, c) => p.concat(c), [])
-      .reduce((p, c) => p.concat(c), []);
+    })).worlds;
   }
 }

@@ -6,16 +6,16 @@ import Supplements from './Supplements';
 
 export default async function getAllItems(script: Script, supplements: Supplements) {
   return {
-    mainWeapons: mainWeapons(script, supplements),
-    subWeapons: subWeapons(script, supplements),
-    chests: chests(script, supplements),
-    seals: seals(script, supplements),
+    mainWeapons: await mainWeapons(script, supplements),
+    subWeapons: await subWeapons(script, supplements),
+    chests: await chests(script, supplements),
+    seals: await seals(script, supplements),
     shops: await shops(script, supplements),
   };
 }
 
-function mainWeapons(script: Script, supplements: Supplements) {
-  const mainWeaponsDataList = script.mainWeapons();
+async function mainWeapons(script: Script, supplements: Supplements) {
+  const mainWeaponsDataList = await script.mainWeapons();
   assert.equal(mainWeaponsDataList.length, supplements.mainWeapons.length);
   return supplements.mainWeapons.map((supplement, i) => {
     const data = mainWeaponsDataList[i];
@@ -29,8 +29,8 @@ function mainWeapons(script: Script, supplements: Supplements) {
   });
 }
 
-function subWeapons(script: Script, supplements: Supplements) {
-  const subWeaponsDataList = script.subWeapons();
+async function subWeapons(script: Script, supplements: Supplements) {
+  const subWeaponsDataList = await script.subWeapons();
   assert.equal(
     subWeaponsDataList.length,
     supplements.subWeapons.length + Supplements.nightSurfaceSubWeaponCount,
@@ -47,8 +47,8 @@ function subWeapons(script: Script, supplements: Supplements) {
   });
 }
 
-function chests(script: Script, supplements: Supplements) {
-  const chestDataList = script.chests();
+async function chests(script: Script, supplements: Supplements) {
+  const chestDataList = await script.chests();
   assert.equal(
     chestDataList.length,
     supplements.chests.length + Supplements.nightSurfaceChestCount,
@@ -69,8 +69,8 @@ function chests(script: Script, supplements: Supplements) {
   });
 }
 
-function seals(script: Script, supplements: Supplements) {
-  const sealDataList = script.seals();
+async function seals(script: Script, supplements: Supplements) {
+  const sealDataList = await script.seals();
   assert.equal(
     sealDataList.length,
     supplements.seals.length

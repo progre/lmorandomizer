@@ -1,26 +1,6 @@
 use anyhow::{bail, Result};
 
-pub struct MainWeapon {
-    pub main_weapon_number: u8,
-    pub flag: i32,
-}
-
-pub struct SubWeapon {
-    pub sub_weapon_number: u8,
-    pub count: u16,
-    pub flag: i32,
-}
-
-pub struct ChestItem {
-    pub chest_item_number: u8,
-    pub open_flag: i32,
-    pub flag: i32,
-}
-
-pub struct Seal {
-    pub seal_number: u8,
-    pub flag: i32,
-}
+use super::script::{ChestItem, MainWeapon, Seal, SubWeapon};
 
 #[derive(Clone, serde::Deserialize, serde::Serialize)]
 pub struct LMStart {
@@ -60,7 +40,7 @@ impl LMObject {
     pub fn as_chest_item(&self) -> Result<ChestItem> {
         debug_assert_eq!(self.number, 1);
         Ok(ChestItem {
-            chest_item_number: u8::try_from(self.op2)?,
+            chest_item_number: i16::try_from(self.op2)?,
             open_flag: self.op1,
             flag: self.op3,
         })

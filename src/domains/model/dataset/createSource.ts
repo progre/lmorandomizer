@@ -16,7 +16,7 @@ export default async function createSource(script: Script, supplements: Suppleme
       .concat(allItems.shops.reduce<Item[]>((p, c) => p.concat(c), []))
   );
   warnMissingRequirements(supplements, enumerateItems);
-  const chestDataList = script.chests();
+  const chestDataList = await script.chests();
   assert.equal(
     chestDataList.length,
     supplements.chests.length + Supplements.nightSurfaceChestCount,

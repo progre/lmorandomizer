@@ -171,36 +171,77 @@ fn is_valid_script_dat(file: Vec<u8>) -> bool {
 }
 
 #[tauri::command]
-fn replace_shops(talks: Vec<String>, shops: Vec<dataset::storage::Shop>) -> Vec<String> {
-    util::scriptdat::data::scripteditor::replace_shops(&talks, &shops).unwrap()
-}
-
-#[tauri::command]
-fn replace_items(
-    worlds: Vec<util::scriptdat::data::script::LMWorld>,
-    shuffled: dataset::storage::Storage,
-) -> Vec<util::scriptdat::data::script::LMWorld> {
-    util::scriptdat::data::scripteditor::replace_items(worlds, &shuffled).unwrap()
-}
-
-#[tauri::command]
-fn add_starting_items(
-    worlds: Vec<util::scriptdat::data::script::LMWorld>,
-    equipment_list: Vec<randomizer::items::EquipmentNumber>,
-    sub_weapon_list: Vec<randomizer::items::SubWeaponNumber>,
-) -> Vec<util::scriptdat::data::script::LMWorld> {
-    util::scriptdat::data::add_starting_items::add_starting_items(
-        worlds,
-        &equipment_list,
-        &sub_weapon_list,
-    )
-}
-
-#[tauri::command]
 fn create_supplements(
     supplement_files: dataset::supplements::SupplementFiles,
 ) -> dataset::supplements::Supplements {
     dataset::supplements::Supplements::new(supplement_files)
+}
+
+#[tauri::command]
+fn script_main_weapons(
+    this: util::scriptdat::data::script::Script,
+) -> Vec<util::scriptdat::data::script::MainWeapon> {
+    util::scriptdat::data::script::Script::main_weapons(&this).unwrap()
+}
+
+#[tauri::command]
+fn script_sub_weapons(
+    this: util::scriptdat::data::script::Script,
+) -> Vec<util::scriptdat::data::script::SubWeapon> {
+    util::scriptdat::data::script::Script::sub_weapons(&this).unwrap()
+}
+
+#[tauri::command]
+fn script_chests(
+    this: util::scriptdat::data::script::Script,
+) -> Vec<util::scriptdat::data::script::ChestItem> {
+    util::scriptdat::data::script::Script::chests(&this).unwrap()
+}
+
+#[tauri::command]
+fn script_seals(
+    this: util::scriptdat::data::script::Script,
+) -> Vec<util::scriptdat::data::script::Seal> {
+    util::scriptdat::data::script::Script::seals(&this).unwrap()
+}
+
+#[tauri::command]
+fn script_shops(
+    this: util::scriptdat::data::script::Script,
+) -> Vec<util::scriptdat::data::script::Shop> {
+    util::scriptdat::data::script::Script::shops(&this).unwrap()
+}
+
+#[tauri::command]
+fn script_replace_shops(
+    mut this: util::scriptdat::data::script::Script,
+    shops: Vec<dataset::storage::Shop>,
+) -> util::scriptdat::data::script::Script {
+    util::scriptdat::data::script::Script::replace_shops(&mut this, &shops).unwrap();
+    this
+}
+
+#[tauri::command]
+fn script_replace_items(
+    mut this: util::scriptdat::data::script::Script,
+    shuffled: dataset::storage::Storage,
+) -> util::scriptdat::data::script::Script {
+    util::scriptdat::data::script::Script::replace_items(&mut this, &shuffled).unwrap();
+    this
+}
+
+#[tauri::command]
+fn script_add_starting_items(
+    mut this: util::scriptdat::data::script::Script,
+    equipment_list: Vec<randomizer::items::EquipmentNumber>,
+    sub_weapon_list: Vec<randomizer::items::SubWeaponNumber>,
+) -> util::scriptdat::data::script::Script {
+    util::scriptdat::data::script::Script::add_starting_items(
+        &mut this,
+        &equipment_list,
+        &sub_weapon_list,
+    );
+    this
 }
 
 fn main() {
@@ -230,10 +271,15 @@ fn main() {
             read_script_dat,
             build_script_dat,
             is_valid_script_dat,
-            replace_shops,
-            replace_items,
-            add_starting_items,
             create_supplements,
+            script_main_weapons,
+            script_sub_weapons,
+            script_chests,
+            script_seals,
+            script_shops,
+            script_replace_shops,
+            script_replace_items,
+            script_add_starting_items,
         ])
         .run(context)
         .expect("error while running tauri application");

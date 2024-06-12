@@ -21,40 +21,36 @@ use super::{
     script::{LMField, LMMap, LMWorld},
 };
 
-pub fn replace_shops(talks: &[String], shops: &[Shop]) -> Result<Vec<String>> {
-    talks
-        .iter()
-        .enumerate()
-        .map(|(i, old_shop_str)| {
-            let talk_number = u16::try_from(i)?;
-            let Some(new_shop) = shops
-                .iter()
-                .find(|x| x.spot.talk_number == Some(talk_number))
-            else {
-                return Ok(old_shop_str.clone());
-            };
-            let old = shop_items_data::parse(old_shop_str);
-            let mut replaced = [old.0, old.1, old.2]
-                .into_iter()
-                .enumerate()
-                .map(|(j, item)| {
-                    let new_shop_item =
-                        [&new_shop.items.0, &new_shop.items.1, &new_shop.items.2][j];
-                    ShopItemData {
-                        r#type: to_integer_item_type(&new_shop_item.r#type),
-                        number: new_shop_item.number,
-                        price: item.price,
-                        count: new_shop_item.count,
-                        flag: new_shop_item.flag,
-                    }
-                });
-            shop_items_data::stringify((
-                replaced.next().unwrap(),
-                replaced.next().unwrap(),
-                replaced.next().unwrap(),
-            ))
-        })
-        .collect::<Result<_>>()
+pub fn replace_shops(talks: &mut [String], shops: &[Shop]) -> Result<()> {
+    for (i, shop_str) in talks.iter_mut().enumerate() {
+        let talk_number = u16::try_from(i)?;
+        let Some(new_shop) = shops
+            .iter()
+            .find(|x| x.spot.talk_number == Some(talk_number))
+        else {
+            continue;
+        };
+        let old = shop_items_data::parse(shop_str);
+        let mut replaced = [old.0, old.1, old.2]
+            .into_iter()
+            .enumerate()
+            .map(|(j, item)| {
+                let new_shop_item = [&new_shop.items.0, &new_shop.items.1, &new_shop.items.2][j];
+                ShopItemData {
+                    r#type: to_integer_item_type(&new_shop_item.r#type),
+                    number: new_shop_item.number,
+                    price: item.price,
+                    count: new_shop_item.count,
+                    flag: new_shop_item.flag,
+                }
+            });
+        *shop_str = shop_items_data::stringify((
+            replaced.next().unwrap(),
+            replaced.next().unwrap(),
+            replaced.next().unwrap(),
+        ))?;
+    }
+    Ok(())
 }
 
 fn to_integer_item_type(string_item_type: &str) -> u8 {
