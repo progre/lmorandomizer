@@ -8,9 +8,6 @@ mod util;
 use std::path::PathBuf;
 
 use log::{info, LevelFilter};
-use rand::RngCore;
-use rand_seeder::Seeder;
-use rand_xoshiro::Xoshiro256PlusPlus;
 use serde_json::json;
 use tauri::{AppHandle, Config, Manager, State, Wry};
 use tauri_plugin_store::{with_store, Store, StoreCollection};
@@ -134,31 +131,6 @@ async fn write_file(path: String, contents: Vec<u8>) -> bool {
 }
 
 #[tauri::command]
-fn parse_script_txt(text: &str) -> (Vec<String>, Vec<util::scriptdat::data::script::LMWorld>) {
-    util::scriptdat::format::scripttxtparser::parse_script_txt(text).unwrap()
-}
-
-#[tauri::command]
-fn parse_shop_items_data(
-    text: String,
-) -> Vec<util::scriptdat::format::shop_items_data::ShopItemData> {
-    let items = util::scriptdat::format::shop_items_data::parse(&text);
-    vec![items.0, items.1, items.2]
-}
-
-#[tauri::command]
-fn stringify_shop_items_data(
-    mut items: Vec<util::scriptdat::format::shop_items_data::ShopItemData>,
-) -> String {
-    util::scriptdat::format::shop_items_data::stringify((
-        items.remove(0),
-        items.remove(0),
-        items.remove(0),
-    ))
-    .unwrap()
-}
-
-#[tauri::command]
 fn read_script_dat(file: Vec<u8>) -> util::scriptdat::data::script::Script {
     util::scriptdat::format::scriptconverter::read_script_dat(&file).unwrap()
 }
@@ -181,24 +153,6 @@ fn create_supplements(
 }
 
 #[tauri::command]
-fn script_replace_shops(
-    mut this: util::scriptdat::data::script::Script,
-    shops: Vec<dataset::storage::Shop>,
-) -> util::scriptdat::data::script::Script {
-    util::scriptdat::data::script::Script::replace_shops(&mut this, &shops).unwrap();
-    this
-}
-
-#[tauri::command]
-fn script_replace_items(
-    mut this: util::scriptdat::data::script::Script,
-    shuffled: dataset::storage::Storage,
-) -> util::scriptdat::data::script::Script {
-    util::scriptdat::data::script::Script::replace_items(&mut this, &shuffled).unwrap();
-    this
-}
-
-#[tauri::command]
 fn script_add_starting_items(
     mut this: util::scriptdat::data::script::Script,
     equipment_list: Vec<randomizer::items::EquipmentNumber>,
@@ -213,32 +167,15 @@ fn script_add_starting_items(
 }
 
 #[tauri::command]
-fn get_all_items(
-    script: util::scriptdat::data::script::Script,
+fn randomize_items(
+    mut script: util::scriptdat::data::script::Script,
     supplements: dataset::supplements::Supplements,
-) -> dataset::get_all_items::AllItems {
-    dataset::get_all_items::get_all_items(&script, &supplements).unwrap()
-}
-
-#[tauri::command]
-fn create_source(
-    script: util::scriptdat::data::script::Script,
-    supplements: dataset::supplements::Supplements,
-) -> dataset::storage::Storage {
-    dataset::create_source::create_source(&script, &supplements).unwrap()
-}
-
-#[tauri::command]
-fn generate_random(seed: String) -> Vec<f64> {
-    let mut rng: Xoshiro256PlusPlus = Seeder::from(seed).make_rng();
-    (0..100000)
-        .map(|_| rng.next_u64() as f64 / u64::MAX as f64)
-        .collect()
-}
-
-#[tauri::command]
-fn validate(storage: dataset::storage::Storage) -> bool {
-    randomizer::validate::validate(&storage)
+    seed: String,
+) -> util::scriptdat::data::script::Script {
+    randomizer::randomize_items::randomize_items(&mut script, &supplements, &seed)
+        .map_err(|e| e.to_string())
+        .unwrap();
+    script
 }
 
 fn main() {
@@ -262,20 +199,12 @@ fn main() {
             set_easy_mode,
             read_file,
             write_file,
-            parse_script_txt,
-            parse_shop_items_data,
-            stringify_shop_items_data,
             read_script_dat,
             build_script_dat,
             is_valid_script_dat,
             create_supplements,
-            script_replace_shops,
-            script_replace_items,
             script_add_starting_items,
-            get_all_items,
-            create_source,
-            generate_random,
-            validate,
+            randomize_items,
         ])
         .run(context)
         .expect("error while running tauri application");

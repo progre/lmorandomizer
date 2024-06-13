@@ -1,7 +1,7 @@
 import { invoke } from '@tauri-apps/api/core';
-import Item from '../../../model/dataset/Item';
-import Spot from '../../../model/dataset/Spot';
-import Storage from '../../../model/dataset/Storage';
+// import Item from '../../../model/dataset/Item';
+// import Spot from '../../../model/dataset/Spot';
+// import Storage from '../../../model/dataset/Storage';
 import {
   EquipmentNumber,
   SubWeaponNumber,
@@ -42,14 +42,6 @@ export default class Script {
     private talks: ReadonlyArray<string>,
     private worlds: ReadonlyArray<LMWorld>,
   ) {
-  }
-
-  async replaceShops(shops: ReadonlyArray<{ spot: Spot; items: [Item, Item, Item] }>) {
-    this.talks = (<any>await invoke('script_replace_shops', { this: this, shops })).talks;
-  }
-
-  async replaceItems(shuffled: Storage) {
-    this.worlds = (<any>await invoke('script_replace_items', { this: this, shuffled })).worlds;
   }
 
   async addStartingItems(

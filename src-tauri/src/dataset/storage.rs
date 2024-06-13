@@ -54,7 +54,7 @@ impl Storage {
         )
     }
 
-    fn new(
+    pub fn new(
         all_requirement_names: Vec<String>,
         main_weapon_shutters: Vec<ItemSpot>,
         sub_weapon_shutters: Vec<ItemSpot>,
