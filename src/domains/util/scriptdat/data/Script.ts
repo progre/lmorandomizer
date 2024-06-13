@@ -34,23 +34,9 @@ export interface LMChild {
   attrs: List<number>;
 }
 
-function to_world(obj: LMWorld) {
-  return {
-    ...obj,
-    fields: obj.fields.map((field) => ({
-      ...field,
-      maps: field.maps.map((map): LMMap => ({
-        ...map,
-        objects: map.objects.map(LMObject.fromObject),
-      })),
-      objects: field.objects.map(LMObject.fromObject),
-    })),
-  };
-}
-
 export default class Script {
   static from_object(obj: Script) {
-    return new Script(obj.talks, obj.worlds.map(to_world));
+    return new Script(obj.talks, obj.worlds);
   }
 
   private constructor(
@@ -85,7 +71,6 @@ export default class Script {
 
   async replaceItems(shuffled: Storage) {
     this.worlds = (<any>await invoke('script_replace_items', { this: this, shuffled })).worlds;
-    this.worlds = this.worlds.map(to_world);
   }
 
   async addStartingItems(

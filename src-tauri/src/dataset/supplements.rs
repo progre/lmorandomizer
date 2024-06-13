@@ -1,21 +1,21 @@
-pub const NIGHT_SURFACE_SUB_WEAPON_COUNT: u8 = 1;
-pub const NIGHT_SURFACE_CHEST_COUNT: u8 = 3;
-pub const TRUE_SHRINE_OF_THE_MOTHER_SEAL_COUNT: u8 = 1;
-pub const NIGHT_SURFACE_SEAL_COUNT: u8 = 1;
-pub const WARE_NO_MISE_COUNT: u8 = 1;
+pub const NIGHT_SURFACE_SUB_WEAPON_COUNT: usize = 1;
+pub const NIGHT_SURFACE_CHEST_COUNT: usize = 3;
+pub const TRUE_SHRINE_OF_THE_MOTHER_SEAL_COUNT: usize = 1;
+pub const NIGHT_SURFACE_SEAL_COUNT: usize = 1;
+pub const WARE_NO_MISE_COUNT: usize = 1;
 
 #[derive(Clone, Debug, PartialEq, serde::Deserialize, serde::Serialize)]
 pub struct Requirement(pub String);
 
 #[derive(serde::Deserialize, serde::Serialize)]
 pub struct Spot {
-    name: String,
-    requirements: Option<Vec<Vec<Requirement>>>,
+    pub name: String,
+    pub requirements: Option<Vec<Vec<Requirement>>>,
 }
 
 #[derive(serde::Deserialize, serde::Serialize)]
 pub struct Shop {
-    names: String,
+    pub names: String,
     requirements: Option<Vec<Vec<Requirement>>>,
 }
 
@@ -59,11 +59,11 @@ struct Event {
 #[derive(serde::Deserialize, serde::Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Supplements {
-    main_weapons: Vec<Spot>,
-    sub_weapons: Vec<Spot>,
-    chests: Vec<Spot>,
-    seals: Vec<Spot>,
-    shops: Vec<Shop>,
+    pub main_weapons: Vec<Spot>,
+    pub sub_weapons: Vec<Spot>,
+    pub chests: Vec<Spot>,
+    pub seals: Vec<Spot>,
+    pub shops: Vec<Shop>,
 }
 
 impl Supplements {

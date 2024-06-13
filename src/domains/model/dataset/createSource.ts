@@ -1,13 +1,35 @@
+import { invoke } from '@tauri-apps/api/core';
 import assert from '../../../assert';
 import Script from '../../util/scriptdat/data/Script';
-import getAllItems from './getAllItems';
 import Item from './Item';
 import Spot from './Spot';
 import Storage from './Storage';
 import Supplements from './Supplements';
 
+function from_object(obj: {
+  mainWeapons: Item[];
+  subWeapons: Item[];
+  chests: Item[];
+  seals: Item[];
+  shops: [Item, Item, Item][];
+}): {
+  mainWeapons: Item[];
+  subWeapons: Item[];
+  chests: Item[];
+  seals: Item[];
+  shops: [Item, Item, Item][];
+} {
+  return {
+    mainWeapons: obj.mainWeapons.map(x => new Item(x.name, x.type, x.number, x.count, x.flag)),
+    subWeapons: obj.subWeapons.map(x => new Item(x.name, x.type, x.number, x.count, x.flag)),
+    chests: obj.chests.map(x => new Item(x.name, x.type, x.number, x.count, x.flag)),
+    seals: obj.seals.map(x => new Item(x.name, x.type, x.number, x.count, x.flag)),
+    shops: obj.shops.map(x => <[Item, Item, Item]>x.map(y => new Item(y.name, y.type, y.number, y.count, y.flag)))
+  };
+}
+
 export default async function createSource(script: Script, supplements: Supplements) {
-  const allItems = await getAllItems(script, supplements);
+  const allItems = from_object(await invoke('get_all_items', { script, supplements }));
   const enumerateItems = (
     allItems.mainWeapons
       .concat(allItems.subWeapons)

@@ -1,57 +1,12 @@
-import assert from '../../../../assert';
-
-export default class LMObject {
-  static fromObject(object: LMObject) {
-    return new LMObject(
-      object.number,
-      object.x,
-      object.y,
-      object.op1,
-      object.op2,
-      object.op3,
-      object.op4,
-      object.starts.map((start) => ({ number: start.number, value: start.value })),
-    );
-  }
-
-  constructor(
-    public readonly number: number,
-    public readonly x: number,
-    public readonly y: number,
-    public readonly op1: number,
-    public readonly op2: number,
-    public readonly op3: number,
-    public readonly op4: number,
-    public readonly starts: ReadonlyArray<Readonly<LMStart>>,
-  ) {
-  }
-
-  asMainWeapon() {
-    return { mainWeaponNumber: this.op1, flag: this.op2 };
-  }
-
-  asSubWeapon() {
-    return { subWeaponNumber: this.op1, count: this.op2, flag: this.op3 };
-  }
-
-  asChestItem() {
-    assert.equal(this.number, 1);
-    return { chestItemNumber: this.op2, openFlag: this.op1, flag: this.op3 };
-  }
-
-  asSeal() {
-    return { sealNumber: this.op1, flag: this.op2 };
-  }
-
-  getItemFlag() {
-    switch (this.number) {
-      case 77: return this.asMainWeapon().flag;
-      case 13: return this.asSubWeapon().flag;
-      case 1: return this.asChestItem().flag;
-      case 71: return this.asSeal().flag;
-      default: throw new Error();
-    }
-  }
+export default interface LMObject {
+  readonly number: number;
+  readonly x: number;
+  readonly y: number;
+  readonly op1: number;
+  readonly op2: number;
+  readonly op3: number;
+  readonly op4: number;
+  readonly starts: ReadonlyArray<Readonly<LMStart>>;
 }
 
 export interface LMStart {

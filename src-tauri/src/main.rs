@@ -244,6 +244,14 @@ fn script_add_starting_items(
     this
 }
 
+#[tauri::command]
+fn get_all_items(
+    script: util::scriptdat::data::script::Script,
+    supplements: dataset::supplements::Supplements,
+) -> dataset::get_all_items::AllItems {
+    dataset::get_all_items::get_all_items(&script, &supplements).unwrap()
+}
+
 fn main() {
     let mut context = tauri::generate_context!();
     let Config { app, version, .. } = context.config_mut();
@@ -280,6 +288,7 @@ fn main() {
             script_replace_shops,
             script_replace_items,
             script_add_starting_items,
+            get_all_items,
         ])
         .run(context)
         .expect("error while running tauri application");

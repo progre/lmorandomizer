@@ -114,8 +114,7 @@ pub fn replace_items(worlds: Vec<LMWorld>, shuffled: &Storage) -> Result<Vec<LMW
                                                     {
                                                         let sum =
                                                             shuffled.sub_weapon_shutters.len()
-                                                                + NIGHT_SURFACE_SUB_WEAPON_COUNT
-                                                                    as usize;
+                                                                + NIGHT_SURFACE_SUB_WEAPON_COUNT;
                                                         debug_assert!(sub_weapon_spot_idx < sum);
                                                         sub_weapon_spot_idx += 1;
                                                         return Ok(vec![obj.clone()]);
@@ -177,7 +176,7 @@ pub fn replace_items(worlds: Vec<LMWorld>, shuffled: &Storage) -> Result<Vec<LMW
                                                     // TODO: nightSurface
                                                     if chest_idx >= shuffled.chests.len() {
                                                         let sum = shuffled.chests.len()
-                                                            + NIGHT_SURFACE_CHEST_COUNT as usize;
+                                                            + NIGHT_SURFACE_CHEST_COUNT;
                                                         debug_assert!(chest_idx < sum);
                                                         chest_idx += 1;
                                                         return Ok(vec![obj.clone()]);
@@ -199,8 +198,7 @@ pub fn replace_items(worlds: Vec<LMWorld>, shuffled: &Storage) -> Result<Vec<LMW
                                                     {
                                                         let sum = shuffled.seal_chests.len()
                                                             + TRUE_SHRINE_OF_THE_MOTHER_SEAL_COUNT
-                                                                as usize
-                                                            + NIGHT_SURFACE_SEAL_COUNT as usize;
+                                                            + NIGHT_SURFACE_SEAL_COUNT;
                                                         debug_assert!(seal_chest_idx < sum);
                                                         seal_chest_idx += 1;
                                                         return Ok(vec![obj.clone()]);

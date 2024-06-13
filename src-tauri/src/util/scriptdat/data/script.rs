@@ -80,7 +80,7 @@ pub struct Seal {
 pub struct Shop {
     talk_number: i32,
     talking: String,
-    items: (ShopItemData, ShopItemData, ShopItemData),
+    pub items: (ShopItemData, ShopItemData, ShopItemData),
 }
 
 #[derive(serde::Deserialize, serde::Serialize)]
