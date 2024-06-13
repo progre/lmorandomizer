@@ -2,7 +2,6 @@ import { SnackbarCloseReason } from '@mui/material';
 import { invoke } from '@tauri-apps/api/core';
 import { error } from '@tauri-apps/plugin-log';
 import React from 'react';
-import App from '../applications/App';
 import { default as Component } from '../components/Index';
 
 interface Props {
@@ -21,8 +20,6 @@ const initialState = {
 };
 
 export default class Index extends React.Component<Props, typeof initialState> {
-  private app = new App();
-
   constructor(props: Props) {
     super(props);
     this.onChangeSeed = this.onChangeSeed.bind(this);
@@ -69,14 +66,17 @@ export default class Index extends React.Component<Props, typeof initialState> {
       isProcessingApply: true,
       snackbar: '',
     });
-    let result;
+    let result: string;
     try {
-      result = await this.app.apply(
-        this.state.installDirectory,
+      result = await invoke(
+        'apply',
         {
-          seed: this.state.seed || '',
-          easyMode: this.state.easyMode || false,
-        },
+          installDirectory: this.state.installDirectory,
+          options: {
+            seed: this.state.seed || '',
+            easyMode: this.state.easyMode || false,
+          }
+        }
       );
     } catch (err) {
       console.error(err);
@@ -96,9 +96,12 @@ export default class Index extends React.Component<Props, typeof initialState> {
       isProcessingRestore: true,
       snackbar: '',
     });
-    let result;
+    let result: string;
     try {
-      result = await this.app.restore(this.state.installDirectory);
+      result = await invoke(
+        'restore',
+        { installDirectory: this.state.installDirectory },
+      );
     } catch (err) {
       console.error(err);
       result = `${err}`;
