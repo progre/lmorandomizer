@@ -1,8 +1,8 @@
+import { invoke } from '@tauri-apps/api/core';
 import assert from '../assert';
 import { isValidScriptDat } from '../domains/util/scriptdat/format/scriptconverter';
 import ScriptDatRepo from '../infrastructures/ScriptDatRepo';
 import SupplementFileRepo from '../infrastructures/SupplementFileRepo';
-import randomize from './randomize';
 
 export default class App {
   private scriptDatRepo = new ScriptDatRepo();
@@ -32,9 +32,9 @@ export default class App {
     }
     const supplementFiles = await this.supplementFileRepo.read();
 
-    const randomized = await randomize(working, supplementFiles, options);
+    const randomized: number[] = await invoke('randomize', { scriptDat: [...working], supplementFiles, options });
 
-    await this.scriptDatRepo.writeScriptDat(targetFilePath, randomized);
+    await this.scriptDatRepo.writeScriptDat(targetFilePath, Uint8Array.from(randomized));
     return 'Succeeded.';
   }
 

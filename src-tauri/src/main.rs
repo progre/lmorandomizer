@@ -131,51 +131,17 @@ async fn write_file(path: String, contents: Vec<u8>) -> bool {
 }
 
 #[tauri::command]
-fn read_script_dat(file: Vec<u8>) -> util::scriptdat::data::script::Script {
-    util::scriptdat::format::scriptconverter::read_script_dat(&file).unwrap()
-}
-
-#[tauri::command]
-fn build_script_dat(script: util::scriptdat::data::script::Script) -> Vec<u8> {
-    util::scriptdat::format::scriptconverter::build_script_dat(&script)
-}
-
-#[tauri::command]
 fn is_valid_script_dat(file: Vec<u8>) -> bool {
     util::scriptdat::format::scriptconverter::is_valid_script_dat(&file)
 }
 
 #[tauri::command]
-fn create_supplements(
+fn randomize(
+    script_dat: Vec<u8>,
     supplement_files: dataset::supplements::SupplementFiles,
-) -> dataset::supplements::Supplements {
-    dataset::supplements::Supplements::new(supplement_files)
-}
-
-#[tauri::command]
-fn script_add_starting_items(
-    mut this: util::scriptdat::data::script::Script,
-    equipment_list: Vec<randomizer::items::EquipmentNumber>,
-    sub_weapon_list: Vec<randomizer::items::SubWeaponNumber>,
-) -> util::scriptdat::data::script::Script {
-    util::scriptdat::data::script::Script::add_starting_items(
-        &mut this,
-        &equipment_list,
-        &sub_weapon_list,
-    );
-    this
-}
-
-#[tauri::command]
-fn randomize_items(
-    mut script: util::scriptdat::data::script::Script,
-    supplements: dataset::supplements::Supplements,
-    seed: String,
-) -> util::scriptdat::data::script::Script {
-    randomizer::randomize_items::randomize_items(&mut script, &supplements, &seed)
-        .map_err(|e| e.to_string())
-        .unwrap();
-    script
+    options: randomizer::RandomizeOptions,
+) -> Vec<u8> {
+    randomizer::randomize(&script_dat, &supplement_files, &options).unwrap()
 }
 
 fn main() {
@@ -199,12 +165,8 @@ fn main() {
             set_easy_mode,
             read_file,
             write_file,
-            read_script_dat,
-            build_script_dat,
             is_valid_script_dat,
-            create_supplements,
-            script_add_starting_items,
-            randomize_items,
+            randomize,
         ])
         .run(context)
         .expect("error while running tauri application");

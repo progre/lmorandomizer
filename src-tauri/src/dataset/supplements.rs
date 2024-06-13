@@ -67,7 +67,7 @@ pub struct Supplements {
 }
 
 impl Supplements {
-    pub fn new(supplement_files: SupplementFiles) -> Self {
+    pub fn new(supplement_files: &SupplementFiles) -> Self {
         let weapons: WeaponsYaml = serde_yaml::from_str(&supplement_files.weapons_yml).unwrap();
         let main_weapons = weapons.main_weapons;
         let sub_weapons = weapons.sub_weapons;
