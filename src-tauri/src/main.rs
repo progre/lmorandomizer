@@ -8,6 +8,9 @@ mod util;
 use std::path::PathBuf;
 
 use log::{info, LevelFilter};
+use rand::RngCore;
+use rand_seeder::Seeder;
+use rand_xoshiro::Xoshiro256PlusPlus;
 use serde_json::json;
 use tauri::{AppHandle, Config, Manager, State, Wry};
 use tauri_plugin_store::{with_store, Store, StoreCollection};
@@ -225,6 +228,14 @@ fn create_source(
     dataset::create_source::create_source(&script, &supplements).unwrap()
 }
 
+#[tauri::command]
+fn generate_random(seed: String) -> Vec<f64> {
+    let mut rng: Xoshiro256PlusPlus = Seeder::from(seed).make_rng();
+    (0..100000)
+        .map(|_| rng.next_u64() as f64 / u64::MAX as f64)
+        .collect()
+}
+
 fn main() {
     let mut context = tauri::generate_context!();
     let Config { app, version, .. } = context.config_mut();
@@ -258,6 +269,7 @@ fn main() {
             script_add_starting_items,
             get_all_items,
             create_source,
+            generate_random,
         ])
         .run(context)
         .expect("error while running tauri application");

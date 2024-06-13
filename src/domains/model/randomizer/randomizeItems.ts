@@ -1,5 +1,4 @@
 import { invoke } from '@tauri-apps/api/core';
-import seedrandom, { prng } from 'seedrandom';
 import assert from '../../../assert';
 import Script from '../../util/scriptdat/data/Script';
 import Item from '../dataset/Item';
@@ -17,13 +16,14 @@ export default async function randomizeItems(
   const source = Storage.fromObject(await invoke('create_source', { script, supplements }));
   assert(validate(source));
   assertUnique(source);
-  const shuffled = randomizeStorage(source, seedrandom(seed));
+  const rng: number[] = await invoke('generate_random', { seed });
+  const shuffled = randomizeStorage(source, rng);
   assertUnique(shuffled);
   await script.replaceItems(shuffled);
   await script.replaceShops(shuffled.shops);
 }
 
-function randomizeStorage(source: Storage, rng: prng) {
+function randomizeStorage(source: Storage, rng: number[]) {
   let shuffled;
   for (let i = 0; i < 10000; i += 1) {
     // itemをshuffleしてplaceと合わせる
@@ -40,7 +40,7 @@ function randomizeStorage(source: Storage, rng: prng) {
   return shuffled;
 }
 
-function shuffle(source: Storage, rng: prng): Storage {
+function shuffle(source: Storage, rng: number[]): Storage {
   const allItems = source.allItems;
   const {
     newMainWeaponShutters,
@@ -80,7 +80,7 @@ function shuffle(source: Storage, rng: prng): Storage {
   );
 }
 
-function distributeItems(items: ReadonlyArray<Item>, source: Storage, rng: prng) {
+function distributeItems(items: ReadonlyArray<Item>, source: Storage, rng: number[]) {
   assert.equal(
     items.length,
     source.mainWeaponShutters.length
