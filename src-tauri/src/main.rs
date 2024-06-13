@@ -4,7 +4,7 @@
 mod app;
 mod dataset;
 mod randomizer;
-mod util;
+mod script;
 
 use log::LevelFilter;
 use tauri::Config;

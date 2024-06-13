@@ -1,8 +1,8 @@
 use crate::randomizer::items::{EquipmentNumber, SubWeaponNumber};
 
 use super::{
-    lm_object::{LMObject, LMStart},
-    script::{LMField, LMMap, LMWorld},
+    object::{LMStart, Object},
+    script::{Field, Map, World},
 };
 
 #[allow(clippy::too_many_arguments)]
@@ -15,8 +15,8 @@ fn create_object(
     op3: i32,
     op4: i32,
     starts: Vec<LMStart>,
-) -> LMObject {
-    LMObject {
+) -> Object {
+    Object {
         number,
         x,
         y,
@@ -29,10 +29,10 @@ fn create_object(
 }
 
 pub fn add_starting_items(
-    worlds: Vec<LMWorld>,
+    worlds: Vec<World>,
     equipment_list: &[EquipmentNumber],
     sub_weapon_list: &[SubWeaponNumber],
-) -> Vec<LMWorld> {
+) -> Vec<World> {
     let unused_one_time_flag_no = 7400;
     let unused_save_flag_no = 6000;
     let starting_items: Vec<_> = [
@@ -86,8 +86,8 @@ pub fn add_starting_items(
     .collect();
     worlds
         .into_iter()
-        .map(|world| LMWorld {
-            value: world.value,
+        .map(|world| World {
+            number: world.number,
             fields: world
                 .fields
                 .into_iter()
@@ -95,7 +95,7 @@ pub fn add_starting_items(
                     if field.attrs.0 != 1 {
                         field
                     } else {
-                        LMField {
+                        Field {
                             maps: field
                                 .maps
                                 .into_iter()
@@ -103,7 +103,7 @@ pub fn add_starting_items(
                                     if !(map.attrs.0 == 3 && map.attrs.1 == 1) {
                                         map
                                     } else {
-                                        LMMap {
+                                        Map {
                                             objects: map
                                                 .objects
                                                 .into_iter()

@@ -11,7 +11,7 @@ use tokio::{
 use crate::{
     dataset::supplements::SupplementFiles,
     randomizer::{randomize, RandomizeOptions},
-    util::scriptdat::format::scriptconverter::is_valid_script_dat,
+    script::format::scriptconverter::is_valid_script_dat,
 };
 
 #[derive(serde::Serialize)]

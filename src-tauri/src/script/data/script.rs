@@ -5,88 +5,45 @@ use anyhow::Result;
 use crate::{
     dataset::storage::{self, Storage},
     randomizer::items::{EquipmentNumber, SubWeaponNumber},
-    util::scriptdat::{
-        data::scripteditor::replace_items,
-        format::{
-            scripttxtparser::{parse_script_txt, stringify_script_txt},
-            shop_items_data::{self, ShopItemData},
-        },
-    },
+    script::format::scripttxtparser::{parse_script_txt, stringify_script_txt},
 };
 
 use super::{
-    add_starting_items::add_starting_items, lm_object::LMObject, scripteditor::replace_shops,
+    add_starting_items::add_starting_items,
+    object::{ChestItem, MainWeapon, Object, Seal, Shop, SubWeapon},
+    scripteditor::{replace_items, replace_shops},
 };
 
 #[derive(serde::Deserialize, serde::Serialize)]
-pub struct LMChild {
-    pub name: String,
-    pub attrs: Vec<i32>,
-}
-
-#[derive(serde::Deserialize, serde::Serialize)]
-pub struct LMMap {
+pub struct Map {
     pub attrs: (u8, u8, u8),
-    pub children: Vec<LMChild>, // TODO: LMChild と LMObject は共に elements
-    pub objects: Vec<LMObject>,
+    pub up: (i8, i8, i8, i8),
+    pub right: (i8, i8, i8, i8),
+    pub down: (i8, i8, i8, i8),
+    pub left: (i8, i8, i8, i8),
+    pub objects: Vec<Object>,
 }
 
 #[derive(serde::Deserialize, serde::Serialize)]
-pub struct LMField {
+pub struct Field {
     pub attrs: (u8, u8, u8, u8, u8),
-    pub children: Vec<LMChild>, // TODO: LMChild, LMObject, LMMap は全て elements
-    pub objects: Vec<LMObject>,
-    pub maps: Vec<LMMap>,
+    pub chip_line: (u16, u16),
+    pub hits: Vec<(i16, i16)>,
+    pub animes: Vec<Vec<u16>>,
+    pub objects: Vec<Object>,
+    pub maps: Vec<Map>,
 }
 
 #[derive(serde::Deserialize, serde::Serialize)]
-pub struct LMWorld {
-    pub value: u8,
-    pub fields: Vec<LMField>,
-}
-
-#[derive(serde::Deserialize, serde::Serialize)]
-#[serde(rename_all = "camelCase")]
-pub struct MainWeapon {
-    pub main_weapon_number: u8,
-    pub flag: i32,
-}
-
-#[derive(serde::Deserialize, serde::Serialize)]
-#[serde(rename_all = "camelCase")]
-pub struct SubWeapon {
-    pub sub_weapon_number: u8,
-    pub count: u16,
-    pub flag: i32,
-}
-
-#[derive(serde::Deserialize, serde::Serialize)]
-#[serde(rename_all = "camelCase")]
-pub struct ChestItem {
-    pub chest_item_number: i16,
-    pub open_flag: i32,
-    pub flag: i32,
-}
-
-#[derive(serde::Deserialize, serde::Serialize)]
-#[serde(rename_all = "camelCase")]
-pub struct Seal {
-    pub seal_number: u8,
-    pub flag: i32,
-}
-
-#[derive(serde::Deserialize, serde::Serialize)]
-#[serde(rename_all = "camelCase")]
-pub struct Shop {
-    pub talk_number: i32,
-    talking: String,
-    pub items: (ShopItemData, ShopItemData, ShopItemData),
+pub struct World {
+    pub number: u8,
+    pub fields: Vec<Field>,
 }
 
 #[derive(serde::Deserialize, serde::Serialize)]
 pub struct Script {
     pub talks: Vec<String>,
-    pub worlds: Vec<LMWorld>,
+    pub worlds: Vec<World>,
 }
 
 impl Script {
@@ -104,16 +61,14 @@ impl Script {
     pub fn main_weapons(&self) -> Result<Vec<MainWeapon>> {
         self.view_objects()
             .iter()
-            .filter(|x| x.number == 77)
-            .map(|x| x.as_main_weapon())
+            .filter_map(|x| x.to_main_weapon().transpose())
             .collect()
     }
 
     pub fn sub_weapons(&self) -> Result<Vec<SubWeapon>> {
         self.view_objects()
             .iter()
-            .filter(|x| x.number == 13)
-            .map(|x| x.as_sub_weapon())
+            .filter_map(|x| x.to_sub_weapon().transpose())
             .collect()
     }
 
@@ -131,8 +86,7 @@ impl Script {
                     && x.op3 == 766
                     && x.op4 == 0)
             })
-            .filter(|x| x.number == 1)
-            .map(|x| x.as_chest_item())
+            .filter_map(|x| x.to_chest_item().transpose())
             .collect::<Result<Vec<_>>>()?
             .into_iter()
             .filter(
@@ -149,22 +103,14 @@ impl Script {
     pub fn seals(&self) -> Result<Vec<Seal>> {
         self.view_objects()
             .iter()
-            .filter(|x| x.number == 71)
-            .map(|x| x.as_seal())
+            .filter_map(|x| x.to_seal().transpose())
             .collect()
     }
 
     pub fn shops(&self) -> Result<Vec<Shop>> {
         self.view_objects()
             .iter()
-            .filter(|x| x.number == 14 && x.op1 <= 99)
-            .map(|x| {
-                Ok(Shop {
-                    talk_number: x.op4,
-                    talking: self.talks[usize::try_from(x.op3)?].clone(),
-                    items: shop_items_data::parse(&self.talks[usize::try_from(x.op4)?]),
-                })
-            })
+            .filter_map(|x| x.to_shop(&self.talks).transpose())
             .collect()
     }
 
@@ -185,7 +131,7 @@ impl Script {
         self.worlds = add_starting_items(take(&mut self.worlds), equipment_list, sub_weapon_list);
     }
 
-    fn view_objects(&self) -> Vec<LMObject> {
+    fn view_objects(&self) -> Vec<Object> {
         self.worlds
             .iter()
             .flat_map(|x| &x.fields)

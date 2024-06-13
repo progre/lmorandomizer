@@ -1,17 +1,14 @@
 use anyhow::Result;
 
-use crate::{
-    dataset::item::Item, randomizer::items::SubWeaponNumber,
-    util::scriptdat::data::lm_object::LMStart,
-};
+use crate::{dataset::item::Item, randomizer::items::SubWeaponNumber};
 
-use super::lm_object::LMObject;
+use super::object::{LMStart, Object};
 
-pub fn to_object_for_shutter(old_obj: &LMObject, start_flag: i32, item: &Item) -> Result<LMObject> {
+pub fn to_object_for_shutter(old_obj: &Object, start_flag: i32, item: &Item) -> Result<Object> {
     Ok(match item.r#type.as_ref() {
         "mainWeapon" => create_main_weapon(old_obj, item)?,
         "subWeapon" => create_sub_weapon(old_obj, item)?,
-        "equipment" => LMObject {
+        "equipment" => Object {
             number: 1,
             x: old_obj.x,
             y: old_obj.y,
@@ -21,7 +18,7 @@ pub fn to_object_for_shutter(old_obj: &LMObject, start_flag: i32, item: &Item) -
             op4: -1,
             starts: starts_that_hide_when_startup(old_obj, start_flag)?,
         },
-        "rom" => LMObject {
+        "rom" => Object {
             number: 1,
             x: old_obj.x,
             y: old_obj.y,
@@ -36,14 +33,14 @@ pub fn to_object_for_shutter(old_obj: &LMObject, start_flag: i32, item: &Item) -
     })
 }
 
-pub fn to_object_for_special_chest(old_obj: &LMObject, item: &Item) -> Result<LMObject> {
+pub fn to_object_for_special_chest(old_obj: &Object, item: &Item) -> Result<Object> {
     Ok(match item.r#type.as_ref() {
         "mainWeapon" => create_main_weapon(old_obj, item)?,
         "subWeapon" => {
             debug_assert!(!(item.number == SubWeaponNumber::AnkhJewel as i8 && item.count > 1));
             create_sub_weapon(old_obj, item)?
         }
-        "equipment" => LMObject {
+        "equipment" => Object {
             number: 1,
             x: old_obj.x,
             y: old_obj.y,
@@ -53,7 +50,7 @@ pub fn to_object_for_special_chest(old_obj: &LMObject, item: &Item) -> Result<LM
             op4: -1,
             starts: get_starts_without_old_flag(old_obj)?,
         },
-        "rom" => LMObject {
+        "rom" => Object {
             number: 1,
             x: old_obj.x,
             y: old_obj.y,
@@ -68,7 +65,7 @@ pub fn to_object_for_special_chest(old_obj: &LMObject, item: &Item) -> Result<LM
     })
 }
 
-pub fn to_objects_for_chest(old_obj: &LMObject, item: &Item) -> Result<Vec<LMObject>> {
+pub fn to_objects_for_chest(old_obj: &Object, item: &Item) -> Result<Vec<Object>> {
     Ok(match item.r#type.as_ref() {
         "mainWeapon" => {
             debug_assert!(!(item.number == SubWeaponNumber::AnkhJewel as i8 && item.count > 1));
@@ -78,7 +75,7 @@ pub fn to_objects_for_chest(old_obj: &LMObject, item: &Item) -> Result<Vec<LMObj
             debug_assert!(!(item.number == SubWeaponNumber::AnkhJewel as i8 && item.count > 1));
             create_sub_weapon_chest(old_obj, item)?
         }
-        "equipment" => vec![LMObject {
+        "equipment" => vec![Object {
             number: 1,
             x: old_obj.x,
             y: old_obj.y,
@@ -88,7 +85,7 @@ pub fn to_objects_for_chest(old_obj: &LMObject, item: &Item) -> Result<Vec<LMObj
             op4: -1,
             starts: starts_as_is(old_obj, item)?,
         }],
-        "rom" => vec![LMObject {
+        "rom" => vec![Object {
             number: 1,
             x: old_obj.x,
             y: old_obj.y,
@@ -103,8 +100,8 @@ pub fn to_objects_for_chest(old_obj: &LMObject, item: &Item) -> Result<Vec<LMObj
     })
 }
 
-fn create_main_weapon(old_obj: &LMObject, item: &Item) -> Result<LMObject> {
-    Ok(LMObject {
+fn create_main_weapon(old_obj: &Object, item: &Item) -> Result<Object> {
+    Ok(Object {
         number: 77,
         x: old_obj.x,
         y: old_obj.y,
@@ -116,10 +113,10 @@ fn create_main_weapon(old_obj: &LMObject, item: &Item) -> Result<LMObject> {
     })
 }
 
-fn create_main_weapon_chest(old_obj: &LMObject, item: &Item) -> Result<Vec<LMObject>> {
+fn create_main_weapon_chest(old_obj: &Object, item: &Item) -> Result<Vec<Object>> {
     Ok(vec![
         create_empty_chest(old_obj, item)?,
-        LMObject {
+        Object {
             number: 77,
             x: old_obj.x,
             y: old_obj.y,
@@ -132,8 +129,8 @@ fn create_main_weapon_chest(old_obj: &LMObject, item: &Item) -> Result<Vec<LMObj
     ])
 }
 
-fn create_sub_weapon(old_obj: &LMObject, item: &Item) -> Result<LMObject> {
-    Ok(LMObject {
+fn create_sub_weapon(old_obj: &Object, item: &Item) -> Result<Object> {
+    Ok(Object {
         number: 13,
         x: old_obj.x,
         y: old_obj.y,
@@ -145,10 +142,10 @@ fn create_sub_weapon(old_obj: &LMObject, item: &Item) -> Result<LMObject> {
     })
 }
 
-fn create_sub_weapon_chest(old_obj: &LMObject, item: &Item) -> Result<Vec<LMObject>> {
+fn create_sub_weapon_chest(old_obj: &Object, item: &Item) -> Result<Vec<Object>> {
     Ok(vec![
         create_empty_chest(old_obj, item)?,
-        LMObject {
+        Object {
             number: 13,
             x: old_obj.x,
             y: old_obj.y,
@@ -161,8 +158,8 @@ fn create_sub_weapon_chest(old_obj: &LMObject, item: &Item) -> Result<Vec<LMObje
     ])
 }
 
-fn create_seal(old_obj: &LMObject, item: &Item) -> Result<LMObject> {
-    Ok(LMObject {
+fn create_seal(old_obj: &Object, item: &Item) -> Result<Object> {
+    Ok(Object {
         number: 71,
         x: old_obj.x,
         y: old_obj.y,
@@ -174,10 +171,10 @@ fn create_seal(old_obj: &LMObject, item: &Item) -> Result<LMObject> {
     })
 }
 
-fn create_seal_chest(old_obj: &LMObject, item: &Item) -> Result<Vec<LMObject>> {
+fn create_seal_chest(old_obj: &Object, item: &Item) -> Result<Vec<Object>> {
     Ok(vec![
         create_empty_chest(old_obj, item)?,
-        LMObject {
+        Object {
             number: 71,
             x: old_obj.x,
             y: old_obj.y,
@@ -190,8 +187,8 @@ fn create_seal_chest(old_obj: &LMObject, item: &Item) -> Result<Vec<LMObject>> {
     ])
 }
 
-fn create_empty_chest(old_obj: &LMObject, item: &Item) -> Result<LMObject> {
-    Ok(LMObject {
+fn create_empty_chest(old_obj: &Object, item: &Item) -> Result<Object> {
+    Ok(Object {
         number: 1,
         x: old_obj.x,
         y: old_obj.y,
@@ -204,7 +201,7 @@ fn create_empty_chest(old_obj: &LMObject, item: &Item) -> Result<LMObject> {
 }
 
 fn starts_that_hide_when_startup_and_taken(
-    old_chest_obj: &LMObject,
+    old_chest_obj: &Object,
     item: &Item,
 ) -> Result<Vec<LMStart>> {
     debug_assert_eq!(old_chest_obj.number, 1);
@@ -214,7 +211,7 @@ fn starts_that_hide_when_startup_and_taken(
             value: true,
         },
         LMStart {
-            number: old_chest_obj.as_chest_item()?.open_flag,
+            number: old_chest_obj.to_chest_item()?.unwrap().open_flag,
             value: true,
         },
         LMStart {
@@ -231,7 +228,7 @@ fn starts_that_hide_when_startup_and_taken(
     Ok(vec)
 }
 
-fn starts_that_hide_when_startup(old_obj: &LMObject, start_flag: i32) -> Result<Vec<LMStart>> {
+fn starts_that_hide_when_startup(old_obj: &Object, start_flag: i32) -> Result<Vec<LMStart>> {
     let mut vec = vec![
         LMStart {
             number: 99999,
@@ -251,7 +248,7 @@ fn starts_that_hide_when_startup(old_obj: &LMObject, start_flag: i32) -> Result<
     Ok(vec)
 }
 
-fn starts_as_is(old_obj: &LMObject, item: &Item) -> Result<Vec<LMStart>> {
+fn starts_as_is(old_obj: &Object, item: &Item) -> Result<Vec<LMStart>> {
     let mut vec = get_starts_without_old_flag(old_obj)?;
     let item_flag = old_obj.get_item_flag()?;
     if old_obj.starts.iter().any(|x| x.number == item_flag) {
@@ -263,7 +260,7 @@ fn starts_as_is(old_obj: &LMObject, item: &Item) -> Result<Vec<LMStart>> {
     Ok(vec)
 }
 
-fn get_starts_without_old_flag(old_obj: &LMObject) -> Result<Vec<LMStart>> {
+fn get_starts_without_old_flag(old_obj: &Object) -> Result<Vec<LMStart>> {
     let item_flag = old_obj.get_item_flag()?;
     Ok(old_obj
         .starts

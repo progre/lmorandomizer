@@ -1,12 +1,10 @@
 use anyhow::Result;
 
-use crate::util::scriptdat::format::codec::text_to_shop_data;
-
-use super::codec::shop_item_data_to_text;
+use crate::script::dat::{byte_code_to_text, text_to_byte_code};
 
 pub fn parse(text: &str) -> (ShopItemData, ShopItemData, ShopItemData) {
     debug_assert_eq!(text.chars().count(), 7 * 3);
-    let data = text_to_shop_data(text);
+    let data = text_to_byte_code(text);
     debug_assert_eq!(data.len(), 7 * 3);
     let mut iter = (0..3).map(|x| x * 7).map(|x| ShopItemData {
         r#type: (data[x] - 1),
@@ -40,7 +38,7 @@ pub fn stringify(items: (ShopItemData, ShopItemData, ShopItemData)) -> Result<St
         .into_iter()
         .flatten()
         .collect();
-    Ok(shop_item_data_to_text(&data))
+    Ok(byte_code_to_text(&data))
 }
 
 #[derive(serde::Deserialize, serde::Serialize)]

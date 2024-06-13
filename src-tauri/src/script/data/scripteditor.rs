@@ -1,5 +1,3 @@
-use std::vec;
-
 use anyhow::{anyhow, Result};
 
 use crate::{
@@ -12,13 +10,13 @@ use crate::{
         },
     },
     randomizer::items::{EquipmentNumber, SubWeaponNumber},
-    util::scriptdat::format::shop_items_data::{self, ShopItemData},
+    script::format::shop_items_data::{self, ShopItemData},
 };
 
 use super::{
-    lm_object::{LMObject, LMStart},
+    object::{LMStart, Object},
     objectfactory::{to_object_for_shutter, to_object_for_special_chest, to_objects_for_chest},
-    script::{LMField, LMMap, LMWorld},
+    script::{Field, Map, World},
 };
 
 pub fn replace_shops(talks: &mut [String], shops: &[Shop]) -> Result<()> {
@@ -64,7 +62,7 @@ fn to_integer_item_type(string_item_type: &str) -> u8 {
     }
 }
 
-pub fn replace_items(worlds: Vec<LMWorld>, shuffled: &Storage) -> Result<Vec<LMWorld>> {
+pub fn replace_items(worlds: Vec<World>, shuffled: &Storage) -> Result<Vec<World>> {
     let mut main_weapon_spot_idx = 0;
     let mut sub_weapon_spot_idx = 0;
     let mut chest_idx = 0;
@@ -73,17 +71,17 @@ pub fn replace_items(worlds: Vec<LMWorld>, shuffled: &Storage) -> Result<Vec<LMW
     worlds
         .into_iter()
         .map(|world| {
-            Ok(LMWorld {
+            Ok(World {
                 fields: world
                     .fields
                     .into_iter()
                     .map(|field| {
-                        Ok(LMField {
+                        Ok(Field {
                             maps: field
                                 .maps
                                 .into_iter()
                                 .map(|map| {
-                                    Ok(LMMap {
+                                    Ok(Map {
                                         objects: map
                                             .objects
                                             .iter()
@@ -213,7 +211,7 @@ pub fn replace_items(worlds: Vec<LMWorld>, shuffled: &Storage) -> Result<Vec<LMW
                                                 140 => {
                                                     // mausoleumOfTheGiants ankhJewel
                                                     if obj.x == 49152 && obj.y == 16384 {
-                                                        return Ok(vec![LMObject {
+                                                        return Ok(vec![Object {
                                                             number: obj.number,
                                                             x: obj.x,
                                                             y: obj.y,
@@ -233,7 +231,7 @@ pub fn replace_items(worlds: Vec<LMWorld>, shuffled: &Storage) -> Result<Vec<LMW
                                                     if obj.starts.len() == 1
                                                         && obj.starts[0].number == 788
                                                     {
-                                                        return Ok(vec![LMObject {
+                                                        return Ok(vec![Object {
                                                             number: obj.number,
                                                             x: obj.x,
                                                             y: obj.y,
@@ -269,15 +267,15 @@ pub fn replace_items(worlds: Vec<LMWorld>, shuffled: &Storage) -> Result<Vec<LMW
         .collect::<Result<_>>()
 }
 
-fn get_next_shutter_check_flag(objs: &[LMObject]) -> Option<i32> {
+fn get_next_shutter_check_flag(objs: &[Object]) -> Option<i32> {
     Some(objs.iter().find(|x| x.number == 20)?.op1)
 }
 
-fn get_next_wall_check_flag(objs: &[LMObject]) -> Option<i32> {
+fn get_next_wall_check_flag(objs: &[Object]) -> Option<i32> {
     Some(objs.iter().find(|x| x.number == 59)?.op3)
 }
 
-fn get_next_breakable_wall_check_flag(objs: &[LMObject]) -> Option<i32> {
+fn get_next_breakable_wall_check_flag(objs: &[Object]) -> Option<i32> {
     let data = objs.iter().find(|x| x.number == 70)?.op4;
     Some((data - (data / 10000) * 10000) / 10)
 }

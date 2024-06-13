@@ -4,7 +4,7 @@ use randomize_items::randomize_items;
 
 use crate::{
     dataset::supplements::{SupplementFiles, Supplements},
-    util::scriptdat::format::scriptconverter::{build_script_dat, read_script_dat},
+    script::format::scriptconverter::{build_script_dat, read_script_dat},
 };
 
 pub mod items;

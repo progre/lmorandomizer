@@ -17,7 +17,7 @@ use crate::{
         shuffle_utils::{select_random, shuffle_simply},
         validate::validate,
     },
-    util::scriptdat::data::script::Script,
+    script::data::script::Script,
 };
 
 pub fn randomize_items(script: &mut Script, supplements: &Supplements, seed: &str) -> Result<()> {

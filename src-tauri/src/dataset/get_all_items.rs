@@ -8,7 +8,7 @@ use crate::{
             TRUE_SHRINE_OF_THE_MOTHER_SEAL_COUNT, WARE_NO_MISE_COUNT,
         },
     },
-    util::scriptdat::{data::script::Script, format::shop_items_data::ShopItemData},
+    script::{data::script::Script, format::shop_items_data::ShopItemData},
 };
 
 use super::supplements::Supplements;

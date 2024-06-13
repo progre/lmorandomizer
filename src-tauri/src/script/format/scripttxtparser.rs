@@ -5,16 +5,16 @@ use scraper::{node::Attributes, ElementRef, Html};
 
 use crate::{
     randomizer::items::SubWeaponNumber,
-    util::scriptdat::{
+    script::{
         data::{
-            lm_object::{LMObject, LMStart},
-            script::{LMChild, LMField, LMMap, LMWorld},
+            object::{LMStart, Object},
+            script::{Field, Map, World},
         },
         format::shop_items_data,
     },
 };
 
-pub fn parse_script_txt(text: &str) -> Result<(Vec<String>, Vec<LMWorld>)> {
+pub fn parse_script_txt(text: &str) -> Result<(Vec<String>, Vec<World>)> {
     let parser = Html::parse_fragment(text);
     let root = parser.root_element().child_elements().collect::<Vec<_>>();
     // NOTE: scraper converts all tag names to lowercase
@@ -40,19 +40,19 @@ pub fn parse_script_txt(text: &str) -> Result<(Vec<String>, Vec<LMWorld>)> {
         debug_assert_eq!(first_shop.2.price, 80);
         debug_assert_eq!(first_shop.2.flag, 697);
     }
-    let worlds: Vec<LMWorld> = root
+    let worlds: Vec<World> = root
         .iter()
         .filter(|world| world.value().name() == "world")
         .map(|world| {
-            Ok(LMWorld {
-                value: u8::try_from(parse_attrs(&world.value().attrs)?[0])?,
+            Ok(World {
+                number: u8::try_from(parse_attrs(&world.value().attrs)?[0])?,
                 fields: world
                     .child_elements()
                     .filter(|field| field.value().name() == "field")
                     .map(|field| {
                         let children = flat_children(field);
                         let mut attrs = parse_attrs(&field.value().attrs)?.into_iter();
-                        Ok(LMField {
+                        Ok(Field {
                             attrs: (
                                 u8::try_from(attrs.next().ok_or(anyhow!("No attributes found"))?)?,
                                 u8::try_from(attrs.next().ok_or(anyhow!("No attributes found"))?)?,
@@ -60,13 +60,32 @@ pub fn parse_script_txt(text: &str) -> Result<(Vec<String>, Vec<LMWorld>)> {
                                 u8::try_from(attrs.next().ok_or(anyhow!("No attributes found"))?)?,
                                 u8::try_from(attrs.next().ok_or(anyhow!("No attributes found"))?)?,
                             ),
-                            children: children
+                            chip_line: {
+                                let chip_line = children
+                                    .iter()
+                                    .find(|child| child.value().name() == "chipline")
+                                    .ok_or_else(|| anyhow!("No CHIPLINE found"))?;
+                                let attrs = parse_attrs(&chip_line.value().attrs)?;
+                                (u16::try_from(attrs[0])?, u16::try_from(attrs[1])?)
+                            },
+                            hits: children
                                 .iter()
-                                .filter(|child| {
-                                    child.value().name() != "object"
-                                        && child.value().name() != "map"
+                                .filter(|child| child.value().name() == "hit")
+                                .map(|&child| {
+                                    let attrs = parse_attrs(&child.value().attrs)?;
+                                    Ok((i16::try_from(attrs[0])?, i16::try_from(attrs[1])?))
                                 })
-                                .map(|&child| parse_child(child))
+                                .collect::<Result<_>>()?,
+                            animes: children
+                                .iter()
+                                .filter(|child| child.value().name() == "anime")
+                                .map(|&child| {
+                                    let attrs = parse_attrs(&child.value().attrs)?;
+                                    attrs
+                                        .into_iter()
+                                        .map(|x| Ok(u16::try_from(x)?))
+                                        .collect::<Result<Vec<_>>>()
+                                })
                                 .collect::<Result<_>>()?,
                             objects: children
                                 .iter()
@@ -79,17 +98,64 @@ pub fn parse_script_txt(text: &str) -> Result<(Vec<String>, Vec<LMWorld>)> {
                                 .map(|&child| {
                                     let attrs = parse_attrs(&child.value().attrs)?;
                                     let map_children = flat_children(child);
-                                    Ok(LMMap {
+                                    Ok(Map {
                                         attrs: (
                                             u8::try_from(attrs[0])?,
                                             u8::try_from(attrs[1])?,
                                             u8::try_from(attrs[2])?,
                                         ),
-                                        children: map_children
-                                            .iter()
-                                            .filter(|x| x.value().name() != "object")
-                                            .map(|&child| parse_child(child))
-                                            .collect::<Result<_>>()?,
+                                        up: {
+                                            let up = map_children
+                                                .iter()
+                                                .find(|x| x.value().name() == "up")
+                                                .ok_or_else(|| anyhow!("No UP found"))?;
+                                            let attrs = parse_attrs(&up.value().attrs)?;
+                                            (
+                                                i8::try_from(attrs[0])?,
+                                                i8::try_from(attrs[1])?,
+                                                i8::try_from(attrs[2])?,
+                                                i8::try_from(attrs[3])?,
+                                            )
+                                        },
+                                        right: {
+                                            let up = map_children
+                                                .iter()
+                                                .find(|x| x.value().name() == "right")
+                                                .ok_or_else(|| anyhow!("No RIGHT found"))?;
+                                            let attrs = parse_attrs(&up.value().attrs)?;
+                                            (
+                                                i8::try_from(attrs[0])?,
+                                                i8::try_from(attrs[1])?,
+                                                i8::try_from(attrs[2])?,
+                                                i8::try_from(attrs[3])?,
+                                            )
+                                        },
+                                        down: {
+                                            let down = map_children
+                                                .iter()
+                                                .find(|x| x.value().name() == "down")
+                                                .ok_or_else(|| anyhow!("No DOWN found"))?;
+                                            let attrs = parse_attrs(&down.value().attrs)?;
+                                            (
+                                                i8::try_from(attrs[0])?,
+                                                i8::try_from(attrs[1])?,
+                                                i8::try_from(attrs[2])?,
+                                                i8::try_from(attrs[3])?,
+                                            )
+                                        },
+                                        left: {
+                                            let left = map_children
+                                                .iter()
+                                                .find(|x| x.value().name() == "left")
+                                                .ok_or_else(|| anyhow!("No LEFT found"))?;
+                                            let attrs = parse_attrs(&left.value().attrs)?;
+                                            (
+                                                i8::try_from(attrs[0])?,
+                                                i8::try_from(attrs[1])?,
+                                                i8::try_from(attrs[2])?,
+                                                i8::try_from(attrs[3])?,
+                                            )
+                                        },
                                         objects: map_children
                                             .iter()
                                             .filter(|object| object.value().name() == "object")
@@ -142,16 +208,9 @@ fn flat_children(root: ElementRef) -> Vec<ElementRef> {
         .unwrap_or_default()
 }
 
-fn parse_child(child: ElementRef) -> Result<LMChild> {
-    Ok(LMChild {
-        name: child.value().name().to_owned(),
-        attrs: parse_attrs(&child.value().attrs)?,
-    })
-}
-
-fn parse_object(object: ElementRef) -> Result<LMObject> {
+fn parse_object(object: ElementRef) -> Result<Object> {
     let attrs = parse_attrs(&object.value().attrs)?;
-    Ok(LMObject {
+    Ok(Object {
         number: u16::try_from(attrs[0])?,
         x: attrs[1],
         y: attrs[2],
@@ -172,7 +231,7 @@ fn parse_object(object: ElementRef) -> Result<LMObject> {
     })
 }
 
-pub fn stringify_script_txt(talks: &[String], worlds: &[LMWorld]) -> String {
+pub fn stringify_script_txt(talks: &[String], worlds: &[World]) -> String {
     [
         talks.iter().fold(String::new(), |mut output, x| {
             write!(output, "<TALK>\n{x}</TALK>\n").unwrap();
@@ -182,7 +241,7 @@ pub fn stringify_script_txt(talks: &[String], worlds: &[LMWorld]) -> String {
             .iter()
             .map(|world| {
                 [
-                    format!("<WORLD {}>\n", world.value),
+                    format!("<WORLD {}>\n", world.number),
                     world
                         .fields
                         .iter()
@@ -196,11 +255,27 @@ pub fn stringify_script_txt(talks: &[String], worlds: &[LMWorld]) -> String {
                                     field.attrs.3,
                                     field.attrs.4
                                 ),
+                                format!("<CHIPLINE {},{}>\n", field.chip_line.0, field.chip_line.1),
+                                field.hits.iter().fold(String::new(), |mut output, (x, y)| {
+                                    writeln!(output, "<HIT {},{}>", x, y).unwrap();
+                                    output
+                                }),
                                 field
-                                    .children
+                                    .animes
                                     .iter()
-                                    .map(stringify_child)
-                                    .collect::<String>(),
+                                    .fold(String::new(), |mut output, anime| {
+                                        writeln!(
+                                            output,
+                                            "<ANIME {}>",
+                                            anime
+                                                .iter()
+                                                .map(|x| x.to_string())
+                                                .collect::<Vec<_>>()
+                                                .join(",")
+                                        )
+                                        .unwrap();
+                                        output
+                                    }),
                                 field
                                     .objects
                                     .iter()
@@ -215,10 +290,22 @@ pub fn stringify_script_txt(talks: &[String], worlds: &[LMWorld]) -> String {
                                                 "<MAP {},{},{}>\n",
                                                 map.attrs.0, map.attrs.1, map.attrs.2,
                                             ),
-                                            map.children
-                                                .iter()
-                                                .map(stringify_child)
-                                                .collect::<String>(),
+                                            format!(
+                                                "<UP {},{},{},{}>\n",
+                                                map.up.0, map.up.1, map.up.2, map.up.3,
+                                            ),
+                                            format!(
+                                                "<RIGHT {},{},{},{}>\n",
+                                                map.right.0, map.right.1, map.right.2, map.right.3,
+                                            ),
+                                            format!(
+                                                "<DOWN {},{},{},{}>\n",
+                                                map.down.0, map.down.1, map.down.2, map.down.3,
+                                            ),
+                                            format!(
+                                                "<LEFT {},{},{},{}>\n",
+                                                map.left.0, map.left.1, map.left.2, map.left.3,
+                                            ),
                                             map.objects
                                                 .iter()
                                                 .map(stringify_object)
@@ -242,20 +329,7 @@ pub fn stringify_script_txt(talks: &[String], worlds: &[LMWorld]) -> String {
     .join("")
 }
 
-fn stringify_child(child: &LMChild) -> String {
-    format!(
-        "<{} {}>\n",
-        child.name.to_uppercase(),
-        child
-            .attrs
-            .iter()
-            .map(|x| x.to_string())
-            .collect::<Vec<_>>()
-            .join(",")
-    )
-}
-
-fn stringify_object(object: &LMObject) -> String {
+fn stringify_object(object: &Object) -> String {
     format!(
         "<OBJECT {},{},{},{},{},{},{}>\n{}</OBJECT>\n",
         object.number,

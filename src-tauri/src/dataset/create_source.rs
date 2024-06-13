@@ -10,7 +10,7 @@ use crate::{
         storage::{ItemSpot, Shop},
         supplements::NIGHT_SURFACE_CHEST_COUNT,
     },
-    util::scriptdat::data::script::Script,
+    script::data::script::Script,
 };
 
 use super::{
