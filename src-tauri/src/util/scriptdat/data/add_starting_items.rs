@@ -5,6 +5,7 @@ use super::{
     script::{LMField, LMMap, LMWorld},
 };
 
+#[allow(clippy::too_many_arguments)]
 fn create_object(
     number: u16,
     x: i32,

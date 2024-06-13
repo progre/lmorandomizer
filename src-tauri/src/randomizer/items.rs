@@ -1,6 +1,6 @@
 #[derive(Clone, Copy)]
 #[repr(u8)]
-pub enum MainWeaponNumber {
+pub enum _MainWeaponNumber {
     Whip,
     ChainWhip,
     Mace,

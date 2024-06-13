@@ -125,6 +125,7 @@ fn shuffle(source: &Storage, rng: &mut impl Rng) -> Storage {
     )
 }
 
+#[allow(clippy::type_complexity)]
 fn distribute_items(
     items: &[Item],
     source: &Storage,
