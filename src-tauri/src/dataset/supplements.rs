@@ -16,7 +16,7 @@ pub struct Spot {
 #[derive(serde::Deserialize, serde::Serialize)]
 pub struct Shop {
     pub names: String,
-    requirements: Option<Vec<Vec<Requirement>>>,
+    pub requirements: Option<Vec<Vec<Requirement>>>,
 }
 
 #[derive(Debug, serde::Deserialize)]

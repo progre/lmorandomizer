@@ -22,7 +22,7 @@ export default async function randomize(
   const script = Script.from_object(await invoke('read_script_dat', { file: [...new Uint8Array(scriptDat)] }));
   console.timeEnd('readScriptDat');
   console.time('readSupplements');
-  const supplements = Supplements.from_object(await invoke('create_supplements', { supplementFiles }));
+  const supplements: Supplements = await invoke('create_supplements', { supplementFiles });
   console.timeEnd('readSupplements');
   console.time('randomize');
   await randomizeItems(script, supplements, options.seed);

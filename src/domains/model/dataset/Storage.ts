@@ -3,31 +3,36 @@ import Item from './Item';
 import Spot from './Spot';
 
 export default class Storage {
-  readonly allItems: ReadonlyArray<Item>;
+  allItems: ReadonlyArray<Item>;
 
-  static create(
-    mainWeaponShutters: ReadonlyArray<{ spot: Spot; item: Item }>,
-    subWeaponShutters: ReadonlyArray<{ spot: Spot; item: Item }>,
-    chests: ReadonlyArray<{ spot: Spot; item: Item }>,
-    sealChests: ReadonlyArray<{ spot: Spot; item: Item }>,
-    shops: ReadonlyArray<{ spot: Spot; items: [Item, Item, Item] }>,
-  ) {
-    return new this(
-      (() => {
-        const set = new Set<string>();
-        addSpotRequirementItemNamesTo(set, mainWeaponShutters);
-        addSpotRequirementItemNamesTo(set, subWeaponShutters);
-        addSpotRequirementItemNamesTo(set, chests);
-        addSpotRequirementItemNamesTo(set, sealChests);
-        addSpotRequirementItemNamesTo(set, shops);
-        return [...set].sort();
-      })(),
-      mainWeaponShutters,
-      subWeaponShutters,
-      chests,
-      sealChests,
-      shops,
+  static fromObject(obj: Storage) {
+    const thiz = new this(
+      obj.allRequirementNames,
+      obj.mainWeaponShutters.map(x => ({
+        spot: new Spot(x.spot.type, x.spot.requirementItems, x.spot.talkNumber),
+        item: new Item(x.item.name, x.item.type, x.item.number, x.item.count, x.item.flag),
+      })),
+      obj.subWeaponShutters.map(x => ({
+        spot: new Spot(x.spot.type, x.spot.requirementItems, x.spot.talkNumber),
+        item: new Item(x.item.name, x.item.type, x.item.number, x.item.count, x.item.flag),
+      })),
+      obj.chests.map(x => ({
+        spot: new Spot(x.spot.type, x.spot.requirementItems, x.spot.talkNumber),
+        item: new Item(x.item.name, x.item.type, x.item.number, x.item.count, x.item.flag),
+      })),
+      obj.sealChests.map(x => ({
+        spot: new Spot(x.spot.type, x.spot.requirementItems, x.spot.talkNumber),
+        item: new Item(x.item.name, x.item.type, x.item.number, x.item.count, x.item.flag),
+      })),
+      obj.shops.map(x => ({
+        spot: new Spot(x.spot.type, x.spot.requirementItems, x.spot.talkNumber),
+        items: <[Item, Item, Item]>x.items.map(y =>
+          new Item(y.name, y.type, y.number, y.count, y.flag),
+        ),
+      })),
     );
+    thiz.allItems = obj.allItems.map(x => new Item(x.name, x.type, x.number, x.count, x.flag));
+    return thiz;
   }
 
   constructor(
@@ -107,18 +112,5 @@ export default class Storage {
       this.shops
         .filter(x => !x.spot.isReachable(currentItemNames, sacredOrbCount)),
     );
-  }
-}
-
-function addSpotRequirementItemNamesTo(
-  set: Set<string>,
-  items: ReadonlyArray<{ spot: Spot }>,
-) {
-  for (const item of items) {
-    for (const group of item.spot.requirementItems || []) {
-      for (const i of group) {
-        set.add(i.name);
-      }
-    }
   }
 }

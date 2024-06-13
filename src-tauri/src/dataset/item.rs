@@ -1,4 +1,6 @@
-#[derive(Debug, serde::Deserialize, serde::Serialize)]
+use crate::randomizer::items::{EquipmentNumber, SubWeaponNumber};
+
+#[derive(Clone, Debug, serde::Deserialize, serde::Serialize)]
 pub struct Item {
     pub name: String,
     /// 'mainWeapon' | 'subWeapon' | 'equipment' | 'rom' | 'seal'
@@ -24,5 +26,22 @@ impl Item {
             count,
             flag,
         }
+    }
+
+    // chests -> equipments / rom
+    // chests <- subWeapon / subWeaponAmmo / equipments / rom / sign
+    // shops -> equipments / rom
+    // shops <- subWeapon / subWeaponAmmo / equipments / rom
+    pub fn can_display_in_shop(&self) -> bool {
+        self.flag % 256 != 0
+            && (self.r#type == "equipment"
+                && self.number != EquipmentNumber::Map as i8
+                && self.number != EquipmentNumber::SacredOrb as i8
+                || self.r#type == "rom"
+                || self.r#type == "subWeapon"
+                    && (self.count > 0
+                        || self.number == SubWeaponNumber::Pistol as i8
+                        || self.number == SubWeaponNumber::Buckler as i8
+                        || self.number == SubWeaponNumber::HandScanner as i8))
     }
 }

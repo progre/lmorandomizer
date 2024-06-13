@@ -165,8 +165,8 @@ fn create_item_from_shop(name: String, data: &ShopItemData) -> Item {
         } else {
             panic!("invalid value: {}", data.r#type)
         },
-        data.number as i8,
-        data.count as u8,
+        data.number,
+        data.count,
         data.flag,
     )
 }

@@ -1,7 +1,7 @@
-import assert from '../../../assert';
+import { invoke } from '@tauri-apps/api/core';
 import seedrandom, { prng } from 'seedrandom';
+import assert from '../../../assert';
 import Script from '../../util/scriptdat/data/Script';
-import createSource from '../dataset/createSource';
 import Item from '../dataset/Item';
 import Spot from '../dataset/Spot';
 import Storage from '../dataset/Storage';
@@ -14,7 +14,7 @@ export default async function randomizeItems(
   supplements: Supplements,
   seed: string,
 ) {
-  const source = await createSource(script, supplements);
+  const source = Storage.fromObject(await invoke('create_source', { script, supplements }));
   assert(validate(source));
   assertUnique(source);
   const shuffled = randomizeStorage(source, seedrandom(seed));

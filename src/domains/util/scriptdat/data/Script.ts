@@ -6,7 +6,6 @@ import {
   EquipmentNumber,
   SubWeaponNumber,
 } from '../../../model/randomizer/items';
-import { ShopItemData } from '../format/ShopItemsData';
 import LMObject from './LMObject';
 
 export type List<T> = ReadonlyArray<Readonly<T>>;
@@ -43,26 +42,6 @@ export default class Script {
     private talks: ReadonlyArray<string>,
     private worlds: ReadonlyArray<LMWorld>,
   ) {
-  }
-
-  mainWeapons(): Promise<ReadonlyArray<{ mainWeaponNumber: number; flag: number }>> {
-    return invoke('script_main_weapons', { this: this });
-  }
-
-  subWeapons(): Promise<ReadonlyArray<{ subWeaponNumber: number; count: number; flag: number }>> {
-    return invoke('script_sub_weapons', { this: this });
-  }
-
-  chests(): Promise<ReadonlyArray<{ chestItemNumber: number; openFlag: number; flag: number }>> {
-    return invoke('script_chests', { this: this });
-  }
-
-  seals(): Promise<ReadonlyArray<{ sealNumber: number; flag: number }>> {
-    return invoke('script_seals', { this: this });
-  }
-
-  shops(): Promise<ReadonlyArray<{ talkNumber: number; talking: string; items: ShopItemData[] }>> {
-    return invoke('script_shops', { this: this });
   }
 
   async replaceShops(shops: ReadonlyArray<{ spot: Spot; items: [Item, Item, Item] }>) {

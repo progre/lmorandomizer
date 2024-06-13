@@ -178,41 +178,6 @@ fn create_supplements(
 }
 
 #[tauri::command]
-fn script_main_weapons(
-    this: util::scriptdat::data::script::Script,
-) -> Vec<util::scriptdat::data::script::MainWeapon> {
-    util::scriptdat::data::script::Script::main_weapons(&this).unwrap()
-}
-
-#[tauri::command]
-fn script_sub_weapons(
-    this: util::scriptdat::data::script::Script,
-) -> Vec<util::scriptdat::data::script::SubWeapon> {
-    util::scriptdat::data::script::Script::sub_weapons(&this).unwrap()
-}
-
-#[tauri::command]
-fn script_chests(
-    this: util::scriptdat::data::script::Script,
-) -> Vec<util::scriptdat::data::script::ChestItem> {
-    util::scriptdat::data::script::Script::chests(&this).unwrap()
-}
-
-#[tauri::command]
-fn script_seals(
-    this: util::scriptdat::data::script::Script,
-) -> Vec<util::scriptdat::data::script::Seal> {
-    util::scriptdat::data::script::Script::seals(&this).unwrap()
-}
-
-#[tauri::command]
-fn script_shops(
-    this: util::scriptdat::data::script::Script,
-) -> Vec<util::scriptdat::data::script::Shop> {
-    util::scriptdat::data::script::Script::shops(&this).unwrap()
-}
-
-#[tauri::command]
 fn script_replace_shops(
     mut this: util::scriptdat::data::script::Script,
     shops: Vec<dataset::storage::Shop>,
@@ -252,6 +217,14 @@ fn get_all_items(
     dataset::get_all_items::get_all_items(&script, &supplements).unwrap()
 }
 
+#[tauri::command]
+fn create_source(
+    script: util::scriptdat::data::script::Script,
+    supplements: dataset::supplements::Supplements,
+) -> dataset::storage::Storage {
+    dataset::create_source::create_source(&script, &supplements).unwrap()
+}
+
 fn main() {
     let mut context = tauri::generate_context!();
     let Config { app, version, .. } = context.config_mut();
@@ -280,15 +253,11 @@ fn main() {
             build_script_dat,
             is_valid_script_dat,
             create_supplements,
-            script_main_weapons,
-            script_sub_weapons,
-            script_chests,
-            script_seals,
-            script_shops,
             script_replace_shops,
             script_replace_items,
             script_add_starting_items,
             get_all_items,
+            create_source,
         ])
         .run(context)
         .expect("error while running tauri application");

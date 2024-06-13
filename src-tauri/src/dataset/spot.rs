@@ -1,6 +1,6 @@
 use super::item::Item;
 
-#[derive(Debug, serde::Deserialize, serde::Serialize)]
+#[derive(Clone, Debug, serde::Deserialize, serde::Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Spot {
     /// 'weaponShutter' | 'chest' | 'shop' | 'sealChest'
@@ -27,5 +27,17 @@ impl Spot {
             requirement_items,
             talk_number,
         }
+    }
+
+    pub fn is_reachable(&self, current_item_names: &[String], sacred_orb_count: usize) -> bool {
+        let Some(requirement_items) = &self.requirement_items else {
+            return true;
+        };
+        requirement_items.iter().any(|group| {
+            group.iter().all(|x| {
+                x.name == "sacredOrb" && x.count as usize <= sacred_orb_count
+                    || current_item_names.contains(&&x.name)
+            })
+        })
     }
 }

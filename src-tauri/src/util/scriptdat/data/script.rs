@@ -78,7 +78,7 @@ pub struct Seal {
 #[derive(serde::Deserialize, serde::Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Shop {
-    talk_number: i32,
+    pub talk_number: i32,
     talking: String,
     pub items: (ShopItemData, ShopItemData, ShopItemData),
 }
