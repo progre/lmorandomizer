@@ -4,8 +4,10 @@ use anyhow::Result;
 
 use crate::{
     dataset::storage::{self, Storage},
-    randomizer::items::{EquipmentNumber, SubWeaponNumber},
-    script::format::scripttxtparser::{parse_script_txt, stringify_script_txt},
+    script::{
+        format::scripttxtparser::{parse_script_txt, stringify_script_txt},
+        items,
+    },
 };
 
 use super::{
@@ -94,7 +96,7 @@ impl Script {
                      chest_item_number, ..
                  }| {
                     *chest_item_number != -1
-                        && *chest_item_number != EquipmentNumber::SweetClothing as i16
+                        && *chest_item_number != items::Equipment::SweetClothing as i16
                 },
             )
             .collect())
@@ -125,8 +127,8 @@ impl Script {
 
     pub fn add_starting_items(
         &mut self,
-        equipment_list: &[EquipmentNumber],
-        sub_weapon_list: &[SubWeaponNumber],
+        equipment_list: &[items::Equipment],
+        sub_weapon_list: &[items::SubWeapon],
     ) {
         self.worlds = add_starting_items(take(&mut self.worlds), equipment_list, sub_weapon_list);
     }

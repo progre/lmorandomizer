@@ -1,4 +1,4 @@
-use crate::randomizer::items::{EquipmentNumber, SubWeaponNumber};
+use crate::script::items::{Equipment, SubWeapon};
 
 use super::{
     object::{LMStart, Object},
@@ -30,8 +30,8 @@ fn create_object(
 
 pub fn add_starting_items(
     worlds: Vec<World>,
-    equipment_list: &[EquipmentNumber],
-    sub_weapon_list: &[SubWeaponNumber],
+    equipment_list: &[Equipment],
+    sub_weapon_list: &[SubWeapon],
 ) -> Vec<World> {
     let unused_one_time_flag_no = 7400;
     let unused_save_flag_no = 6000;

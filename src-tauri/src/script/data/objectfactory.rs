@@ -1,6 +1,6 @@
 use anyhow::Result;
 
-use crate::{dataset::item::Item, randomizer::items::SubWeaponNumber};
+use crate::{dataset::item::Item, script::items::SubWeapon};
 
 use super::object::{LMStart, Object};
 
@@ -37,7 +37,7 @@ pub fn to_object_for_special_chest(old_obj: &Object, item: &Item) -> Result<Obje
     Ok(match item.r#type.as_ref() {
         "mainWeapon" => create_main_weapon(old_obj, item)?,
         "subWeapon" => {
-            debug_assert!(!(item.number == SubWeaponNumber::AnkhJewel as i8 && item.count > 1));
+            debug_assert!(!(item.number == SubWeapon::AnkhJewel as i8 && item.count > 1));
             create_sub_weapon(old_obj, item)?
         }
         "equipment" => Object {
@@ -68,11 +68,11 @@ pub fn to_object_for_special_chest(old_obj: &Object, item: &Item) -> Result<Obje
 pub fn to_objects_for_chest(old_obj: &Object, item: &Item) -> Result<Vec<Object>> {
     Ok(match item.r#type.as_ref() {
         "mainWeapon" => {
-            debug_assert!(!(item.number == SubWeaponNumber::AnkhJewel as i8 && item.count > 1));
+            debug_assert!(!(item.number == SubWeapon::AnkhJewel as i8 && item.count > 1));
             create_main_weapon_chest(old_obj, item)?
         }
         "subWeapon" => {
-            debug_assert!(!(item.number == SubWeaponNumber::AnkhJewel as i8 && item.count > 1));
+            debug_assert!(!(item.number == SubWeapon::AnkhJewel as i8 && item.count > 1));
             create_sub_weapon_chest(old_obj, item)?
         }
         "equipment" => vec![Object {

@@ -9,8 +9,10 @@ use crate::{
             TRUE_SHRINE_OF_THE_MOTHER_SEAL_COUNT,
         },
     },
-    randomizer::items::{EquipmentNumber, SubWeaponNumber},
-    script::format::shop_items_data::{self, ShopItemData},
+    script::{
+        format::shop_items_data::{self, ShopItemData},
+        items::{Equipment, SubWeapon},
+    },
 };
 
 use super::{
@@ -121,8 +123,7 @@ pub fn replace_items(worlds: Vec<World>, shuffled: &Storage) -> Result<Vec<World
                                                         [sub_weapon_spot_idx]
                                                         .item;
                                                     sub_weapon_spot_idx += 1;
-                                                    if obj.op1 == SubWeaponNumber::AnkhJewel as i32
-                                                    {
+                                                    if obj.op1 == SubWeapon::AnkhJewel as i32 {
                                                         if obj.op3 != 743 {
                                                             return Ok(vec![
                                                                 to_object_for_special_chest(
@@ -144,20 +145,19 @@ pub fn replace_items(worlds: Vec<World>, shuffled: &Storage) -> Result<Vec<World
                                                             item,
                                                         )?]);
                                                     }
-                                                    let next_shutter_check_flag = if obj.op1
-                                                        == SubWeaponNumber::Pistol as i32
-                                                    {
-                                                        get_next_breakable_wall_check_flag(
-                                                            &map.objects[i + 1..],
-                                                        )
-                                                    } else {
-                                                        get_next_shutter_check_flag(
-                                                            &map.objects[i + 1..],
-                                                        )
-                                                    }
-                                                    .ok_or(anyhow!(
-                                                        "next_shutter_check_flag not found"
-                                                    ))?;
+                                                    let next_shutter_check_flag =
+                                                        if obj.op1 == SubWeapon::Pistol as i32 {
+                                                            get_next_breakable_wall_check_flag(
+                                                                &map.objects[i + 1..],
+                                                            )
+                                                        } else {
+                                                            get_next_shutter_check_flag(
+                                                                &map.objects[i + 1..],
+                                                            )
+                                                        }
+                                                        .ok_or(anyhow!(
+                                                            "next_shutter_check_flag not found"
+                                                        ))?;
                                                     Ok(vec![to_object_for_shutter(
                                                         obj,
                                                         next_shutter_check_flag,
@@ -167,7 +167,7 @@ pub fn replace_items(worlds: Vec<World>, shuffled: &Storage) -> Result<Vec<World
                                                 1 => {
                                                     if obj.op2 == -1
                                                         || obj.op2
-                                                            == EquipmentNumber::SweetClothing as i32
+                                                            == Equipment::SweetClothing as i32
                                                     {
                                                         return Ok(vec![obj.clone()]);
                                                     }

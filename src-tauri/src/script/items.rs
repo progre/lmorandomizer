@@ -1,6 +1,6 @@
 #[derive(Clone, Copy)]
 #[repr(u8)]
-pub enum _MainWeaponNumber {
+pub enum _MainWeapon {
     Whip,
     ChainWhip,
     Mace,
@@ -12,7 +12,7 @@ pub enum _MainWeaponNumber {
 
 #[derive(Clone, Copy, serde_repr::Deserialize_repr, serde_repr::Serialize_repr)]
 #[repr(u8)]
-pub enum SubWeaponNumber {
+pub enum SubWeapon {
     Shuriken = 0,
     Touken,
     Spear,
@@ -30,7 +30,7 @@ pub enum SubWeaponNumber {
 
 #[derive(Clone, Copy, serde_repr::Deserialize_repr, serde_repr::Serialize_repr)]
 #[repr(u8)]
-pub enum EquipmentNumber {
+pub enum Equipment {
     /// 0 MSX
     Msx = 0,
     /// 1 ほら貝
