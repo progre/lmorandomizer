@@ -24,7 +24,7 @@
     - serpentStaff, knife
     - serpentStaff, axe
     - serpentStaff, katana
-    - serpentStaff, castlevania, mahjongWizard
+    - serpentStaff, castlevania, mahjongWizard, msx2 # need msx2 to equip rom combos
 - name: shellHorn
 # skip birthSeal
 - name: sacredOrb:surface
@@ -55,17 +55,17 @@
 # Spring in the Sky
 - name: sacredOrb:springInTheSky
   requirements:
-    - lifeSeal
+    - birthSeal # this requires birth seal. not life seal
 - name: glove
   requirements:
     - event:floodedSpringInTheSky
-- name: map:springInTheSky
-  requirements:
-    - helmet
-    - boots
+- name: map:springInTheSky # can make jumps over waterfalls from the start of the game
 - name: scalesphere
   requirements:
-    - sacredOrb:2, helmet, originSeal
+    - sacredOrb:2, helmet, originSeal, holyGrail
+    - scalesphere, helmet, originSeal # scalesphere as substitute for sacredOrbs
+    - sacredOrb:4, feather, grappleClaw, originSeal, holyGrail # sacredOrb amount untested
+    - scalesphere, feather, grappleClaw, originSeal # can double jump and grapple on to wall and elevator goes through you
 # skip originSeal
 # skip ankhJewel
 
@@ -80,7 +80,9 @@
 # Chamber of Extinction
 - name: sacredOrb:chamberOfExtinction
   requirements:
-    - event:lightedUpChamberOfExtinction
+    - event:lightedUpChamberOfExtinction, feather # need a way out
+    - event:lightedUpChamberOfExtinction, originSeal # need a way out. use in temple of the sun to remove block from top exit.
+    - event:lightedUpChamberOfExtinction, holygrail # need a way out
 - name: map:chamberOfExtinction
   requirements:
     - event:lightedUpChamberOfExtinction
@@ -91,7 +93,7 @@
 - name: twinStatue
   requirements:
     - keyOfEternity, handScanner, glyphReader, feather
-    - keyOfEternity, handScanner, glyphReader, grappleClaw
+    - keyOfEternity, handScanner, glyphReader, grappleClaw # might need boots
 
 # Shrine of the Mother
 - name: crystalSkull
@@ -102,7 +104,7 @@
     - event:reachedFrontOfShrineOfTheMother, originSeal, birthSeal, lifeSeal, deathSeal
 - name: diary
   requirements:
-    - event:reachedFrontOfShrineOfTheMother, talisman, lifeSeal, lampOfTime
+    - event:reachedFrontOfShrineOfTheMother, talisman, lifeSeal, lampOfTime, feather # need feather to reach diary chest
 - name: map:shrineOfTheMother
   requirements:
     - event:releasedTwins, dragonBone
@@ -125,49 +127,59 @@
 # Gate of Illusion
 - name: keyOfEternity
   requirements:
-    - event:reachedElevatorOfGateOfIllusion, axe
+    - event:reachedElevatorOfGateOfIllusion, event:miniDoll # any main weapon will work. need miniDoll to fight Shu
 - name: protectiveClothes
   requirements:
-    - event:reachedElevatorOfGateOfIllusion, katana, divinerSensation, event:qBert
+    - event:reachedElevatorOfGateOfIllusion, katana, divinerSensation, event:qBert, msx2 # need msx2 to equip diviner sensation and equip combos
 - name: map:gateOfIllusion
   requirements:
     - event:reachedFrontOfGateOfIllusion
 - name: cogOfTheSoul
   requirements:
-    - event:reachedBackDoorOfGateOfIllusion, event:reachedElevatorOfGateOfIllusion, lampOfTime
+    - event:reachedBackDoorOfGateOfIllusion, lampOfTime, event:miniDoll # need to kill Shu to open chest
 
 # Graveyard of the Giants
 - name: contra
   requirements:
-    - event:reachedBackDoorOfGraveyardOfTheGiants
+    - event:reachedLiarOfGraveyardOfTheGiants # need to reach top of Graveyard to acquire
+    - event:reachedFrontOfTempleOfMoonlight, katana, keySword, knife, shuriken
+    - event:reachedFrontOfTempleOfMoonlight, katana, keySword, knife, flaregun
+    - event:reachedFrontOfTempleOfMoonlight, katana, keySword, knife, spear
+    - event:reachedFrontOfTempleOfMoonlight, katana, keySword, knife, touken
 - name: map:graveyardOfTheGiants
   requirements:
-    - event:reachedFrontOfGraveyardOfTheGiants
+    - event:reachedFrontOfGraveyardOfTheGiants, feather # need help reaching weight dais
+    - event:reachedFrontOfGraveyardOfTheGiants, boots # need help reaching weight dais
 - name: gauntlet
   requirements:
     - event:reachedFrontOfGraveyardOfTheGiants, birthSeal, grappleClaw
-
+    
 # Tower of the Goddess
 - name: a1Spirit
   requirements:
     - event:reachedTowerOfTheGoddess, planeModel, pistol, ammunition
 - name: planeModel
   requirements:
-    - event:reachedTowerOfTheGoddess, feather, grappleClaw
+    - event:reachedTowerOfTheGoddess, feather, grappleClaw, boots, handScanner, glyphReader # need to flood Tower to open chest. need feather, grapple claw, and boots to climb Tower
 - name: map:TowerOfTheGoddess
   requirements:
     - event:reachedTowerOfTheGoddess
 - name: gradius
   requirements:
-    - event:reachedTowerOfTheGoddess, feather
+    - event:reachedTowerOfTheGoddess # do not need feather
 - name: eyeOfTruth
   requirements:
-    - event:reachedTowerOfTheGoddess
+    - event:reachedLowerOfChamberOfBirth # need to get by entrance to Chamber of Birth to place weights
 
 # Temple of Moonlight
 - name: bookOfTheDead
   requirements:
-    - event:reachedFrontOfTempleOfMoonlight, birthSeal
+    - event:reachedFrontOfTempleOfMoonlight, birthSeal, sacredOrb:4, feather # need to survive anubis attack. Need to get out
+    - event:reachedFrontOfTempleOfMoonlight, birthSeal, sacredOrb:4, grappleClaw # test sacred orb amount
+    - event:reachedFrontOfTempleOfMoonlight, birthSeal, sacredOrb:4, holyGrail # see above
+    - event:reachedFrontOfTempleOfMoonlight, birthSeal, bookOfTheDead, feather # book of the dead nullifies anubis attack
+    - event:reachedFrontOfTempleOfMoonlight, birthSeal, bookOfTheDead, grappleClaw # see above
+    - event:reachedFrontOfTempleOfMoonlight, birthSeal, bookOfTheDead, holyGrail # see above
 - name: iceCape
   requirements:
     - event:reachedGrailOfTempleOfMoonlight
@@ -180,7 +192,8 @@
 # skip open from front
 - name: ocarina
   requirements:
-    - flareGun, womanStatue
+    - flareGun, womanStatue, event:escapeFromTempleOfMoonlight # taking a one way warp. need a way out.
+    - flareGun, womanStatue, event:releasedTwins # can get out through Twin Labyrinth if it is open
 - name: serpentStaff
   requirements:
     - event:reachedFrontOfTempleOfMoonlight, grappleClaw
@@ -189,10 +202,11 @@
 # Tower of Ruin
 - name: djedPillar
   requirements:
-    - event:reachedBackDoorOfTowerOfRuin
+    - event:reachedBackDoorOfTowerOfRuin, ocarina, event:mulanaTalisman # need to talk to sage in Spring in the Sky
 - name: map:towerOfRuin
   requirements:
-    - event:reachedFrontOfTowerOfRuin
+    - event:reachedFrontOfTowerOfRuin, feather # need help making jump past Thunderbird
+    - event:reachedFrontOfTowerOfRuin, boots # need help making jump past Thunderbird
 - name: sacredOrb:towerOfRuin
   requirements:
     - event:reachedFrontOfTowerOfRuin
@@ -218,10 +232,10 @@
 # Dimensional Corridor
 - name: magatamaJewel
   requirements:
-    - event:defeatedTiamat
+    - event:defeatedTiamat, event:mulanaTalisman
 - name: sacredOrb:dimensionalCorridor
   requirements:
-    - event:reachedDimensionalCorridor, feather, lampOfTime, grappleClaw
+    - event:reachedDimensionalCorridor, feather, lampOfTime # do not need grapple claw
 # skip ankhJewel
 - name: map:dimensionalCorridor
   requirements:
