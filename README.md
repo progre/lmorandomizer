@@ -10,7 +10,7 @@ This tool was inspired by [La-Mulana Randomizer](https://github.com/thezerothcat
 
 <img width="750" src="window.png">
 
-**[Latest version is here](https://github.com/solairflaire/lmorandomizer/releases)**
+**[Latest version is here](https://github.com/progre/lmorandomizer/releases)**
 
 ----
 
@@ -22,14 +22,11 @@ This application randomizes items in the La-Mulana script.dat file. Even after r
 If you feel stuck, see some tips below. They may help.
 
 ----
+
 How to use
 ----
 
 Place seed and La-Mulana install directory, select options, then push Apply.
-Xelpud Care Package gives *Game Master*, *Hand Scanner*, *Glyph Reader*, *Holy Grail*, and a pot with some money and weights that respawns on load.
-
-Backside ROM combo is *Antarctic Adventure* and *Comic Bakery*. One is under the Birth Seal in *Inferno Cavern*.
-The other is under the weight dais that activates the grail warp elevators in *Twin Labyrinth*.
 
 ### Current restrictions
 
@@ -49,7 +46,7 @@ The other is under the weight dais that activates the grail warp elevators in *T
 
 ### Stuck?
 
-  - The *Talisman*, *Diary*, and *Treasure* are still there even if they're overwritten by a different item on the inventory screen.
-  - The top right section of *Spring in the Sky* is accessible without the helmet. Use the *Feather* and *Grapple Claw* to get on the elevator.
-  - The bombable wall in *Graveyard of the Giants* can be opened from the left side if you have *Bombs* and enough health.
-  - Palenque's section of *Chamber of Extinction* can be accessed through the Gate of Time. Climb up the ladder and you get warped there.
+- The *Talisman*, *Diary*, and *Treasure* are still there even if they're overwritten by a different item on the inventory screen.
+- The top right section of *Spring in the Sky* is accessible without the helmet. Use the *Feather* and *Grapple Claw* to get on the elevator.
+- The bombable wall in *Graveyard of the Giants* can be opened from the left side if you have *Bombs* and enough health.
+- Palenque's section of *Chamber of Extinction* can be accessed through the Gate of Time. Climb up the ladder and you get warped there.

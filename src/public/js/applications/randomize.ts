@@ -4,10 +4,6 @@ import {
   buildScriptDat,
   readScriptDat,
 } from '../domains/util/scriptdat/format/scriptconverter';
-import {
-  equipmentNumbers,
-  subWeaponNumbers,
-} from '../domains/model/randomizer/items'
 
 export default function randomize(
   wasm: any,
@@ -37,12 +33,12 @@ export default function randomize(
     console.time('addItems');
     script.addStartingItems(
       [
-        equipmentNumbers.holyGrail,
+        // equipmentNumbers.holyGrail,
         100,
-        102,
+        // 102,
       ],
       [
-        subWeaponNumbers.handScanner,
+        // subWeaponNumbers.handScanner,
       ],
     );
     console.timeEnd('addItems');
