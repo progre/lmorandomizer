@@ -15,27 +15,21 @@
 - names: toukenAmmo, spearAmmo, flareGunAmmo
   requirements:
     - shuriken, shurikenAmmo
-    - pistol, ammunition # pistol can hit face
-    - bomb, bombAmmo # bombs can be thrown over wall and hit face
+    - pistol, ammunition # pistol can reach
+    - bomb, bombAmmo # bombs can reach
     - feather
 - names: heatproofCase, divinerSensation, weights
 - names: ammunition, bombAmmo, shurikenAmmo
   requirements:
-    - deathSeal, feather # need feather to reach seal location
+    - deathSeal, feather # need feather
 
 # Spring in the Sky
 - names: weights, shurikenAmmo, toukenAmmo
   requirements:
-    - sacredOrb:2, originSeal, helmet # need way past waterfall
-    - scalesphere, originSeal, helmet # need way past waterfall
-    - sacredOrb:4, originSeal, feather, grappleClaw # need way past waterfall
-    - scalesphere, originSeal, feather, grappleClaw # need way past waterfall
+    - event:SpringElevator, originSeal # more varied ways to reach
 - names: shellHorn, finder, castlevania
   requirements:
-    - sacredOrb:2, originSeal, divinerSensation, event:qBert, msx2, helmet # need way past waterfall. 
-    - scalesphere, originSeal, divinerSensation, event:qBert, msx2, helmet # msx2 required to equip diviner sensation.
-    - sacredOrb:4, originSeal, feather, grappleClaw, divinerSensation, event:qBert, msx2 # need a way past waterfall
-    - scalesphere, originSeal, feather, grappleClaw, divinerSensation, event:qBert, msx2 # need a way past waterfall
+    - event:SpringElevator, originSeal, divinerSensation, event:qBert, msx2 # need msx2
 
 # Inferno Cavern
 - names: mahjongWizard, spearAmmo, toukenAmmo
@@ -56,7 +50,7 @@
 - names: helmet, bombAmmo, fakeHandScanner
 - names: lampOfTime, shurikenAmmo, toukenAmmo
   requirements:
-    - event:releasedTwins, feather, boots # puzzle unsolvable. need boots and feather to make jump.
+    - event:releasedTwins, feather, boots # need feather and boots. puzzle is unsolvable so bombs not needed
 
 # Twin Labyrinths (back)
 - names: scriptures, bombAmmo, spearAmmo
@@ -74,21 +68,20 @@
 # Graveyard of the Giants
 - names: spearAmmo, fakeSilverShield, weights
   requirements:
-    - event:reachedLiarOfGraveyardOfTheGiants
+    - event:reachedLiarOfGraveyardOfTheGiants # need to reach Liar shop not just front door
 
 # Tower of the Goddess
 
 # Temple of Moonlight
 - names: bracelet, shurikenAmmo, ammunition
   requirements:
-    - event:reachedFrontOfTempleOfMoonlight, bomb, bombAmmo, bookOfTheDead # need to survive anubis
-    - event:reachedFrontOfTempleOfMoonlight, bomb, bombAmmo, sacredOrb:3 # untested sacred orb amount
+    - event:reachedFrontOfTempleOfMoonlight, bomb, bombAmmo, event:surviveAnubis # survive anubis
 
 # Tower of Ruin
 - names: knightmare, bombAmmo, flareGunAmmo
   requirements:
     - event:reachedFrontOfTowerOfRuin, katana, feather
-    - event:reachedFrontOfTowerOfRuin, katana, grappleClaw, boots # possible to grab wall and get on platform with door
+    - event:reachedFrontOfTowerOfRuin, katana, boots, grappleClaw # can reach with boots and grapple claw
 
 # Chamber of Birth
 - names: ammunition, ankhJewel:chamberOfBirth, weights

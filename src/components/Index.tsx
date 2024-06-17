@@ -57,7 +57,7 @@ export default function Index(props: {
               onClick={props.onClickRestore}
             >
               Restore
-          </Button>
+            </Button>
             {!props.isProcessingRestore ? '' : (
               <CircularProgress size={24} style={{
                 position: 'absolute',
@@ -75,7 +75,7 @@ export default function Index(props: {
               onClick={props.onClickApply}
             >
               Apply
-          </Button>
+            </Button>
             {!props.isProcessingApply ? '' : (
               <CircularProgress size={24} style={{
                 position: 'absolute',
@@ -104,7 +104,7 @@ export default function Index(props: {
               onClick={props.onCloseSnackbar}
             >
               ✕
-          </IconButton>,
+            </IconButton>,
           ]}
         />
       </div>

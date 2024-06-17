@@ -2,8 +2,8 @@ mainWeapons:
   - name: knife
     requirements:
       - shuriken
-      - pistol, ammunition # can shoot face with pistol
-      - bomb, bombAmmo # can throw bomb and hit face
+      - pistol, ammunition # pistol can reach
+      - bomb, bombAmmo # bombs can reach
   - name: chainWhip
     requirements:
       - birthSeal, grappleClaw
@@ -32,6 +32,8 @@ subWeapons:
     requirements:
       - scalesphere
   - name: flareGun
+    requirements:
+      - glove # super boring puzzle without gloves
   - name: ankhJewel:twinLabyrinths
     requirements:
       - event:releasedTwins
@@ -49,7 +51,7 @@ subWeapons:
       - event:reachedFrontOfTowerOfRuin
   - name: angelShield
     requirements:
-      - event:reachedDimensionalCorridor
+      - event:reachedDimensionalCorridor, sacredOrb:2 # should have some health to beat bosses
   - name: ankhJewel:dimensionalCorridor
     requirements:
       - event:reachedDimensionalCorridor
