@@ -57,16 +57,16 @@ fn to_shop_item(old_item: &ShopItem, new_item: &Item) -> Result<ShopItem> {
         "mainWeapon" => unreachable!(),
         "subWeapon" => ShopItem::sub_weapon(number, price, count, set_flag),
         "equipment" => {
-            // if count.is_some() {
-            //     bail!("equipment count must be None");
-            // }
-            ShopItem::equipment(number, price, count, set_flag)
+            if count.is_some() {
+                bail!("equipment count must be None");
+            }
+            ShopItem::equipment(number, price, set_flag)
         }
         "rom" => {
-            // if count.is_some() {
-            //     bail!("rom count must be None");
-            // }
-            ShopItem::rom(number, price, count, set_flag)
+            if count.is_some() {
+                bail!("rom count must be None");
+            }
+            ShopItem::rom(number, price, set_flag)
         }
         "seal" => unreachable!(),
         _ => unreachable!(),

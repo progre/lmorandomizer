@@ -26,7 +26,7 @@ pub fn stringify(items: (ShopItem, ShopItem, ShopItem)) -> Result<String> {
     Ok(byte_code_to_text(&data))
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq)]
 #[repr(u8)]
 pub enum ShopItemType {
     SubWeapon = 0,
@@ -53,36 +53,44 @@ impl ShopItem {
             set_flag,
         }
     }
-    pub fn equipment(number: u8, price: u16, count: Option<NonZero<u8>>, set_flag: u16) -> Self {
+    pub fn equipment(number: u8, price: u16, set_flag: u16) -> Self {
         Self {
             shop_item_type: ShopItemType::Item,
             number,
             price,
-            count,
+            count: None,
             set_flag,
         }
     }
-    pub fn rom(number: u8, price: u16, count: Option<NonZero<u8>>, set_flag: u16) -> Self {
+    pub fn rom(number: u8, price: u16, set_flag: u16) -> Self {
         Self {
             shop_item_type: ShopItemType::Rom,
             number,
             price,
-            count,
+            count: None,
             set_flag,
         }
     }
 
     fn from_bytes(data: &[u8]) -> Result<Self> {
+        let shop_item_type = match data[0] - 1 {
+            0 => ShopItemType::SubWeapon,
+            1 => ShopItemType::Item,
+            2 => ShopItemType::Rom,
+            _ => return Err(anyhow!("Invalid shop item type: {}", data[0] - 1)),
+        };
+        let number = data[1] - 1;
+        // Only 占いセンセーション(72) is not in accordance with the specifications
+        let count = if shop_item_type == ShopItemType::Rom && number == 72 {
+            None
+        } else {
+            NonZero::new(data[4] - 1)
+        };
         Ok(Self {
-            shop_item_type: match data[0] - 1 {
-                0 => ShopItemType::SubWeapon,
-                1 => ShopItemType::Item,
-                2 => ShopItemType::Rom,
-                _ => return Err(anyhow!("Invalid shop item type: {}", data[0] - 1)),
-            },
-            number: data[1] - 1,
+            shop_item_type,
+            number,
             price: (((data[2] - 1) as u16) << 8) + data[3] as u16,
-            count: NonZero::new(data[4] - 1),
+            count,
             set_flag: (((data[5] - 1) as u16) << 8) + data[6] as u16, // 254 * 256 + 255 is no set flag
         })
     }

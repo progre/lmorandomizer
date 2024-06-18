@@ -48,7 +48,7 @@ fn main_weapons(script: &Script, supplements: &Supplements) -> Result<Vec<Item>>
                 supplement.name.clone(),
                 "mainWeapon".to_owned(),
                 data.main_weapon_number as i8,
-                1, // Count of main weapon is always 1.
+                0, // Count of main weapon is always 0.
                 data.flag,
             )
         })
@@ -102,7 +102,7 @@ fn chests(script: &Script, supplements: &Supplements) -> Result<Vec<Item>> {
                 } else {
                     (data.chest_item_number - 100) as i8
                 },
-                1, // Count of chest item is always 1.
+                0, // Count of chest item is always 0.
                 data.flag,
             )
         })
@@ -125,7 +125,7 @@ fn seals(script: &Script, supplements: &Supplements) -> Result<Vec<Item>> {
                 supplement.name.clone(),
                 "seal".to_owned(),
                 data.seal_number as i8,
-                1, // Count of seal is always 1.
+                0, // Count of seal is always 0.
                 data.flag,
             )
         })
