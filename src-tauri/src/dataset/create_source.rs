@@ -5,23 +5,21 @@ use log::warn;
 
 use crate::{
     dataset::{
-        get_all_items::AllItems,
+        item::Item,
         spot::Spot,
+        storage::Storage,
         storage::{ItemSpot, Shop},
         supplements::NIGHT_SURFACE_CHEST_COUNT,
+        supplements::{self, Requirement, SupplementFiles, Supplements},
     },
     script::data::script::Script,
 };
 
-use super::{
-    get_all_items::get_all_items,
-    item::Item,
-    storage::Storage,
-    supplements::{self, Requirement, Supplements},
-};
+use super::get_all_items::{get_all_items, AllItems};
 
-pub fn create_source(script: &Script, supplements: &Supplements) -> Result<Storage> {
-    let all_items = get_all_items(script, supplements)?;
+pub fn create_source(script: &Script, supplement_files: &SupplementFiles) -> Result<Storage> {
+    let supplements = Supplements::new(supplement_files);
+    let all_items = get_all_items(script, &supplements)?;
     let enumerate_items: Vec<_> = all_items
         .main_weapons
         .iter()
@@ -31,7 +29,7 @@ pub fn create_source(script: &Script, supplements: &Supplements) -> Result<Stora
         .chain(all_items.shops.iter().flat_map(|(a, b, c)| [a, b, c]))
         .cloned()
         .collect();
-    ware_missing_requirements(supplements, &enumerate_items);
+    ware_missing_requirements(&supplements, &enumerate_items);
     let chest_data_list = script.chests()?;
     debug_assert_eq!(
         chest_data_list.len(),

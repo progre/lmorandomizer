@@ -1,17 +1,17 @@
+mod randomize_items;
+mod shuffle_utils;
+mod validate;
+
 use anyhow::Result;
 use randomize_items::randomize_items;
 
 use crate::{
-    dataset::supplements::{SupplementFiles, Supplements},
+    dataset::{create_source::create_source, supplements::SupplementFiles},
     script::{
         format::scriptconverter::{build_script_dat, read_script_dat},
         items::Equipment,
     },
 };
-
-mod randomize_items;
-mod shuffle_utils;
-mod validate;
 
 #[derive(serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -26,8 +26,8 @@ pub fn randomize(
     options: &RandomizeOptions,
 ) -> Result<Vec<u8>> {
     let mut script = read_script_dat(script_dat)?;
-    let supplements = Supplements::new(supplement_files);
-    randomize_items(&mut script, &supplements, &options.seed)?;
+    let source = create_source(&script, supplement_files)?;
+    randomize_items(&mut script, &source, &options.seed)?;
     if options.easy_mode {
         script.add_starting_items(&[Equipment::GameMaster], &[]);
     }

@@ -14,16 +14,21 @@ pub struct Shop {
     pub items: (Item, Item, Item),
 }
 
-#[derive(Clone, serde::Deserialize, serde::Serialize)]
+#[derive(Clone, getset::Getters, serde::Deserialize, serde::Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Storage {
-    pub all_items: Vec<Item>,
-    pub all_requirement_names: Vec<String>,
-    pub main_weapon_shutters: Vec<ItemSpot>,
-    pub sub_weapon_shutters: Vec<ItemSpot>,
-    pub chests: Vec<ItemSpot>,
-    pub seal_chests: Vec<ItemSpot>,
-    pub shops: Vec<Shop>,
+    #[get = "pub"]
+    all_requirement_names: Vec<String>,
+    #[get = "pub"]
+    main_weapon_shutters: Vec<ItemSpot>,
+    #[get = "pub"]
+    sub_weapon_shutters: Vec<ItemSpot>,
+    #[get = "pub"]
+    chests: Vec<ItemSpot>,
+    #[get = "pub"]
+    seal_chests: Vec<ItemSpot>,
+    #[get = "pub"]
+    shops: Vec<Shop>,
 }
 
 impl Storage {
@@ -72,22 +77,7 @@ impl Storage {
         debug_assert!(seal_chests.iter().all(|x| x.spot.r#type == "sealChest"));
         debug_assert!(shops.iter().all(|x| x.spot.r#type == "shop"));
 
-        let mut all_items: Vec<_> = main_weapon_shutters
-            .iter()
-            .map(|x| x.item.clone())
-            .chain(sub_weapon_shutters.iter().map(|x| x.item.clone()))
-            .chain(chests.iter().map(|x| x.item.clone()))
-            .chain(seal_chests.iter().map(|x| x.item.clone()))
-            .chain(
-                shops
-                    .iter()
-                    .flat_map(|x| [x.items.0.clone(), x.items.1.clone(), x.items.2.clone()]),
-            )
-            .collect();
-        all_items.sort_by_cached_key(|x| x.can_display_in_shop());
-
         Self {
-            all_items,
             all_requirement_names,
             main_weapon_shutters,
             sub_weapon_shutters,
@@ -95,6 +85,24 @@ impl Storage {
             seal_chests,
             shops,
         }
+    }
+
+    pub fn all_items(&self) -> Vec<&Item> {
+        let mut all_items: Vec<_> = self
+            .main_weapon_shutters
+            .iter()
+            .map(|x| &x.item)
+            .chain(self.sub_weapon_shutters.iter().map(|x| &x.item))
+            .chain(self.chests.iter().map(|x| &x.item))
+            .chain(self.seal_chests.iter().map(|x| &x.item))
+            .chain(
+                self.shops
+                    .iter()
+                    .flat_map(|x| [&x.items.0, &x.items.1, &x.items.2]),
+            )
+            .collect();
+        all_items.sort_by_cached_key(|x| x.can_display_in_shop());
+        all_items
     }
 
     pub fn reachable_item_names(

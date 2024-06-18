@@ -8,10 +8,8 @@ use rand_xoshiro::Xoshiro256PlusPlus;
 
 use crate::{
     dataset::{
-        create_source::create_source,
         item::Item,
         storage::{ItemSpot, Shop, Storage},
-        supplements::Supplements,
     },
     randomizer::{
         shuffle_utils::{select_random, shuffle_simply},
@@ -20,15 +18,14 @@ use crate::{
     script::data::script::Script,
 };
 
-pub fn randomize_items(script: &mut Script, supplements: &Supplements, seed: &str) -> Result<()> {
-    let source = create_source(script, supplements)?;
-    debug_assert!(validate(&source));
-    assert_unique(&source);
+pub fn randomize_items(script: &mut Script, source: &Storage, seed: &str) -> Result<()> {
+    debug_assert!(validate(source));
+    assert_unique(source);
     let mut rng: Xoshiro256PlusPlus = Seeder::from(seed).make_rng();
-    let shuffled = randomize_storage(&source, &mut rng);
+    let shuffled = randomize_storage(source, &mut rng);
     assert_unique(&shuffled);
     script.replace_items(&shuffled)?;
-    script.replace_shops(&shuffled.shops)?;
+    script.replace_shops(shuffled.shops())?;
     Ok(())
 }
 
@@ -50,32 +47,32 @@ fn randomize_storage(source: &Storage, rng: &mut impl Rng) -> Storage {
 }
 
 fn shuffle(source: &Storage, rng: &mut impl Rng) -> Storage {
-    let all_items = &source.all_items;
+    let all_items = source.all_items();
     let (
         mut new_main_weapon_shutters,
         mut new_sub_weapon_shutters,
         mut new_chest_items,
         mut new_seal_chest_items,
         mut new_shop_items,
-    ) = distribute_items(all_items, source, rng);
+    ) = distribute_items(&all_items, source, rng);
     debug_assert_eq!(
-        source.main_weapon_shutters.len(),
+        source.main_weapon_shutters().len(),
         new_main_weapon_shutters.len()
     );
     debug_assert_eq!(
-        source.sub_weapon_shutters.len(),
+        source.sub_weapon_shutters().len(),
         new_sub_weapon_shutters.len()
     );
-    debug_assert_eq!(source.chests.len(), new_chest_items.len());
-    debug_assert_eq!(source.seal_chests.len(), new_seal_chest_items.len());
-    debug_assert_eq!(source.shops.len(), new_shop_items.len());
+    debug_assert_eq!(source.chests().len(), new_chest_items.len());
+    debug_assert_eq!(source.seal_chests().len(), new_seal_chest_items.len());
+    debug_assert_eq!(source.shops().len(), new_shop_items.len());
     shuffle_simply(&mut new_main_weapon_shutters, rng);
     let main_weapon_shutters = new_main_weapon_shutters
         .into_iter()
         .enumerate()
         .map(|(i, item)| ItemSpot {
             item,
-            spot: source.main_weapon_shutters[i].spot.clone(),
+            spot: source.main_weapon_shutters()[i].spot.clone(),
         })
         .collect();
     shuffle_simply(&mut new_sub_weapon_shutters, rng);
@@ -84,7 +81,7 @@ fn shuffle(source: &Storage, rng: &mut impl Rng) -> Storage {
         .enumerate()
         .map(|(i, item)| ItemSpot {
             item,
-            spot: source.sub_weapon_shutters[i].spot.clone(),
+            spot: source.sub_weapon_shutters()[i].spot.clone(),
         })
         .collect();
     shuffle_simply(&mut new_chest_items, rng);
@@ -93,7 +90,7 @@ fn shuffle(source: &Storage, rng: &mut impl Rng) -> Storage {
         .enumerate()
         .map(|(i, item)| ItemSpot {
             item,
-            spot: source.chests[i].spot.clone(),
+            spot: source.chests()[i].spot.clone(),
         })
         .collect();
     shuffle_simply(&mut new_seal_chest_items, rng);
@@ -102,7 +99,7 @@ fn shuffle(source: &Storage, rng: &mut impl Rng) -> Storage {
         .enumerate()
         .map(|(i, item)| ItemSpot {
             item,
-            spot: source.seal_chests[i].spot.clone(),
+            spot: source.seal_chests()[i].spot.clone(),
         })
         .collect();
     shuffle_simply(&mut new_shop_items, rng);
@@ -111,12 +108,12 @@ fn shuffle(source: &Storage, rng: &mut impl Rng) -> Storage {
         .enumerate()
         .map(|(i, items)| Shop {
             items,
-            spot: source.shops[i].spot.clone(),
+            spot: source.shops()[i].spot.clone(),
         })
         .collect();
     debug_assert!(shops.iter().all(|x| x.spot.talk_number.is_some()));
     Storage::new(
-        source.all_requirement_names.clone(),
+        source.all_requirement_names().clone(),
         main_weapon_shutters,
         sub_weapon_shutters,
         chests,
@@ -127,7 +124,7 @@ fn shuffle(source: &Storage, rng: &mut impl Rng) -> Storage {
 
 #[allow(clippy::type_complexity)]
 fn distribute_items(
-    items: &[Item],
+    items: &[&Item],
     source: &Storage,
     rng: &mut impl Rng,
 ) -> (
@@ -139,28 +136,28 @@ fn distribute_items(
 ) {
     debug_assert_eq!(
         items.len(),
-        source.main_weapon_shutters.len()
-            + source.sub_weapon_shutters.len()
-            + source.chests.len()
-            + source.seal_chests.len()
-            + source.shops.len() * 3,
+        source.main_weapon_shutters().len()
+            + source.sub_weapon_shutters().len()
+            + source.chests().len()
+            + source.seal_chests().len()
+            + source.shops().len() * 3,
     );
     let mut new_main_weapon_shutters: Vec<Item> = Vec::new();
     let mut new_sub_weapon_shutters: Vec<Item> = Vec::new();
     let mut new_chest_items: Vec<Item> = Vec::new();
     let mut new_seal_chest_items: Vec<Item> = Vec::new();
     let mut new_shop_items: Vec<Item> = Vec::new();
-    for item in items {
+    for &item in items {
         match select_random(
             &[
-                source.main_weapon_shutters.len() - new_main_weapon_shutters.len(),
-                source.sub_weapon_shutters.len() - new_sub_weapon_shutters.len(),
-                source.chests.len() - new_chest_items.len(),
-                source.seal_chests.len() - new_seal_chest_items.len(),
+                source.main_weapon_shutters().len() - new_main_weapon_shutters.len(),
+                source.sub_weapon_shutters().len() - new_sub_weapon_shutters.len(),
+                source.chests().len() - new_chest_items.len(),
+                source.seal_chests().len() - new_seal_chest_items.len(),
                 if !item.can_display_in_shop() {
                     0
                 } else {
-                    source.shops.len() * 3 - new_shop_items.len()
+                    source.shops().len() * 3 - new_shop_items.len()
                 },
             ],
             rng,
@@ -190,14 +187,14 @@ fn assert_unique(storage: &Storage) {
     let mut flag_map: HashMap<String, ItemSpot> = HashMap::new();
 
     storage
-        .main_weapon_shutters
+        .main_weapon_shutters()
         .iter()
-        .chain(storage.sub_weapon_shutters.iter())
-        .chain(storage.chests.iter())
-        .chain(storage.seal_chests.iter())
+        .chain(storage.sub_weapon_shutters().iter())
+        .chain(storage.chests().iter())
+        .chain(storage.seal_chests().iter())
         .chain(
             storage
-                .shops
+                .shops()
                 .iter()
                 .flat_map(|x| {
                     [x.items.0.clone(), x.items.1.clone(), x.items.2.clone()]

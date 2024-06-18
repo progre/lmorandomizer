@@ -4,14 +4,13 @@ use crate::{
     dataset::{
         item::Item,
         supplements::{
-            NIGHT_SURFACE_CHEST_COUNT, NIGHT_SURFACE_SEAL_COUNT, NIGHT_SURFACE_SUB_WEAPON_COUNT,
-            TRUE_SHRINE_OF_THE_MOTHER_SEAL_COUNT, WARE_NO_MISE_COUNT,
+            Supplements, NIGHT_SURFACE_CHEST_COUNT, NIGHT_SURFACE_SEAL_COUNT,
+            NIGHT_SURFACE_SUB_WEAPON_COUNT, TRUE_SHRINE_OF_THE_MOTHER_SEAL_COUNT,
+            WARE_NO_MISE_COUNT,
         },
     },
     script::{data::script::Script, format::shop_items_data::ShopItemData},
 };
-
-use super::supplements::Supplements;
 
 #[derive(serde::Deserialize, serde::Serialize)]
 #[serde(rename_all = "camelCase")]

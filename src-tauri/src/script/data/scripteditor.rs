@@ -90,7 +90,7 @@ pub fn replace_items(worlds: Vec<World>, shuffled: &Storage) -> Result<Vec<World
                                             .enumerate()
                                             .map(|(i, obj)| match obj.number {
                                                 77 => {
-                                                    let item = &shuffled.main_weapon_shutters
+                                                    let item = &shuffled.main_weapon_shutters()
                                                         [main_weapon_spot_idx]
                                                         .item;
                                                     main_weapon_spot_idx += 1;
@@ -110,16 +110,16 @@ pub fn replace_items(worlds: Vec<World>, shuffled: &Storage) -> Result<Vec<World
                                                 13 => {
                                                     // TODO: nightSurface
                                                     if sub_weapon_spot_idx
-                                                        >= shuffled.sub_weapon_shutters.len()
+                                                        >= shuffled.sub_weapon_shutters().len()
                                                     {
                                                         let sum =
-                                                            shuffled.sub_weapon_shutters.len()
+                                                            shuffled.sub_weapon_shutters().len()
                                                                 + NIGHT_SURFACE_SUB_WEAPON_COUNT;
                                                         debug_assert!(sub_weapon_spot_idx < sum);
                                                         sub_weapon_spot_idx += 1;
                                                         return Ok(vec![obj.clone()]);
                                                     }
-                                                    let item = &shuffled.sub_weapon_shutters
+                                                    let item = &shuffled.sub_weapon_shutters()
                                                         [sub_weapon_spot_idx]
                                                         .item;
                                                     sub_weapon_spot_idx += 1;
@@ -172,8 +172,8 @@ pub fn replace_items(worlds: Vec<World>, shuffled: &Storage) -> Result<Vec<World
                                                         return Ok(vec![obj.clone()]);
                                                     }
                                                     // TODO: nightSurface
-                                                    if chest_idx >= shuffled.chests.len() {
-                                                        let sum = shuffled.chests.len()
+                                                    if chest_idx >= shuffled.chests().len() {
+                                                        let sum = shuffled.chests().len()
                                                             + NIGHT_SURFACE_CHEST_COUNT;
                                                         debug_assert!(chest_idx < sum);
                                                         chest_idx += 1;
@@ -182,9 +182,10 @@ pub fn replace_items(worlds: Vec<World>, shuffled: &Storage) -> Result<Vec<World
                                                     let item: &Item;
                                                     // twinStatue
                                                     if obj.op1 == 420 {
-                                                        item = &shuffled.chests[chest_idx - 1].item;
+                                                        item =
+                                                            &shuffled.chests()[chest_idx - 1].item;
                                                     } else {
-                                                        item = &shuffled.chests[chest_idx].item;
+                                                        item = &shuffled.chests()[chest_idx].item;
                                                         chest_idx += 1;
                                                     }
                                                     to_objects_for_chest(obj, item)
@@ -192,17 +193,19 @@ pub fn replace_items(worlds: Vec<World>, shuffled: &Storage) -> Result<Vec<World
                                                 71 => {
                                                     // TODO: trueShrineOfTheMother
                                                     // TODO: nightSurface
-                                                    if seal_chest_idx >= shuffled.seal_chests.len()
+                                                    if seal_chest_idx
+                                                        >= shuffled.seal_chests().len()
                                                     {
-                                                        let sum = shuffled.seal_chests.len()
+                                                        let sum = shuffled.seal_chests().len()
                                                             + TRUE_SHRINE_OF_THE_MOTHER_SEAL_COUNT
                                                             + NIGHT_SURFACE_SEAL_COUNT;
                                                         debug_assert!(seal_chest_idx < sum);
                                                         seal_chest_idx += 1;
                                                         return Ok(vec![obj.clone()]);
                                                     }
-                                                    let item =
-                                                        &shuffled.seal_chests[seal_chest_idx].item;
+                                                    let item = &shuffled.seal_chests()
+                                                        [seal_chest_idx]
+                                                        .item;
                                                     seal_chest_idx += 1;
                                                     Ok(vec![to_object_for_special_chest(
                                                         obj, item,
@@ -215,7 +218,7 @@ pub fn replace_items(worlds: Vec<World>, shuffled: &Storage) -> Result<Vec<World
                                                             number: obj.number,
                                                             x: obj.x,
                                                             y: obj.y,
-                                                            op1: shuffled.sub_weapon_shutters
+                                                            op1: shuffled.sub_weapon_shutters()
                                                                 [sub_weapon_spot_idx - 1]
                                                                 .item
                                                                 .flag,
