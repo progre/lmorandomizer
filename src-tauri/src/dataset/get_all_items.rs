@@ -9,10 +9,7 @@ use crate::{
             WARE_NO_MISE_COUNT,
         },
     },
-    script::data::{
-        script::Script,
-        shop_items_data::{ShopItem, ShopItemType},
-    },
+    script::data::{script::Script, shop_items_data::ShopItem},
 };
 
 #[derive(serde::Deserialize, serde::Serialize)]
@@ -158,10 +155,10 @@ fn shops(script: &Script, supplements: &Supplements) -> Result<Vec<(Item, Item, 
 fn create_item_from_shop(name: String, data: &ShopItem) -> Result<Item> {
     Ok(Item::new(
         name,
-        match data.shop_item_type {
-            ShopItemType::SubWeapon => "subWeapon".to_owned(),
-            ShopItemType::Item => "equipment".to_owned(),
-            ShopItemType::Rom => "rom".to_owned(),
+        match data {
+            ShopItem::SubWeapon(_) => "subWeapon".to_owned(),
+            ShopItem::Equipment(_) => "equipment".to_owned(),
+            ShopItem::Rom(_) => "rom".to_owned(),
         },
         i8::try_from(data.number())?,
         data.count().map_or(0, |x| x.get()),

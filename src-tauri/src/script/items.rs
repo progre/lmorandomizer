@@ -10,7 +10,7 @@ pub enum _MainWeapon {
     Katana,
 }
 
-#[derive(Clone, Copy, serde_repr::Deserialize_repr, serde_repr::Serialize_repr)]
+#[derive(Clone, Copy, num_derive::FromPrimitive)]
 #[repr(u8)]
 pub enum SubWeapon {
     Shuriken = 0,
@@ -28,7 +28,7 @@ pub enum SubWeapon {
     Ammunition,
 }
 
-#[derive(Clone, Copy, serde_repr::Deserialize_repr, serde_repr::Serialize_repr)]
+#[derive(Clone, Copy, num_derive::FromPrimitive)]
 #[repr(u8)]
 pub enum Equipment {
     /// 0 MSX
@@ -154,3 +154,5 @@ pub enum Equipment {
     /// 100 10倍カードリッジ
     GameMaster = 100,
 }
+
+pub struct Rom(pub u8);

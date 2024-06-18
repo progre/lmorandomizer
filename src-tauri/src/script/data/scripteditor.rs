@@ -1,6 +1,7 @@
 use std::num::NonZero;
 
 use anyhow::{anyhow, bail, Result};
+use num_traits::FromPrimitive;
 
 use crate::{
     dataset::{
@@ -13,7 +14,7 @@ use crate::{
     },
     script::{
         data::shop_items_data::{self, ShopItem},
-        items::{Equipment, SubWeapon},
+        items::{Equipment, Rom, SubWeapon},
     },
 };
 
@@ -55,18 +56,27 @@ fn to_shop_item(old_item: &ShopItem, new_item: &Item) -> Result<ShopItem> {
     let set_flag = u16::try_from(new_item.flag)?;
     Ok(match new_item.r#type.as_ref() {
         "mainWeapon" => unreachable!(),
-        "subWeapon" => ShopItem::sub_weapon(number, price, count, set_flag),
+        "subWeapon" => ShopItem::sub_weapon(
+            SubWeapon::from_u8(number).ok_or(anyhow!("invalid sub weapon number"))?,
+            price,
+            count,
+            set_flag,
+        ),
         "equipment" => {
             if count.is_some() {
                 bail!("equipment count must be None");
             }
-            ShopItem::equipment(number, price, set_flag)
+            ShopItem::equipment(
+                Equipment::from_u8(number).ok_or(anyhow!("invalid equipment number"))?,
+                price,
+                set_flag,
+            )
         }
         "rom" => {
             if count.is_some() {
                 bail!("rom count must be None");
             }
-            ShopItem::rom(number, price, set_flag)
+            ShopItem::rom(Rom(number), price, set_flag)
         }
         "seal" => unreachable!(),
         _ => unreachable!(),
