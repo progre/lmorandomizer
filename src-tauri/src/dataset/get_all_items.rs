@@ -9,7 +9,10 @@ use crate::{
             WARE_NO_MISE_COUNT,
         },
     },
-    script::{data::script::Script, format::shop_items_data::ShopItemData},
+    script::data::{
+        script::Script,
+        shop_items_data::{ShopItem, ShopItemType},
+    },
 };
 
 #[derive(serde::Deserialize, serde::Serialize)]
@@ -135,7 +138,7 @@ fn shops(script: &Script, supplements: &Supplements) -> Result<Vec<(Item, Item, 
         shops_data_list.len(),
         supplements.shops.len() + WARE_NO_MISE_COUNT
     );
-    Ok(supplements
+    supplements
         .shops
         .iter()
         .enumerate()
@@ -143,29 +146,25 @@ fn shops(script: &Script, supplements: &Supplements) -> Result<Vec<(Item, Item, 
             let shop = &shops_data_list[i];
             let names: Vec<_> = supplement.names.split(',').map(|x| x.trim()).collect();
             debug_assert_eq!(names.len(), 3);
-            (
-                create_item_from_shop(names[0].to_owned(), &shop.items.0),
-                create_item_from_shop(names[1].to_owned(), &shop.items.1),
-                create_item_from_shop(names[2].to_owned(), &shop.items.2),
-            )
+            Ok((
+                create_item_from_shop(names[0].to_owned(), &shop.items.0)?,
+                create_item_from_shop(names[1].to_owned(), &shop.items.1)?,
+                create_item_from_shop(names[2].to_owned(), &shop.items.2)?,
+            ))
         })
-        .collect())
+        .collect::<Result<_>>()
 }
 
-fn create_item_from_shop(name: String, data: &ShopItemData) -> Item {
-    Item::new(
+fn create_item_from_shop(name: String, data: &ShopItem) -> Result<Item> {
+    Ok(Item::new(
         name,
-        if data.r#type == 0 {
-            "subWeapon".to_owned()
-        } else if data.r#type == 1 {
-            "equipment".to_owned()
-        } else if data.r#type == 2 {
-            "rom".to_owned()
-        } else {
-            panic!("invalid value: {}", data.r#type)
+        match data.shop_item_type {
+            ShopItemType::SubWeapon => "subWeapon".to_owned(),
+            ShopItemType::Item => "equipment".to_owned(),
+            ShopItemType::Rom => "rom".to_owned(),
         },
-        data.number,
-        data.count,
-        data.flag,
-    )
+        i8::try_from(data.number())?,
+        data.count().map_or(0, |x| x.get()),
+        data.set_flag() as i32,
+    ))
 }

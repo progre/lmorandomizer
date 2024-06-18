@@ -1,4 +1,6 @@
-use anyhow::{anyhow, Result};
+use std::num::NonZero;
+
+use anyhow::{anyhow, bail, Result};
 
 use crate::{
     dataset::{
@@ -10,7 +12,7 @@ use crate::{
         },
     },
     script::{
-        format::shop_items_data::{self, ShopItemData},
+        data::shop_items_data::{self, ShopItem},
         items::{Equipment, SubWeapon},
     },
 };
@@ -27,20 +29,16 @@ pub fn replace_shops(talks: &mut [String], shops: &[Shop]) -> Result<()> {
         let Some(new_shop) = shops.iter().find(|x| x.talk_number == talk_number) else {
             continue;
         };
-        let old = shop_items_data::parse(shop_str);
+        let old = shop_items_data::parse(shop_str)?;
         let mut replaced = [old.0, old.1, old.2]
             .into_iter()
             .enumerate()
-            .map(|(j, item)| {
-                let new_shop_item = [&new_shop.items.0, &new_shop.items.1, &new_shop.items.2][j];
-                ShopItemData {
-                    r#type: to_integer_item_type(&new_shop_item.r#type),
-                    number: new_shop_item.number,
-                    price: item.price,
-                    count: new_shop_item.count,
-                    flag: new_shop_item.flag,
-                }
-            });
+            .map(|(j, old_item)| {
+                let new_item = [&new_shop.items.0, &new_shop.items.1, &new_shop.items.2][j];
+                to_shop_item(&old_item, new_item)
+            })
+            .collect::<Result<Vec<_>>>()?
+            .into_iter();
         *shop_str = shop_items_data::stringify((
             replaced.next().unwrap(),
             replaced.next().unwrap(),
@@ -50,15 +48,29 @@ pub fn replace_shops(talks: &mut [String], shops: &[Shop]) -> Result<()> {
     Ok(())
 }
 
-fn to_integer_item_type(string_item_type: &str) -> u8 {
-    match string_item_type {
+fn to_shop_item(old_item: &ShopItem, new_item: &Item) -> Result<ShopItem> {
+    let number = u8::try_from(new_item.number)?;
+    let price = old_item.price();
+    let count = NonZero::new(new_item.count);
+    let set_flag = u16::try_from(new_item.flag)?;
+    Ok(match new_item.r#type.as_ref() {
         "mainWeapon" => unreachable!(),
-        "subWeapon" => 0,
-        "equipment" => 1,
-        "rom" => 2,
+        "subWeapon" => ShopItem::sub_weapon(number, price, count, set_flag),
+        "equipment" => {
+            // if count.is_some() {
+            //     bail!("equipment count must be None");
+            // }
+            ShopItem::equipment(number, price, count, set_flag)
+        }
+        "rom" => {
+            // if count.is_some() {
+            //     bail!("rom count must be None");
+            // }
+            ShopItem::rom(number, price, count, set_flag)
+        }
         "seal" => unreachable!(),
         _ => unreachable!(),
-    }
+    })
 }
 
 pub fn replace_items(worlds: Vec<World>, shuffled: &Storage) -> Result<Vec<World>> {

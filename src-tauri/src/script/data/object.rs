@@ -1,42 +1,32 @@
 use anyhow::{bail, Result};
 
-use crate::script::format::shop_items_data::{self, ShopItemData};
+use super::shop_items_data::{self, ShopItem};
 
-#[derive(serde::Deserialize, serde::Serialize)]
-#[serde(rename_all = "camelCase")]
 pub struct MainWeapon {
     pub main_weapon_number: u8,
     pub flag: i32,
 }
 
-#[derive(serde::Deserialize, serde::Serialize)]
-#[serde(rename_all = "camelCase")]
 pub struct SubWeapon {
     pub sub_weapon_number: u8,
     pub count: u16,
     pub flag: i32,
 }
 
-#[derive(serde::Deserialize, serde::Serialize)]
-#[serde(rename_all = "camelCase")]
 pub struct ChestItem {
     pub chest_item_number: i16,
     pub open_flag: i32,
     pub flag: i32,
 }
 
-#[derive(serde::Deserialize, serde::Serialize)]
-#[serde(rename_all = "camelCase")]
 pub struct Seal {
     pub seal_number: u8,
     pub flag: i32,
 }
 
-#[derive(serde::Deserialize, serde::Serialize)]
-#[serde(rename_all = "camelCase")]
 pub struct Shop {
     pub talk_number: i32,
-    pub items: (ShopItemData, ShopItemData, ShopItemData),
+    pub items: (ShopItem, ShopItem, ShopItem),
 }
 
 #[derive(Clone, serde::Deserialize, serde::Serialize)]
@@ -106,7 +96,7 @@ impl Object {
         }
         Ok(Some(Shop {
             talk_number: self.op4,
-            items: shop_items_data::parse(&talks[usize::try_from(self.op4)?]),
+            items: shop_items_data::parse(&talks[usize::try_from(self.op4)?])?,
         }))
     }
 

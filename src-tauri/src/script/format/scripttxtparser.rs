@@ -7,8 +7,8 @@ use crate::script::{
     data::{
         object::{LMStart, Object},
         script::{Field, Map, World},
+        shop_items_data,
     },
-    format::shop_items_data,
     items::SubWeapon,
 };
 
@@ -27,16 +27,16 @@ pub fn parse_script_txt(text: &str) -> Result<(Vec<String>, Vec<World>)> {
         })
         .collect();
     if cfg!(debug_assertions) {
-        let first_shop = shop_items_data::parse(&talks[252]);
-        debug_assert_eq!(first_shop.0.number, SubWeapon::HandScanner as i8);
-        debug_assert_eq!(first_shop.0.price, 20);
-        debug_assert_eq!(first_shop.0.flag, 65279);
-        debug_assert_eq!(first_shop.1.number, SubWeapon::Ammunition as i8);
-        debug_assert_eq!(first_shop.1.price, 500);
-        debug_assert_eq!(first_shop.1.flag, 65279);
-        debug_assert_eq!(first_shop.2.number, SubWeapon::Buckler as i8);
-        debug_assert_eq!(first_shop.2.price, 80);
-        debug_assert_eq!(first_shop.2.flag, 697);
+        let first_shop = shop_items_data::parse(&talks[252])?;
+        debug_assert_eq!(first_shop.0.number(), SubWeapon::HandScanner as u8);
+        debug_assert_eq!(first_shop.0.price(), 20);
+        debug_assert_eq!(first_shop.0.set_flag(), 65279);
+        debug_assert_eq!(first_shop.1.number(), SubWeapon::Ammunition as u8);
+        debug_assert_eq!(first_shop.1.price(), 500);
+        debug_assert_eq!(first_shop.1.set_flag(), 65279);
+        debug_assert_eq!(first_shop.2.number(), SubWeapon::Buckler as u8);
+        debug_assert_eq!(first_shop.2.price(), 80);
+        debug_assert_eq!(first_shop.2.set_flag(), 697);
     }
     let worlds: Vec<World> = root
         .iter()

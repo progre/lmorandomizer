@@ -38,7 +38,7 @@ Place seed and La-Mulana install directory, select options, then push Apply.
 - Shop restrictions:
   - Maps are sold out if any map is acquired. Maps are not necessary to beat the game.
   - Sacred Orbs have the same problem as maps but have a real impact on game play.
-  - Main Weapons severely break the shop interface if placed there.
+  - Main Weapon cannot be displayed.
   - Shuriken, Throwing Knives, Flares, Spears, and Bombs are always ammo in shops.
   - Silver Shield and Angel Shield don't sell out when bought. You do get the proper item if purchased.
 
