@@ -11,6 +11,7 @@ pub struct ItemSpot {
 #[derive(Clone, Debug, serde::Deserialize, serde::Serialize)]
 pub struct Shop {
     pub spot: Spot,
+    pub talk_number: u16,
     pub items: (Item, Item, Item),
 }
 
@@ -67,16 +68,6 @@ impl Storage {
         seal_chests: Vec<ItemSpot>,
         shops: Vec<Shop>,
     ) -> Self {
-        debug_assert!(main_weapon_shutters
-            .iter()
-            .all(|x| x.spot.r#type == "weaponShutter"));
-        debug_assert!(sub_weapon_shutters
-            .iter()
-            .all(|x| x.spot.r#type == "weaponShutter"));
-        debug_assert!(chests.iter().all(|x| x.spot.r#type == "chest"));
-        debug_assert!(seal_chests.iter().all(|x| x.spot.r#type == "sealChest"));
-        debug_assert!(shops.iter().all(|x| x.spot.r#type == "shop"));
-
         Self {
             all_requirement_names,
             main_weapon_shutters,
@@ -171,7 +162,7 @@ impl Storage {
 
 fn add_item_spot_requirement_item_names_to(set: &mut HashSet<String>, items: &[ItemSpot]) {
     for item in items {
-        for group in item.spot.requirement_items.as_ref().unwrap_or(&Vec::new()) {
+        for group in item.spot.requirement_items().unwrap_or(&Vec::new()) {
             for i in group {
                 set.insert(i.name.clone());
             }
@@ -181,7 +172,7 @@ fn add_item_spot_requirement_item_names_to(set: &mut HashSet<String>, items: &[I
 
 fn add_shop_requirement_item_names_to(set: &mut HashSet<String>, items: &[Shop]) {
     for item in items {
-        for group in item.spot.requirement_items.as_ref().unwrap_or(&Vec::new()) {
+        for group in item.spot.requirement_items().unwrap_or(&Vec::new()) {
             for i in group {
                 set.insert(i.name.clone());
             }

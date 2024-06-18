@@ -49,11 +49,10 @@ pub fn create_source(script: &Script, supplement_files: &SupplementFiles) -> Res
             .enumerate()
             .map(|(i, item)| {
                 let supplement = &supplements.main_weapons[i];
-                let spot = Spot::new(
-                    "weaponShutter".to_owned(),
-                    parse_requirements(&supplement.requirements, &enumerate_items)?,
-                    None,
-                );
+                let spot = Spot::new(parse_requirements(
+                    &supplement.requirements,
+                    &enumerate_items,
+                )?);
                 Ok(ItemSpot { spot, item })
             })
             .collect::<Result<_>>()?,
@@ -62,11 +61,10 @@ pub fn create_source(script: &Script, supplement_files: &SupplementFiles) -> Res
             .enumerate()
             .map(|(i, item)| {
                 let supplement = &supplements.sub_weapons[i];
-                let spot = Spot::new(
-                    "weaponShutter".to_owned(),
-                    parse_requirements(&supplement.requirements, &enumerate_items)?,
-                    None,
-                );
+                let spot = Spot::new(parse_requirements(
+                    &supplement.requirements,
+                    &enumerate_items,
+                )?);
                 Ok(ItemSpot { spot, item })
             })
             .collect::<Result<_>>()?,
@@ -75,11 +73,10 @@ pub fn create_source(script: &Script, supplement_files: &SupplementFiles) -> Res
             .enumerate()
             .map(|(i, item)| {
                 let supplement = &supplements.chests[i];
-                let spot = Spot::new(
-                    "chest".to_owned(),
-                    parse_requirements(&supplement.requirements, &enumerate_items)?,
-                    None,
-                );
+                let spot = Spot::new(parse_requirements(
+                    &supplement.requirements,
+                    &enumerate_items,
+                )?);
                 Ok(ItemSpot { spot, item })
             })
             .collect::<Result<_>>()?,
@@ -88,11 +85,10 @@ pub fn create_source(script: &Script, supplement_files: &SupplementFiles) -> Res
             .enumerate()
             .map(|(i, item)| {
                 let supplement = &supplements.seals[i];
-                let spot = Spot::new(
-                    "sealChest".to_owned(),
-                    parse_requirements(&supplement.requirements, &enumerate_items)?,
-                    None,
-                );
+                let spot = Spot::new(parse_requirements(
+                    &supplement.requirements,
+                    &enumerate_items,
+                )?);
                 Ok(ItemSpot { spot, item })
             })
             .collect::<Result<_>>()?,
@@ -101,13 +97,15 @@ pub fn create_source(script: &Script, supplement_files: &SupplementFiles) -> Res
             .enumerate()
             .map(|(i, items)| {
                 let supplement = &supplements.shops[i];
-                let shop = &shops[i];
-                let spot = Spot::new(
-                    "shop".to_owned(),
-                    parse_requirements(&supplement.requirements, &enumerate_items)?,
-                    Some(u16::try_from(shop.talk_number)?),
-                );
-                Ok(Shop { spot, items })
+                let spot = Spot::new(parse_requirements(
+                    &supplement.requirements,
+                    &enumerate_items,
+                )?);
+                Ok(Shop {
+                    talk_number: u16::try_from(shops[i].talk_number)?,
+                    spot,
+                    items,
+                })
             })
             .collect::<Result<_>>()?,
     ))

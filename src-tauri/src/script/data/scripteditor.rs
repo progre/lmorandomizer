@@ -24,10 +24,7 @@ use super::{
 pub fn replace_shops(talks: &mut [String], shops: &[Shop]) -> Result<()> {
     for (i, shop_str) in talks.iter_mut().enumerate() {
         let talk_number = u16::try_from(i)?;
-        let Some(new_shop) = shops
-            .iter()
-            .find(|x| x.spot.talk_number == Some(talk_number))
-        else {
+        let Some(new_shop) = shops.iter().find(|x| x.talk_number == talk_number) else {
             continue;
         };
         let old = shop_items_data::parse(shop_str);
