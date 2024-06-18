@@ -1,6 +1,5 @@
-use crate::script::items::{Equipment, SubWeapon};
-
 use super::{
+    items::{Equipment, SubWeapon},
     object::{LMStart, Object},
     script::{Field, Map, World},
 };

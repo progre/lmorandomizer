@@ -8,8 +8,8 @@ use randomize_items::randomize_items;
 use crate::{
     dataset::{create_source::create_source, supplements::SupplementFiles},
     script::{
-        format::scriptconverter::{build_script_dat, read_script_dat},
-        items::Equipment,
+        data::items::Equipment,
+        file::scriptconverter::{build_script_dat, read_script_dat},
     },
 };
 

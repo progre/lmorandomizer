@@ -1,4 +1,4 @@
-use crate::script::items::{Equipment, SubWeapon};
+use crate::script::data::items::{Equipment, SubWeapon};
 
 #[derive(Clone, Debug, serde::Deserialize, serde::Serialize)]
 pub struct Item {

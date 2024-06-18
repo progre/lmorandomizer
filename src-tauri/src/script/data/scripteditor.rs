@@ -12,13 +12,11 @@ use crate::{
             TRUE_SHRINE_OF_THE_MOTHER_SEAL_COUNT,
         },
     },
-    script::{
-        data::shop_items_data::{self, ShopItem},
-        items::{Equipment, Rom, SubWeapon},
-    },
+    script::data::shop_items_data::{self, ShopItem},
 };
 
 use super::{
+    items::{Equipment, Rom, SubWeapon},
     object::{LMStart, Object},
     objectfactory::{to_object_for_shutter, to_object_for_special_chest, to_objects_for_chest},
     script::{Field, Map, World},

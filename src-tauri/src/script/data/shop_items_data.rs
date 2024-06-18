@@ -3,10 +3,9 @@ use std::num::NonZero;
 use anyhow::{anyhow, Result};
 use num_traits::FromPrimitive;
 
-use crate::script::{
-    dat::{byte_code_to_text, text_to_byte_code},
-    items::{Equipment, Rom, SubWeapon},
-};
+use crate::script::file::dat::{byte_code_to_text, text_to_byte_code};
+
+use super::items::{Equipment, Rom, SubWeapon};
 
 pub fn parse(text: &str) -> Result<(ShopItem, ShopItem, ShopItem)> {
     debug_assert_eq!(text.chars().count(), 7 * 3);

@@ -1,8 +1,11 @@
 use anyhow::Result;
 
-use crate::{dataset::item::Item, script::items::SubWeapon};
+use crate::dataset::item::Item;
 
-use super::object::{LMStart, Object};
+use super::{
+    items::SubWeapon,
+    object::{LMStart, Object},
+};
 
 pub fn to_object_for_shutter(old_obj: &Object, start_flag: i32, item: &Item) -> Result<Object> {
     Ok(match item.r#type.as_ref() {

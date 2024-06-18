@@ -4,14 +4,12 @@ use anyhow::Result;
 
 use crate::{
     dataset::storage::{self, Storage},
-    script::{
-        format::scripttxtparser::{parse_script_txt, stringify_script_txt},
-        items,
-    },
+    script::file::scripttxtparser::{parse_script_txt, stringify_script_txt},
 };
 
 use super::{
     add_starting_items::add_starting_items,
+    items,
     object::{ChestItem, MainWeapon, Object, Seal, Shop, SubWeapon},
     scripteditor::{replace_items, replace_shops},
 };

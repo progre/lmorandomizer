@@ -3,13 +3,11 @@ use std::fmt::Write;
 use anyhow::{anyhow, Result};
 use scraper::{node::Attributes, ElementRef, Html};
 
-use crate::script::{
-    data::{
-        object::{LMStart, Object},
-        script::{Field, Map, World},
-        shop_items_data,
-    },
+use crate::script::data::{
     items::SubWeapon,
+    object::{LMStart, Object},
+    script::{Field, Map, World},
+    shop_items_data,
 };
 
 pub fn parse_script_txt(text: &str) -> Result<(Vec<String>, Vec<World>)> {
