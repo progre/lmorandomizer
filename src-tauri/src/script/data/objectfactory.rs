@@ -4,7 +4,7 @@ use crate::dataset::item::Item;
 
 use super::{
     items::SubWeapon,
-    object::{LMStart, Object},
+    object::{Start, Object},
 };
 
 pub fn to_object_for_shutter(old_obj: &Object, start_flag: i32, item: &Item) -> Result<Object> {
@@ -206,20 +206,20 @@ fn create_empty_chest(old_obj: &Object, item: &Item) -> Result<Object> {
 fn starts_that_hide_when_startup_and_taken(
     old_chest_obj: &Object,
     item: &Item,
-) -> Result<Vec<LMStart>> {
+) -> Result<Vec<Start>> {
     debug_assert_eq!(old_chest_obj.number, 1);
     let mut vec = vec![
-        LMStart {
+        Start {
             number: 99999,
-            value: true,
+            run_when_unset: true,
         },
-        LMStart {
+        Start {
             number: old_chest_obj.to_chest_item()?.unwrap().open_flag,
-            value: true,
+            run_when_unset: true,
         },
-        LMStart {
+        Start {
             number: item.flag,
-            value: false,
+            run_when_unset: false,
         },
     ];
     vec.append(
@@ -231,15 +231,15 @@ fn starts_that_hide_when_startup_and_taken(
     Ok(vec)
 }
 
-fn starts_that_hide_when_startup(old_obj: &Object, start_flag: i32) -> Result<Vec<LMStart>> {
+fn starts_that_hide_when_startup(old_obj: &Object, start_flag: i32) -> Result<Vec<Start>> {
     let mut vec = vec![
-        LMStart {
+        Start {
             number: 99999,
-            value: true,
+            run_when_unset: true,
         },
-        LMStart {
+        Start {
             number: start_flag,
-            value: true,
+            run_when_unset: true,
         },
     ];
     vec.append(
@@ -251,27 +251,27 @@ fn starts_that_hide_when_startup(old_obj: &Object, start_flag: i32) -> Result<Ve
     Ok(vec)
 }
 
-fn starts_as_is(old_obj: &Object, item: &Item) -> Result<Vec<LMStart>> {
+fn starts_as_is(old_obj: &Object, item: &Item) -> Result<Vec<Start>> {
     let mut vec = get_starts_without_old_flag(old_obj)?;
     let item_flag = old_obj.get_item_flag()?;
     if old_obj.starts.iter().any(|x| x.number == item_flag) {
-        vec.push(LMStart {
+        vec.push(Start {
             number: item.flag,
-            value: false,
+            run_when_unset: false,
         });
     }
     Ok(vec)
 }
 
-fn get_starts_without_old_flag(old_obj: &Object) -> Result<Vec<LMStart>> {
+fn get_starts_without_old_flag(old_obj: &Object) -> Result<Vec<Start>> {
     let item_flag = old_obj.get_item_flag()?;
     Ok(old_obj
         .starts
         .iter()
         .filter(|x| x.number != item_flag)
-        .map(|x| LMStart {
+        .map(|x| Start {
             number: x.number,
-            value: x.value,
+            run_when_unset: x.run_when_unset,
         })
         .collect())
 }

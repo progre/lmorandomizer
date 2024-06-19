@@ -5,7 +5,7 @@ use scraper::{node::Attributes, ElementRef, Html};
 
 use crate::script::data::{
     items::SubWeapon,
-    object::{LMStart, Object},
+    object::{Start, Object},
     script::{Field, Map, World},
     shop_items_data,
 };
@@ -218,9 +218,9 @@ fn parse_object(object: ElementRef) -> Result<Object> {
             .iter()
             .map(|x| {
                 let start_attrs = parse_attrs(&x.value().attrs)?;
-                Ok(LMStart {
+                Ok(Start {
                     number: start_attrs[0],
-                    value: start_attrs[1] != 0,
+                    run_when_unset: start_attrs[1] != 0,
                 })
             })
             .collect::<Result<_>>()?,
@@ -343,7 +343,7 @@ fn stringify_object(object: &Object) -> String {
                     output,
                     "<START {},{}>",
                     start.number,
-                    if start.value { 1 } else { 0 }
+                    if start.run_when_unset { 1 } else { 0 }
                 )
                 .unwrap();
                 output

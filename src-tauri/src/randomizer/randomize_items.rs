@@ -32,7 +32,6 @@ pub fn randomize_items(script: &mut Script, source: &Storage, seed: &str) -> Res
     let start = std::time::Instant::now();
     assert_unique(&shuffled);
     script.replace_items(&shuffled)?;
-    script.replace_shops(shuffled.shops())?;
     trace!("Replaced items in {:?}", start.elapsed());
     Ok(())
 }

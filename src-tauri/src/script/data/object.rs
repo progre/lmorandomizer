@@ -30,9 +30,9 @@ pub struct Shop {
 }
 
 #[derive(Clone, serde::Deserialize, serde::Serialize)]
-pub struct LMStart {
+pub struct Start {
     pub number: i32,
-    pub value: bool,
+    pub run_when_unset: bool,
 }
 
 #[derive(Clone, serde::Deserialize, serde::Serialize)]
@@ -44,7 +44,7 @@ pub struct Object {
     pub op2: i32,
     pub op3: i32,
     pub op4: i32,
-    pub starts: Vec<LMStart>,
+    pub starts: Vec<Start>,
 }
 
 impl Object {

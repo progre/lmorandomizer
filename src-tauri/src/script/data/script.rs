@@ -3,7 +3,7 @@ use std::mem::take;
 use anyhow::Result;
 
 use crate::{
-    dataset::storage::{self, Storage},
+    dataset::storage::Storage,
     script::file::scripttxtparser::{parse_script_txt, stringify_script_txt},
 };
 
@@ -114,12 +114,9 @@ impl Script {
             .collect()
     }
 
-    pub fn replace_shops(&mut self, shops: &[storage::Shop]) -> Result<()> {
-        replace_shops(&mut self.talks, shops)
-    }
-
     pub fn replace_items(&mut self, shuffled: &Storage) -> Result<()> {
-        self.worlds = replace_items(take(&mut self.worlds), shuffled)?;
+        replace_items(&mut self.worlds, shuffled)?;
+        replace_shops(&mut self.talks, shuffled.shops())?;
         Ok(())
     }
 
