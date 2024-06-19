@@ -43,7 +43,7 @@ pub fn create_source(script: &Script, supplement_files: &SupplementFiles) -> Res
         seals: all_items_seals,
         shops: all_items_shops,
     } = all_items;
-    Ok(Storage::create(
+    Ok(Storage::new(
         all_items_main_weapons
             .into_iter()
             .enumerate()

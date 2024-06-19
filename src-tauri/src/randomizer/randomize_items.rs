@@ -1,7 +1,7 @@
 use std::collections::HashSet;
 
 use anyhow::Result;
-use log::info;
+use log::{info, trace};
 use rand::Rng;
 use rand_seeder::Seeder;
 use rand_xoshiro::Xoshiro256PlusPlus;
@@ -19,22 +19,36 @@ use crate::{
 };
 
 pub fn randomize_items(script: &mut Script, source: &Storage, seed: &str) -> Result<()> {
-    debug_assert!(validate(source));
+    let start = std::time::Instant::now();
+    // debug_assert!(validate(source));
     assert_unique(source);
+    trace!("Assertion in {:?}", start.elapsed());
+
+    let start = std::time::Instant::now();
     let mut rng: Xoshiro256PlusPlus = Seeder::from(seed).make_rng();
     let shuffled = randomize_storage(source, &mut rng);
+    trace!("Randomized items in {:?}", start.elapsed());
+
+    let start = std::time::Instant::now();
     assert_unique(&shuffled);
     script.replace_items(&shuffled)?;
     script.replace_shops(shuffled.shops())?;
+    trace!("Replaced items in {:?}", start.elapsed());
     Ok(())
 }
 
 fn randomize_storage(source: &Storage, rng: &mut impl Rng) -> Storage {
+    let all_requirement_names = source.all_requirement_names();
     let mut shuffled = None;
     for i in 0..10000 {
         // itemをshuffleしてplaceと合わせる
+        let start = std::time::Instant::now();
         let storage = shuffle(source, rng);
-        if validate(&storage) {
+        trace!("Shuffled in {:?}", start.elapsed());
+        let start = std::time::Instant::now();
+        let result = validate(&storage, &all_requirement_names);
+        trace!("Validated in {:?}", start.elapsed());
+        if result {
             shuffled = Some(storage);
             info!("Shuffle was tryed: {i} times");
             break;
@@ -116,7 +130,6 @@ fn shuffle(source: &Storage, rng: &mut impl Rng) -> Storage {
         })
         .collect();
     Storage::new(
-        source.all_requirement_names().clone(),
         main_weapon_shutters,
         sub_weapon_shutters,
         chests,

@@ -15,13 +15,13 @@ impl Spot {
         self.requirement_items.as_ref()
     }
 
-    pub fn is_reachable(&self, current_item_names: &[String], sacred_orb_count: usize) -> bool {
+    pub fn is_reachable(&self, current_item_names: &[String], sacred_orb_count: u8) -> bool {
         let Some(requirement_items) = &self.requirement_items else {
             return true;
         };
         requirement_items.iter().any(|group| {
             group.iter().all(|x| {
-                x.name == "sacredOrb" && x.count as usize <= sacred_orb_count
+                x.name == "sacredOrb" && x.count <= sacred_orb_count
                     || current_item_names.contains(&x.name)
             })
         })
