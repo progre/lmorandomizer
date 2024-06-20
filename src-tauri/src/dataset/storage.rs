@@ -1,4 +1,4 @@
-use std::{collections::HashSet, thread::spawn};
+use std::thread::spawn;
 
 use super::{item::Item, spot::Spot, supplements::StrategyFlag};
 
@@ -65,7 +65,7 @@ impl Storage {
 
     pub fn split_reachables_unreachables(
         self,
-        current_item_names: &HashSet<StrategyFlag>,
+        current_item_names: &[StrategyFlag],
         current_sacred_orb_count: u8,
     ) -> (Vec<StrategyFlag>, Self) {
         let (reached_item_names_tx, reached_item_names_rx) = std::sync::mpsc::channel();

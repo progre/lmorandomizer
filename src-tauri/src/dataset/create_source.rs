@@ -17,8 +17,7 @@ use crate::{
 
 use super::{
     get_all_items::{get_all_items, AllItems},
-    spot::AnyOfAllRequirements,
-    supplements::StrategyFlag,
+    supplements::{AnyOfAllRequirements, RequirementFlag},
 };
 
 pub fn create_source(script: &Script, supplement_files: &SupplementFiles) -> Result<Storage> {
@@ -120,7 +119,7 @@ fn ware_missing_requirements(supplements: &Supplements, all_items: &[Item]) {
 }
 
 fn append<'a>(
-    set: &mut HashSet<StrategyFlag>,
+    set: &mut HashSet<RequirementFlag>,
     any_of_requirements: impl Iterator<Item = &'a Option<AnyOfAllRequirements>>,
 ) {
     any_of_requirements

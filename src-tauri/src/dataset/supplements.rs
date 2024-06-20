@@ -1,28 +1,14 @@
-use crate::dataset::spot::AllRequirements;
-
-use super::spot::AnyOfAllRequirements;
-
 pub const NIGHT_SURFACE_SUB_WEAPON_COUNT: usize = 1;
 pub const NIGHT_SURFACE_CHEST_COUNT: usize = 3;
 pub const TRUE_SHRINE_OF_THE_MOTHER_SEAL_COUNT: usize = 1;
 pub const NIGHT_SURFACE_SEAL_COUNT: usize = 1;
 pub const WARE_NO_MISE_COUNT: usize = 1;
 
-#[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[derive(Clone, Debug, Hash, Eq, Ord, PartialEq, PartialOrd)]
 pub struct StrategyFlag(String);
 
 impl StrategyFlag {
-    pub fn from_requirement(requirement: String) -> Self {
-        debug_assert!(
-            !requirement.starts_with("sacredOrb:")
-                || requirement
-                    .split(':')
-                    .nth(1)
-                    .map_or(false, |x| x.parse::<u8>().is_ok())
-        );
-        Self(requirement)
-    }
-    pub fn from_spot_name(spot_name: String) -> Self {
+    pub fn new(spot_name: String) -> Self {
         debug_assert!(
             !spot_name.starts_with("sacredOrb:")
                 || spot_name
@@ -37,10 +23,56 @@ impl StrategyFlag {
         self.0.starts_with("sacredOrb:")
     }
 
+    pub fn get(&self) -> &str {
+        self.0.as_str()
+    }
+}
+
+impl PartialEq<RequirementFlag> for StrategyFlag {
+    fn eq(&self, other: &RequirementFlag) -> bool {
+        self.0 == other.0
+    }
+}
+
+#[derive(Clone, Debug, Hash, Eq, Ord, PartialEq, PartialOrd)]
+pub struct RequirementFlag(String);
+
+impl RequirementFlag {
+    fn new(requirement: String) -> Self {
+        debug_assert!(
+            !requirement.starts_with("sacredOrb:")
+                || requirement
+                    .split(':')
+                    .nth(1)
+                    .map_or(false, |x| x.parse::<u8>().is_ok())
+        );
+        Self(requirement)
+    }
+
+    pub fn is_sacred_orb(&self) -> bool {
+        self.0.starts_with("sacredOrb:")
+    }
+
     pub fn sacred_orb_count(&self) -> u8 {
         self.0.split(':').nth(1).unwrap().parse().unwrap()
     }
+
+    pub fn get(&self) -> &str {
+        self.0.as_str()
+    }
 }
+
+impl PartialEq<StrategyFlag> for RequirementFlag {
+    fn eq(&self, other: &StrategyFlag) -> bool {
+        self.0 == other.0
+    }
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct AllRequirements(pub Vec<RequirementFlag>);
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct AnyOfAllRequirements(pub Vec<AllRequirements>);
 
 pub struct Spot {
     pub name: StrategyFlag,
@@ -129,35 +161,35 @@ impl Supplements {
                 .requirements,
             &Some(AnyOfAllRequirements(vec![
                 AllRequirements(vec![
-                    StrategyFlag("ankhJewel:templeOfTheSun".into()),
-                    StrategyFlag("bronzeMirror".into()),
-                    StrategyFlag("shuriken".into()),
-                    StrategyFlag("shurikenAmmo".into()),
+                    RequirementFlag("ankhJewel:templeOfTheSun".into()),
+                    RequirementFlag("bronzeMirror".into()),
+                    RequirementFlag("shuriken".into()),
+                    RequirementFlag("shurikenAmmo".into()),
                 ]),
                 AllRequirements(vec![
-                    StrategyFlag("holyGrail".into()),
-                    StrategyFlag("flareGun".into()),
-                    StrategyFlag("grappleClaw".into()),
+                    RequirementFlag("holyGrail".into()),
+                    RequirementFlag("flareGun".into()),
+                    RequirementFlag("grappleClaw".into()),
                 ]),
                 // tslint:disable-next-line:max-line-length
                 // vec!["anchor", "knife", "bronzeMirror", "ankhJewel:gateOfGuidance", "flareGun", "grappleClaw"],
                 AllRequirements(vec![
-                    StrategyFlag("bronzeMirror".into()),
-                    StrategyFlag("ankhJewel:mausoleumOfTheGiants".into()),
-                    StrategyFlag("flareGun".into()),
-                    StrategyFlag("grappleClaw".into()),
+                    RequirementFlag("bronzeMirror".into()),
+                    RequirementFlag("ankhJewel:mausoleumOfTheGiants".into()),
+                    RequirementFlag("flareGun".into()),
+                    RequirementFlag("grappleClaw".into()),
                 ]),
                 AllRequirements(vec![
-                    StrategyFlag("holyGrail".into()),
-                    StrategyFlag("flareGun".into()),
-                    StrategyFlag("feather".into()),
+                    RequirementFlag("holyGrail".into()),
+                    RequirementFlag("flareGun".into()),
+                    RequirementFlag("feather".into()),
                 ]),
                 // vec!["anchor", "knife", "bronzeMirror", "ankhJewel:gateOfGuidance", "flareGun", "feather"],
                 AllRequirements(vec![
-                    StrategyFlag("bronzeMirror".into()),
-                    StrategyFlag("ankhJewel:mausoleumOfTheGiants".into()),
-                    StrategyFlag("flareGun".into()),
-                    StrategyFlag("feather".into()),
+                    RequirementFlag("bronzeMirror".into()),
+                    RequirementFlag("ankhJewel:mausoleumOfTheGiants".into()),
+                    RequirementFlag("flareGun".into()),
+                    RequirementFlag("feather".into()),
                 ]),
             ]))
         );
@@ -175,7 +207,7 @@ fn parse_item_spot_requirements(items: Vec<YamlSpot>) -> Vec<Spot> {
     items
         .into_iter()
         .map(|item| Spot {
-            name: StrategyFlag::from_spot_name(item.name),
+            name: StrategyFlag::new(item.name),
             requirements: if item.requirements.is_empty() {
                 None
             } else {
@@ -185,7 +217,7 @@ fn parse_item_spot_requirements(items: Vec<YamlSpot>) -> Vec<Spot> {
                         .map(|y| {
                             AllRequirements(
                                 y.split(',')
-                                    .map(|z| StrategyFlag::from_requirement(z.trim().to_owned()))
+                                    .map(|z| RequirementFlag::new(z.trim().to_owned()))
                                     .collect(),
                             )
                         })
@@ -204,9 +236,9 @@ fn parse_shop_requirements(items: Vec<YamlShop>) -> Vec<Shop> {
                 let names: Vec<_> = item.names.split(',').map(|x| x.trim()).collect();
                 debug_assert_eq!(names.len(), 3);
                 (
-                    StrategyFlag::from_spot_name(names[0].to_owned()),
-                    StrategyFlag::from_spot_name(names[1].to_owned()),
-                    StrategyFlag::from_spot_name(names[2].to_owned()),
+                    StrategyFlag::new(names[0].to_owned()),
+                    StrategyFlag::new(names[1].to_owned()),
+                    StrategyFlag::new(names[2].to_owned()),
                 )
             },
             requirements: if item.requirements.is_empty() {
@@ -218,7 +250,7 @@ fn parse_shop_requirements(items: Vec<YamlShop>) -> Vec<Shop> {
                         .map(|y| {
                             AllRequirements(
                                 y.split(',')
-                                    .map(|z| StrategyFlag::from_requirement(z.trim().to_owned()))
+                                    .map(|z| RequirementFlag::new(z.trim().to_owned()))
                                     .collect(),
                             )
                         })
@@ -240,7 +272,7 @@ fn parse_requirements_of_events(items: Vec<YamlSpot>) -> Vec<Event> {
                     .map(|y| {
                         AllRequirements(
                             y.split(',')
-                                .map(|z| StrategyFlag::from_requirement(z.trim().to_owned()))
+                                .map(|z| RequirementFlag::new(z.trim().to_owned()))
                                 .collect(),
                         )
                     })
@@ -316,12 +348,11 @@ fn parse_events(requirements: AnyOfAllRequirements, events: &[Event]) -> AnyOfAl
     // ]
     let mut current = requirements;
     for event in events {
-        if current.0.iter().all(|target_group| {
-            !target_group
-                .0
-                .iter()
-                .any(|StrategyFlag(x)| x == &event.name)
-        }) {
+        if current
+            .0
+            .iter()
+            .all(|target_group| !target_group.0.iter().any(|x| x.0 == event.name))
+        {
             continue;
         }
         current = AnyOfAllRequirements(
@@ -329,11 +360,7 @@ fn parse_events(requirements: AnyOfAllRequirements, events: &[Event]) -> AnyOfAl
                 .0
                 .into_iter()
                 .flat_map(|target_group| -> Vec<AllRequirements> {
-                    if !target_group
-                        .0
-                        .iter()
-                        .any(|StrategyFlag(x)| x == &event.name)
-                    {
+                    if !target_group.0.iter().any(|x| x.0 == event.name) {
                         return vec![target_group];
                     }
                     event
@@ -351,14 +378,11 @@ fn parse_events(requirements: AnyOfAllRequirements, events: &[Event]) -> AnyOfAl
                                             .0
                                             .clone()
                                             .into_iter()
-                                            .filter(|StrategyFlag(x)| {
-                                                x != &event.name
-                                                    && !event_group
-                                                        .0
-                                                        .iter()
-                                                        .any(|StrategyFlag(y)| y == x)
+                                            .filter(|x| {
+                                                x.0 != event.name
+                                                    && !event_group.0.iter().any(|y| y == x)
                                             })
-                                            .collect::<Vec<StrategyFlag>>(),
+                                            .collect::<Vec<_>>(),
                                     )
                                     .collect(),
                             )

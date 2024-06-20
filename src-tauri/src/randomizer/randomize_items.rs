@@ -221,15 +221,15 @@ fn assert_unique(storage: &Storage) {
         }))
         .for_each(|(item_type, item)| {
             if ![
-                StrategyFlag::from_requirement("weights".to_owned()),
-                StrategyFlag::from_requirement("shurikenAmmo".to_owned()),
-                StrategyFlag::from_requirement("toukenAmmo".to_owned()),
-                StrategyFlag::from_requirement("spearAmmo".to_owned()),
-                StrategyFlag::from_requirement("flareGunAmmo".to_owned()),
-                StrategyFlag::from_requirement("bombAmmo".to_owned()),
-                StrategyFlag::from_requirement("ammunition".to_owned()),
-                StrategyFlag::from_requirement("shellHorn".to_owned()),
-                StrategyFlag::from_requirement("finder".to_owned()),
+                StrategyFlag::new("weights".to_owned()),
+                StrategyFlag::new("shurikenAmmo".to_owned()),
+                StrategyFlag::new("toukenAmmo".to_owned()),
+                StrategyFlag::new("spearAmmo".to_owned()),
+                StrategyFlag::new("flareGunAmmo".to_owned()),
+                StrategyFlag::new("bombAmmo".to_owned()),
+                StrategyFlag::new("ammunition".to_owned()),
+                StrategyFlag::new("shellHorn".to_owned()),
+                StrategyFlag::new("finder".to_owned()),
             ]
             .contains(item.name())
             {
