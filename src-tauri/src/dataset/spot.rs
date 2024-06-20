@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use super::supplements::StrategyFlag;
 
 #[derive(Clone, Debug, PartialEq)]
@@ -16,12 +18,16 @@ impl Spot {
         Self { requirement_items }
     }
 
-    pub fn is_reachable(&self, current_item_names: &[StrategyFlag], sacred_orb_count: u8) -> bool {
-        let Some(requirement_items) = &self.requirement_items else {
+    pub fn is_reachable(
+        &self,
+        current_item_names: &HashSet<StrategyFlag>,
+        sacred_orb_count: u8,
+    ) -> bool {
+        let Some(any) = &self.requirement_items else {
             return true;
         };
-        requirement_items.0.iter().any(|group| {
-            group.0.iter().all(|x| {
+        any.0.iter().any(|all| {
+            all.0.iter().all(|x| {
                 x.is_sacred_orb() && x.sacred_orb_count() <= sacred_orb_count
                     || current_item_names.contains(x)
             })

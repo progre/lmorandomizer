@@ -1,4 +1,4 @@
-use std::thread::spawn;
+use std::{collections::HashSet, thread::spawn};
 
 use super::{item::Item, spot::Spot, supplements::StrategyFlag};
 
@@ -65,8 +65,8 @@ impl Storage {
 
     pub fn split_reachables_unreachables(
         self,
-        current_item_names: &[StrategyFlag],
-        sacred_orb_count: u8,
+        current_item_names: &HashSet<StrategyFlag>,
+        current_sacred_orb_count: u8,
     ) -> (Vec<StrategyFlag>, Self) {
         let (reached_item_names_tx, reached_item_names_rx) = std::sync::mpsc::channel();
 
@@ -86,7 +86,7 @@ impl Storage {
                 for item_spot in main_weapon_shutters {
                     if item_spot
                         .spot
-                        .is_reachable(&current_item_names, sacred_orb_count)
+                        .is_reachable(&current_item_names, current_sacred_orb_count)
                     {
                         reached_item_names_tx
                             .send(item_spot.item.name().to_owned())
@@ -106,7 +106,7 @@ impl Storage {
                 for item_spot in sub_weapon_shutters {
                     if item_spot
                         .spot
-                        .is_reachable(&current_item_names, sacred_orb_count)
+                        .is_reachable(&current_item_names, current_sacred_orb_count)
                     {
                         reached_item_names_tx
                             .send(item_spot.item.name().to_owned())
@@ -126,7 +126,7 @@ impl Storage {
                 for item_spot in chests {
                     if item_spot
                         .spot
-                        .is_reachable(&current_item_names, sacred_orb_count)
+                        .is_reachable(&current_item_names, current_sacred_orb_count)
                     {
                         reached_item_names_tx
                             .send(item_spot.item.name().to_owned())
@@ -146,7 +146,7 @@ impl Storage {
                 for item_spot in seal_chests {
                     if item_spot
                         .spot
-                        .is_reachable(&current_item_names, sacred_orb_count)
+                        .is_reachable(&current_item_names, current_sacred_orb_count)
                     {
                         reached_item_names_tx
                             .send(item_spot.item.name().to_owned())
@@ -166,7 +166,7 @@ impl Storage {
                 for shop in shops {
                     if shop
                         .spot
-                        .is_reachable(&current_item_names, sacred_orb_count)
+                        .is_reachable(&current_item_names, current_sacred_orb_count)
                     {
                         reached_item_names_tx
                             .send(shop.items.0.name().to_owned())
