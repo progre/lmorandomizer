@@ -4,24 +4,25 @@ use super::shop_items_data::{self, ShopItem};
 
 pub struct MainWeapon {
     pub main_weapon_number: u8,
-    pub flag: i32,
+    pub flag: u16,
 }
 
 pub struct SubWeapon {
     pub sub_weapon_number: u8,
     pub count: u16,
-    pub flag: i32,
+    pub flag: u16,
 }
 
 pub struct ChestItem {
     pub chest_item_number: i16,
     pub open_flag: i32,
+    /// < 0 means not set
     pub flag: i32,
 }
 
 pub struct Seal {
     pub seal_number: u8,
-    pub flag: i32,
+    pub flag: u16,
 }
 
 pub struct Shop {
@@ -31,7 +32,8 @@ pub struct Shop {
 
 #[derive(Clone, serde::Deserialize, serde::Serialize)]
 pub struct Start {
-    pub number: i32,
+    /// max 99999
+    pub number: u32,
     pub run_when_unset: bool,
 }
 
@@ -54,7 +56,7 @@ impl Object {
         }
         Ok(Some(MainWeapon {
             main_weapon_number: u8::try_from(self.op1)?,
-            flag: self.op2,
+            flag: u16::try_from(self.op2)?,
         }))
     }
 
@@ -65,7 +67,7 @@ impl Object {
         Ok(Some(SubWeapon {
             sub_weapon_number: u8::try_from(self.op1)?,
             count: u16::try_from(self.op2)?,
-            flag: self.op3,
+            flag: u16::try_from(self.op3)?,
         }))
     }
 
@@ -86,7 +88,7 @@ impl Object {
         }
         Ok(Some(Seal {
             seal_number: u8::try_from(self.op1)?,
-            flag: self.op2,
+            flag: u16::try_from(self.op2)?,
         }))
     }
 
@@ -101,11 +103,11 @@ impl Object {
         }))
     }
 
-    pub fn get_item_flag(&self) -> Result<i32> {
+    pub fn get_item_flag(&self) -> Result<u16> {
         Ok(match self.number {
             77 => self.to_main_weapon()?.unwrap().flag,
             13 => self.to_sub_weapon()?.unwrap().flag,
-            1 => self.to_chest_item()?.unwrap().flag,
+            1 => u16::try_from(self.to_chest_item()?.unwrap().flag)?,
             71 => self.to_seal()?.unwrap().flag,
             _ => bail!("invalid number: {}", self.number),
         })

@@ -5,7 +5,7 @@ use scraper::{node::Attributes, ElementRef, Html};
 
 use crate::script::data::{
     items::SubWeapon,
-    object::{Start, Object},
+    object::{Object, Start},
     script::{Field, Map, World},
     shop_items_data,
 };
@@ -219,7 +219,7 @@ fn parse_object(object: ElementRef) -> Result<Object> {
             .map(|x| {
                 let start_attrs = parse_attrs(&x.value().attrs)?;
                 Ok(Start {
-                    number: start_attrs[0],
+                    number: u32::try_from(start_attrs[0])?,
                     run_when_unset: start_attrs[1] != 0,
                 })
             })

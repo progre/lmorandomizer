@@ -11,7 +11,6 @@ pub struct ItemSpot {
 #[derive(Clone, Debug)]
 pub struct Shop {
     pub spot: Spot,
-    pub talk_number: u16,
     pub items: (Item, Item, Item),
 }
 
@@ -90,7 +89,7 @@ impl Storage {
                         .is_reachable(&current_item_names, sacred_orb_count)
                     {
                         reached_item_names_tx
-                            .send(item_spot.item.name.clone())
+                            .send(item_spot.item.name().to_owned())
                             .unwrap();
                     } else {
                         unreached_main_weapon_shutters.push(item_spot);
@@ -110,7 +109,7 @@ impl Storage {
                         .is_reachable(&current_item_names, sacred_orb_count)
                     {
                         reached_item_names_tx
-                            .send(item_spot.item.name.clone())
+                            .send(item_spot.item.name().to_owned())
                             .unwrap();
                     } else {
                         unreached_sub_weapon_shutters.push(item_spot);
@@ -130,7 +129,7 @@ impl Storage {
                         .is_reachable(&current_item_names, sacred_orb_count)
                     {
                         reached_item_names_tx
-                            .send(item_spot.item.name.clone())
+                            .send(item_spot.item.name().to_owned())
                             .unwrap();
                     } else {
                         unreached_chests.push(item_spot);
@@ -150,7 +149,7 @@ impl Storage {
                         .is_reachable(&current_item_names, sacred_orb_count)
                     {
                         reached_item_names_tx
-                            .send(item_spot.item.name.clone())
+                            .send(item_spot.item.name().to_owned())
                             .unwrap();
                     } else {
                         unreached_seal_chests.push(item_spot);
@@ -170,13 +169,13 @@ impl Storage {
                         .is_reachable(&current_item_names, sacred_orb_count)
                     {
                         reached_item_names_tx
-                            .send(shop.items.0.name.clone())
+                            .send(shop.items.0.name().to_owned())
                             .unwrap();
                         reached_item_names_tx
-                            .send(shop.items.1.name.clone())
+                            .send(shop.items.1.name().to_owned())
                             .unwrap();
                         reached_item_names_tx
-                            .send(shop.items.2.name.clone())
+                            .send(shop.items.2.name().to_owned())
                             .unwrap();
                     } else {
                         unreached_shops.push(shop);

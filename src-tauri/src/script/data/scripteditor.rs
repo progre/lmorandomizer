@@ -1,31 +1,38 @@
-use std::num::NonZero;
-
-use anyhow::{anyhow, bail, Result};
-use num_traits::FromPrimitive;
-
 use crate::{
     dataset::{
         item::Item,
         storage::{Shop, Storage},
         supplements::{
             NIGHT_SURFACE_CHEST_COUNT, NIGHT_SURFACE_SEAL_COUNT, NIGHT_SURFACE_SUB_WEAPON_COUNT,
-            TRUE_SHRINE_OF_THE_MOTHER_SEAL_COUNT,
+            TRUE_SHRINE_OF_THE_MOTHER_SEAL_COUNT, WARE_NO_MISE_COUNT,
         },
     },
     script::data::shop_items_data::{self, ShopItem},
 };
+use anyhow::{anyhow, Result};
 
 use super::{
-    items::{Equipment, Rom, SubWeapon},
+    items::{Equipment, SubWeapon},
     object::{Object, Start},
     objectfactory::{to_object_for_shutter, to_object_for_special_chest, to_objects_for_chest},
     script::World,
 };
 
-pub fn replace_shops(talks: &mut [String], shops: &[Shop]) -> Result<()> {
+pub fn replace_shops(
+    talks: &mut [String],
+    script_shop: &[super::object::Shop],
+    shops: &[Shop],
+) -> Result<()> {
+    assert_eq!(script_shop.len(), shops.len() + WARE_NO_MISE_COUNT);
     for (i, shop_str) in talks.iter_mut().enumerate() {
         let talk_number = u16::try_from(i)?;
-        let Some(new_shop) = shops.iter().find(|x| x.talk_number == talk_number) else {
+        let Some(idx) = script_shop
+            .iter()
+            .position(|x| x.talk_number == talk_number)
+        else {
+            continue;
+        };
+        let Some(new_shop) = shops.get(idx) else {
             continue;
         };
         let old = shop_items_data::parse(shop_str)?;
@@ -36,7 +43,7 @@ pub fn replace_shops(talks: &mut [String], shops: &[Shop]) -> Result<()> {
                 let new_item = [&new_shop.items.0, &new_shop.items.1, &new_shop.items.2][j];
                 to_shop_item(&old_item, new_item)
             })
-            .collect::<Result<Vec<_>>>()?
+            .collect::<Vec<_>>()
             .into_iter();
         *shop_str = shop_items_data::stringify((
             replaced.next().unwrap(),
@@ -47,42 +54,28 @@ pub fn replace_shops(talks: &mut [String], shops: &[Shop]) -> Result<()> {
     Ok(())
 }
 
-fn to_shop_item(old_item: &ShopItem, new_item: &Item) -> Result<ShopItem> {
-    let number = u8::try_from(new_item.number)?;
+fn to_shop_item(old_item: &ShopItem, new_item: &Item) -> ShopItem {
     let price = old_item.price();
-    let count = NonZero::new(new_item.count);
-    let set_flag = u16::try_from(new_item.flag)?;
-    Ok(match new_item.r#type.as_ref() {
-        "mainWeapon" => unreachable!(),
-        "subWeapon" => ShopItem::sub_weapon(
-            SubWeapon::from_u8(number).ok_or(anyhow!("invalid sub weapon number"))?,
-            price,
-            count,
-            set_flag,
-        ),
-        "equipment" => {
-            if count.is_some() {
-                bail!("equipment count must be None");
-            }
-            ShopItem::equipment(
-                Equipment::from_u8(number).ok_or(anyhow!("invalid equipment number"))?,
-                price,
-                set_flag,
-            )
+    match new_item {
+        Item::MainWeapon(_) => unreachable!(),
+        Item::SubWeapon(new_item) => {
+            let set_flag = new_item.flag;
+            ShopItem::sub_weapon(new_item.number, price, new_item.count, set_flag)
         }
-        "rom" => {
-            if count.is_some() {
-                bail!("rom count must be None");
-            }
-            ShopItem::rom(Rom(number), price, set_flag)
+        Item::Equipment(new_item) => {
+            let set_flag = new_item.flag;
+            ShopItem::equipment(new_item.number, price, set_flag)
         }
-        "seal" => unreachable!(),
-        _ => unreachable!(),
-    })
+        Item::Rom(new_item) => {
+            let set_flag = new_item.flag;
+            ShopItem::rom(new_item.number, price, set_flag)
+        }
+        Item::Seal(_) => unreachable!(),
+    }
 }
 
 fn fix_trap_of_mausoleum_of_the_giants(obj: &mut Object, prev_sub_weapon_shutter_item: &Item) {
-    obj.op1 = prev_sub_weapon_shutter_item.flag;
+    obj.op1 = prev_sub_weapon_shutter_item.flag() as i32;
 }
 
 fn new_objs(
@@ -99,7 +92,7 @@ fn new_objs(
         77 => {
             let item = &shuffled.main_weapon_shutters()[*main_weapon_spot_idx].item;
             *main_weapon_spot_idx += 1;
-            let next_shutter_check_flag = get_next_shutter_check_flag(next_objs)
+            let next_shutter_check_flag = get_next_shutter_check_flag(next_objs)?
                 .ok_or(anyhow!("next_shutter_check_flag not found"))?;
             Ok(vec![to_object_for_shutter(
                 obj,
@@ -124,14 +117,18 @@ fn new_objs(
                 if obj.op3 == 743 {
                     let wall_check_flag = get_next_wall_check_flag(next_objs)
                         .ok_or(anyhow!("wall_check_flag not found"))?;
-                    return Ok(vec![to_object_for_shutter(obj, wall_check_flag, item)?]);
+                    return Ok(vec![to_object_for_shutter(
+                        obj,
+                        u16::try_from(wall_check_flag)?,
+                        item,
+                    )?]);
                 }
                 return Ok(vec![to_object_for_special_chest(obj, item)?]);
             }
             let next_shutter_check_flag = if obj.op1 == SubWeapon::Pistol as i32 {
-                get_next_breakable_wall_check_flag(next_objs)
+                get_next_breakable_wall_check_flag(next_objs)?
             } else {
-                get_next_shutter_check_flag(next_objs)
+                get_next_shutter_check_flag(next_objs)?
             }
             .ok_or(anyhow!("next_shutter_check_flag not found"))?;
             Ok(vec![to_object_for_shutter(
@@ -235,15 +232,24 @@ pub fn replace_items(worlds: &mut Vec<World>, shuffled: &Storage) -> Result<()> 
     Ok(())
 }
 
-fn get_next_shutter_check_flag(objs: &[Object]) -> Option<i32> {
-    Some(objs.iter().find(|x| x.number == 20)?.op1)
+fn get_next_shutter_check_flag(objs: &[Object]) -> Result<Option<u16>> {
+    Ok(objs
+        .iter()
+        .find(|x| x.number == 20)
+        .map(|x| u16::try_from(x.op1))
+        .transpose()?)
 }
 
 fn get_next_wall_check_flag(objs: &[Object]) -> Option<i32> {
     Some(objs.iter().find(|x| x.number == 59)?.op3)
 }
 
-fn get_next_breakable_wall_check_flag(objs: &[Object]) -> Option<i32> {
-    let data = objs.iter().find(|x| x.number == 70)?.op4;
-    Some((data - (data / 10000) * 10000) / 10)
+fn get_next_breakable_wall_check_flag(objs: &[Object]) -> Result<Option<u16>> {
+    objs.iter()
+        .find(|x| x.number == 70)
+        .map(|x| {
+            let data = x.op4;
+            Ok(u16::try_from((data - (data / 10000) * 10000) / 10)?)
+        })
+        .transpose()
 }

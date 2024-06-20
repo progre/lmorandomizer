@@ -88,9 +88,7 @@ pub fn create_source(script: &Script, supplement_files: &SupplementFiles) -> Res
         all_items_shops
             .into_iter()
             .zip(supplements_shops)
-            .zip(script.shops()?)
-            .map(|((items, sup_shop), shop)| Shop {
-                talk_number: shop.talk_number,
+            .map(|(items, sup_shop)| Shop {
                 spot: Spot::new(sup_shop.requirements),
                 items,
             })
@@ -108,7 +106,7 @@ fn ware_missing_requirements(supplements: &Supplements, all_items: &[Item]) {
     if cfg!(debug_assertions) {
         let mut vec: Vec<_> = set
             .iter()
-            .filter(|&x| all_items.iter().all(|y| &y.name != x))
+            .filter(|&x| all_items.iter().all(|y| y.name() != x))
             .filter(|x| !x.starts_with("sacredOrb:"))
             .collect();
         vec.sort();

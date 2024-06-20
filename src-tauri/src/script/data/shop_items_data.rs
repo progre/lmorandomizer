@@ -30,23 +30,23 @@ pub fn stringify(items: (ShopItem, ShopItem, ShopItem)) -> Result<String> {
 }
 
 pub struct ShopSubWeapon {
-    sub_weapon: SubWeapon,
+    pub sub_weapon: SubWeapon,
     price: u16,
     /// None means subweapon body
-    count: Option<NonZero<u8>>,
-    set_flag: u16,
+    pub count: Option<NonZero<u8>>,
+    pub set_flag: u16,
 }
 
 pub struct ShopEquipment {
-    equipment: Equipment,
+    pub equipment: Equipment,
     price: u16,
-    set_flag: u16,
+    pub set_flag: u16,
 }
 
 pub struct ShopRom {
-    rom: Rom,
+    pub rom: Rom,
     price: u16,
-    set_flag: u16,
+    pub set_flag: u16,
 }
 
 pub enum ShopItem {

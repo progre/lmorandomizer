@@ -1,6 +1,6 @@
 use super::{
     items::{Equipment, SubWeapon},
-    object::{Start, Object},
+    object::{Object, Start},
     script::{Field, Map, World},
 };
 
@@ -48,7 +48,7 @@ pub fn add_starting_items(
                 10240,
                 *x as i32,
                 0,
-                unused_save_flag_no,
+                unused_save_flag_no as i32,
                 -1,
                 vec![Start {
                     number: unused_save_flag_no,
@@ -61,7 +61,7 @@ pub fn add_starting_items(
                 10240,
                 *x as i32,
                 255,
-                unused_save_flag_no,
+                unused_save_flag_no as i32,
                 -1,
                 vec![Start {
                     number: unused_save_flag_no,
@@ -77,7 +77,7 @@ pub fn add_starting_items(
             14336,
             unused_one_time_flag_no,
             *x as i32,
-            unused_save_flag_no,
+            unused_save_flag_no as i32,
             -1,
             vec![],
         )
