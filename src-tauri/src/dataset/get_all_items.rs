@@ -19,6 +19,8 @@ use crate::{
     },
 };
 
+use super::supplements::StrategyFlag;
+
 pub struct AllItems {
     pub main_weapons: Vec<Item>,
     pub sub_weapons: Vec<Item>,
@@ -141,18 +143,16 @@ fn shops(script: &Script, supplements: &Supplements) -> Result<Vec<(Item, Item, 
         .enumerate()
         .map(|(i, supplement)| {
             let shop = &shops_data_list[i];
-            let names: Vec<_> = supplement.names.split(',').map(|x| x.trim()).collect();
-            debug_assert_eq!(names.len(), 3);
             Ok((
-                create_item_from_shop(names[0].to_owned(), &shop.items.0)?,
-                create_item_from_shop(names[1].to_owned(), &shop.items.1)?,
-                create_item_from_shop(names[2].to_owned(), &shop.items.2)?,
+                create_item_from_shop(supplement.names.0.clone(), &shop.items.0)?,
+                create_item_from_shop(supplement.names.1.clone(), &shop.items.1)?,
+                create_item_from_shop(supplement.names.2.clone(), &shop.items.2)?,
             ))
         })
         .collect::<Result<_>>()
 }
 
-fn create_item_from_shop(name: String, data: &ShopItem) -> Result<Item> {
+fn create_item_from_shop(name: StrategyFlag, data: &ShopItem) -> Result<Item> {
     Ok(match data {
         ShopItem::SubWeapon(data) => {
             Item::sub_weapon(name, data.sub_weapon, data.count, data.set_flag)

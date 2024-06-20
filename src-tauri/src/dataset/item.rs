@@ -2,16 +2,18 @@ use std::num::NonZero;
 
 use crate::script::data::items;
 
+use super::supplements::StrategyFlag;
+
 #[derive(Clone, Debug)]
 pub struct MainWeapon {
-    pub name: String,
+    pub name: StrategyFlag,
     pub number: items::MainWeapon,
     pub flag: u16,
 }
 
 #[derive(Clone, Debug)]
 pub struct SubWeapon {
-    pub name: String,
+    pub name: StrategyFlag,
     pub number: items::SubWeapon,
     pub count: Option<NonZero<u8>>,
     pub flag: u16,
@@ -19,21 +21,21 @@ pub struct SubWeapon {
 
 #[derive(Clone, Debug)]
 pub struct Equipment {
-    pub name: String,
+    pub name: StrategyFlag,
     pub number: items::Equipment,
     pub flag: u16,
 }
 
 #[derive(Clone, Debug)]
 pub struct Rom {
-    pub name: String,
+    pub name: StrategyFlag,
     pub number: items::Rom,
     pub flag: u16,
 }
 
 #[derive(Clone, Debug)]
 pub struct Seal {
-    pub name: String,
+    pub name: StrategyFlag,
     pub number: u8,
     pub flag: u16,
 }
@@ -57,12 +59,12 @@ impl Item {
             "invalid value: {flag} ({number})"
         );
     }
-    pub fn main_weapon(name: String, number: items::MainWeapon, flag: u16) -> Self {
+    pub fn main_weapon(name: StrategyFlag, number: items::MainWeapon, flag: u16) -> Self {
         Self::initial_assert(number as i8, flag, false);
         Self::MainWeapon(MainWeapon { name, number, flag })
     }
     pub fn sub_weapon(
-        name: String,
+        name: StrategyFlag,
         number: items::SubWeapon,
         count: Option<NonZero<u8>>,
         flag: u16,
@@ -75,20 +77,20 @@ impl Item {
             flag,
         })
     }
-    pub fn equipment(name: String, number: items::Equipment, flag: u16) -> Self {
+    pub fn equipment(name: StrategyFlag, number: items::Equipment, flag: u16) -> Self {
         Self::initial_assert(number as i8, flag, false);
         Self::Equipment(Equipment { name, number, flag })
     }
-    pub fn rom(name: String, number: items::Rom, flag: u16) -> Self {
+    pub fn rom(name: StrategyFlag, number: items::Rom, flag: u16) -> Self {
         Self::initial_assert(number.0 as i8, flag, false);
         Self::Rom(Rom { name, number, flag })
     }
-    pub fn seal(name: String, number: u8, flag: u16) -> Self {
+    pub fn seal(name: StrategyFlag, number: u8, flag: u16) -> Self {
         Self::initial_assert(number as i8, flag, false);
         Self::Seal(Seal { name, number, flag })
     }
 
-    pub fn name(&self) -> &str {
+    pub fn name(&self) -> &StrategyFlag {
         match self {
             Self::MainWeapon(x) => &x.name,
             Self::SubWeapon(x) => &x.name,

@@ -16,14 +16,14 @@ impl Spot {
         Self { requirement_items }
     }
 
-    pub fn is_reachable(&self, current_item_names: &[String], sacred_orb_count: u8) -> bool {
+    pub fn is_reachable(&self, current_item_names: &[StrategyFlag], sacred_orb_count: u8) -> bool {
         let Some(requirement_items) = &self.requirement_items else {
             return true;
         };
         requirement_items.0.iter().any(|group| {
             group.0.iter().all(|x| {
                 x.is_sacred_orb() && x.sacred_orb_count() <= sacred_orb_count
-                    || current_item_names.contains(&x.0)
+                    || current_item_names.contains(x)
             })
         })
     }

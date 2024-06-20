@@ -10,6 +10,7 @@ use crate::{
     dataset::{
         item::Item,
         storage::{ItemSpot, Shop, Storage},
+        supplements::StrategyFlag,
     },
     randomizer::{
         shuffle_utils::{select_random, shuffle_simply},
@@ -220,19 +221,19 @@ fn assert_unique(storage: &Storage) {
         }))
         .for_each(|(item_type, item)| {
             if ![
-                "weights",
-                "shurikenAmmo",
-                "toukenAmmo",
-                "spearAmmo",
-                "flareGunAmmo",
-                "bombAmmo",
-                "ammunition",
-                "shellHorn",
-                "finder",
+                StrategyFlag::from_requirement("weights".to_owned()),
+                StrategyFlag::from_requirement("shurikenAmmo".to_owned()),
+                StrategyFlag::from_requirement("toukenAmmo".to_owned()),
+                StrategyFlag::from_requirement("spearAmmo".to_owned()),
+                StrategyFlag::from_requirement("flareGunAmmo".to_owned()),
+                StrategyFlag::from_requirement("bombAmmo".to_owned()),
+                StrategyFlag::from_requirement("ammunition".to_owned()),
+                StrategyFlag::from_requirement("shellHorn".to_owned()),
+                StrategyFlag::from_requirement("finder".to_owned()),
             ]
-            .contains(&item.name())
+            .contains(item.name())
             {
-                let key = format!("{}:{}", item_type, item.name());
+                let key = format!("{}:{:?}", item_type, item.name());
                 if names.contains(&key) {
                     panic!("Duplicate item: {}", key);
                 }

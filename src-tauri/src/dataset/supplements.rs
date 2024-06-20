@@ -8,10 +8,31 @@ pub const TRUE_SHRINE_OF_THE_MOTHER_SEAL_COUNT: usize = 1;
 pub const NIGHT_SURFACE_SEAL_COUNT: usize = 1;
 pub const WARE_NO_MISE_COUNT: usize = 1;
 
-#[derive(Clone, Debug, PartialEq)]
-pub struct StrategyFlag(pub String);
+#[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+pub struct StrategyFlag(String);
 
 impl StrategyFlag {
+    pub fn from_requirement(requirement: String) -> Self {
+        debug_assert!(
+            !requirement.starts_with("sacredOrb:")
+                || requirement
+                    .split(':')
+                    .nth(1)
+                    .map_or(false, |x| x.parse::<u8>().is_ok())
+        );
+        Self(requirement)
+    }
+    pub fn from_spot_name(spot_name: String) -> Self {
+        debug_assert!(
+            !spot_name.starts_with("sacredOrb:")
+                || spot_name
+                    .split(':')
+                    .nth(1)
+                    .map_or(false, |x| x.parse::<u8>().is_err())
+        );
+        Self(spot_name)
+    }
+
     pub fn is_sacred_orb(&self) -> bool {
         self.0.starts_with("sacredOrb:")
     }
@@ -22,12 +43,12 @@ impl StrategyFlag {
 }
 
 pub struct Spot {
-    pub name: String,
+    pub name: StrategyFlag,
     pub requirements: Option<AnyOfAllRequirements>,
 }
 
 pub struct Shop {
-    pub names: String,
+    pub names: (StrategyFlag, StrategyFlag, StrategyFlag),
     pub requirements: Option<AnyOfAllRequirements>,
 }
 
@@ -103,7 +124,7 @@ impl Supplements {
         debug_assert_eq!(
             &chests
                 .iter()
-                .find(|x| x.name == "iceCape")
+                .find(|x| x.name.0 == "iceCape")
                 .unwrap()
                 .requirements,
             &Some(AnyOfAllRequirements(vec![
@@ -154,7 +175,7 @@ fn parse_item_spot_requirements(items: Vec<YamlSpot>) -> Vec<Spot> {
     items
         .into_iter()
         .map(|item| Spot {
-            name: item.name,
+            name: StrategyFlag::from_spot_name(item.name),
             requirements: if item.requirements.is_empty() {
                 None
             } else {
@@ -164,7 +185,7 @@ fn parse_item_spot_requirements(items: Vec<YamlSpot>) -> Vec<Spot> {
                         .map(|y| {
                             AllRequirements(
                                 y.split(',')
-                                    .map(|z| StrategyFlag(z.trim().to_owned()))
+                                    .map(|z| StrategyFlag::from_requirement(z.trim().to_owned()))
                                     .collect(),
                             )
                         })
@@ -179,7 +200,15 @@ fn parse_shop_requirements(items: Vec<YamlShop>) -> Vec<Shop> {
     items
         .into_iter()
         .map(|item| Shop {
-            names: item.names,
+            names: {
+                let names: Vec<_> = item.names.split(',').map(|x| x.trim()).collect();
+                debug_assert_eq!(names.len(), 3);
+                (
+                    StrategyFlag::from_spot_name(names[0].to_owned()),
+                    StrategyFlag::from_spot_name(names[1].to_owned()),
+                    StrategyFlag::from_spot_name(names[2].to_owned()),
+                )
+            },
             requirements: if item.requirements.is_empty() {
                 None
             } else {
@@ -189,7 +218,7 @@ fn parse_shop_requirements(items: Vec<YamlShop>) -> Vec<Shop> {
                         .map(|y| {
                             AllRequirements(
                                 y.split(',')
-                                    .map(|z| StrategyFlag(z.trim().to_owned()))
+                                    .map(|z| StrategyFlag::from_requirement(z.trim().to_owned()))
                                     .collect(),
                             )
                         })
@@ -211,7 +240,7 @@ fn parse_requirements_of_events(items: Vec<YamlSpot>) -> Vec<Event> {
                     .map(|y| {
                         AllRequirements(
                             y.split(',')
-                                .map(|z| StrategyFlag(z.trim().to_owned()))
+                                .map(|z| StrategyFlag::from_requirement(z.trim().to_owned()))
                                 .collect(),
                         )
                     })

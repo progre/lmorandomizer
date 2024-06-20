@@ -10,7 +10,7 @@ use crate::{
         storage::Storage,
         storage::{ItemSpot, Shop},
         supplements::NIGHT_SURFACE_CHEST_COUNT,
-        supplements::{self, SupplementFiles, Supplements},
+        supplements::{SupplementFiles, Supplements},
     },
     script::data::script::Script,
 };
@@ -18,6 +18,7 @@ use crate::{
 use super::{
     get_all_items::{get_all_items, AllItems},
     spot::AnyOfAllRequirements,
+    supplements::StrategyFlag,
 };
 
 pub fn create_source(script: &Script, supplement_files: &SupplementFiles) -> Result<Storage> {
@@ -98,16 +99,18 @@ pub fn create_source(script: &Script, supplement_files: &SupplementFiles) -> Res
 
 fn ware_missing_requirements(supplements: &Supplements, all_items: &[Item]) {
     let mut set = HashSet::new();
-    add_spot_supplement_to(&mut set, &supplements.main_weapons);
-    add_spot_supplement_to(&mut set, &supplements.sub_weapons);
-    add_spot_supplement_to(&mut set, &supplements.chests);
-    add_spot_supplement_to(&mut set, &supplements.seals);
-    add_shop_supplement_to(&mut set, &supplements.shops);
+    let main_weapon_requirements = supplements.main_weapons.iter().map(|x| &x.requirements);
+    append(&mut set, main_weapon_requirements);
+    let sub_weapon_requirements = supplements.sub_weapons.iter().map(|x| &x.requirements);
+    append(&mut set, sub_weapon_requirements);
+    append(&mut set, supplements.chests.iter().map(|x| &x.requirements));
+    append(&mut set, supplements.seals.iter().map(|x| &x.requirements));
+    append(&mut set, supplements.shops.iter().map(|x| &x.requirements));
     if cfg!(debug_assertions) {
         let mut vec: Vec<_> = set
             .iter()
             .filter(|&x| all_items.iter().all(|y| y.name() != x))
-            .filter(|x| !x.starts_with("sacredOrb:"))
+            .filter(|x| !x.is_sacred_orb())
             .collect();
         vec.sort();
         for x in vec {
@@ -116,36 +119,15 @@ fn ware_missing_requirements(supplements: &Supplements, all_items: &[Item]) {
     }
 }
 
-fn add_spot_supplement_to(set: &mut HashSet<String>, supplements: &[supplements::Spot]) {
-    supplements
-        .iter()
-        .map(|x| &x.requirements)
-        .for_each(|item| {
-            item.as_ref()
-                .unwrap_or(&AnyOfAllRequirements(Vec::new()))
-                .0
-                .iter()
-                .for_each(|group| {
-                    group.0.iter().for_each(|x| {
-                        set.insert(x.0.clone());
-                    });
-                });
-        });
-}
-
-fn add_shop_supplement_to(set: &mut HashSet<String>, supplements: &[supplements::Shop]) {
-    supplements
-        .iter()
-        .map(|x| &x.requirements)
-        .for_each(|item| {
-            item.as_ref()
-                .unwrap_or(&AnyOfAllRequirements(Vec::new()))
-                .0
-                .iter()
-                .for_each(|group| {
-                    group.0.iter().for_each(|x| {
-                        set.insert(x.0.clone());
-                    });
-                });
+fn append<'a>(
+    set: &mut HashSet<StrategyFlag>,
+    any_of_requirements: impl Iterator<Item = &'a Option<AnyOfAllRequirements>>,
+) {
+    any_of_requirements
+        .filter_map(|item| item.as_ref().map(|x| &x.0))
+        .flatten()
+        .flat_map(|group| &group.0)
+        .for_each(|x| {
+            set.insert(x.clone());
         });
 }
