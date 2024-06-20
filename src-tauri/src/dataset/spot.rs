@@ -1,28 +1,29 @@
-use super::item::Item;
+use super::supplements::StrategyFlag;
 
-#[derive(Clone, Debug, serde::Deserialize, serde::Serialize)]
-#[serde(rename_all = "camelCase")]
+#[derive(Clone, Debug, PartialEq)]
+pub struct AllRequirements(pub Vec<StrategyFlag>);
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct AnyOfAllRequirements(pub Vec<AllRequirements>);
+
+#[derive(Clone, Debug)]
 pub struct Spot {
-    requirement_items: Option<Vec<Vec<Item>>>,
+    requirement_items: Option<AnyOfAllRequirements>,
 }
 
 impl Spot {
-    pub fn new(requirement_items: Option<Vec<Vec<Item>>>) -> Self {
+    pub fn new(requirement_items: Option<AnyOfAllRequirements>) -> Self {
         Self { requirement_items }
-    }
-
-    pub fn requirement_items(&self) -> Option<&Vec<Vec<Item>>> {
-        self.requirement_items.as_ref()
     }
 
     pub fn is_reachable(&self, current_item_names: &[String], sacred_orb_count: u8) -> bool {
         let Some(requirement_items) = &self.requirement_items else {
             return true;
         };
-        requirement_items.iter().any(|group| {
-            group.iter().all(|x| {
-                x.name == "sacredOrb" && x.count <= sacred_orb_count
-                    || current_item_names.contains(&x.name)
+        requirement_items.0.iter().any(|group| {
+            group.0.iter().all(|x| {
+                x.is_sacred_orb() && x.sacred_orb_count() <= sacred_orb_count
+                    || current_item_names.contains(&x.0)
             })
         })
     }

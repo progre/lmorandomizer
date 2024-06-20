@@ -37,7 +37,6 @@ pub fn randomize_items(script: &mut Script, source: &Storage, seed: &str) -> Res
 }
 
 fn randomize_storage(source: &Storage, rng: &mut impl Rng) -> Storage {
-    let all_requirement_names = source.all_requirement_names();
     let mut shuffled = None;
     for i in 0..10000 {
         // itemをshuffleしてplaceと合わせる
@@ -45,7 +44,7 @@ fn randomize_storage(source: &Storage, rng: &mut impl Rng) -> Storage {
         let storage = shuffle(source, rng);
         trace!("Shuffled in {:?}", start.elapsed());
         let start = std::time::Instant::now();
-        let result = validate(&storage, &all_requirement_names);
+        let result = validate(&storage);
         trace!("Validated in {:?}", start.elapsed());
         if result {
             shuffled = Some(storage);

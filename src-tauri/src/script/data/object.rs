@@ -25,7 +25,7 @@ pub struct Seal {
 }
 
 pub struct Shop {
-    pub talk_number: i32,
+    pub talk_number: u16,
     pub items: (ShopItem, ShopItem, ShopItem),
 }
 
@@ -94,9 +94,10 @@ impl Object {
         if !(self.number == 14 && self.op1 <= 99) {
             return Ok(None);
         }
+        let talk_number = u16::try_from(self.op4)?;
         Ok(Some(Shop {
-            talk_number: self.op4,
-            items: shop_items_data::parse(&talks[usize::try_from(self.op4)?])?,
+            talk_number,
+            items: shop_items_data::parse(&talks[talk_number as usize])?,
         }))
     }
 
