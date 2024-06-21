@@ -1,14 +1,18 @@
-use std::collections::HashSet;
+use std::{
+    collections::{BTreeMap, BTreeSet, HashSet},
+    iter::empty,
+};
 
 use anyhow::Result;
 use log::{info, trace};
-use rand::Rng;
+use rand::{seq::SliceRandom, Rng};
 use rand_seeder::Seeder;
 use rand_xoshiro::Xoshiro256PlusPlus;
 
 use crate::{
     dataset::{
         item::Item,
+        spot::Spot,
         storage::{ItemSpot, Shop, Storage},
         supplements::StrategyFlag,
     },
@@ -42,7 +46,8 @@ fn randomize_storage(source: &Storage, rng: &mut impl Rng) -> Storage {
     for i in 0..10000 {
         // itemをshuffleしてplaceと合わせる
         let start = std::time::Instant::now();
-        let storage = shuffle(source, rng);
+        let mut storage = source.clone();
+        shuffle(rng, &mut storage);
         trace!("Shuffled in {:?}", start.elapsed());
         let start = std::time::Instant::now();
         let result = validate(&storage);
@@ -59,7 +64,121 @@ fn randomize_storage(source: &Storage, rng: &mut impl Rng) -> Storage {
     shuffled
 }
 
-fn shuffle(source: &Storage, rng: &mut impl Rng) -> Storage {
+fn all_spots_elems(source: &Storage) -> (Vec<&Spot>, Vec<&Item>) {
+    let mut all_spots = Vec::new();
+    let mut all_items = Vec::new();
+    for item_spot in source
+        .main_weapon_shutters()
+        .iter()
+        .chain(source.main_weapon_shutters())
+        .chain(source.chests())
+        .chain(source.chests())
+        .chain(source.seal_chests())
+    {
+        all_spots.push(&item_spot.spot);
+        all_items.push(&item_spot.item);
+    }
+    for shop in source.shops() {
+        all_spots.push(&shop.spot);
+        all_items.push(&shop.items.0);
+        all_spots.push(&shop.spot);
+        all_items.push(&shop.items.1);
+        all_spots.push(&shop.spot);
+        all_items.push(&shop.items.2);
+    }
+    (all_spots, all_items)
+}
+
+fn put_alL_items(source: &mut Storage, items: BTreeMap<usize, Item>) {
+    let mut items = items.into_values();
+    for main_weapon_shutter in source.main_weapon_shutters_mut() {
+        main_weapon_shutter.item = items.next().unwrap();
+    }
+    for sub_weapon_shutter in source.sub_weapon_shutters_mut() {
+        sub_weapon_shutter.item = items.next().unwrap();
+    }
+    for chest in source.chests_mut() {
+        chest.item = items.next().unwrap();
+    }
+    for seal_chest in source.seal_chests_mut() {
+        seal_chest.item = items.next().unwrap();
+    }
+    for shop in source.shops_mut() {
+        shop.items.0 = items.next().unwrap();
+        shop.items.1 = items.next().unwrap();
+        shop.items.2 = items.next().unwrap();
+    }
+    debug_assert!(items.next().is_none());
+}
+
+fn shuffle<'a>(rng: &mut impl Rng, source: &'a mut Storage) {
+    'z: loop {
+        // TODO: events を無視してる
+        let (all_spots, mut all_elems) = all_spots_elems(source);
+        // 1. 行けるところをリスト化、なければ一つ巻き戻す
+        // 2. アイテムを無作為に設置する
+        // 3. 1. に戻る
+        all_elems.shuffle(rng);
+        struct Situation {
+            left_spot_indices: Vec<usize>,
+            left_elems: Vec<Item>,
+            reachable_spot_indices: Vec<usize>,
+            found_elems: BTreeMap<usize, Item>,
+            pickup_shift: usize,
+        }
+
+        let (reachable_spot_indices, left_spot_indices) = (0..all_spots.len())
+            .partition::<Vec<usize>, _>(|&idx| all_spots[idx].is_reachable(empty(), 0));
+        let mut current = Situation {
+            left_spot_indices,
+            left_elems: all_elems.into_iter().map(|x| x.to_owned()).collect(),
+            reachable_spot_indices,
+            found_elems: Default::default(),
+            pickup_shift: 0,
+        };
+        let mut history = vec![];
+        while !current.left_spot_indices.is_empty() {
+            if current.reachable_spot_indices.is_empty() {
+                current = history.pop().unwrap();
+                current.pickup_shift += 1;
+            }
+            let mut left_flags = current.left_elems.clone();
+            let mut current_flags = current.found_elems.clone();
+            for spot_idx in 0..current.reachable_spot_indices.len() {
+                current_flags.insert(spot_idx, left_flags.pop().unwrap().to_owned());
+            }
+
+            history.push(current);
+            current = Situation {
+                left_spot_indices,
+                left_elems: left_flags,
+                found_elems: current_flags,
+            };
+
+            let current_sacred_orb_count = current
+                .found_elems
+                .values()
+                .filter(|x| x.name().is_sacred_orb())
+                .count() as u8;
+            let (reachables, left_spot_indices) = current
+                .left_spot_indices
+                .iter()
+                .partition::<Vec<usize>, _>(|&&idx| {
+                    all_spots[idx].is_reachable(
+                        current.found_elems.values().map(|x| x.name()),
+                        current_sacred_orb_count,
+                    )
+                });
+            current.reachable_spot_indices = reachables;
+            current.left_spot_indices = left_spot_indices;
+        }
+
+        let items = current.found_elems;
+        put_alL_items(source, items);
+    }
+}
+
+fn shuffle_(source: &Storage, rng: &mut impl Rng) -> Storage {
     let all_items = source.all_items();
     let (
         mut new_main_weapon_shutters,
@@ -220,18 +339,12 @@ fn assert_unique(storage: &Storage) {
                 .map(|item| ("shop", item))
         }))
         .for_each(|(item_type, item)| {
-            if ![
-                StrategyFlag::new("weights".to_owned()),
-                StrategyFlag::new("shurikenAmmo".to_owned()),
-                StrategyFlag::new("toukenAmmo".to_owned()),
-                StrategyFlag::new("spearAmmo".to_owned()),
-                StrategyFlag::new("flareGunAmmo".to_owned()),
-                StrategyFlag::new("bombAmmo".to_owned()),
-                StrategyFlag::new("ammunition".to_owned()),
-                StrategyFlag::new("shellHorn".to_owned()),
-                StrategyFlag::new("finder".to_owned()),
-            ]
-            .contains(item.name())
+            if !item.name().is_consumable()
+                && ![
+                    StrategyFlag::new("shellHorn".to_owned()),
+                    StrategyFlag::new("finder".to_owned()),
+                ]
+                .contains(item.name())
             {
                 let key = format!("{}:{:?}", item_type, item.name());
                 if names.contains(&key) {

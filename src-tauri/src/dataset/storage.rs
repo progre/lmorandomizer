@@ -14,17 +14,17 @@ pub struct Shop {
     pub items: (Item, Item, Item),
 }
 
-#[derive(Clone, getset::Getters)]
+#[derive(Clone, getset::Getters, getset::MutGetters)]
 pub struct Storage {
-    #[get = "pub"]
+    #[getset(get = "pub", get_mut = "pub")]
     main_weapon_shutters: Vec<ItemSpot>,
-    #[get = "pub"]
+    #[getset(get = "pub", get_mut = "pub")]
     sub_weapon_shutters: Vec<ItemSpot>,
-    #[get = "pub"]
+    #[getset(get = "pub", get_mut = "pub")]
     chests: Vec<ItemSpot>,
-    #[get = "pub"]
+    #[getset(get = "pub", get_mut = "pub")]
     seal_chests: Vec<ItemSpot>,
-    #[get = "pub"]
+    #[getset(get = "pub", get_mut = "pub")]
     shops: Vec<Shop>,
 }
 
@@ -86,7 +86,7 @@ impl Storage {
                 for item_spot in main_weapon_shutters {
                     if item_spot
                         .spot
-                        .is_reachable(&current_item_names, current_sacred_orb_count)
+                        .is_reachable(current_item_names.iter(), current_sacred_orb_count)
                     {
                         reached_item_names_tx
                             .send(item_spot.item.name().to_owned())
@@ -106,7 +106,7 @@ impl Storage {
                 for item_spot in sub_weapon_shutters {
                     if item_spot
                         .spot
-                        .is_reachable(&current_item_names, current_sacred_orb_count)
+                        .is_reachable(current_item_names.iter(), current_sacred_orb_count)
                     {
                         reached_item_names_tx
                             .send(item_spot.item.name().to_owned())
@@ -126,7 +126,7 @@ impl Storage {
                 for item_spot in chests {
                     if item_spot
                         .spot
-                        .is_reachable(&current_item_names, current_sacred_orb_count)
+                        .is_reachable(current_item_names.iter(), current_sacred_orb_count)
                     {
                         reached_item_names_tx
                             .send(item_spot.item.name().to_owned())
@@ -146,7 +146,7 @@ impl Storage {
                 for item_spot in seal_chests {
                     if item_spot
                         .spot
-                        .is_reachable(&current_item_names, current_sacred_orb_count)
+                        .is_reachable(current_item_names.iter(), current_sacred_orb_count)
                     {
                         reached_item_names_tx
                             .send(item_spot.item.name().to_owned())
@@ -166,7 +166,7 @@ impl Storage {
                 for shop in shops {
                     if shop
                         .spot
-                        .is_reachable(&current_item_names, current_sacred_orb_count)
+                        .is_reachable(current_item_names.iter(), current_sacred_orb_count)
                     {
                         reached_item_names_tx
                             .send(shop.items.0.name().to_owned())

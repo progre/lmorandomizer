@@ -23,6 +23,19 @@ impl StrategyFlag {
         self.0.starts_with("sacredOrb:")
     }
 
+    pub fn is_consumable(&self) -> bool {
+        [
+            "weights",
+            "shurikenAmmo",
+            "toukenAmmo",
+            "spearAmmo",
+            "flareGunAmmo",
+            "bombAmmo",
+            "ammunition",
+        ]
+        .contains(&self.0.as_str())
+    }
+
     pub fn get(&self) -> &str {
         self.0.as_str()
     }

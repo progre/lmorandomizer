@@ -12,11 +12,15 @@ impl Spot {
         Self { requirement_items }
     }
 
-    pub fn is_reachable(&self, current_item_names: &[StrategyFlag], sacred_orb_count: u8) -> bool {
+    pub fn is_reachable<'a>(
+        &self,
+        current_item_names: impl Iterator<Item = &'a StrategyFlag>,
+        sacred_orb_count: u8,
+    ) -> bool {
         let Some(any) = &self.requirement_items else {
             return true;
         };
-        let current_item_names: HashSet<_> = current_item_names.iter().map(|x| x.get()).collect();
+        let current_item_names: HashSet<_> = current_item_names.map(|x| x.get()).collect();
         any.0.iter().any(|all| {
             all.0.iter().all(|x| {
                 x.is_sacred_orb() && x.sacred_orb_count() <= sacred_orb_count
