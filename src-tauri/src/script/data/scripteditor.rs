@@ -1,7 +1,7 @@
 use crate::{
     dataset::{
         item::Item,
-        storage::{Shop, Storage},
+        storage::{Shop, Storage, StorageIndices},
         supplements::{
             NIGHT_SURFACE_CHEST_COUNT, NIGHT_SURFACE_SEAL_COUNT, NIGHT_SURFACE_SUB_WEAPON_COUNT,
             TRUE_SHRINE_OF_THE_MOTHER_SEAL_COUNT, WARE_NO_MISE_COUNT,
@@ -82,16 +82,13 @@ fn new_objs(
     obj: &Object,
     next_objs: &[Object],
     shuffled: &Storage,
-    main_weapon_spot_idx: &mut usize,
-    sub_weapon_spot_idx: &mut usize,
-    chest_idx: &mut usize,
-    seal_chest_idx: &mut usize,
+    indices: &mut StorageIndices,
 ) -> Result<Vec<Object>> {
     match obj.number {
         // Main weapons
         77 => {
-            let item = &shuffled.main_weapon_shutters()[*main_weapon_spot_idx].item;
-            *main_weapon_spot_idx += 1;
+            let item = &shuffled.main_weapon_shutters()[indices.main_weapon_spot_idx].item;
+            indices.main_weapon_spot_idx += 1;
             let next_shutter_check_flag = get_next_shutter_check_flag(next_objs)?
                 .ok_or(anyhow!("next_shutter_check_flag not found"))?;
             Ok(vec![to_object_for_shutter(
@@ -103,15 +100,15 @@ fn new_objs(
         // Sub weapons
         13 => {
             // TODO: nightSurface
-            if *sub_weapon_spot_idx >= shuffled.sub_weapon_shutters().len() {
+            if indices.sub_weapon_spot_idx >= shuffled.sub_weapon_shutters().len() {
                 let sum = shuffled.sub_weapon_shutters().len() + NIGHT_SURFACE_SUB_WEAPON_COUNT;
-                debug_assert!(*sub_weapon_spot_idx < sum);
-                *sub_weapon_spot_idx += 1;
+                debug_assert!(indices.sub_weapon_spot_idx < sum);
+                indices.sub_weapon_spot_idx += 1;
                 return Ok(vec![obj.clone()]);
             }
             // Ankh Jewel
-            let item = &shuffled.sub_weapon_shutters()[*sub_weapon_spot_idx].item;
-            *sub_weapon_spot_idx += 1;
+            let item = &shuffled.sub_weapon_shutters()[indices.sub_weapon_spot_idx].item;
+            indices.sub_weapon_spot_idx += 1;
             if obj.op1 == SubWeapon::AnkhJewel as i32 {
                 // Gate of Guidance
                 if obj.op3 == 743 {
@@ -144,35 +141,35 @@ fn new_objs(
                 return Ok(vec![obj.clone()]);
             }
             // TODO: nightSurface
-            if *chest_idx >= shuffled.chests().len() {
+            if indices.chest_idx >= shuffled.chests().len() {
                 let sum = shuffled.chests().len() + NIGHT_SURFACE_CHEST_COUNT;
-                debug_assert!(*chest_idx < sum);
-                *chest_idx += 1;
+                debug_assert!(indices.chest_idx < sum);
+                indices.chest_idx += 1;
                 return Ok(vec![obj.clone()]);
             }
             // twinStatue
             if obj.op1 == 420 {
-                let item = &shuffled.chests()[*chest_idx - 1].item;
+                let item = &shuffled.chests()[indices.chest_idx - 1].item;
                 return to_objects_for_chest(obj, item);
             }
-            let item = &shuffled.chests()[*chest_idx].item;
-            *chest_idx += 1;
+            let item = &shuffled.chests()[indices.chest_idx].item;
+            indices.chest_idx += 1;
             to_objects_for_chest(obj, item)
         }
         // Seal chests
         // TODO: trueShrineOfTheMother
         // TODO: nightSurface
         71 => {
-            if *seal_chest_idx >= shuffled.seal_chests().len() {
+            if indices.seal_chest_idx >= shuffled.seal_chests().len() {
                 let sum = shuffled.seal_chests().len()
                     + TRUE_SHRINE_OF_THE_MOTHER_SEAL_COUNT
                     + NIGHT_SURFACE_SEAL_COUNT;
-                debug_assert!(*seal_chest_idx < sum);
-                *seal_chest_idx += 1;
+                debug_assert!(indices.seal_chest_idx < sum);
+                indices.seal_chest_idx += 1;
                 return Ok(vec![obj.clone()]);
             }
-            let item = &shuffled.seal_chests()[*seal_chest_idx].item;
-            *seal_chest_idx += 1;
+            let item = &shuffled.seal_chests()[indices.seal_chest_idx].item;
+            indices.seal_chest_idx += 1;
             Ok(vec![to_object_for_special_chest(obj, item)?])
         }
         // Trap object for the Ankh Jewel Treasure Chest in Mausoleum of the Giants.
@@ -180,7 +177,7 @@ fn new_objs(
         140 if obj.x == 49152 && obj.y == 16384 => {
             let mut obj = obj.clone();
             let prev_sub_weapon_shutter_item =
-                &shuffled.sub_weapon_shutters()[*sub_weapon_spot_idx - 1].item;
+                &shuffled.sub_weapon_shutters()[indices.sub_weapon_spot_idx - 1].item;
             fix_trap_of_mausoleum_of_the_giants(&mut obj, prev_sub_weapon_shutter_item);
             Ok(vec![obj])
         }
@@ -204,11 +201,8 @@ fn new_objs(
     }
 }
 
-pub fn replace_items(worlds: &mut Vec<World>, shuffled: &Storage) -> Result<()> {
-    let mut main_weapon_spot_idx = 0;
-    let mut sub_weapon_spot_idx = 0;
-    let mut chest_idx = 0;
-    let mut seal_chest_idx = 0;
+pub fn replace_items(worlds: &mut [World], shuffled: &Storage) -> Result<()> {
+    let mut indices = StorageIndices::default();
 
     for world in worlds {
         for field in &mut world.fields {
@@ -219,10 +213,7 @@ pub fn replace_items(worlds: &mut Vec<World>, shuffled: &Storage) -> Result<()> 
                         &map.objects[i],
                         &map.objects[i + 1..],
                         shuffled,
-                        &mut main_weapon_spot_idx,
-                        &mut sub_weapon_spot_idx,
-                        &mut chest_idx,
-                        &mut seal_chest_idx,
+                        &mut indices,
                     )?);
                 }
                 map.objects = objects;

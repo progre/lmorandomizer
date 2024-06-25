@@ -14,6 +14,14 @@ pub struct Shop {
     pub items: (Item, Item, Item),
 }
 
+#[derive(Default)]
+pub struct StorageIndices {
+    pub main_weapon_spot_idx: usize,
+    pub sub_weapon_spot_idx: usize,
+    pub chest_idx: usize,
+    pub seal_chest_idx: usize,
+}
+
 #[derive(Clone, getset::Getters)]
 pub struct Storage {
     #[get = "pub"]
