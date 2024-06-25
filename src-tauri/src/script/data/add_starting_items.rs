@@ -4,29 +4,6 @@ use super::{
     script::{Field, Map, World},
 };
 
-#[allow(clippy::too_many_arguments)]
-fn create_object(
-    number: u16,
-    x: i32,
-    y: i32,
-    op1: i32,
-    op2: i32,
-    op3: i32,
-    op4: i32,
-    starts: Vec<Start>,
-) -> Object {
-    Object {
-        number,
-        x,
-        y,
-        op1,
-        op2,
-        op3,
-        op4,
-        starts,
-    }
-}
-
 pub fn add_starting_items(
     worlds: Vec<World>,
     equipment_list: &[Equipment],
@@ -37,50 +14,57 @@ pub fn add_starting_items(
     let starting_items: Vec<_> = [
         // create_object(7, 43008, 22528, 7, 999, -1, -1, vec![]), // money
         // create_object(7, 43008, 22528, 6, 999, -1, -1, vec![]), // weights
-        create_object(22, 26624, 10240, 2, 2, unused_one_time_flag_no, -1, vec![]),
+        Object {
+            number: 22,
+            x: 26624,
+            y: 10240,
+            op1: 2,
+            op2: 2,
+            op3: unused_one_time_flag_no,
+            op4: -1,
+            starts: vec![],
+        },
     ]
     .into_iter()
     .chain(sub_weapon_list.iter().flat_map(|x| {
         [
-            create_object(
-                13,
-                26624,
-                10240,
-                *x as i32,
-                0,
-                unused_save_flag_no as i32,
-                -1,
-                vec![Start {
+            Object {
+                number: 13,
+                x: 26624,
+                y: 10240,
+                op1: *x as i32,
+                op2: 0,
+                op3: unused_save_flag_no as i32,
+                op4: -1,
+                starts: vec![Start {
                     number: unused_save_flag_no,
                     run_when_unset: false,
                 }],
-            ),
-            create_object(
-                13,
-                26624,
-                10240,
-                *x as i32,
-                255,
-                unused_save_flag_no as i32,
-                -1,
-                vec![Start {
+            },
+            Object {
+                number: 13,
+                x: 26624,
+                y: 10240,
+                op1: *x as i32,
+                op2: 255,
+                op3: unused_save_flag_no as i32,
+                op4: -1,
+                starts: vec![Start {
                     number: unused_save_flag_no,
                     run_when_unset: false,
                 }],
-            ),
+            },
         ]
     }))
-    .chain(equipment_list.iter().map(|x| {
-        create_object(
-            1,
-            26624,
-            14336,
-            unused_one_time_flag_no,
-            *x as i32,
-            unused_save_flag_no as i32,
-            -1,
-            vec![],
-        )
+    .chain(equipment_list.iter().map(|x| Object {
+        number: 1,
+        x: 26624,
+        y: 14336,
+        op1: unused_one_time_flag_no,
+        op2: *x as i32,
+        op3: unused_save_flag_no as i32,
+        op4: -1,
+        starts: vec![],
     }))
     .collect();
     worlds

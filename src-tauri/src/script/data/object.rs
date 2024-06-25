@@ -1,3 +1,5 @@
+use std::num::NonZero;
+
 use anyhow::{bail, Result};
 
 use super::shop_items_data::{self, ShopItem};
@@ -50,6 +52,69 @@ pub struct Object {
 }
 
 impl Object {
+    pub fn chest(pos: &Object, op1: i32, number: i16, set_flag: u16, starts: Vec<Start>) -> Self {
+        Object {
+            number: 1,
+            x: pos.x,
+            y: pos.y,
+            op1,
+            op2: number as i32,
+            op3: set_flag as i32,
+            op4: -1,
+            starts,
+        }
+    }
+
+    pub fn main_weapon(
+        pos: &Object,
+        main_weapon: super::items::MainWeapon,
+        set_flag: u16,
+        starts: Vec<Start>,
+    ) -> Self {
+        Object {
+            number: 77,
+            x: pos.x,
+            y: pos.y,
+            op1: main_weapon as i32,
+            op2: set_flag as i32,
+            op3: -1,
+            op4: -1,
+            starts,
+        }
+    }
+
+    pub fn sub_weapon(
+        pos: &Object,
+        sub_weapon: super::items::SubWeapon,
+        count: Option<NonZero<u8>>,
+        set_flag: u16,
+        starts: Vec<Start>,
+    ) -> Self {
+        Object {
+            number: 13,
+            x: pos.x,
+            y: pos.y,
+            op1: sub_weapon as i32,
+            op2: count.map_or(0, |x| x.get()) as i32,
+            op3: set_flag as i32,
+            op4: -1,
+            starts,
+        }
+    }
+
+    pub fn seal(pos: &Object, number: u8, set_flag: u16, starts: Vec<Start>) -> Self {
+        Object {
+            number: 71,
+            x: pos.x,
+            y: pos.y,
+            op1: number as i32,
+            op2: set_flag as i32,
+            op3: -1,
+            op4: -1,
+            starts,
+        }
+    }
+
     pub fn to_main_weapon(&self) -> Result<Option<MainWeapon>> {
         if self.number != 77 {
             return Ok(None);

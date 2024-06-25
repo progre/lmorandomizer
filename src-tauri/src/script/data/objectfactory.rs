@@ -11,26 +11,20 @@ pub fn to_object_for_shutter(old_obj: &Object, start_flag: u16, item: &Item) -> 
     Ok(match item {
         Item::MainWeapon(item) => create_main_weapon(old_obj, item)?,
         Item::SubWeapon(item) => create_sub_weapon(old_obj, item)?,
-        Item::Equipment(item) => Object {
-            number: 1,
-            x: old_obj.x,
-            y: old_obj.y,
-            op1: 40,
-            op2: item.number as i32,
-            op3: item.flag as i32,
-            op4: -1,
-            starts: starts_that_hide_when_startup(old_obj, start_flag)?,
-        },
-        Item::Rom(item) => Object {
-            number: 1,
-            x: old_obj.x,
-            y: old_obj.y,
-            op1: 40,
-            op2: 100 + item.number.0 as i32,
-            op3: item.flag as i32,
-            op4: -1,
-            starts: starts_that_hide_when_startup(old_obj, start_flag)?,
-        },
+        Item::Equipment(item) => Object::chest(
+            old_obj,
+            40,
+            item.number as i16,
+            item.flag,
+            starts_that_hide_when_startup(old_obj, start_flag)?,
+        ),
+        Item::Rom(item) => Object::chest(
+            old_obj,
+            40,
+            100 + item.number.0 as i16,
+            item.flag,
+            starts_that_hide_when_startup(old_obj, start_flag)?,
+        ),
         Item::Seal(item) => create_seal(old_obj, item)?,
     })
 }
@@ -44,26 +38,20 @@ pub fn to_object_for_special_chest(old_obj: &Object, item: &Item) -> Result<Obje
             );
             create_sub_weapon(old_obj, item)?
         }
-        Item::Equipment(item) => Object {
-            number: 1,
-            x: old_obj.x,
-            y: old_obj.y,
-            op1: 40,
-            op2: item.number as i32,
-            op3: item.flag as i32,
-            op4: -1,
-            starts: get_starts_without_old_flag(old_obj)?,
-        },
-        Item::Rom(item) => Object {
-            number: 1,
-            x: old_obj.x,
-            y: old_obj.y,
-            op1: 40,
-            op2: 100 + item.number.0 as i32,
-            op3: item.flag as i32,
-            op4: -1,
-            starts: get_starts_without_old_flag(old_obj)?,
-        },
+        Item::Equipment(item) => Object::chest(
+            old_obj,
+            40,
+            item.number as i16,
+            item.flag,
+            get_starts_without_old_flag(old_obj)?,
+        ),
+        Item::Rom(item) => Object::chest(
+            old_obj,
+            40,
+            100 + item.number.0 as i16,
+            item.flag,
+            get_starts_without_old_flag(old_obj)?,
+        ),
         Item::Seal(item) => create_seal(old_obj, item)?,
     })
 }
@@ -77,41 +65,31 @@ pub fn to_objects_for_chest(old_obj: &Object, item: &Item) -> Result<Vec<Object>
             );
             create_sub_weapon_chest(old_obj, item)?
         }
-        Item::Equipment(item) => vec![Object {
-            number: 1,
-            x: old_obj.x,
-            y: old_obj.y,
-            op1: old_obj.op1,
-            op2: item.number as i32,
-            op3: item.flag as i32,
-            op4: -1,
-            starts: starts_as_is(old_obj, item.flag)?,
-        }],
-        Item::Rom(item) => vec![Object {
-            number: 1,
-            x: old_obj.x,
-            y: old_obj.y,
-            op1: old_obj.op1,
-            op2: 100 + item.number.0 as i32,
-            op3: item.flag as i32,
-            op4: -1,
-            starts: starts_as_is(old_obj, item.flag)?,
-        }],
+        Item::Equipment(item) => vec![Object::chest(
+            old_obj,
+            old_obj.op1,
+            item.number as i16,
+            item.flag,
+            starts_as_is(old_obj, item.flag)?,
+        )],
+        Item::Rom(item) => vec![Object::chest(
+            old_obj,
+            old_obj.op1,
+            100 + item.number.0 as i16,
+            item.flag,
+            starts_as_is(old_obj, item.flag)?,
+        )],
         Item::Seal(item) => create_seal_chest(old_obj, item)?,
     })
 }
 
 fn create_main_weapon(old_obj: &Object, item: &dataset::item::MainWeapon) -> Result<Object> {
-    Ok(Object {
-        number: 77,
-        x: old_obj.x,
-        y: old_obj.y,
-        op1: item.number as i32,
-        op2: item.flag as i32,
-        op3: -1,
-        op4: -1,
-        starts: starts_as_is(old_obj, item.flag)?,
-    })
+    Ok(Object::main_weapon(
+        old_obj,
+        item.number,
+        item.flag,
+        starts_as_is(old_obj, item.flag)?,
+    ))
 }
 
 fn create_main_weapon_chest(
@@ -120,30 +98,23 @@ fn create_main_weapon_chest(
 ) -> Result<Vec<Object>> {
     Ok(vec![
         create_empty_chest(old_obj, item.flag)?,
-        Object {
-            number: 77,
-            x: old_obj.x,
-            y: old_obj.y,
-            op1: item.number as i32,
-            op2: item.flag as i32,
-            op3: -1,
-            op4: -1,
-            starts: starts_that_hide_when_startup_and_taken(old_obj, item.flag)?,
-        },
+        Object::main_weapon(
+            old_obj,
+            item.number,
+            item.flag,
+            starts_that_hide_when_startup_and_taken(old_obj, item.flag)?,
+        ),
     ])
 }
 
 fn create_sub_weapon(old_obj: &Object, item: &dataset::item::SubWeapon) -> Result<Object> {
-    Ok(Object {
-        number: 13,
-        x: old_obj.x,
-        y: old_obj.y,
-        op1: item.number as i32,
-        op2: item.count.map_or(0, |x| x.get()) as i32,
-        op3: item.flag as i32,
-        op4: -1,
-        starts: starts_as_is(old_obj, item.flag)?,
-    })
+    Ok(Object::sub_weapon(
+        old_obj,
+        item.number,
+        item.count,
+        item.flag,
+        starts_as_is(old_obj, item.flag)?,
+    ))
 }
 
 fn create_sub_weapon_chest(
@@ -152,59 +123,45 @@ fn create_sub_weapon_chest(
 ) -> Result<Vec<Object>> {
     Ok(vec![
         create_empty_chest(old_obj, item.flag)?,
-        Object {
-            number: 13,
-            x: old_obj.x,
-            y: old_obj.y,
-            op1: item.number as i32,
-            op2: item.count.map_or(0, |x| x.get()) as i32,
-            op3: item.flag as i32,
-            op4: -1,
-            starts: starts_that_hide_when_startup_and_taken(old_obj, item.flag)?,
-        },
+        Object::sub_weapon(
+            old_obj,
+            item.number,
+            item.count,
+            item.flag,
+            starts_that_hide_when_startup_and_taken(old_obj, item.flag)?,
+        ),
     ])
 }
 
 fn create_seal(old_obj: &Object, item: &dataset::item::Seal) -> Result<Object> {
-    Ok(Object {
-        number: 71,
-        x: old_obj.x,
-        y: old_obj.y,
-        op1: item.number as i32,
-        op2: item.flag as i32,
-        op3: -1,
-        op4: -1,
-        starts: starts_as_is(old_obj, item.flag)?,
-    })
+    Ok(Object::seal(
+        old_obj,
+        item.number,
+        item.flag,
+        starts_as_is(old_obj, item.flag)?,
+    ))
 }
 
 fn create_seal_chest(old_obj: &Object, item: &dataset::item::Seal) -> Result<Vec<Object>> {
     Ok(vec![
         create_empty_chest(old_obj, item.flag)?,
-        Object {
-            number: 71,
-            x: old_obj.x,
-            y: old_obj.y,
-            op1: item.number as i32,
-            op2: item.flag as i32,
-            op3: -1,
-            op4: -1,
-            starts: starts_that_hide_when_startup_and_taken(old_obj, item.flag)?,
-        },
+        Object::seal(
+            old_obj,
+            item.number,
+            item.flag,
+            starts_that_hide_when_startup_and_taken(old_obj, item.flag)?,
+        ),
     ])
 }
 
 fn create_empty_chest(old_obj: &Object, flag: u16) -> Result<Object> {
-    Ok(Object {
-        number: 1,
-        x: old_obj.x,
-        y: old_obj.y,
-        op1: old_obj.op1,
-        op2: -1,
-        op3: old_obj.op1,
-        op4: -1,
-        starts: starts_as_is(old_obj, flag)?,
-    })
+    Ok(Object::chest(
+        old_obj,
+        old_obj.op1,
+        -1,
+        old_obj.op1 as u16,
+        starts_as_is(old_obj, flag)?,
+    ))
 }
 
 fn starts_that_hide_when_startup_and_taken(
