@@ -64,11 +64,11 @@ fn sub_weapons(script: &Script, supplements: &Supplements) -> Result<Vec<Item>> 
         .enumerate()
         .map(|(i, supplement)| {
             let data = &sub_weapons_data_list[i];
-            Ok(Item::sub_weapon(
-                supplement.name.clone(),
-                data.content,
-                NonZero::new(u8::try_from(data.count)?),
-                data.flag,
+            Ok(NonZero::new(u8::try_from(data.count)?).map_or_else(
+                || Item::sub_weapon_body(supplement.name.clone(), data.content, data.flag),
+                |count| {
+                    Item::sub_weapon_ammo(supplement.name.clone(), data.content, count, data.flag)
+                },
             ))
         })
         .collect()
@@ -141,8 +141,11 @@ fn shops(script: &Script, supplements: &Supplements) -> Result<Vec<(Item, Item, 
 
 fn create_item_from_shop(name: StrategyFlag, data: &ShopItem) -> Result<Item> {
     Ok(match data {
-        ShopItem::SubWeapon(data) => {
-            Item::sub_weapon(name, data.sub_weapon, data.count, data.set_flag)
+        ShopItem::SubWeaponBody(data) => {
+            Item::sub_weapon_body(name, data.sub_weapon, data.set_flag)
+        }
+        ShopItem::SubWeaponAmmo(data) => {
+            Item::sub_weapon_ammo(name, data.sub_weapon, data.count, data.set_flag)
         }
         ShopItem::Equipment(data) => Item::equipment(name, data.equipment, data.set_flag),
         ShopItem::Rom(data) => Item::rom(name, data.rom, data.set_flag),

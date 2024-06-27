@@ -1,167 +1,115 @@
 use anyhow::Result;
 
-use crate::dataset::{self, item::Item};
+use crate::dataset::item::Item;
 
-use super::{
-    items::SubWeapon,
-    object::{Object, Start},
-};
+use super::object::{Object, Start};
 
 pub fn to_object_for_shutter(old_obj: &Object, start_flag: u16, item: &Item) -> Result<Object> {
     Ok(match item {
-        Item::MainWeapon(item) => create_main_weapon(old_obj, item)?,
-        Item::SubWeapon(item) => create_sub_weapon(old_obj, item)?,
-        Item::Equipment(item) => Object::chest(
-            old_obj,
-            40,
-            item.content as i16,
-            item.flag,
-            starts_that_hide_when_startup(old_obj, start_flag)?,
-        ),
-        Item::Rom(item) => Object::chest(
-            old_obj,
-            40,
-            100 + item.content.0 as i16,
-            item.flag,
-            starts_that_hide_when_startup(old_obj, start_flag)?,
-        ),
-        Item::Seal(item) => create_seal(old_obj, item)?,
+        Item::MainWeapon(item) => {
+            let starts = starts_as_is(old_obj, item.flag)?;
+            Object::main_weapon(old_obj, item.content, item.flag, starts)
+        }
+        Item::SubWeaponBody(item) => {
+            let starts = starts_as_is(old_obj, item.flag)?;
+            Object::sub_weapon_body(old_obj, item.content, item.flag, starts)
+        }
+        Item::SubWeaponAmmo(item) => {
+            let starts = starts_as_is(old_obj, item.flag)?;
+            Object::sub_weapon_ammo(old_obj, item.content, item.count, item.flag, starts)
+        }
+        Item::Equipment(item) => {
+            let starts = starts_that_hide_when_startup(old_obj, start_flag)?;
+            Object::chest(old_obj, 40, item.content as i16, item.flag, starts)
+        }
+        Item::Rom(item) => {
+            let starts = starts_that_hide_when_startup(old_obj, start_flag)?;
+            Object::chest(old_obj, 40, 100 + item.content.0 as i16, item.flag, starts)
+        }
+        Item::Seal(item) => {
+            let starts = starts_as_is(old_obj, item.flag)?;
+            Object::seal(old_obj, item.content, item.flag, starts)
+        }
     })
 }
 
 pub fn to_object_for_special_chest(old_obj: &Object, item: &Item) -> Result<Object> {
     Ok(match item {
-        Item::MainWeapon(item) => create_main_weapon(old_obj, item)?,
-        Item::SubWeapon(item) => {
-            debug_assert!(
-                !(item.content == SubWeapon::AnkhJewel && item.count.map_or(0, |x| x.get()) > 1)
-            );
-            create_sub_weapon(old_obj, item)?
+        Item::MainWeapon(item) => {
+            let starts = starts_as_is(old_obj, item.flag)?;
+            Object::main_weapon(old_obj, item.content, item.flag, starts)
         }
-        Item::Equipment(item) => Object::chest(
-            old_obj,
-            40,
-            item.content as i16,
-            item.flag,
-            get_starts_without_old_flag(old_obj)?,
-        ),
-        Item::Rom(item) => Object::chest(
-            old_obj,
-            40,
-            100 + item.content.0 as i16,
-            item.flag,
-            get_starts_without_old_flag(old_obj)?,
-        ),
-        Item::Seal(item) => create_seal(old_obj, item)?,
+        Item::SubWeaponBody(item) => {
+            let starts = starts_as_is(old_obj, item.flag)?;
+            Object::sub_weapon_body(old_obj, item.content, item.flag, starts)
+        }
+        Item::SubWeaponAmmo(item) => {
+            let starts = starts_as_is(old_obj, item.flag)?;
+            Object::sub_weapon_ammo(old_obj, item.content, item.count, item.flag, starts)
+        }
+        Item::Equipment(item) => {
+            let starts = get_starts_without_old_flag(old_obj)?;
+            Object::chest(old_obj, 40, item.content as i16, item.flag, starts)
+        }
+        Item::Rom(item) => {
+            let starts = get_starts_without_old_flag(old_obj)?;
+            Object::chest(old_obj, 40, 100 + item.content.0 as i16, item.flag, starts)
+        }
+        Item::Seal(item) => {
+            let starts = starts_as_is(old_obj, item.flag)?;
+            Object::seal(old_obj, item.content, item.flag, starts)
+        }
     })
 }
 
 pub fn to_objects_for_chest(old_obj: &Object, item: &Item) -> Result<Vec<Object>> {
     Ok(match item {
-        Item::MainWeapon(item) => create_main_weapon_chest(old_obj, item)?,
-        Item::SubWeapon(item) => {
-            debug_assert!(
-                !(item.content == SubWeapon::AnkhJewel && item.count.map_or(0, |x| x.get()) > 1)
-            );
-            create_sub_weapon_chest(old_obj, item)?
+        Item::MainWeapon(item) => {
+            let starts = starts_that_hide_when_startup_and_taken(old_obj, item.flag)?;
+            vec![
+                create_empty_chest(old_obj, item.flag)?,
+                Object::main_weapon(old_obj, item.content, item.flag, starts),
+            ]
         }
-        Item::Equipment(item) => vec![Object::chest(
-            old_obj,
-            old_obj.op1,
-            item.content as i16,
-            item.flag,
-            starts_as_is(old_obj, item.flag)?,
-        )],
-        Item::Rom(item) => vec![Object::chest(
-            old_obj,
-            old_obj.op1,
-            100 + item.content.0 as i16,
-            item.flag,
-            starts_as_is(old_obj, item.flag)?,
-        )],
-        Item::Seal(item) => create_seal_chest(old_obj, item)?,
+        Item::SubWeaponBody(item) => {
+            let starts = starts_that_hide_when_startup_and_taken(old_obj, item.flag)?;
+            vec![
+                create_empty_chest(old_obj, item.flag)?,
+                Object::sub_weapon_body(old_obj, item.content, item.flag, starts),
+            ]
+        }
+        Item::SubWeaponAmmo(item) => {
+            let starts = starts_that_hide_when_startup_and_taken(old_obj, item.flag)?;
+            vec![
+                create_empty_chest(old_obj, item.flag)?,
+                Object::sub_weapon_ammo(old_obj, item.content, item.count, item.flag, starts),
+            ]
+        }
+        Item::Equipment(item) => {
+            let starts = starts_as_is(old_obj, item.flag)?;
+            let chest = Object::chest(old_obj, old_obj.op1, item.content as i16, item.flag, starts);
+            vec![chest]
+        }
+        Item::Rom(item) => {
+            let starts = starts_as_is(old_obj, item.flag)?;
+            let number = 100 + item.content.0 as i16;
+            let chest = Object::chest(old_obj, old_obj.op1, number, item.flag, starts);
+            vec![chest]
+        }
+        Item::Seal(item) => {
+            let starts = starts_that_hide_when_startup_and_taken(old_obj, item.flag)?;
+            vec![
+                create_empty_chest(old_obj, item.flag)?,
+                Object::seal(old_obj, item.content, item.flag, starts),
+            ]
+        }
     })
 }
 
-fn create_main_weapon(old_obj: &Object, item: &dataset::item::MainWeapon) -> Result<Object> {
-    Ok(Object::main_weapon(
-        old_obj,
-        item.content,
-        item.flag,
-        starts_as_is(old_obj, item.flag)?,
-    ))
-}
-
-fn create_main_weapon_chest(
-    old_obj: &Object,
-    item: &dataset::item::MainWeapon,
-) -> Result<Vec<Object>> {
-    Ok(vec![
-        create_empty_chest(old_obj, item.flag)?,
-        Object::main_weapon(
-            old_obj,
-            item.content,
-            item.flag,
-            starts_that_hide_when_startup_and_taken(old_obj, item.flag)?,
-        ),
-    ])
-}
-
-fn create_sub_weapon(old_obj: &Object, item: &dataset::item::SubWeapon) -> Result<Object> {
-    Ok(Object::sub_weapon(
-        old_obj,
-        item.content,
-        item.count,
-        item.flag,
-        starts_as_is(old_obj, item.flag)?,
-    ))
-}
-
-fn create_sub_weapon_chest(
-    old_obj: &Object,
-    item: &dataset::item::SubWeapon,
-) -> Result<Vec<Object>> {
-    Ok(vec![
-        create_empty_chest(old_obj, item.flag)?,
-        Object::sub_weapon(
-            old_obj,
-            item.content,
-            item.count,
-            item.flag,
-            starts_that_hide_when_startup_and_taken(old_obj, item.flag)?,
-        ),
-    ])
-}
-
-fn create_seal(old_obj: &Object, item: &dataset::item::Seal) -> Result<Object> {
-    Ok(Object::seal(
-        old_obj,
-        item.content,
-        item.flag,
-        starts_as_is(old_obj, item.flag)?,
-    ))
-}
-
-fn create_seal_chest(old_obj: &Object, item: &dataset::item::Seal) -> Result<Vec<Object>> {
-    Ok(vec![
-        create_empty_chest(old_obj, item.flag)?,
-        Object::seal(
-            old_obj,
-            item.content,
-            item.flag,
-            starts_that_hide_when_startup_and_taken(old_obj, item.flag)?,
-        ),
-    ])
-}
-
 fn create_empty_chest(old_obj: &Object, flag: u16) -> Result<Object> {
-    Ok(Object::chest(
-        old_obj,
-        old_obj.op1,
-        -1,
-        old_obj.op1 as u16,
-        starts_as_is(old_obj, flag)?,
-    ))
+    let starts = starts_as_is(old_obj, flag)?;
+    let obj = Object::chest(old_obj, old_obj.op1, -1, old_obj.op1 as u16, starts);
+    Ok(obj)
 }
 
 fn starts_that_hide_when_startup_and_taken(
@@ -230,9 +178,6 @@ fn get_starts_without_old_flag(old_obj: &Object) -> Result<Vec<Start>> {
         .starts
         .iter()
         .filter(|x| x.number != item_flag as u32)
-        .map(|x| Start {
-            number: x.number,
-            run_when_unset: x.run_when_unset,
-        })
+        .cloned()
         .collect())
 }

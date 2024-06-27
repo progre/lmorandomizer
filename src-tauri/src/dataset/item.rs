@@ -12,10 +12,17 @@ pub struct MainWeapon {
 }
 
 #[derive(Clone, Debug)]
-pub struct SubWeapon {
+pub struct SubWeaponBody {
     pub name: StrategyFlag,
     pub content: items::SubWeapon,
-    pub count: Option<NonZero<u8>>,
+    pub flag: u16,
+}
+
+#[derive(Clone, Debug)]
+pub struct SubWeaponAmmo {
+    pub name: StrategyFlag,
+    pub content: items::SubWeapon,
+    pub count: NonZero<u8>,
     pub flag: u16,
 }
 
@@ -43,7 +50,8 @@ pub struct Seal {
 #[derive(Clone, Debug)]
 pub enum Item {
     MainWeapon(MainWeapon),
-    SubWeapon(SubWeapon),
+    SubWeaponBody(SubWeaponBody),
+    SubWeaponAmmo(SubWeaponAmmo),
     Equipment(Equipment),
     Rom(Rom),
     Seal(Seal),
@@ -67,14 +75,22 @@ impl Item {
             flag,
         })
     }
-    pub fn sub_weapon(
+    pub fn sub_weapon_body(name: StrategyFlag, content: items::SubWeapon, flag: u16) -> Self {
+        Self::initial_assert(content as i8, flag, true);
+        Self::SubWeaponBody(SubWeaponBody {
+            name,
+            content,
+            flag,
+        })
+    }
+    pub fn sub_weapon_ammo(
         name: StrategyFlag,
         content: items::SubWeapon,
-        count: Option<NonZero<u8>>,
+        count: NonZero<u8>,
         flag: u16,
     ) -> Self {
         Self::initial_assert(content as i8, flag, true);
-        Self::SubWeapon(SubWeapon {
+        Self::SubWeaponAmmo(SubWeaponAmmo {
             name,
             content,
             count,
@@ -109,7 +125,8 @@ impl Item {
     pub fn name(&self) -> &StrategyFlag {
         match self {
             Self::MainWeapon(x) => &x.name,
-            Self::SubWeapon(x) => &x.name,
+            Self::SubWeaponBody(x) => &x.name,
+            Self::SubWeaponAmmo(x) => &x.name,
             Self::Equipment(x) => &x.name,
             Self::Rom(x) => &x.name,
             Self::Seal(x) => &x.name,
@@ -119,7 +136,8 @@ impl Item {
     pub fn flag(&self) -> u16 {
         match self {
             Self::MainWeapon(x) => x.flag,
-            Self::SubWeapon(x) => x.flag,
+            Self::SubWeaponBody(x) => x.flag,
+            Self::SubWeaponAmmo(x) => x.flag,
             Self::Equipment(x) => x.flag,
             Self::Rom(x) => x.flag,
             Self::Seal(x) => x.flag,
@@ -134,12 +152,12 @@ impl Item {
         self.flag() % 256 != 0
             && match self {
                 Self::MainWeapon(_) => false,
-                Self::SubWeapon(x) => {
-                    x.count.is_some()
-                        || x.content == items::SubWeapon::Pistol
+                Self::SubWeaponBody(x) => {
+                    x.content == items::SubWeapon::Pistol
                         || x.content == items::SubWeapon::Buckler
                         || x.content == items::SubWeapon::HandScanner
                 }
+                Self::SubWeaponAmmo(_) => true,
                 Self::Equipment(x) => {
                     x.content != items::Equipment::Map && x.content != items::Equipment::SacredOrb
                 }

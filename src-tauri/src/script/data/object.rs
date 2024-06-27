@@ -93,19 +93,39 @@ impl Object {
         }
     }
 
-    pub fn sub_weapon(
+    pub fn sub_weapon_body(
         pos: &Object,
         content: items::SubWeapon,
-        count: Option<NonZero<u8>>,
         set_flag: u16,
         starts: Vec<Start>,
     ) -> Self {
+        debug_assert!(content != items::SubWeapon::AnkhJewel);
         Object {
             number: 13,
             x: pos.x,
             y: pos.y,
             op1: content as i32,
-            op2: count.map_or(0, |x| x.get()) as i32,
+            op2: 0,
+            op3: set_flag as i32,
+            op4: -1,
+            starts,
+        }
+    }
+
+    pub fn sub_weapon_ammo(
+        pos: &Object,
+        content: items::SubWeapon,
+        count: NonZero<u8>,
+        set_flag: u16,
+        starts: Vec<Start>,
+    ) -> Self {
+        debug_assert!(content != items::SubWeapon::AnkhJewel || count.get() == 1);
+        Object {
+            number: 13,
+            x: pos.x,
+            y: pos.y,
+            op1: content as i32,
+            op2: count.get() as i32,
             op3: set_flag as i32,
             op4: -1,
             starts,

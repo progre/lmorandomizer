@@ -58,9 +58,13 @@ fn to_shop_item(old_item: &ShopItem, new_item: &Item) -> ShopItem {
     let price = old_item.price();
     match new_item {
         Item::MainWeapon(_) => unreachable!(),
-        Item::SubWeapon(new_item) => {
+        Item::SubWeaponBody(new_item) => {
             let set_flag = new_item.flag;
-            ShopItem::sub_weapon(new_item.content, price, new_item.count, set_flag)
+            ShopItem::sub_weapon_body(new_item.content, price, set_flag)
+        }
+        Item::SubWeaponAmmo(new_item) => {
+            let set_flag = new_item.flag;
+            ShopItem::sub_weapon_ammo(new_item.content, price, new_item.count, set_flag)
         }
         Item::Equipment(new_item) => {
             let set_flag = new_item.flag;
