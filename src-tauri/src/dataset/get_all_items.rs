@@ -11,10 +11,8 @@ use crate::{
             WARE_NO_MISE_COUNT,
         },
     },
-    script::data::{object::ChestContent, script::Script, shop_items_data::ShopItem},
+    script::data::{object::ChestContent, script::Script},
 };
-
-use super::supplements::StrategyFlag;
 
 pub struct AllItems {
     pub main_weapons: Vec<Item>,
@@ -131,23 +129,10 @@ fn shops(script: &Script, supplements: &Supplements) -> Result<Vec<(Item, Item, 
         .map(|(i, supplement)| {
             let shop = &shops_data_list[i];
             Ok((
-                create_item_from_shop(supplement.names.0.clone(), &shop.items.0)?,
-                create_item_from_shop(supplement.names.1.clone(), &shop.items.1)?,
-                create_item_from_shop(supplement.names.2.clone(), &shop.items.2)?,
+                Item::from_shop_item(shop.items.0.clone(), supplement.names.0.clone())?,
+                Item::from_shop_item(shop.items.1.clone(), supplement.names.1.clone())?,
+                Item::from_shop_item(shop.items.2.clone(), supplement.names.2.clone())?,
             ))
         })
         .collect::<Result<_>>()
-}
-
-fn create_item_from_shop(name: StrategyFlag, data: &ShopItem) -> Result<Item> {
-    Ok(match data {
-        ShopItem::SubWeaponBody(data) => {
-            Item::sub_weapon_body(name, data.sub_weapon, data.set_flag)
-        }
-        ShopItem::SubWeaponAmmo(data) => {
-            Item::sub_weapon_ammo(name, data.sub_weapon, data.count, data.set_flag)
-        }
-        ShopItem::Equipment(data) => Item::equipment(name, data.equipment, data.set_flag),
-        ShopItem::Rom(data) => Item::rom(name, data.rom, data.set_flag),
-    })
 }

@@ -1,6 +1,5 @@
 use crate::{
     dataset::{
-        item::Item,
         storage::{Shop, Storage, StorageIndices},
         supplements::{
             NIGHT_SURFACE_CHEST_COUNT, NIGHT_SURFACE_SEAL_COUNT, NIGHT_SURFACE_SUB_WEAPON_COUNT,
@@ -12,6 +11,7 @@ use crate::{
 use anyhow::{anyhow, Result};
 
 use super::{
+    item::Item,
     items::{Equipment, SubWeapon},
     object::{Object, Start},
     objectfactory::{to_object_for_shutter, to_object_for_special_chest, to_objects_for_chest},
@@ -41,7 +41,8 @@ pub fn replace_shops(
             .enumerate()
             .map(|(j, old_item)| {
                 let new_item = [&new_shop.items.0, &new_shop.items.1, &new_shop.items.2][j];
-                to_shop_item(&old_item, new_item)
+                let new_item = Item::from_dataset(new_item);
+                ShopItem::from_item(new_item, old_item.price())
             })
             .collect::<Vec<_>>()
             .into_iter();
@@ -54,32 +55,8 @@ pub fn replace_shops(
     Ok(())
 }
 
-fn to_shop_item(old_item: &ShopItem, new_item: &Item) -> ShopItem {
-    let price = old_item.price();
-    match new_item {
-        Item::MainWeapon(_) => unreachable!(),
-        Item::SubWeaponBody(new_item) => {
-            let set_flag = new_item.flag;
-            ShopItem::sub_weapon_body(new_item.content, price, set_flag)
-        }
-        Item::SubWeaponAmmo(new_item) => {
-            let set_flag = new_item.flag;
-            ShopItem::sub_weapon_ammo(new_item.content, price, new_item.count, set_flag)
-        }
-        Item::Equipment(new_item) => {
-            let set_flag = new_item.flag;
-            ShopItem::equipment(new_item.content, price, set_flag)
-        }
-        Item::Rom(new_item) => {
-            let set_flag = new_item.flag;
-            ShopItem::rom(new_item.content, price, set_flag)
-        }
-        Item::Seal(_) => unreachable!(),
-    }
-}
-
 fn fix_trap_of_mausoleum_of_the_giants(obj: &mut Object, prev_sub_weapon_shutter_item: &Item) {
-    obj.op1 = prev_sub_weapon_shutter_item.flag() as i32;
+    obj.op1 = prev_sub_weapon_shutter_item.set_flag() as i32;
 }
 
 fn new_objs(
@@ -92,6 +69,7 @@ fn new_objs(
         // Main weapons
         77 => {
             let item = &shuffled.main_weapon_shutters()[indices.main_weapon_spot_idx].item;
+            let item = &Item::from_dataset(item);
             indices.main_weapon_spot_idx += 1;
             let next_shutter_check_flag = get_next_shutter_check_flag(next_objs)?
                 .ok_or(anyhow!("next_shutter_check_flag not found"))?;
@@ -112,6 +90,7 @@ fn new_objs(
             }
             // Ankh Jewel
             let item = &shuffled.sub_weapon_shutters()[indices.sub_weapon_spot_idx].item;
+            let item = &Item::from_dataset(item);
             indices.sub_weapon_spot_idx += 1;
             if obj.op1 == SubWeapon::AnkhJewel as i32 {
                 // Gate of Guidance
@@ -154,9 +133,11 @@ fn new_objs(
             // twinStatue
             if obj.op1 == 420 {
                 let item = &shuffled.chests()[indices.chest_idx - 1].item;
+                let item = &Item::from_dataset(item);
                 return to_objects_for_chest(obj, item);
             }
             let item = &shuffled.chests()[indices.chest_idx].item;
+            let item = &Item::from_dataset(item);
             indices.chest_idx += 1;
             to_objects_for_chest(obj, item)
         }
@@ -173,6 +154,7 @@ fn new_objs(
                 return Ok(vec![obj.clone()]);
             }
             let item = &shuffled.seal_chests()[indices.seal_chest_idx].item;
+            let item = &Item::from_dataset(item);
             indices.seal_chest_idx += 1;
             Ok(vec![to_object_for_special_chest(obj, item)?])
         }
@@ -182,6 +164,7 @@ fn new_objs(
             let mut obj = obj.clone();
             let prev_sub_weapon_shutter_item =
                 &shuffled.sub_weapon_shutters()[indices.sub_weapon_spot_idx - 1].item;
+            let prev_sub_weapon_shutter_item = &Item::from_dataset(prev_sub_weapon_shutter_item);
             fix_trap_of_mausoleum_of_the_giants(&mut obj, prev_sub_weapon_shutter_item);
             Ok(vec![obj])
         }

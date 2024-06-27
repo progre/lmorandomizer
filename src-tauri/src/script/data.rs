@@ -1,4 +1,5 @@
 mod add_starting_items;
+pub mod item;
 pub mod items;
 pub mod object;
 mod objectfactory;

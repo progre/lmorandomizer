@@ -1,6 +1,8 @@
 use std::num::NonZero;
 
-use crate::script::data::items;
+use anyhow::Result;
+
+use crate::script::data::{items, shop_items_data::ShopItem};
 
 use super::supplements::StrategyFlag;
 
@@ -58,6 +60,24 @@ pub enum Item {
 }
 
 impl Item {
+    pub fn from_shop_item(data: ShopItem, name: StrategyFlag) -> Result<Item> {
+        Ok(match data {
+            ShopItem::SubWeaponBody(data) => {
+                Item::sub_weapon_body(name, data.item.content, data.item.set_flag)
+            }
+            ShopItem::SubWeaponAmmo(data) => Item::sub_weapon_ammo(
+                name,
+                data.item.content,
+                data.item.amount,
+                data.item.set_flag,
+            ),
+            ShopItem::Equipment(data) => {
+                Item::equipment(name, data.item.content, data.item.set_flag)
+            }
+            ShopItem::Rom(data) => Item::rom(name, data.item.content, data.item.set_flag),
+        })
+    }
+
     #[inline]
     fn initial_assert(number: i8, flag: u16, is_sub_weapon: bool) {
         debug_assert!(
