@@ -14,14 +14,14 @@ pub fn to_object_for_shutter(old_obj: &Object, start_flag: u16, item: &Item) -> 
         Item::Equipment(item) => Object::chest(
             old_obj,
             40,
-            item.number as i16,
+            item.content as i16,
             item.flag,
             starts_that_hide_when_startup(old_obj, start_flag)?,
         ),
         Item::Rom(item) => Object::chest(
             old_obj,
             40,
-            100 + item.number.0 as i16,
+            100 + item.content.0 as i16,
             item.flag,
             starts_that_hide_when_startup(old_obj, start_flag)?,
         ),
@@ -34,21 +34,21 @@ pub fn to_object_for_special_chest(old_obj: &Object, item: &Item) -> Result<Obje
         Item::MainWeapon(item) => create_main_weapon(old_obj, item)?,
         Item::SubWeapon(item) => {
             debug_assert!(
-                !(item.number == SubWeapon::AnkhJewel && item.count.map_or(0, |x| x.get()) > 1)
+                !(item.content == SubWeapon::AnkhJewel && item.count.map_or(0, |x| x.get()) > 1)
             );
             create_sub_weapon(old_obj, item)?
         }
         Item::Equipment(item) => Object::chest(
             old_obj,
             40,
-            item.number as i16,
+            item.content as i16,
             item.flag,
             get_starts_without_old_flag(old_obj)?,
         ),
         Item::Rom(item) => Object::chest(
             old_obj,
             40,
-            100 + item.number.0 as i16,
+            100 + item.content.0 as i16,
             item.flag,
             get_starts_without_old_flag(old_obj)?,
         ),
@@ -61,21 +61,21 @@ pub fn to_objects_for_chest(old_obj: &Object, item: &Item) -> Result<Vec<Object>
         Item::MainWeapon(item) => create_main_weapon_chest(old_obj, item)?,
         Item::SubWeapon(item) => {
             debug_assert!(
-                !(item.number == SubWeapon::AnkhJewel && item.count.map_or(0, |x| x.get()) > 1)
+                !(item.content == SubWeapon::AnkhJewel && item.count.map_or(0, |x| x.get()) > 1)
             );
             create_sub_weapon_chest(old_obj, item)?
         }
         Item::Equipment(item) => vec![Object::chest(
             old_obj,
             old_obj.op1,
-            item.number as i16,
+            item.content as i16,
             item.flag,
             starts_as_is(old_obj, item.flag)?,
         )],
         Item::Rom(item) => vec![Object::chest(
             old_obj,
             old_obj.op1,
-            100 + item.number.0 as i16,
+            100 + item.content.0 as i16,
             item.flag,
             starts_as_is(old_obj, item.flag)?,
         )],
@@ -86,7 +86,7 @@ pub fn to_objects_for_chest(old_obj: &Object, item: &Item) -> Result<Vec<Object>
 fn create_main_weapon(old_obj: &Object, item: &dataset::item::MainWeapon) -> Result<Object> {
     Ok(Object::main_weapon(
         old_obj,
-        item.number,
+        item.content,
         item.flag,
         starts_as_is(old_obj, item.flag)?,
     ))
@@ -100,7 +100,7 @@ fn create_main_weapon_chest(
         create_empty_chest(old_obj, item.flag)?,
         Object::main_weapon(
             old_obj,
-            item.number,
+            item.content,
             item.flag,
             starts_that_hide_when_startup_and_taken(old_obj, item.flag)?,
         ),
@@ -110,7 +110,7 @@ fn create_main_weapon_chest(
 fn create_sub_weapon(old_obj: &Object, item: &dataset::item::SubWeapon) -> Result<Object> {
     Ok(Object::sub_weapon(
         old_obj,
-        item.number,
+        item.content,
         item.count,
         item.flag,
         starts_as_is(old_obj, item.flag)?,
@@ -125,7 +125,7 @@ fn create_sub_weapon_chest(
         create_empty_chest(old_obj, item.flag)?,
         Object::sub_weapon(
             old_obj,
-            item.number,
+            item.content,
             item.count,
             item.flag,
             starts_that_hide_when_startup_and_taken(old_obj, item.flag)?,
@@ -136,7 +136,7 @@ fn create_sub_weapon_chest(
 fn create_seal(old_obj: &Object, item: &dataset::item::Seal) -> Result<Object> {
     Ok(Object::seal(
         old_obj,
-        item.number,
+        item.content,
         item.flag,
         starts_as_is(old_obj, item.flag)?,
     ))
@@ -147,7 +147,7 @@ fn create_seal_chest(old_obj: &Object, item: &dataset::item::Seal) -> Result<Vec
         create_empty_chest(old_obj, item.flag)?,
         Object::seal(
             old_obj,
-            item.number,
+            item.content,
             item.flag,
             starts_that_hide_when_startup_and_taken(old_obj, item.flag)?,
         ),

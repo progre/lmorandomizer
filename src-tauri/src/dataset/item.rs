@@ -7,14 +7,14 @@ use super::supplements::StrategyFlag;
 #[derive(Clone, Debug)]
 pub struct MainWeapon {
     pub name: StrategyFlag,
-    pub number: items::MainWeapon,
+    pub content: items::MainWeapon,
     pub flag: u16,
 }
 
 #[derive(Clone, Debug)]
 pub struct SubWeapon {
     pub name: StrategyFlag,
-    pub number: items::SubWeapon,
+    pub content: items::SubWeapon,
     pub count: Option<NonZero<u8>>,
     pub flag: u16,
 }
@@ -22,21 +22,21 @@ pub struct SubWeapon {
 #[derive(Clone, Debug)]
 pub struct Equipment {
     pub name: StrategyFlag,
-    pub number: items::Equipment,
+    pub content: items::Equipment,
     pub flag: u16,
 }
 
 #[derive(Clone, Debug)]
 pub struct Rom {
     pub name: StrategyFlag,
-    pub number: items::Rom,
+    pub content: items::Rom,
     pub flag: u16,
 }
 
 #[derive(Clone, Debug)]
 pub struct Seal {
     pub name: StrategyFlag,
-    pub number: u8,
+    pub content: items::Seal,
     pub flag: u16,
 }
 
@@ -59,35 +59,51 @@ impl Item {
             "invalid value: {flag} ({number})"
         );
     }
-    pub fn main_weapon(name: StrategyFlag, number: items::MainWeapon, flag: u16) -> Self {
-        Self::initial_assert(number as i8, flag, false);
-        Self::MainWeapon(MainWeapon { name, number, flag })
+    pub fn main_weapon(name: StrategyFlag, content: items::MainWeapon, flag: u16) -> Self {
+        Self::initial_assert(content as i8, flag, false);
+        Self::MainWeapon(MainWeapon {
+            name,
+            content,
+            flag,
+        })
     }
     pub fn sub_weapon(
         name: StrategyFlag,
-        number: items::SubWeapon,
+        content: items::SubWeapon,
         count: Option<NonZero<u8>>,
         flag: u16,
     ) -> Self {
-        Self::initial_assert(number as i8, flag, true);
+        Self::initial_assert(content as i8, flag, true);
         Self::SubWeapon(SubWeapon {
             name,
-            number,
+            content,
             count,
             flag,
         })
     }
-    pub fn equipment(name: StrategyFlag, number: items::Equipment, flag: u16) -> Self {
-        Self::initial_assert(number as i8, flag, false);
-        Self::Equipment(Equipment { name, number, flag })
+    pub fn equipment(name: StrategyFlag, content: items::Equipment, flag: u16) -> Self {
+        Self::initial_assert(content as i8, flag, false);
+        Self::Equipment(Equipment {
+            name,
+            content,
+            flag,
+        })
     }
-    pub fn rom(name: StrategyFlag, number: items::Rom, flag: u16) -> Self {
-        Self::initial_assert(number.0 as i8, flag, false);
-        Self::Rom(Rom { name, number, flag })
+    pub fn rom(name: StrategyFlag, content: items::Rom, flag: u16) -> Self {
+        Self::initial_assert(content.0 as i8, flag, false);
+        Self::Rom(Rom {
+            name,
+            content,
+            flag,
+        })
     }
-    pub fn seal(name: StrategyFlag, number: u8, flag: u16) -> Self {
-        Self::initial_assert(number as i8, flag, false);
-        Self::Seal(Seal { name, number, flag })
+    pub fn seal(name: StrategyFlag, content: items::Seal, flag: u16) -> Self {
+        Self::initial_assert(content as i8, flag, false);
+        Self::Seal(Seal {
+            name,
+            content,
+            flag,
+        })
     }
 
     pub fn name(&self) -> &StrategyFlag {
@@ -120,12 +136,12 @@ impl Item {
                 Self::MainWeapon(_) => false,
                 Self::SubWeapon(x) => {
                     x.count.is_some()
-                        || x.number == items::SubWeapon::Pistol
-                        || x.number == items::SubWeapon::Buckler
-                        || x.number == items::SubWeapon::HandScanner
+                        || x.content == items::SubWeapon::Pistol
+                        || x.content == items::SubWeapon::Buckler
+                        || x.content == items::SubWeapon::HandScanner
                 }
                 Self::Equipment(x) => {
-                    x.number != items::Equipment::Map && x.number != items::Equipment::SacredOrb
+                    x.content != items::Equipment::Map && x.content != items::Equipment::SacredOrb
                 }
                 Self::Rom(_) => true,
                 Self::Seal(_) => false,

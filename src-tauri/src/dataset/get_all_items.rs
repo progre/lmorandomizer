@@ -1,7 +1,6 @@
 use std::num::NonZero;
 
-use anyhow::{anyhow, Result};
-use num_traits::FromPrimitive;
+use anyhow::{bail, Result};
 
 use crate::{
     dataset::{
@@ -12,11 +11,7 @@ use crate::{
             WARE_NO_MISE_COUNT,
         },
     },
-    script::data::{
-        items::{Equipment, MainWeapon, Rom, SubWeapon},
-        script::Script,
-        shop_items_data::ShopItem,
-    },
+    script::data::{object::ChestContent, script::Script, shop_items_data::ShopItem},
 };
 
 use super::supplements::StrategyFlag;
@@ -50,9 +45,7 @@ fn main_weapons(script: &Script, supplements: &Supplements) -> Result<Vec<Item>>
             let data = &main_weapons_data_list[i];
             Ok(Item::main_weapon(
                 supplement.name.clone(),
-                MainWeapon::from_u8(data.main_weapon_number).ok_or_else(|| {
-                    anyhow!("Invalid main weapon number: {}", data.main_weapon_number)
-                })?,
+                data.content,
                 data.flag,
             ))
         })
@@ -73,9 +66,7 @@ fn sub_weapons(script: &Script, supplements: &Supplements) -> Result<Vec<Item>> 
             let data = &sub_weapons_data_list[i];
             Ok(Item::sub_weapon(
                 supplement.name.clone(),
-                SubWeapon::from_u8(data.sub_weapon_number).ok_or_else(|| {
-                    anyhow!("Invalid sub weapon number: {}", data.sub_weapon_number)
-                })?,
+                data.content,
                 NonZero::new(u8::try_from(data.count)?),
                 data.flag,
             ))
@@ -95,20 +86,16 @@ fn chests(script: &Script, supplements: &Supplements) -> Result<Vec<Item>> {
         .enumerate()
         .map(|(i, supplement)| {
             let data = &chests_data_list[i];
-            Ok(if data.chest_item_number < 100 {
-                Item::equipment(
+            Ok(match data.content {
+                None => bail!("invalid chest item number: None"),
+                Some(ChestContent::Equipment(equipment)) => Item::equipment(
                     supplement.name.clone(),
-                    Equipment::from_i16(data.chest_item_number).ok_or_else(|| {
-                        anyhow!("Invalid equipment number: {}", data.chest_item_number)
-                    })?,
+                    equipment,
                     u16::try_from(data.flag)?,
-                )
-            } else {
-                Item::rom(
-                    supplement.name.clone(),
-                    Rom(u8::try_from(data.chest_item_number - 100)?),
-                    u16::try_from(data.flag)?,
-                )
+                ),
+                Some(ChestContent::Rom(rom)) => {
+                    Item::rom(supplement.name.clone(), rom, u16::try_from(data.flag)?)
+                }
             })
         })
         .collect()
@@ -126,7 +113,7 @@ fn seals(script: &Script, supplements: &Supplements) -> Result<Vec<Item>> {
         .enumerate()
         .map(|(i, supplement)| {
             let data = &seals_data_list[i];
-            Item::seal(supplement.name.clone(), data.seal_number, data.flag)
+            Item::seal(supplement.name.clone(), data.content, data.flag)
         })
         .collect())
 }

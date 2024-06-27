@@ -60,15 +60,15 @@ fn to_shop_item(old_item: &ShopItem, new_item: &Item) -> ShopItem {
         Item::MainWeapon(_) => unreachable!(),
         Item::SubWeapon(new_item) => {
             let set_flag = new_item.flag;
-            ShopItem::sub_weapon(new_item.number, price, new_item.count, set_flag)
+            ShopItem::sub_weapon(new_item.content, price, new_item.count, set_flag)
         }
         Item::Equipment(new_item) => {
             let set_flag = new_item.flag;
-            ShopItem::equipment(new_item.number, price, set_flag)
+            ShopItem::equipment(new_item.content, price, set_flag)
         }
         Item::Rom(new_item) => {
             let set_flag = new_item.flag;
-            ShopItem::rom(new_item.number, price, set_flag)
+            ShopItem::rom(new_item.content, price, set_flag)
         }
         Item::Seal(_) => unreachable!(),
     }

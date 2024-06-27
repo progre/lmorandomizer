@@ -10,7 +10,7 @@ use crate::{
 use super::{
     add_starting_items::add_starting_items,
     items,
-    object::{ChestItem, MainWeapon, Object, Seal, Shop, SubWeapon},
+    object::{ChestContent, ChestItem, MainWeapon, Object, Seal, Shop, SubWeapon},
     scripteditor::{replace_items, replace_shops},
 };
 
@@ -89,14 +89,10 @@ impl Script {
             .filter_map(|x| x.to_chest_item().transpose())
             .collect::<Result<Vec<_>>>()?
             .into_iter()
-            .filter(
-                |ChestItem {
-                     chest_item_number, ..
-                 }| {
-                    *chest_item_number != -1
-                        && *chest_item_number != items::Equipment::SweetClothing as i16
-                },
-            )
+            .filter(|ChestItem { content, .. }| {
+                content.is_some()
+                    && content != &Some(ChestContent::Equipment(items::Equipment::SweetClothing))
+            })
             .collect())
     }
 

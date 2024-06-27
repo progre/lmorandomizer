@@ -157,3 +157,12 @@ pub enum Equipment {
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Rom(pub u8);
+
+#[derive(Clone, Copy, Debug, num_derive::FromPrimitive)]
+#[repr(u8)]
+pub enum Seal {
+    Origin,
+    Birth,
+    Life,
+    Death,
+}
