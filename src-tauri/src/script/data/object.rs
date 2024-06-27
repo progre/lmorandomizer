@@ -45,7 +45,7 @@ pub struct Shop {
 #[derive(Clone, serde::Deserialize, serde::Serialize)]
 pub struct Start {
     /// max 99999
-    pub number: u32,
+    pub flag: u32,
     pub run_when_unset: bool,
 }
 

@@ -37,7 +37,7 @@ pub fn add_starting_items(
                 op3: unused_save_flag_no as i32,
                 op4: -1,
                 starts: vec![Start {
-                    number: unused_save_flag_no,
+                    flag: unused_save_flag_no,
                     run_when_unset: false,
                 }],
             },
@@ -50,7 +50,7 @@ pub fn add_starting_items(
                 op3: unused_save_flag_no as i32,
                 op4: -1,
                 starts: vec![Start {
-                    number: unused_save_flag_no,
+                    flag: unused_save_flag_no,
                     run_when_unset: false,
                 }],
             },

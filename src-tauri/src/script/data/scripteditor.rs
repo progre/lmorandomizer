@@ -187,9 +187,9 @@ fn new_objs(
         }
         // ヴィマーナは飛行機模型を取得したら出現しないようになっている。
         // 飛行機模型取得後に飛行機模型の宝箱を開けられるように、飛行機模型出現のフラグに変更する。
-        186 if obj.starts.len() == 1 && obj.starts[0].number == 788 => Ok(vec![Object {
+        186 if obj.starts.len() == 1 && obj.starts[0].flag == 788 => Ok(vec![Object {
             starts: vec![Start {
-                number: 891,
+                flag: 891,
                 run_when_unset: obj.starts[0].run_when_unset,
             }],
             ..obj.clone()

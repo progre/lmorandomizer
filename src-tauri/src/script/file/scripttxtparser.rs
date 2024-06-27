@@ -168,8 +168,8 @@ pub fn parse_script_txt(text: &str) -> Result<(Vec<String>, Vec<World>)> {
         .collect::<Result<_>>()?;
 
     debug_assert_eq!(talks.len(), 905);
-    debug_assert_eq!(worlds[0].fields[0].objects[0].starts[0].number, 99999);
-    debug_assert_eq!(worlds[0].fields[0].maps[0].objects[5].starts[0].number, 58);
+    debug_assert_eq!(worlds[0].fields[0].objects[0].starts[0].flag, 99999);
+    debug_assert_eq!(worlds[0].fields[0].maps[0].objects[5].starts[0].flag, 58);
     Ok((talks, worlds))
 }
 
@@ -219,7 +219,7 @@ fn parse_object(object: ElementRef) -> Result<Object> {
             .map(|x| {
                 let start_attrs = parse_attrs(&x.value().attrs)?;
                 Ok(Start {
-                    number: u32::try_from(start_attrs[0])?,
+                    flag: u32::try_from(start_attrs[0])?,
                     run_when_unset: start_attrs[1] != 0,
                 })
             })
@@ -342,7 +342,7 @@ fn stringify_object(object: &Object) -> String {
                 writeln!(
                     output,
                     "<START {},{}>",
-                    start.number,
+                    start.flag,
                     if start.run_when_unset { 1 } else { 0 }
                 )
                 .unwrap();

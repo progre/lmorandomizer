@@ -48,11 +48,11 @@ pub fn to_object_for_special_chest(old_obj: &Object, item: &Item) -> Result<Obje
             Object::sub_weapon_ammo(old_obj, item.content, item.count, item.flag, starts)
         }
         Item::Equipment(item) => {
-            let starts = get_starts_without_old_flag(old_obj)?;
+            let starts = starts_without_old_flag(old_obj)?;
             Object::chest(old_obj, 40, item.content as i16, item.flag, starts)
         }
         Item::Rom(item) => {
-            let starts = get_starts_without_old_flag(old_obj)?;
+            let starts = starts_without_old_flag(old_obj)?;
             Object::chest(old_obj, 40, 100 + item.content.0 as i16, item.flag, starts)
         }
         Item::Seal(item) => {
@@ -112,72 +112,79 @@ fn create_empty_chest(old_obj: &Object, flag: u16) -> Result<Object> {
     Ok(obj)
 }
 
-fn starts_that_hide_when_startup_and_taken(
-    old_chest_obj: &Object,
-    flag: u16,
-) -> Result<Vec<Start>> {
-    debug_assert_eq!(old_chest_obj.number, 1);
-    let mut vec = vec![
+fn starts_that_hide_when_startup_and_taken(old_obj: &Object, flag: u16) -> Result<Vec<Start>> {
+    debug_assert_eq!(old_obj.number, 1);
+    let old_item_flag = old_obj.get_item_flag()?;
+    Ok([
         Start {
-            number: 99999,
+            flag: 99999,
             run_when_unset: true,
         },
         Start {
-            number: u32::try_from(old_chest_obj.to_chest_item()?.unwrap().open_flag)?,
+            flag: u32::try_from(old_obj.to_chest_item()?.unwrap().open_flag)?,
             run_when_unset: true,
         },
         Start {
-            number: flag as u32,
+            flag: flag as u32,
             run_when_unset: false,
         },
-    ];
-    vec.append(
-        &mut get_starts_without_old_flag(old_chest_obj)?
-            .into_iter()
-            .filter(|x| x.number != 99999)
-            .collect::<Vec<_>>(),
-    );
-    Ok(vec)
+    ]
+    .into_iter()
+    .chain(
+        old_obj
+            .starts
+            .iter()
+            .filter(|x| ![99999, old_item_flag as u32].contains(&x.flag))
+            .cloned(),
+    )
+    .collect())
 }
 
 fn starts_that_hide_when_startup(old_obj: &Object, start_flag: u16) -> Result<Vec<Start>> {
-    let mut vec = vec![
+    let old_item_flag = old_obj.get_item_flag()?;
+    Ok([
         Start {
-            number: 99999,
+            flag: 99999,
             run_when_unset: true,
         },
         Start {
-            number: start_flag as u32,
+            flag: start_flag as u32,
             run_when_unset: true,
         },
-    ];
-    vec.append(
-        &mut get_starts_without_old_flag(old_obj)?
-            .into_iter()
-            .filter(|x| x.number != 99999)
-            .collect(),
-    );
-    Ok(vec)
+    ]
+    .into_iter()
+    .chain(
+        old_obj
+            .starts
+            .iter()
+            .filter(|x| ![99999, old_item_flag as u32].contains(&x.flag))
+            .cloned(),
+    )
+    .collect())
 }
 
 fn starts_as_is(old_obj: &Object, flag: u16) -> Result<Vec<Start>> {
-    let mut vec = get_starts_without_old_flag(old_obj)?;
-    let item_flag = old_obj.get_item_flag()?;
-    if old_obj.starts.iter().any(|x| x.number == item_flag as u32) {
+    let mut vec = starts_without_old_flag(old_obj)?;
+    let old_item_flag = old_obj.get_item_flag()?;
+    if old_obj
+        .starts
+        .iter()
+        .any(|x| x.flag == old_item_flag as u32)
+    {
         vec.push(Start {
-            number: flag as u32,
-            run_when_unset: false,
+            flag: flag as u32,
+            run_when_unset: false, // TODO: bug? 元の run_when_unset を維持すべきの筈
         });
     }
     Ok(vec)
 }
 
-fn get_starts_without_old_flag(old_obj: &Object) -> Result<Vec<Start>> {
-    let item_flag = old_obj.get_item_flag()?;
+fn starts_without_old_flag(old_obj: &Object) -> Result<Vec<Start>> {
+    let old_item_flag = old_obj.get_item_flag()?;
     Ok(old_obj
         .starts
         .iter()
-        .filter(|x| x.number != item_flag as u32)
+        .filter(|x| x.flag != old_item_flag as u32)
         .cloned()
         .collect())
 }
