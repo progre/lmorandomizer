@@ -1,8 +1,8 @@
 # Gate of Guidance
-- name: sacredOrb:gateOfGuidance
 - name: treasures
   requirements:
     - event:pepper
+- name: sacredOrb:gateOfGuidance
 - name: crucifix
   requirements:
     - flareGun, birthSeal
