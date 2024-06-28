@@ -2,7 +2,7 @@ use std::thread::spawn;
 
 use super::{item::Item, spot::Spot, supplements::StrategyFlag};
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct ItemSpot {
     pub spot: Spot,
     pub item: Item,
@@ -22,7 +22,7 @@ pub struct StorageIndices {
     pub seal_chest_idx: usize,
 }
 
-#[derive(Clone, getset::Getters)]
+#[derive(Clone, Debug, getset::Getters)]
 pub struct Storage {
     #[get = "pub"]
     main_weapon_shutters: Vec<ItemSpot>,
