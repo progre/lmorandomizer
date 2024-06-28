@@ -14,7 +14,7 @@ use super::{
     scripteditor::{replace_items, replace_shops},
 };
 
-#[derive(serde::Deserialize, serde::Serialize)]
+#[derive(Clone)]
 pub struct Map {
     pub attrs: (u8, u8, u8),
     pub up: (i8, i8, i8, i8),
@@ -24,7 +24,7 @@ pub struct Map {
     pub objects: Vec<Object>,
 }
 
-#[derive(serde::Deserialize, serde::Serialize)]
+#[derive(Clone)]
 pub struct Field {
     pub attrs: (u8, u8, u8, u8, u8),
     pub chip_line: (u16, u16),
@@ -34,13 +34,13 @@ pub struct Field {
     pub maps: Vec<Map>,
 }
 
-#[derive(serde::Deserialize, serde::Serialize)]
+#[derive(Clone)]
 pub struct World {
     pub number: u8,
     pub fields: Vec<Field>,
 }
 
-#[derive(serde::Deserialize, serde::Serialize)]
+#[derive(Clone)]
 pub struct Script {
     pub talks: Vec<String>,
     pub worlds: Vec<World>,
@@ -110,10 +110,10 @@ impl Script {
             .collect()
     }
 
-    pub fn replace_items(&mut self, shuffled: &Storage) -> Result<()> {
+    pub fn replace_items(&mut self, script: &Script, shuffled: &Storage) -> Result<()> {
         let shops = self.shops()?;
-        replace_items(&mut self.worlds, shuffled)?;
-        replace_shops(&mut self.talks, &shops, shuffled.shops())?;
+        replace_items(&mut self.worlds, script, shuffled)?;
+        replace_shops(&mut self.talks, script, &shops, shuffled.shops())?;
         Ok(())
     }
 

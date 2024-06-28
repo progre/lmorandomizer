@@ -32,7 +32,7 @@ pub fn randomize_items(script: &mut Script, source: &Storage, seed: &str) -> Res
 
     let start = std::time::Instant::now();
     assert_unique(&shuffled);
-    script.replace_items(&shuffled)?;
+    script.replace_items(&script.clone(), &shuffled)?;
     trace!("Replaced items in {:?}", start.elapsed());
     Ok(())
 }
@@ -198,7 +198,6 @@ fn distribute_items(
 
 fn assert_unique(storage: &Storage) {
     let mut names = HashSet::new();
-    let mut flags = HashSet::new();
 
     storage
         .main_weapon_shutters()
@@ -238,13 +237,6 @@ fn assert_unique(storage: &Storage) {
                     panic!("Duplicate item: {}", key);
                 }
                 names.insert(key);
-            }
-
-            if ![65279, 753, 754].contains(&item.flag()) {
-                if flags.contains(&item.flag()) {
-                    panic!("Duplicate flag: {}", item.flag());
-                }
-                flags.insert(item.flag());
             }
         });
 }

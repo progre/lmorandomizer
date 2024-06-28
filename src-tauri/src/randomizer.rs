@@ -31,7 +31,7 @@ pub fn randomize(
     trace!("Read script.dat in {:?}", start.elapsed());
 
     let start = std::time::Instant::now();
-    let source = create_source(&script, supplement_files)?;
+    let source = create_source(supplement_files, &script);
     randomize_items(&mut script, &source, &options.seed)?;
     if options.easy_mode {
         script.add_starting_items(&[Equipment::GameMaster], &[]);

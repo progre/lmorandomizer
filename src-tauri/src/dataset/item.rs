@@ -1,52 +1,39 @@
-use std::num::NonZero;
-
-use anyhow::Result;
-
-use crate::script::data::{items, shop_items_data::ShopItem};
-
 use super::supplements::StrategyFlag;
 
 #[derive(Clone, Debug)]
 pub struct MainWeapon {
+    pub src_main_weapon_idx: u8,
     pub name: StrategyFlag,
-    pub content: items::MainWeapon,
-    pub flag: u16,
 }
 
 #[derive(Clone, Debug)]
 pub struct SubWeaponBody {
+    pub src_idx: u8,
     pub name: StrategyFlag,
-    pub content: items::SubWeapon,
-    pub flag: u16,
 }
 
 #[derive(Clone, Debug)]
 pub struct SubWeaponAmmo {
+    pub src_idx: u8,
     pub name: StrategyFlag,
-    pub content: items::SubWeapon,
-    pub count: NonZero<u8>,
-    pub flag: u16,
 }
 
 #[derive(Clone, Debug)]
-pub struct Equipment {
+pub struct ChestItem {
+    pub src_idx: u8,
     pub name: StrategyFlag,
-    pub content: items::Equipment,
-    pub flag: u16,
-}
-
-#[derive(Clone, Debug)]
-pub struct Rom {
-    pub name: StrategyFlag,
-    pub content: items::Rom,
-    pub flag: u16,
 }
 
 #[derive(Clone, Debug)]
 pub struct Seal {
+    pub src_seal_idx: u8,
     pub name: StrategyFlag,
-    pub content: items::Seal,
-    pub flag: u16,
+}
+
+#[derive(Clone, Debug)]
+pub struct ShopItem {
+    pub src_idx: (u8, u8),
+    pub name: StrategyFlag,
 }
 
 #[derive(Clone, Debug)]
@@ -54,91 +41,36 @@ pub enum Item {
     MainWeapon(MainWeapon),
     SubWeaponBody(SubWeaponBody),
     SubWeaponAmmo(SubWeaponAmmo),
-    Equipment(Equipment),
-    Rom(Rom),
+    #[allow(clippy::enum_variant_names)]
+    ChestItem(ChestItem),
     Seal(Seal),
+    #[allow(clippy::enum_variant_names)]
+    ShopItem(ShopItem),
 }
 
 impl Item {
-    pub fn from_shop_item(data: ShopItem, name: StrategyFlag) -> Result<Item> {
-        Ok(match data {
-            ShopItem::SubWeaponBody(data) => {
-                Item::sub_weapon_body(name, data.item.content, data.item.set_flag)
-            }
-            ShopItem::SubWeaponAmmo(data) => Item::sub_weapon_ammo(
-                name,
-                data.item.content,
-                data.item.amount,
-                data.item.set_flag,
-            ),
-            ShopItem::Equipment(data) => {
-                Item::equipment(name, data.item.content, data.item.set_flag)
-            }
-            ShopItem::Rom(data) => Item::rom(name, data.item.content, data.item.set_flag),
-        })
-    }
-
-    #[inline]
-    fn initial_assert(number: i8, flag: u16, is_sub_weapon: bool) {
-        debug_assert!(
-            [494, 524].contains(&flag)
-                || (684..=883).contains(&flag)
-                || is_sub_weapon && flag == 65279,
-            "invalid value: {flag} ({number})"
-        );
-    }
-    pub fn main_weapon(name: StrategyFlag, content: items::MainWeapon, flag: u16) -> Self {
-        Self::initial_assert(content as i8, flag, false);
+    pub fn main_weapon(src_main_weapon_idx: u8, name: StrategyFlag) -> Self {
         Self::MainWeapon(MainWeapon {
+            src_main_weapon_idx,
             name,
-            content,
-            flag,
         })
     }
-    pub fn sub_weapon_body(name: StrategyFlag, content: items::SubWeapon, flag: u16) -> Self {
-        Self::initial_assert(content as i8, flag, true);
-        Self::SubWeaponBody(SubWeaponBody {
-            name,
-            content,
-            flag,
-        })
+    pub fn sub_weapon_body(src_idx: u8, name: StrategyFlag) -> Self {
+        Self::SubWeaponBody(SubWeaponBody { src_idx, name })
     }
-    pub fn sub_weapon_ammo(
-        name: StrategyFlag,
-        content: items::SubWeapon,
-        count: NonZero<u8>,
-        flag: u16,
-    ) -> Self {
-        Self::initial_assert(content as i8, flag, true);
-        Self::SubWeaponAmmo(SubWeaponAmmo {
-            name,
-            content,
-            count,
-            flag,
-        })
+    pub fn sub_weapon_ammo(src_idx: u8, name: StrategyFlag) -> Self {
+        Self::SubWeaponAmmo(SubWeaponAmmo { src_idx, name })
     }
-    pub fn equipment(name: StrategyFlag, content: items::Equipment, flag: u16) -> Self {
-        Self::initial_assert(content as i8, flag, false);
-        Self::Equipment(Equipment {
-            name,
-            content,
-            flag,
-        })
+    pub fn chest_item(src_idx: u8, name: StrategyFlag) -> Self {
+        Self::ChestItem(ChestItem { src_idx, name })
     }
-    pub fn rom(name: StrategyFlag, content: items::Rom, flag: u16) -> Self {
-        Self::initial_assert(content.0 as i8, flag, false);
-        Self::Rom(Rom {
-            name,
-            content,
-            flag,
-        })
+    pub fn seal(src_seal_idx: u8, name: StrategyFlag) -> Self {
+        Self::Seal(Seal { src_seal_idx, name })
     }
-    pub fn seal(name: StrategyFlag, content: items::Seal, flag: u16) -> Self {
-        Self::initial_assert(content as i8, flag, false);
-        Self::Seal(Seal {
+    pub fn shop_item(shop_idx: u8, item_idx: u8, name: StrategyFlag) -> Self {
+        Self::ShopItem(ShopItem {
+            src_idx: (shop_idx, item_idx),
             name,
-            content,
-            flag,
         })
     }
 
@@ -147,20 +79,9 @@ impl Item {
             Self::MainWeapon(x) => &x.name,
             Self::SubWeaponBody(x) => &x.name,
             Self::SubWeaponAmmo(x) => &x.name,
-            Self::Equipment(x) => &x.name,
-            Self::Rom(x) => &x.name,
+            Self::ChestItem(x) => &x.name,
             Self::Seal(x) => &x.name,
-        }
-    }
-
-    pub fn flag(&self) -> u16 {
-        match self {
-            Self::MainWeapon(x) => x.flag,
-            Self::SubWeaponBody(x) => x.flag,
-            Self::SubWeaponAmmo(x) => x.flag,
-            Self::Equipment(x) => x.flag,
-            Self::Rom(x) => x.flag,
-            Self::Seal(x) => x.flag,
+            Self::ShopItem(x) => &x.name,
         }
     }
 
@@ -169,20 +90,24 @@ impl Item {
     // shops -> equipments / rom
     // shops <- subWeapon / subWeaponAmmo / equipments / rom
     pub fn can_display_in_shop(&self) -> bool {
-        self.flag() % 256 != 0
-            && match self {
-                Self::MainWeapon(_) => false,
-                Self::SubWeaponBody(x) => {
-                    x.content == items::SubWeapon::Pistol
-                        || x.content == items::SubWeapon::Buckler
-                        || x.content == items::SubWeapon::HandScanner
-                }
-                Self::SubWeaponAmmo(_) => true,
-                Self::Equipment(x) => {
-                    x.content != items::Equipment::Map && x.content != items::Equipment::SacredOrb
-                }
-                Self::Rom(_) => true,
-                Self::Seal(_) => false,
+        match self {
+            Self::MainWeapon(_) => false,
+            Self::SubWeaponBody(x) => {
+                x.name.get() == "pistol"
+                    || x.name.get() == "buckler"
+                    || x.name.get() == "handScanner"
             }
+            Self::SubWeaponAmmo(_) => true,
+            Self::ChestItem(x) => {
+                !x.name.is_map()
+                    && !x.name.is_sacred_orb()
+                    && (
+                        // Boots with set flag 768 (multiples of 256) cannot be sold in shops
+                        x.name.get() != "boots"
+                    )
+            }
+            Self::Seal(_) => false,
+            Self::ShopItem(_) => true,
+        }
     }
 }

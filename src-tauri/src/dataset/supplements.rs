@@ -22,6 +22,9 @@ impl StrategyFlag {
     pub fn is_sacred_orb(&self) -> bool {
         self.0.starts_with("sacredOrb:")
     }
+    pub fn is_map(&self) -> bool {
+        self.0.starts_with("map:")
+    }
 
     pub fn get(&self) -> &str {
         self.0.as_str()

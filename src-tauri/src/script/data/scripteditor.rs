@@ -15,11 +15,12 @@ use super::{
     items::{Equipment, SubWeapon},
     object::{Object, Start},
     objectfactory::{to_object_for_shutter, to_object_for_special_chest, to_objects_for_chest},
-    script::World,
+    script::{Script, World},
 };
 
 pub fn replace_shops(
     talks: &mut [String],
+    script: &Script,
     script_shop: &[super::object::Shop],
     shops: &[Shop],
 ) -> Result<()> {
@@ -41,10 +42,10 @@ pub fn replace_shops(
             .enumerate()
             .map(|(j, old_item)| {
                 let new_item = [&new_shop.items.0, &new_shop.items.1, &new_shop.items.2][j];
-                let new_item = Item::from_dataset(new_item);
-                ShopItem::from_item(new_item, old_item.price())
+                let new_item = Item::from_dataset(new_item, script)?;
+                Ok(ShopItem::from_item(new_item, old_item.price()))
             })
-            .collect::<Vec<_>>()
+            .collect::<Result<Vec<_>>>()?
             .into_iter();
         *shop_str = shop_items_data::stringify((
             replaced.next().unwrap(),
@@ -62,6 +63,7 @@ fn fix_trap_of_mausoleum_of_the_giants(obj: &mut Object, prev_sub_weapon_shutter
 fn new_objs(
     obj: &Object,
     next_objs: &[Object],
+    script: &Script,
     shuffled: &Storage,
     indices: &mut StorageIndices,
 ) -> Result<Vec<Object>> {
@@ -69,7 +71,7 @@ fn new_objs(
         // Main weapons
         77 => {
             let item = &shuffled.main_weapon_shutters()[indices.main_weapon_spot_idx].item;
-            let item = &Item::from_dataset(item);
+            let item = &Item::from_dataset(item, script)?;
             indices.main_weapon_spot_idx += 1;
             let next_shutter_check_flag = get_next_shutter_check_flag(next_objs)?
                 .ok_or(anyhow!("next_shutter_check_flag not found"))?;
@@ -90,7 +92,7 @@ fn new_objs(
             }
             // Ankh Jewel
             let item = &shuffled.sub_weapon_shutters()[indices.sub_weapon_spot_idx].item;
-            let item = &Item::from_dataset(item);
+            let item = &Item::from_dataset(item, script)?;
             indices.sub_weapon_spot_idx += 1;
             if obj.op1 == SubWeapon::AnkhJewel as i32 {
                 // Gate of Guidance
@@ -133,11 +135,11 @@ fn new_objs(
             // twinStatue
             if obj.op1 == 420 {
                 let item = &shuffled.chests()[indices.chest_idx - 1].item;
-                let item = &Item::from_dataset(item);
+                let item = &Item::from_dataset(item, script)?;
                 return to_objects_for_chest(obj, item);
             }
             let item = &shuffled.chests()[indices.chest_idx].item;
-            let item = &Item::from_dataset(item);
+            let item = &Item::from_dataset(item, script)?;
             indices.chest_idx += 1;
             to_objects_for_chest(obj, item)
         }
@@ -154,7 +156,7 @@ fn new_objs(
                 return Ok(vec![obj.clone()]);
             }
             let item = &shuffled.seal_chests()[indices.seal_chest_idx].item;
-            let item = &Item::from_dataset(item);
+            let item = &Item::from_dataset(item, script)?;
             indices.seal_chest_idx += 1;
             Ok(vec![to_object_for_special_chest(obj, item)?])
         }
@@ -164,7 +166,8 @@ fn new_objs(
             let mut obj = obj.clone();
             let prev_sub_weapon_shutter_item =
                 &shuffled.sub_weapon_shutters()[indices.sub_weapon_spot_idx - 1].item;
-            let prev_sub_weapon_shutter_item = &Item::from_dataset(prev_sub_weapon_shutter_item);
+            let prev_sub_weapon_shutter_item =
+                &Item::from_dataset(prev_sub_weapon_shutter_item, script)?;
             fix_trap_of_mausoleum_of_the_giants(&mut obj, prev_sub_weapon_shutter_item);
             Ok(vec![obj])
         }
@@ -181,7 +184,7 @@ fn new_objs(
     }
 }
 
-pub fn replace_items(worlds: &mut [World], shuffled: &Storage) -> Result<()> {
+pub fn replace_items(worlds: &mut [World], script: &Script, shuffled: &Storage) -> Result<()> {
     let mut indices = StorageIndices::default();
 
     for world in worlds {
@@ -192,6 +195,7 @@ pub fn replace_items(worlds: &mut [World], shuffled: &Storage) -> Result<()> {
                     objects.append(&mut new_objs(
                         &map.objects[i],
                         &map.objects[i + 1..],
+                        script,
                         shuffled,
                         &mut indices,
                     )?);

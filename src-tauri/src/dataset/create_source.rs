@@ -1,16 +1,17 @@
 use std::collections::HashSet;
 
-use anyhow::Result;
 use log::warn;
 
 use crate::{
     dataset::{
         item::Item,
         spot::Spot,
-        storage::Storage,
-        storage::{ItemSpot, Shop},
-        supplements::NIGHT_SURFACE_CHEST_COUNT,
-        supplements::{SupplementFiles, Supplements},
+        storage::{ItemSpot, Shop, Storage},
+        supplements::{
+            SupplementFiles, Supplements, NIGHT_SURFACE_CHEST_COUNT, NIGHT_SURFACE_SEAL_COUNT,
+            NIGHT_SURFACE_SUB_WEAPON_COUNT, TRUE_SHRINE_OF_THE_MOTHER_SEAL_COUNT,
+            WARE_NO_MISE_COUNT,
+        },
     },
     script::data::script::Script,
 };
@@ -20,9 +21,31 @@ use super::{
     supplements::{AnyOfAllRequirements, RequirementFlag},
 };
 
-pub fn create_source(script: &Script, supplement_files: &SupplementFiles) -> Result<Storage> {
+pub fn create_source(supplement_files: &SupplementFiles, script: &Script) -> Storage {
     let supplements = Supplements::new(supplement_files);
-    let all_items = get_all_items(script, &supplements)?;
+
+    debug_assert_eq!(
+        script.main_weapons().unwrap().len(),
+        supplements.main_weapons.len()
+    );
+    debug_assert_eq!(
+        script.sub_weapons().unwrap().len(),
+        supplements.sub_weapons.len() + NIGHT_SURFACE_SUB_WEAPON_COUNT
+    );
+    debug_assert_eq!(
+        script.chests().unwrap().len(),
+        supplements.chests.len() + NIGHT_SURFACE_CHEST_COUNT
+    );
+    debug_assert_eq!(
+        script.seals().unwrap().len(),
+        supplements.seals.len() + TRUE_SHRINE_OF_THE_MOTHER_SEAL_COUNT + NIGHT_SURFACE_SEAL_COUNT
+    );
+    debug_assert_eq!(
+        script.shops().unwrap().len(),
+        supplements.shops.len() + WARE_NO_MISE_COUNT
+    );
+
+    let all_items = get_all_items(&supplements);
     let enumerate_items: Vec<_> = all_items
         .main_weapons
         .iter()
@@ -33,11 +56,6 @@ pub fn create_source(script: &Script, supplement_files: &SupplementFiles) -> Res
         .cloned()
         .collect();
     ware_missing_requirements(&supplements, &enumerate_items);
-    let chest_data_list = script.chests()?;
-    debug_assert_eq!(
-        chest_data_list.len(),
-        all_items.chests.len() + NIGHT_SURFACE_CHEST_COUNT
-    );
     let AllItems {
         main_weapons: all_items_main_weapons,
         sub_weapons: all_items_sub_weapons,
@@ -52,7 +70,7 @@ pub fn create_source(script: &Script, supplement_files: &SupplementFiles) -> Res
         seals: supplements_seals,
         shops: supplements_shops,
     } = supplements;
-    Ok(Storage::new(
+    Storage::new(
         all_items_main_weapons
             .into_iter()
             .zip(supplements_main_weapons)
@@ -93,7 +111,7 @@ pub fn create_source(script: &Script, supplement_files: &SupplementFiles) -> Res
                 items,
             })
             .collect(),
-    ))
+    )
 }
 
 fn ware_missing_requirements(supplements: &Supplements, all_items: &[Item]) {
