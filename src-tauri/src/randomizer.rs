@@ -1,5 +1,4 @@
 mod randomize_items;
-mod shuffle_utils;
 mod spoiler_log;
 mod validate;
 
