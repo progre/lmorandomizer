@@ -19,7 +19,9 @@ use crate::{
     script::data::script::Script,
 };
 
-pub fn randomize_items(script: &mut Script, source: &Storage, seed: &str) -> Result<()> {
+use super::spoiler_log::SpoilerLog;
+
+pub fn randomize_items(script: &mut Script, source: &Storage, seed: &str) -> Result<SpoilerLog> {
     let start = std::time::Instant::now();
     // debug_assert!(validate(source));
     assert_unique(source);
@@ -27,18 +29,17 @@ pub fn randomize_items(script: &mut Script, source: &Storage, seed: &str) -> Res
 
     let start = std::time::Instant::now();
     let mut rng: Xoshiro256PlusPlus = Seeder::from(seed).make_rng();
-    let shuffled = randomize_storage(source, &mut rng);
+    let (shuffled, spoiler_log) = randomize_storage(source, &mut rng);
     trace!("Randomized items in {:?}", start.elapsed());
 
     let start = std::time::Instant::now();
     assert_unique(&shuffled);
     script.replace_items(&script.clone(), &shuffled)?;
     trace!("Replaced items in {:?}", start.elapsed());
-    Ok(())
+    Ok(spoiler_log)
 }
 
-fn randomize_storage(source: &Storage, rng: &mut impl Rng) -> Storage {
-    let mut shuffled = None;
+fn randomize_storage(source: &Storage, rng: &mut impl Rng) -> (Storage, SpoilerLog) {
     for i in 0..10000 {
         // itemをshuffleしてplaceと合わせる
         let start = std::time::Instant::now();
@@ -47,16 +48,12 @@ fn randomize_storage(source: &Storage, rng: &mut impl Rng) -> Storage {
         let start = std::time::Instant::now();
         let result = validate(&storage);
         trace!("Validated in {:?}", start.elapsed());
-        if result {
-            shuffled = Some(storage);
+        if let Some(result) = result {
             info!("Shuffle was tryed: {i} times");
-            break;
+            return (storage, result);
         }
     }
-    let Some(shuffled) = shuffled else {
-        panic!("Shuffle failed");
-    };
-    shuffled
+    panic!("Shuffle failed")
 }
 
 fn shuffle(source: &Storage, rng: &mut impl Rng) -> Storage {

@@ -23,7 +23,7 @@ fn main_weapons(supplements: &Supplements) -> Vec<Item> {
         .main_weapons
         .iter()
         .enumerate()
-        .map(|(i, supplement)| Item::main_weapon(i as u8, supplement.name.clone()))
+        .map(|(i, supplement)| Item::main_weapon(i as u8, supplement.name.clone().into()))
         .collect()
 }
 
@@ -34,9 +34,9 @@ fn sub_weapons(supplements: &Supplements) -> Vec<Item> {
         .enumerate()
         .map(|(i, supplement)| {
             if supplement.name.get().starts_with("ankhJewel:") {
-                return Item::sub_weapon_ammo(i as u8, supplement.name.clone());
+                return Item::sub_weapon_ammo(i as u8, supplement.name.clone().into());
             }
-            Item::sub_weapon_body(i as u8, supplement.name.clone())
+            Item::sub_weapon_body(i as u8, supplement.name.clone().into())
         })
         .collect()
 }
@@ -46,7 +46,7 @@ fn chests(supplements: &Supplements) -> Vec<Item> {
         .chests
         .iter()
         .enumerate()
-        .map(|(i, supplement)| Item::chest_item(i as u8, supplement.name.clone()))
+        .map(|(i, supplement)| Item::chest_item(i as u8, supplement.name.clone().into()))
         .collect()
 }
 
@@ -55,7 +55,7 @@ fn seals(supplements: &Supplements) -> Vec<Item> {
         .seals
         .iter()
         .enumerate()
-        .map(|(i, supplement)| Item::seal(i as u8, supplement.name.clone()))
+        .map(|(i, supplement)| Item::seal(i as u8, supplement.name.clone().into()))
         .collect()
 }
 

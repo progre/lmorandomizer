@@ -1,10 +1,12 @@
 mod randomize_items;
 mod shuffle_utils;
+mod spoiler_log;
 mod validate;
 
 use anyhow::Result;
 use log::trace;
 use randomize_items::randomize_items;
+pub use spoiler_log::SpoilerLog;
 
 use crate::{
     dataset::{
@@ -32,7 +34,7 @@ pub fn randomize(
     script_dat: &[u8],
     supplement_files: &SupplementFiles,
     options: &RandomizeOptions,
-) -> Result<Vec<u8>> {
+) -> Result<(Vec<u8>, SpoilerLog)> {
     let start = std::time::Instant::now();
     let mut script = read_script_dat(script_dat)?;
     trace!("Read script.dat in {:?}", start.elapsed());
@@ -53,7 +55,7 @@ pub fn randomize(
     debug_assert_eq!(shop_count, script.shops().unwrap().len());
 
     let source = create_source(supplements);
-    randomize_items(&mut script, &source, &options.seed)?;
+    let spoiler_log = randomize_items(&mut script, &source, &options.seed)?;
     if options.easy_mode {
         script.add_starting_items(&[Equipment::GameMaster], &[]);
     }
@@ -63,5 +65,5 @@ pub fn randomize(
     let dat = build_script_dat(&script);
     trace!("Built script.dat in {:?}", start.elapsed());
 
-    Ok(dat)
+    Ok((dat, spoiler_log))
 }

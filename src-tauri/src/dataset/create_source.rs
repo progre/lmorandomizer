@@ -11,7 +11,7 @@ use crate::dataset::{
 
 use super::{
     get_all_items::{get_all_items, AllItems},
-    supplements::{AnyOfAllRequirements, RequirementFlag},
+    spot::{AnyOfAllRequirements, RequirementFlag, SpotName, SpotSource},
 };
 
 #[test]
@@ -67,40 +67,32 @@ pub fn create_source(supplements: Supplements) -> Storage {
         all_items_main_weapons
             .into_iter()
             .zip(supplements_main_weapons)
-            .map(|(item, sup_spot)| {
-                let spot = Spot::new(sup_spot.requirements);
-                ItemSpot { spot, item }
-            })
+            .map(|(item, spot)| ItemSpot { spot, item })
             .collect(),
         all_items_sub_weapons
             .into_iter()
             .zip(supplements_sub_weapons)
-            .map(|(item, sup_spot)| {
-                let spot = Spot::new(sup_spot.requirements);
-                ItemSpot { spot, item }
-            })
+            .map(|(item, spot)| ItemSpot { spot, item })
             .collect(),
         all_items_chests
             .into_iter()
             .zip(supplements_chests)
-            .map(|(item, sup_spot)| {
-                let spot = Spot::new(sup_spot.requirements);
-                ItemSpot { spot, item }
-            })
+            .map(|(item, spot)| ItemSpot { spot, item })
             .collect(),
         all_items_seals
             .into_iter()
             .zip(supplements_seals)
-            .map(|(item, sup_spot)| {
-                let spot = Spot::new(sup_spot.requirements);
-                ItemSpot { spot, item }
-            })
+            .map(|(item, spot)| ItemSpot { spot, item })
             .collect(),
         all_items_shops
             .into_iter()
             .zip(supplements_shops)
-            .map(|(items, sup_shop)| Shop {
-                spot: Spot::new(sup_shop.requirements),
+            .map(|(items, shop)| Shop {
+                spot: Spot::new(
+                    SpotName::new([shop.names.0 .0, shop.names.1 .0, shop.names.2 .0].join(", ")),
+                    SpotSource::Shop(shop.source),
+                    shop.requirements,
+                ),
                 items,
             })
             .collect(),

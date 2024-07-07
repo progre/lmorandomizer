@@ -10,7 +10,7 @@ use tokio::{
 
 use crate::{
     dataset::supplements::SupplementFiles,
-    randomizer::{randomize, RandomizeOptions},
+    randomizer::{randomize, RandomizeOptions, SpoilerLog},
     script::file::scriptconverter::is_valid_script_dat,
 };
 
@@ -154,7 +154,7 @@ pub async fn apply(install_directory: String, options: RandomizeOptions) -> Stri
         events_yml: include_str!("../../public/res/events.yml").to_owned(),
     };
 
-    let randomized = match randomize(&working, &supplement_files, &options) {
+    let (randomized, spoiler_log) = match randomize(&working, &supplement_files, &options) {
         Ok(randomized) => randomized,
         Err(e) => {
             return format!("Randomization failed: {}", e);
@@ -163,6 +163,10 @@ pub async fn apply(install_directory: String, options: RandomizeOptions) -> Stri
 
     if let Err(err) = write_file(&target_file_path, &randomized).await {
         return format!("Failed to write randomized script.dat: {}", err);
+    }
+    let spoiler_log_file_path = format!("{}/data/spoilerlog.txt", install_directory);
+    if let Err(err) = write_spoiler_log(&spoiler_log_file_path, &spoiler_log).await {
+        return format!("Failed to write spoiler log: {}", err);
     }
     "Succeeded.".to_owned()
 }
@@ -207,4 +211,8 @@ async fn write_valid_script_dat(path: &str, script_dat: &[u8]) -> io::Result<()>
         }
     }
     Ok(())
+}
+
+async fn write_spoiler_log(path: &str, spoiler_log: &SpoilerLog) -> io::Result<()> {
+    write_file(path, spoiler_log.to_string().as_bytes()).await
 }

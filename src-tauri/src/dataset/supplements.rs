@@ -1,11 +1,15 @@
+use crate::dataset::spot::AllRequirements;
+
+use super::spot::{AnyOfAllRequirements, RequirementFlag, Spot, SpotName, SpotSource};
+
 pub const NIGHT_SURFACE_SUB_WEAPON_COUNT: usize = 1;
 pub const NIGHT_SURFACE_CHEST_COUNT: usize = 3;
 pub const TRUE_SHRINE_OF_THE_MOTHER_SEAL_COUNT: usize = 1;
 pub const NIGHT_SURFACE_SEAL_COUNT: usize = 1;
 pub const WARE_NO_MISE_COUNT: usize = 1;
 
-#[derive(Clone, Debug, Hash, Eq, Ord, PartialEq, PartialOrd)]
-pub struct StrategyFlag(String);
+#[derive(Clone, Debug, Hash, Eq, Ord, PartialEq, PartialOrd, serde::Serialize)]
+pub struct StrategyFlag(pub String);
 
 impl StrategyFlag {
     pub fn new(spot_name: String) -> Self {
@@ -33,57 +37,19 @@ impl StrategyFlag {
 
 impl PartialEq<RequirementFlag> for StrategyFlag {
     fn eq(&self, other: &RequirementFlag) -> bool {
-        self.0 == other.0
+        self.0 == other.get()
     }
 }
 
-#[derive(Clone, Debug, Hash, Eq, Ord, PartialEq, PartialOrd)]
-pub struct RequirementFlag(String);
-
-impl RequirementFlag {
-    fn new(requirement: String) -> Self {
-        debug_assert!(
-            !requirement.starts_with("sacredOrb:")
-                || requirement
-                    .split(':')
-                    .nth(1)
-                    .map_or(false, |x| x.parse::<u8>().is_ok())
-        );
-        Self(requirement)
+impl From<SpotName> for StrategyFlag {
+    fn from(x: SpotName) -> Self {
+        Self::new(x.into_inner())
     }
-
-    pub fn is_sacred_orb(&self) -> bool {
-        self.0.starts_with("sacredOrb:")
-    }
-
-    pub fn sacred_orb_count(&self) -> u8 {
-        self.0.split(':').nth(1).unwrap().parse().unwrap()
-    }
-
-    pub fn get(&self) -> &str {
-        self.0.as_str()
-    }
-}
-
-impl PartialEq<StrategyFlag> for RequirementFlag {
-    fn eq(&self, other: &StrategyFlag) -> bool {
-        self.0 == other.0
-    }
-}
-
-#[derive(Clone, Debug, PartialEq)]
-pub struct AllRequirements(pub Vec<RequirementFlag>);
-
-#[derive(Clone, Debug, PartialEq)]
-pub struct AnyOfAllRequirements(pub Vec<AllRequirements>);
-
-pub struct Spot {
-    pub name: StrategyFlag,
-    pub requirements: Option<AnyOfAllRequirements>,
 }
 
 pub struct Shop {
     pub names: (StrategyFlag, StrategyFlag, StrategyFlag),
+    pub source: usize,
     pub requirements: Option<AnyOfAllRequirements>,
 }
 
@@ -144,55 +110,59 @@ impl Supplements {
         let events = parse_requirements_of_events(events);
 
         let main_weapons = parse_item_spots_events_in_supplement(
-            parse_item_spot_requirements(main_weapons),
+            parse_item_spot_requirements(SpotSource::MainWeaponShutter, main_weapons),
             &events,
         );
         let sub_weapons = parse_item_spots_events_in_supplement(
-            parse_item_spot_requirements(sub_weapons),
+            parse_item_spot_requirements(SpotSource::SubWeaponShutter, sub_weapons),
             &events,
         );
-        let chests =
-            parse_item_spots_events_in_supplement(parse_item_spot_requirements(chests), &events);
-        let seals =
-            parse_item_spots_events_in_supplement(parse_item_spot_requirements(seals), &events);
+        let chests = parse_item_spots_events_in_supplement(
+            parse_item_spot_requirements(SpotSource::Chest, chests),
+            &events,
+        );
+        let seals = parse_item_spots_events_in_supplement(
+            parse_item_spot_requirements(SpotSource::SealChest, seals),
+            &events,
+        );
         let shops = parse_shops_events_in_supplement(parse_shop_requirements(shops), &events);
         debug_assert_eq!(
             &chests
                 .iter()
-                .find(|x| x.name.0 == "iceCape")
+                .find(|x| x.name.get() == "iceCape")
                 .unwrap()
                 .requirements,
             &Some(AnyOfAllRequirements(vec![
                 AllRequirements(vec![
-                    RequirementFlag("ankhJewel:templeOfTheSun".into()),
-                    RequirementFlag("bronzeMirror".into()),
-                    RequirementFlag("shuriken".into()),
-                    RequirementFlag("shurikenAmmo".into()),
+                    RequirementFlag::new("ankhJewel:templeOfTheSun".into()),
+                    RequirementFlag::new("bronzeMirror".into()),
+                    RequirementFlag::new("shuriken".into()),
+                    RequirementFlag::new("shurikenAmmo".into()),
                 ]),
                 AllRequirements(vec![
-                    RequirementFlag("holyGrail".into()),
-                    RequirementFlag("flareGun".into()),
-                    RequirementFlag("grappleClaw".into()),
+                    RequirementFlag::new("holyGrail".into()),
+                    RequirementFlag::new("flareGun".into()),
+                    RequirementFlag::new("grappleClaw".into()),
                 ]),
                 // tslint:disable-next-line:max-line-length
                 // vec!["anchor", "knife", "bronzeMirror", "ankhJewel:gateOfGuidance", "flareGun", "grappleClaw"],
                 AllRequirements(vec![
-                    RequirementFlag("bronzeMirror".into()),
-                    RequirementFlag("ankhJewel:mausoleumOfTheGiants".into()),
-                    RequirementFlag("flareGun".into()),
-                    RequirementFlag("grappleClaw".into()),
+                    RequirementFlag::new("bronzeMirror".into()),
+                    RequirementFlag::new("ankhJewel:mausoleumOfTheGiants".into()),
+                    RequirementFlag::new("flareGun".into()),
+                    RequirementFlag::new("grappleClaw".into()),
                 ]),
                 AllRequirements(vec![
-                    RequirementFlag("holyGrail".into()),
-                    RequirementFlag("flareGun".into()),
-                    RequirementFlag("feather".into()),
+                    RequirementFlag::new("holyGrail".into()),
+                    RequirementFlag::new("flareGun".into()),
+                    RequirementFlag::new("feather".into()),
                 ]),
                 // vec!["anchor", "knife", "bronzeMirror", "ankhJewel:gateOfGuidance", "flareGun", "feather"],
                 AllRequirements(vec![
-                    RequirementFlag("bronzeMirror".into()),
-                    RequirementFlag("ankhJewel:mausoleumOfTheGiants".into()),
-                    RequirementFlag("flareGun".into()),
-                    RequirementFlag("feather".into()),
+                    RequirementFlag::new("bronzeMirror".into()),
+                    RequirementFlag::new("ankhJewel:mausoleumOfTheGiants".into()),
+                    RequirementFlag::new("flareGun".into()),
+                    RequirementFlag::new("feather".into()),
                 ]),
             ]))
         );
@@ -206,11 +176,16 @@ impl Supplements {
     }
 }
 
-fn parse_item_spot_requirements(items: Vec<YamlSpot>) -> Vec<Spot> {
+fn parse_item_spot_requirements(
+    create_source: impl Fn(usize) -> SpotSource,
+    items: Vec<YamlSpot>,
+) -> Vec<Spot> {
     items
         .into_iter()
-        .map(|item| Spot {
-            name: StrategyFlag::new(item.name),
+        .enumerate()
+        .map(|(i, item)| Spot {
+            name: SpotName::new(item.name),
+            source: create_source(i),
             requirements: if item.requirements.is_empty() {
                 None
             } else {
@@ -234,7 +209,8 @@ fn parse_item_spot_requirements(items: Vec<YamlSpot>) -> Vec<Spot> {
 fn parse_shop_requirements(items: Vec<YamlShop>) -> Vec<Shop> {
     items
         .into_iter()
-        .map(|item| Shop {
+        .enumerate()
+        .map(|(source, item)| Shop {
             names: {
                 let names: Vec<_> = item.names.split(',').map(|x| x.trim()).collect();
                 debug_assert_eq!(names.len(), 3);
@@ -244,6 +220,7 @@ fn parse_shop_requirements(items: Vec<YamlShop>) -> Vec<Shop> {
                     StrategyFlag::new(names[2].to_owned()),
                 )
             },
+            source,
             requirements: if item.requirements.is_empty() {
                 None
             } else {
@@ -290,7 +267,7 @@ fn parse_requirements_of_events(items: Vec<YamlSpot>) -> Vec<Event> {
                 x.requirements
                     .0
                     .iter()
-                    .all(|y| y.0.iter().all(|z| !z.0.starts_with("event:")))
+                    .all(|y| y.0.iter().all(|z| !z.get().starts_with("event:")))
             })
             .cloned()
             .collect();
@@ -301,7 +278,7 @@ fn parse_requirements_of_events(items: Vec<YamlSpot>) -> Vec<Event> {
             .into_iter()
             .map(|x| Event {
                 name: x.name,
-                requirements: parse_events(x.requirements, &events),
+                requirements: merge_events(x.requirements, &events),
             })
             .collect();
     }
@@ -313,8 +290,9 @@ fn parse_item_spots_events_in_supplement(list: Vec<Spot>, events: &[Event]) -> V
         .map(|x| {
             if let Some(requirements) = x.requirements {
                 Spot {
-                    name: x.name.clone(),
-                    requirements: Some(parse_events(requirements, events)),
+                    name: x.name,
+                    source: x.source,
+                    requirements: Some(merge_events(requirements, events)),
                 }
             } else {
                 x
@@ -328,8 +306,9 @@ fn parse_shops_events_in_supplement(list: Vec<Shop>, events: &[Event]) -> Vec<Sh
         .map(|x| {
             if let Some(requirements) = x.requirements {
                 Shop {
-                    names: x.names.clone(),
-                    requirements: Some(parse_events(requirements, events)),
+                    names: x.names,
+                    source: x.source,
+                    requirements: Some(merge_events(requirements, events)),
                 }
             } else {
                 x
@@ -338,7 +317,7 @@ fn parse_shops_events_in_supplement(list: Vec<Shop>, events: &[Event]) -> Vec<Sh
         .collect()
 }
 
-fn parse_events(requirements: AnyOfAllRequirements, events: &[Event]) -> AnyOfAllRequirements {
+fn merge_events(requirements: AnyOfAllRequirements, events: &[Event]) -> AnyOfAllRequirements {
     // [['event:a', 'event:b', 'c']]
     // 'event:a': [['d', 'e', 'f']]
     // 'event:b': [['g', 'h'], ['i', 'j']]
@@ -354,7 +333,7 @@ fn parse_events(requirements: AnyOfAllRequirements, events: &[Event]) -> AnyOfAl
         if current
             .0
             .iter()
-            .all(|target_group| !target_group.0.iter().any(|x| x.0 == event.name))
+            .all(|target_group| !target_group.0.iter().any(|x| x.get() == event.name))
         {
             continue;
         }
@@ -363,7 +342,7 @@ fn parse_events(requirements: AnyOfAllRequirements, events: &[Event]) -> AnyOfAl
                 .0
                 .into_iter()
                 .flat_map(|target_group| -> Vec<AllRequirements> {
-                    if !target_group.0.iter().any(|x| x.0 == event.name) {
+                    if !target_group.0.iter().any(|x| x.get() == event.name) {
                         return vec![target_group];
                     }
                     event
@@ -382,7 +361,7 @@ fn parse_events(requirements: AnyOfAllRequirements, events: &[Event]) -> AnyOfAl
                                             .clone()
                                             .into_iter()
                                             .filter(|x| {
-                                                x.0 != event.name
+                                                x.get() != event.name
                                                     && !event_group.0.iter().any(|y| y == x)
                                             })
                                             .collect::<Vec<_>>(),

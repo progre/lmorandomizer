@@ -1,6 +1,4 @@
-use std::thread::spawn;
-
-use super::{item::Item, spot::Spot, supplements::StrategyFlag};
+use super::{item::Item, spot::Spot};
 
 #[derive(Clone, Debug)]
 pub struct ItemSpot {
@@ -53,6 +51,25 @@ impl Storage {
         }
     }
 
+    #[allow(clippy::type_complexity)]
+    pub fn into_inner(
+        self,
+    ) -> (
+        Vec<ItemSpot>,
+        Vec<ItemSpot>,
+        Vec<ItemSpot>,
+        Vec<ItemSpot>,
+        Vec<Shop>,
+    ) {
+        (
+            self.main_weapon_shutters,
+            self.sub_weapon_shutters,
+            self.chests,
+            self.seal_chests,
+            self.shops,
+        )
+    }
+
     pub fn all_items(&self) -> Vec<&Item> {
         let mut all_items: Vec<_> = self
             .main_weapon_shutters
@@ -69,147 +86,5 @@ impl Storage {
             .collect();
         all_items.sort_by_cached_key(|x| x.can_display_in_shop());
         all_items
-    }
-
-    pub fn split_reachables_unreachables(
-        self,
-        current_item_names: &[StrategyFlag],
-        current_sacred_orb_count: u8,
-    ) -> (Vec<StrategyFlag>, Self) {
-        let (reached_item_names_tx, reached_item_names_rx) = std::sync::mpsc::channel();
-
-        let Self {
-            main_weapon_shutters,
-            sub_weapon_shutters,
-            chests,
-            seal_chests,
-            shops,
-        } = self;
-
-        let main_weapon_shutter_handle = spawn({
-            let current_item_names = current_item_names.to_owned();
-            let reached_item_names_tx = reached_item_names_tx.clone();
-            move || {
-                let mut unreached_main_weapon_shutters = Vec::new();
-                for item_spot in main_weapon_shutters {
-                    if item_spot
-                        .spot
-                        .is_reachable(&current_item_names, current_sacred_orb_count)
-                    {
-                        reached_item_names_tx
-                            .send(item_spot.item.name().to_owned())
-                            .unwrap();
-                    } else {
-                        unreached_main_weapon_shutters.push(item_spot);
-                    }
-                }
-                unreached_main_weapon_shutters
-            }
-        });
-        let sub_weapon_shutters_handle = spawn({
-            let current_item_names = current_item_names.to_owned();
-            let reached_item_names_tx = reached_item_names_tx.clone();
-            move || {
-                let mut unreached_sub_weapon_shutters = Vec::new();
-                for item_spot in sub_weapon_shutters {
-                    if item_spot
-                        .spot
-                        .is_reachable(&current_item_names, current_sacred_orb_count)
-                    {
-                        reached_item_names_tx
-                            .send(item_spot.item.name().to_owned())
-                            .unwrap();
-                    } else {
-                        unreached_sub_weapon_shutters.push(item_spot);
-                    }
-                }
-                unreached_sub_weapon_shutters
-            }
-        });
-        let chests_handle = spawn({
-            let current_item_names = current_item_names.to_owned();
-            let reached_item_names_tx = reached_item_names_tx.clone();
-            move || {
-                let mut unreached_chests = Vec::new();
-                for item_spot in chests {
-                    if item_spot
-                        .spot
-                        .is_reachable(&current_item_names, current_sacred_orb_count)
-                    {
-                        reached_item_names_tx
-                            .send(item_spot.item.name().to_owned())
-                            .unwrap();
-                    } else {
-                        unreached_chests.push(item_spot);
-                    }
-                }
-                unreached_chests
-            }
-        });
-        let seal_chests_handle = spawn({
-            let current_item_names = current_item_names.to_owned();
-            let reached_item_names_tx = reached_item_names_tx.clone();
-            move || {
-                let mut unreached_seal_chests = Vec::new();
-                for item_spot in seal_chests {
-                    if item_spot
-                        .spot
-                        .is_reachable(&current_item_names, current_sacred_orb_count)
-                    {
-                        reached_item_names_tx
-                            .send(item_spot.item.name().to_owned())
-                            .unwrap();
-                    } else {
-                        unreached_seal_chests.push(item_spot);
-                    }
-                }
-                unreached_seal_chests
-            }
-        });
-        let shops_handle = spawn({
-            let current_item_names = current_item_names.to_owned();
-            let reached_item_names_tx = reached_item_names_tx.clone();
-            move || {
-                let mut unreached_shops = Vec::new();
-                for shop in shops {
-                    if shop
-                        .spot
-                        .is_reachable(&current_item_names, current_sacred_orb_count)
-                    {
-                        reached_item_names_tx
-                            .send(shop.items.0.name().to_owned())
-                            .unwrap();
-                        reached_item_names_tx
-                            .send(shop.items.1.name().to_owned())
-                            .unwrap();
-                        reached_item_names_tx
-                            .send(shop.items.2.name().to_owned())
-                            .unwrap();
-                    } else {
-                        unreached_shops.push(shop);
-                    }
-                }
-                unreached_shops
-            }
-        });
-
-        let unreached_main_weapon_shutters = main_weapon_shutter_handle.join().unwrap();
-        let unreached_sub_weapon_shutters = sub_weapon_shutters_handle.join().unwrap();
-        let unreached_chests = chests_handle.join().unwrap();
-        let unreached_seal_chests = seal_chests_handle.join().unwrap();
-        let unreached_shops = shops_handle.join().unwrap();
-
-        drop(reached_item_names_tx);
-
-        (
-            reached_item_names_rx.iter().collect(),
-            Self::new(
-                unreached_main_weapon_shutters,
-                unreached_sub_weapon_shutters,
-                unreached_chests,
-                unreached_seal_chests,
-                unreached_shops,
-            ),
-        )
     }
 }
