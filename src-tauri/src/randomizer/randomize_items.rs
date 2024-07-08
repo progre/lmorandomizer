@@ -37,21 +37,19 @@ pub fn randomize_items(script: &mut Script, source: &Storage, seed: &str) -> Res
 }
 
 fn randomize_storage(source: &Storage, rng: &mut impl Rng) -> (Storage, SpoilerLog) {
-    let items = source.all_items();
+    let (sellable_items, unsellable_items): (Vec<_>, Vec<_>) = source
+        .all_items()
+        .cloned()
+        .partition(|x| x.can_display_in_shop());
 
     debug_assert_eq!(
-        items.len(),
+        sellable_items.len() + unsellable_items.len(),
         source.main_weapon_shutters().len()
             + source.sub_weapon_shutters().len()
             + source.chests().len()
             + source.seal_chests().len()
             + source.shops().len() * 3,
     );
-
-    let (sellable_items, unsellable_items): (Vec<_>, Vec<_>) = items
-        .into_iter()
-        .cloned()
-        .partition(|x| x.can_display_in_shop());
 
     for i in 0..10000 {
         // itemをshuffleしてplaceと合わせる

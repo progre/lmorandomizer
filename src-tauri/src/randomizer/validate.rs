@@ -1,15 +1,18 @@
-use std::thread::spawn;
+use std::{collections::HashSet, thread::spawn};
 
 use crate::{
-    dataset::storage::{ItemSpot, Storage},
+    dataset::{
+        storage::{ItemSpot, Storage},
+        supplements::StrategyFlag,
+    },
     randomizer::spoiler_log::{Checkpoint, Sphere},
 };
 
 use super::spoiler_log::SpoilerLog;
 
-pub fn split_reachables_unreachables(
+fn partition_reachables_unreachables(
     storage: Storage,
-    current_checkpoints: &[Checkpoint],
+    current_strategy_flags: &[StrategyFlag],
     current_sacred_orb_count: u8,
 ) -> (Vec<Checkpoint>, Storage) {
     let (reached_checkpoints_tx, reached_item_names_rx) = std::sync::mpsc::channel();
@@ -18,25 +21,27 @@ pub fn split_reachables_unreachables(
         storage.into_inner();
 
     let f = |item_spots: Vec<ItemSpot>| {
-        let current_checkpoints = current_checkpoints.to_owned();
+        let current_strategy_flags = current_strategy_flags.to_owned();
         let reached_checkpoints_tx = reached_checkpoints_tx.clone();
         move || {
-            let mut unreached_item_spots = Vec::new();
-            for item_spot in item_spots {
-                if !item_spot.spot.is_reachable(
-                    current_checkpoints.iter().flat_map(|x| &x.strategy_flag),
-                    current_sacred_orb_count,
-                ) {
-                    unreached_item_spots.push(item_spot);
-                    continue;
-                }
-                let checkpoint = Checkpoint {
-                    spot: item_spot.spot,
-                    strategy_flag: vec![item_spot.item.name().to_owned()],
-                };
-                reached_checkpoints_tx.send(checkpoint).unwrap();
-            }
-            unreached_item_spots
+            let current_strategy_flags: HashSet<_> =
+                current_strategy_flags.iter().map(|x| x.get()).collect();
+
+            let (reachables, unreachables) =
+                item_spots.into_iter().partition::<Vec<_>, _>(|item_spot| {
+                    item_spot
+                        .spot
+                        .is_reachable(&current_strategy_flags, current_sacred_orb_count)
+                });
+            let reached_checkpoints: Vec<_> = reachables
+                .into_iter()
+                .map(|item_spot| Checkpoint {
+                    spot: item_spot.spot.clone(),
+                    strategy_flags: vec![item_spot.item.name().to_owned()],
+                })
+                .collect();
+            reached_checkpoints_tx.send(reached_checkpoints).unwrap();
+            unreachables
         }
     };
     let main_weapon_shutter_handle = spawn(f(main_weapon_shutters));
@@ -44,29 +49,29 @@ pub fn split_reachables_unreachables(
     let chests_handle = spawn(f(chests));
     let seal_chests_handle = spawn(f(seal_chests));
     let shops_handle = spawn({
-        let current_checkpoints = current_checkpoints.to_owned();
+        let current_strategy_flags = current_strategy_flags.to_owned();
         let reached_checkpoints_tx = reached_checkpoints_tx.clone();
         move || {
-            let mut unreached_shops = Vec::new();
-            for shop in shops {
-                if !shop.spot.is_reachable(
-                    current_checkpoints.iter().flat_map(|x| &x.strategy_flag),
-                    current_sacred_orb_count,
-                ) {
-                    unreached_shops.push(shop);
-                    continue;
-                }
-                let checkpoint = Checkpoint {
+            let current_strategy_flags: HashSet<_> =
+                current_strategy_flags.iter().map(|x| x.get()).collect();
+
+            let (reachables, unreachables) = shops.into_iter().partition::<Vec<_>, _>(|shop| {
+                shop.spot
+                    .is_reachable(&current_strategy_flags, current_sacred_orb_count)
+            });
+            let reached_checkpoints: Vec<_> = reachables
+                .into_iter()
+                .map(|shop| Checkpoint {
                     spot: shop.spot.clone(),
-                    strategy_flag: vec![
+                    strategy_flags: vec![
                         shop.items.0.name().to_owned(),
                         shop.items.1.name().to_owned(),
                         shop.items.2.name().to_owned(),
                     ],
-                };
-                reached_checkpoints_tx.send(checkpoint).unwrap();
-            }
-            unreached_shops
+                })
+                .collect();
+            reached_checkpoints_tx.send(reached_checkpoints).unwrap();
+            unreachables
         }
     });
 
@@ -80,32 +85,36 @@ pub fn split_reachables_unreachables(
 
     drop(reached_checkpoints_tx);
 
-    (reached_item_names_rx.iter().collect(), storage)
+    (reached_item_names_rx.iter().flatten().collect(), storage)
 }
 
 pub fn validate(storage: &Storage) -> Option<SpoilerLog> {
-    let mut current_item_names: Vec<Checkpoint> = Default::default();
+    let mut current_strategy_flags: Vec<StrategyFlag> = Default::default();
     let mut playing = storage.clone();
     let mut progression = Vec::new();
     for _ in 0..100 {
-        let current_sacred_orb_count = current_item_names
+        let current_sacred_orb_count = current_strategy_flags
             .iter()
-            .flat_map(|x| &x.strategy_flag)
             .filter(|x| x.is_sacred_orb())
             .count() as u8;
-        let result =
-            split_reachables_unreachables(playing, &current_item_names, current_sacred_orb_count);
-        let mut reached = result.0;
+        let (reached, unreached) = partition_reachables_unreachables(
+            playing,
+            &current_strategy_flags,
+            current_sacred_orb_count,
+        );
         if reached.is_empty() {
             return None;
         }
-        playing = result.1;
+        playing = unreached;
 
-        if playing.all_items().is_empty() {
+        if playing.all_items().count() == 0 {
             return Some(SpoilerLog { progression });
         }
         progression.push(Sphere(reached.clone()));
-        current_item_names.append(&mut reached);
+        reached
+            .into_iter()
+            .flat_map(|x| x.strategy_flags)
+            .for_each(|x| current_strategy_flags.push(x));
     }
     unreachable!();
 }

@@ -100,19 +100,18 @@ impl Spot {
         }
     }
 
-    pub fn is_reachable<'a>(
+    pub fn is_reachable(
         &self,
-        current_item_names: impl Iterator<Item = &'a StrategyFlag>,
+        current_strategy_flags: &HashSet<&str>,
         sacred_orb_count: u8,
     ) -> bool {
         let Some(any) = &self.requirements else {
             return true;
         };
-        let current_item_names: HashSet<_> = current_item_names.map(|x| x.get()).collect();
         any.0.iter().any(|all| {
             all.0.iter().all(|x| {
                 x.is_sacred_orb() && x.sacred_orb_count() <= sacred_orb_count
-                    || current_item_names.contains(x.get())
+                    || current_strategy_flags.contains(x.get())
             })
         })
     }

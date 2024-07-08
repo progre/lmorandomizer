@@ -5,7 +5,7 @@ use crate::dataset::{spot::Spot, supplements::StrategyFlag};
 #[derive(Clone)]
 pub struct Checkpoint {
     pub spot: Spot,
-    pub strategy_flag: Vec<StrategyFlag>,
+    pub strategy_flags: Vec<StrategyFlag>,
 }
 
 pub struct Sphere(pub Vec<Checkpoint>);
@@ -28,7 +28,7 @@ impl fmt::Display for SpoilerLog {
                     checkpoint.spot.source,
                     checkpoint.spot.name.0,
                     checkpoint
-                        .strategy_flag
+                        .strategy_flags
                         .iter()
                         .map(|x| x.get())
                         .collect::<Vec<_>>()

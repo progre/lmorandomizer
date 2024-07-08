@@ -70,9 +70,8 @@ impl Storage {
         )
     }
 
-    pub fn all_items(&self) -> Vec<&Item> {
-        let mut all_items: Vec<_> = self
-            .main_weapon_shutters
+    pub fn all_items(&self) -> impl Iterator<Item = &Item> {
+        self.main_weapon_shutters
             .iter()
             .map(|x| &x.item)
             .chain(self.sub_weapon_shutters.iter().map(|x| &x.item))
@@ -83,8 +82,5 @@ impl Storage {
                     .iter()
                     .flat_map(|x| [&x.items.0, &x.items.1, &x.items.2]),
             )
-            .collect();
-        all_items.sort_by_cached_key(|x| x.can_display_in_shop());
-        all_items
     }
 }
