@@ -24,9 +24,8 @@ impl fmt::Display for SpoilerLog {
             for checkpoint in &sphere.0 {
                 writeln!(
                     f,
-                    "{}({}) = {}",
-                    checkpoint.spot.source,
-                    checkpoint.spot.name.0,
+                    "{} = {}",
+                    checkpoint.spot,
                     checkpoint
                         .strategy_flags
                         .iter()

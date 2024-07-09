@@ -46,9 +46,9 @@ pub struct Seal {
     pub set_flag: u16,
 }
 
-fn shop_item(shops: &[Shop], shop_idx: u8, item_idx: u8) -> Result<&ShopItem> {
+fn shop_item(shops: &[Shop], shop_idx: usize, item_idx: usize) -> Result<&ShopItem> {
     let shop = shops
-        .get(shop_idx as usize)
+        .get(shop_idx)
         .ok_or_else(|| anyhow!("invalid shop index: {}", shop_idx))?;
     Ok(match item_idx {
         0 => &shop.items.0,
@@ -83,10 +83,8 @@ impl Item {
             dataset::item::Item::MainWeapon(item) => {
                 let main_weapons = script.main_weapons()?;
                 let item = main_weapons
-                    .get(item.src_main_weapon_idx as usize)
-                    .ok_or_else(|| {
-                        anyhow!("invalid main weapon index: {}", item.src_main_weapon_idx)
-                    })?;
+                    .get(item.src_idx)
+                    .ok_or_else(|| anyhow!("invalid main weapon index: {}", item.src_idx))?;
                 let content = item.content;
                 let set_flag = item.flag;
                 Self::initial_assert(content as i8, set_flag, false);
@@ -95,7 +93,7 @@ impl Item {
             dataset::item::Item::SubWeaponBody(item) => {
                 let sub_weapons = script.sub_weapons()?;
                 let item = sub_weapons
-                    .get(item.src_idx as usize)
+                    .get(item.src_idx)
                     .ok_or_else(|| anyhow!("invalid sub weapon index: {}", item.src_idx))?;
                 let content = item.content;
                 let set_flag = item.flag;
@@ -105,7 +103,7 @@ impl Item {
             dataset::item::Item::SubWeaponAmmo(item) => {
                 let sub_weapons = script.sub_weapons()?;
                 let item = sub_weapons
-                    .get(item.src_idx as usize)
+                    .get(item.src_idx)
                     .ok_or_else(|| anyhow!("invalid sub weapon index: {}", item.src_idx))?;
                 Self::initial_assert(item.content as i8, item.flag, true);
                 Ok(Self::SubWeaponAmmo(SubWeaponAmmo {
@@ -118,7 +116,7 @@ impl Item {
             dataset::item::Item::ChestItem(item) => {
                 let chests = script.chests()?;
                 let item = chests
-                    .get(item.src_idx as usize)
+                    .get(item.src_idx)
                     .ok_or_else(|| anyhow!("invalid chest index: {}", item.src_idx))?;
                 match item.content {
                     Some(ChestContent::Equipment(content)) => {
@@ -137,8 +135,8 @@ impl Item {
             dataset::item::Item::Seal(item) => {
                 let seals = script.seals()?;
                 let item = seals
-                    .get(item.src_seal_idx as usize)
-                    .ok_or_else(|| anyhow!("invalid seal index: {}", item.src_seal_idx))?;
+                    .get(item.src_idx)
+                    .ok_or_else(|| anyhow!("invalid seal index: {}", item.src_idx))?;
                 let content = item.content;
                 let set_flag = item.flag;
                 Self::initial_assert(content as i8, set_flag, false);

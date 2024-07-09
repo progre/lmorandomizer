@@ -2,37 +2,37 @@ use super::supplements::StrategyFlag;
 
 #[derive(Clone, Debug)]
 pub struct MainWeapon {
-    pub src_main_weapon_idx: u8,
+    pub src_idx: usize,
     pub name: StrategyFlag,
 }
 
 #[derive(Clone, Debug)]
 pub struct SubWeaponBody {
-    pub src_idx: u8,
+    pub src_idx: usize,
     pub name: StrategyFlag,
 }
 
 #[derive(Clone, Debug)]
 pub struct SubWeaponAmmo {
-    pub src_idx: u8,
+    pub src_idx: usize,
     pub name: StrategyFlag,
 }
 
 #[derive(Clone, Debug)]
 pub struct ChestItem {
-    pub src_idx: u8,
+    pub src_idx: usize,
     pub name: StrategyFlag,
 }
 
 #[derive(Clone, Debug)]
 pub struct Seal {
-    pub src_seal_idx: u8,
+    pub src_idx: usize,
     pub name: StrategyFlag,
 }
 
 #[derive(Clone, Debug)]
 pub struct ShopItem {
-    pub src_idx: (u8, u8),
+    pub src_idx: (usize, usize),
     pub name: StrategyFlag,
 }
 
@@ -49,25 +49,22 @@ pub enum Item {
 }
 
 impl Item {
-    pub fn main_weapon(src_main_weapon_idx: u8, name: StrategyFlag) -> Self {
-        Self::MainWeapon(MainWeapon {
-            src_main_weapon_idx,
-            name,
-        })
+    pub fn main_weapon(src_idx: usize, name: StrategyFlag) -> Self {
+        Self::MainWeapon(MainWeapon { src_idx, name })
     }
-    pub fn sub_weapon_body(src_idx: u8, name: StrategyFlag) -> Self {
+    pub fn sub_weapon_body(src_idx: usize, name: StrategyFlag) -> Self {
         Self::SubWeaponBody(SubWeaponBody { src_idx, name })
     }
-    pub fn sub_weapon_ammo(src_idx: u8, name: StrategyFlag) -> Self {
+    pub fn sub_weapon_ammo(src_idx: usize, name: StrategyFlag) -> Self {
         Self::SubWeaponAmmo(SubWeaponAmmo { src_idx, name })
     }
-    pub fn chest_item(src_idx: u8, name: StrategyFlag) -> Self {
+    pub fn chest_item(src_idx: usize, name: StrategyFlag) -> Self {
         Self::ChestItem(ChestItem { src_idx, name })
     }
-    pub fn seal(src_seal_idx: u8, name: StrategyFlag) -> Self {
-        Self::Seal(Seal { src_seal_idx, name })
+    pub fn seal(src_idx: usize, name: StrategyFlag) -> Self {
+        Self::Seal(Seal { src_idx, name })
     }
-    pub fn shop_item(shop_idx: u8, item_idx: u8, name: StrategyFlag) -> Self {
+    pub fn shop_item(shop_idx: usize, item_idx: usize, name: StrategyFlag) -> Self {
         Self::ShopItem(ShopItem {
             src_idx: (shop_idx, item_idx),
             name,

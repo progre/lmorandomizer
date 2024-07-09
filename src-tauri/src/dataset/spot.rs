@@ -1,9 +1,9 @@
-use std::{collections::HashSet, fmt};
+use std::{any::type_name, collections::HashSet, fmt};
 
 use super::supplements::StrategyFlag;
 
 #[derive(Clone, Debug, serde::Serialize)]
-pub struct SpotName(pub String);
+pub struct SpotName(String);
 
 impl SpotName {
     pub fn new(name: String) -> Self {
@@ -16,27 +16,6 @@ impl SpotName {
 
     pub fn into_inner(self) -> String {
         self.0
-    }
-}
-
-#[derive(Clone, Debug, serde::Serialize)]
-pub enum SpotSource {
-    MainWeaponShutter(usize),
-    SubWeaponShutter(usize),
-    Chest(usize),
-    SealChest(usize),
-    Shop(usize),
-}
-
-impl fmt::Display for SpotSource {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            Self::MainWeaponShutter(x) => write!(f, "MainWeaponShutter{}", x),
-            Self::SubWeaponShutter(x) => write!(f, "SubWeaponShutter{}", x),
-            Self::Chest(x) => write!(f, "Chest{}", x),
-            Self::SealChest(x) => write!(f, "SealChest{}", x),
-            Self::Shop(x) => write!(f, "Shop{}", x),
-        }
     }
 }
 
@@ -81,22 +60,130 @@ pub struct AllRequirements(pub Vec<RequirementFlag>);
 pub struct AnyOfAllRequirements(pub Vec<AllRequirements>);
 
 #[derive(Clone, Debug)]
-pub struct Spot {
+pub struct MainWeaponShutter {
+    src_idx: usize,
     pub name: SpotName,
-    pub source: SpotSource,
     pub requirements: Option<AnyOfAllRequirements>,
 }
 
-impl Spot {
-    pub fn new(
-        name: SpotName,
-        source: SpotSource,
-        requirements: Option<AnyOfAllRequirements>,
-    ) -> Self {
+impl MainWeaponShutter {
+    pub fn new(src_idx: usize, name: SpotName, requirements: Option<AnyOfAllRequirements>) -> Self {
         Self {
+            src_idx,
             name,
-            source,
             requirements,
+        }
+    }
+}
+
+#[derive(Clone, Debug)]
+pub struct SubWeaponShutter {
+    src_idx: usize,
+    pub name: SpotName,
+    pub requirements: Option<AnyOfAllRequirements>,
+}
+
+impl SubWeaponShutter {
+    pub fn new(src_idx: usize, name: SpotName, requirements: Option<AnyOfAllRequirements>) -> Self {
+        Self {
+            src_idx,
+            name,
+            requirements,
+        }
+    }
+}
+
+#[derive(Clone, Debug)]
+pub struct Chest {
+    src_idx: usize,
+    pub name: SpotName,
+    pub requirements: Option<AnyOfAllRequirements>,
+}
+
+impl Chest {
+    pub fn new(src_idx: usize, name: SpotName, requirements: Option<AnyOfAllRequirements>) -> Self {
+        Self {
+            src_idx,
+            name,
+            requirements,
+        }
+    }
+}
+
+#[derive(Clone, Debug)]
+pub struct SealChest {
+    src_idx: usize,
+    pub name: SpotName,
+    pub requirements: Option<AnyOfAllRequirements>,
+}
+
+impl SealChest {
+    pub fn new(src_idx: usize, name: SpotName, requirements: Option<AnyOfAllRequirements>) -> Self {
+        Self {
+            src_idx,
+            name,
+            requirements,
+        }
+    }
+}
+
+#[derive(Clone, Debug)]
+pub struct Shop {
+    src_idx: usize,
+    pub name: SpotName,
+    pub requirements: Option<AnyOfAllRequirements>,
+}
+
+impl Shop {
+    pub fn new(src_idx: usize, name: SpotName, requirements: Option<AnyOfAllRequirements>) -> Self {
+        if cfg!(debug_assertions) {
+            let names: Vec<_> = name.0.split(',').map(|x| x.trim()).collect();
+            debug_assert_eq!(names.len(), 3);
+        }
+        Self {
+            src_idx,
+            name,
+            requirements,
+        }
+    }
+
+    pub fn to_strategy_flags(&self) -> (StrategyFlag, StrategyFlag, StrategyFlag) {
+        let mut names = self.name.0.split(',').map(|x| x.trim());
+        (
+            StrategyFlag::new(names.next().unwrap().to_string()),
+            StrategyFlag::new(names.next().unwrap().to_string()),
+            StrategyFlag::new(names.next().unwrap().to_string()),
+        )
+    }
+}
+
+#[derive(Clone, Debug)]
+pub enum Spot {
+    MainWeaponShutter(MainWeaponShutter),
+    SubWeaponShutter(SubWeaponShutter),
+    Chest(Chest),
+    SealChest(SealChest),
+    Shop(Shop),
+}
+
+impl Spot {
+    fn name(&self) -> &SpotName {
+        match self {
+            Self::MainWeaponShutter(x) => &x.name,
+            Self::SubWeaponShutter(x) => &x.name,
+            Self::Chest(x) => &x.name,
+            Self::SealChest(x) => &x.name,
+            Self::Shop(x) => &x.name,
+        }
+    }
+
+    fn requirements(&self) -> &Option<AnyOfAllRequirements> {
+        match self {
+            Self::MainWeaponShutter(x) => &x.requirements,
+            Self::SubWeaponShutter(x) => &x.requirements,
+            Self::Chest(x) => &x.requirements,
+            Self::SealChest(x) => &x.requirements,
+            Self::Shop(x) => &x.requirements,
         }
     }
 
@@ -105,7 +192,7 @@ impl Spot {
         current_strategy_flags: &HashSet<&str>,
         sacred_orb_count: u8,
     ) -> bool {
-        let Some(any) = &self.requirements else {
+        let Some(any) = self.requirements() else {
             return true;
         };
         any.0.iter().any(|all| {
@@ -114,5 +201,25 @@ impl Spot {
                     || current_strategy_flags.contains(x.get())
             })
         })
+    }
+}
+
+impl fmt::Display for Spot {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let type_name = match self {
+            Self::MainWeaponShutter(_) => type_name::<MainWeaponShutter>(),
+            Self::SubWeaponShutter(_) => type_name::<SubWeaponShutter>(),
+            Self::Chest(_) => type_name::<Chest>(),
+            Self::SealChest(_) => type_name::<SealChest>(),
+            Self::Shop(_) => type_name::<Shop>(),
+        };
+        let src_idx = match self {
+            Self::MainWeaponShutter(x) => x.src_idx,
+            Self::SubWeaponShutter(x) => x.src_idx,
+            Self::Chest(x) => x.src_idx,
+            Self::SealChest(x) => x.src_idx,
+            Self::Shop(x) => x.src_idx,
+        };
+        write!(f, "{}{}({})", type_name, src_idx, self.name().get())
     }
 }

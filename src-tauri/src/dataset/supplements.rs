@@ -1,6 +1,8 @@
-use crate::dataset::spot::AllRequirements;
+use crate::dataset::spot::{
+    AllRequirements, Chest, MainWeaponShutter, SealChest, SubWeaponShutter,
+};
 
-use super::spot::{AnyOfAllRequirements, RequirementFlag, Spot, SpotName, SpotSource};
+use super::spot::{self, AnyOfAllRequirements, RequirementFlag, Shop, SpotName};
 
 pub const NIGHT_SURFACE_SUB_WEAPON_COUNT: usize = 1;
 pub const NIGHT_SURFACE_CHEST_COUNT: usize = 3;
@@ -47,12 +49,6 @@ impl From<SpotName> for StrategyFlag {
     }
 }
 
-pub struct Shop {
-    pub names: (StrategyFlag, StrategyFlag, StrategyFlag),
-    pub source: usize,
-    pub requirements: Option<AnyOfAllRequirements>,
-}
-
 #[derive(Debug, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SupplementFiles {
@@ -91,10 +87,10 @@ struct Event {
 }
 
 pub struct Supplements {
-    pub main_weapons: Vec<Spot>,
-    pub sub_weapons: Vec<Spot>,
-    pub chests: Vec<Spot>,
-    pub seals: Vec<Spot>,
+    pub main_weapons: Vec<MainWeaponShutter>,
+    pub sub_weapons: Vec<SubWeaponShutter>,
+    pub chests: Vec<Chest>,
+    pub seals: Vec<SealChest>,
     pub shops: Vec<Shop>,
 }
 
@@ -109,23 +105,42 @@ impl Supplements {
         let events: Vec<YamlSpot> = serde_yaml::from_str(&supplement_files.events_yml).unwrap();
         let events = parse_requirements_of_events(events);
 
-        let main_weapons = parse_item_spots_events_in_supplement(
-            parse_item_spot_requirements(SpotSource::MainWeaponShutter, main_weapons),
-            &events,
-        );
-        let sub_weapons = parse_item_spots_events_in_supplement(
-            parse_item_spot_requirements(SpotSource::SubWeaponShutter, sub_weapons),
-            &events,
-        );
-        let chests = parse_item_spots_events_in_supplement(
-            parse_item_spot_requirements(SpotSource::Chest, chests),
-            &events,
-        );
-        let seals = parse_item_spots_events_in_supplement(
-            parse_item_spot_requirements(SpotSource::SealChest, seals),
-            &events,
-        );
-        let shops = parse_shops_events_in_supplement(parse_shop_requirements(shops), &events);
+        let mut main_weapons = parse_item_spot_requirements(MainWeaponShutter::new, main_weapons);
+        main_weapons.iter_mut().for_each(|x| {
+            if let Some(requirements) = x.requirements.take() {
+                let requirements = merge_events(requirements, &events);
+                x.requirements = Some(requirements);
+            }
+        });
+        let mut sub_weapons = parse_item_spot_requirements(SubWeaponShutter::new, sub_weapons);
+        sub_weapons.iter_mut().for_each(|x| {
+            if let Some(requirements) = x.requirements.take() {
+                let requirements = merge_events(requirements, &events);
+                x.requirements = Some(requirements);
+            }
+        });
+        let mut chests = parse_item_spot_requirements(Chest::new, chests);
+        chests.iter_mut().for_each(|x| {
+            if let Some(requirements) = x.requirements.take() {
+                let requirements = merge_events(requirements, &events);
+                x.requirements = Some(requirements);
+            }
+        });
+        let mut seals = parse_item_spot_requirements(SealChest::new, seals);
+        seals.iter_mut().for_each(|x| {
+            if let Some(requirements) = x.requirements.take() {
+                let requirements = merge_events(requirements, &events);
+                x.requirements = Some(requirements);
+            }
+        });
+        let mut shops = parse_shop_requirements(shops);
+        shops.iter_mut().for_each(|x| {
+            if let Some(requirements) = x.requirements.take() {
+                let requirements = merge_events(requirements, &events);
+                x.requirements = Some(requirements);
+            }
+        });
+
         debug_assert_eq!(
             &chests
                 .iter()
@@ -176,67 +191,52 @@ impl Supplements {
     }
 }
 
-fn parse_item_spot_requirements(
-    create_source: impl Fn(usize) -> SpotSource,
+fn to_any_of_all_requirements(requirements: Vec<String>) -> Option<AnyOfAllRequirements> {
+    if requirements.is_empty() {
+        None
+    } else {
+        Some(AnyOfAllRequirements(
+            requirements
+                .into_iter()
+                .map(|y| {
+                    AllRequirements(
+                        y.split(',')
+                            .map(|z| RequirementFlag::new(z.trim().to_owned()))
+                            .collect(),
+                    )
+                })
+                .collect(),
+        ))
+    }
+}
+
+fn parse_item_spot_requirements<T>(
+    create_spot: impl Fn(usize, SpotName, Option<AnyOfAllRequirements>) -> T,
     items: Vec<YamlSpot>,
-) -> Vec<Spot> {
+) -> Vec<T> {
     items
         .into_iter()
         .enumerate()
-        .map(|(i, item)| Spot {
-            name: SpotName::new(item.name),
-            source: create_source(i),
-            requirements: if item.requirements.is_empty() {
-                None
-            } else {
-                Some(AnyOfAllRequirements(
-                    item.requirements
-                        .into_iter()
-                        .map(|y| {
-                            AllRequirements(
-                                y.split(',')
-                                    .map(|z| RequirementFlag::new(z.trim().to_owned()))
-                                    .collect(),
-                            )
-                        })
-                        .collect(),
-                ))
-            },
+        .map(|(src_idx, item)| {
+            create_spot(
+                src_idx,
+                SpotName::new(item.name),
+                to_any_of_all_requirements(item.requirements),
+            )
         })
         .collect()
 }
 
-fn parse_shop_requirements(items: Vec<YamlShop>) -> Vec<Shop> {
+fn parse_shop_requirements(items: Vec<YamlShop>) -> Vec<spot::Shop> {
     items
         .into_iter()
         .enumerate()
-        .map(|(source, item)| Shop {
-            names: {
-                let names: Vec<_> = item.names.split(',').map(|x| x.trim()).collect();
-                debug_assert_eq!(names.len(), 3);
-                (
-                    StrategyFlag::new(names[0].to_owned()),
-                    StrategyFlag::new(names[1].to_owned()),
-                    StrategyFlag::new(names[2].to_owned()),
-                )
-            },
-            source,
-            requirements: if item.requirements.is_empty() {
-                None
-            } else {
-                Some(AnyOfAllRequirements(
-                    item.requirements
-                        .into_iter()
-                        .map(|y| {
-                            AllRequirements(
-                                y.split(',')
-                                    .map(|z| RequirementFlag::new(z.trim().to_owned()))
-                                    .collect(),
-                            )
-                        })
-                        .collect(),
-                ))
-            },
+        .map(|(src_idx, item)| {
+            Shop::new(
+                src_idx,
+                SpotName::new(item.names),
+                to_any_of_all_requirements(item.requirements),
+            )
         })
         .collect()
 }
@@ -283,38 +283,6 @@ fn parse_requirements_of_events(items: Vec<YamlSpot>) -> Vec<Event> {
             .collect();
     }
     unreachable!();
-}
-
-fn parse_item_spots_events_in_supplement(list: Vec<Spot>, events: &[Event]) -> Vec<Spot> {
-    list.into_iter()
-        .map(|x| {
-            if let Some(requirements) = x.requirements {
-                Spot {
-                    name: x.name,
-                    source: x.source,
-                    requirements: Some(merge_events(requirements, events)),
-                }
-            } else {
-                x
-            }
-        })
-        .collect()
-}
-
-fn parse_shops_events_in_supplement(list: Vec<Shop>, events: &[Event]) -> Vec<Shop> {
-    list.into_iter()
-        .map(|x| {
-            if let Some(requirements) = x.requirements {
-                Shop {
-                    names: x.names,
-                    source: x.source,
-                    requirements: Some(merge_events(requirements, events)),
-                }
-            } else {
-                x
-            }
-        })
-        .collect()
 }
 
 fn merge_events(requirements: AnyOfAllRequirements, events: &[Event]) -> AnyOfAllRequirements {
