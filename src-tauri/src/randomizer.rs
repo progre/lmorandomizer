@@ -1,6 +1,5 @@
 mod randomize_items;
 mod spoiler_log;
-mod validate;
 
 use anyhow::Result;
 use log::trace;

@@ -61,7 +61,7 @@ pub struct AnyOfAllRequirements(pub Vec<AllRequirements>);
 
 #[derive(Clone, Debug)]
 pub struct MainWeaponShutter {
-    src_idx: usize,
+    pub src_idx: usize,
     pub name: SpotName,
     pub requirements: Option<AnyOfAllRequirements>,
 }
@@ -78,7 +78,7 @@ impl MainWeaponShutter {
 
 #[derive(Clone, Debug)]
 pub struct SubWeaponShutter {
-    src_idx: usize,
+    pub src_idx: usize,
     pub name: SpotName,
     pub requirements: Option<AnyOfAllRequirements>,
 }
@@ -95,7 +95,7 @@ impl SubWeaponShutter {
 
 #[derive(Clone, Debug)]
 pub struct Chest {
-    src_idx: usize,
+    pub src_idx: usize,
     pub name: SpotName,
     pub requirements: Option<AnyOfAllRequirements>,
 }
@@ -112,7 +112,7 @@ impl Chest {
 
 #[derive(Clone, Debug)]
 pub struct SealChest {
-    src_idx: usize,
+    pub src_idx: usize,
     pub name: SpotName,
     pub requirements: Option<AnyOfAllRequirements>,
 }
@@ -129,7 +129,7 @@ impl SealChest {
 
 #[derive(Clone, Debug)]
 pub struct Shop {
-    src_idx: usize,
+    pub src_idx: usize,
     pub name: SpotName,
     pub requirements: Option<AnyOfAllRequirements>,
 }
@@ -206,7 +206,7 @@ impl Spot {
 
 impl fmt::Display for Spot {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let type_name = match self {
+        let full_type_name = match self {
             Self::MainWeaponShutter(_) => type_name::<MainWeaponShutter>(),
             Self::SubWeaponShutter(_) => type_name::<SubWeaponShutter>(),
             Self::Chest(_) => type_name::<Chest>(),
@@ -220,6 +220,12 @@ impl fmt::Display for Spot {
             Self::SealChest(x) => x.src_idx,
             Self::Shop(x) => x.src_idx,
         };
-        write!(f, "{}{}({})", type_name, src_idx, self.name().get())
+        write!(
+            f,
+            "{}{}({})",
+            full_type_name.split("::").last().unwrap(),
+            src_idx,
+            self.name().get()
+        )
     }
 }

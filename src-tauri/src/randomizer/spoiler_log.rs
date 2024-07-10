@@ -1,11 +1,11 @@
 use std::fmt;
 
-use crate::dataset::{spot::Spot, supplements::StrategyFlag};
+use crate::dataset::{item::Item, spot::Spot};
 
 #[derive(Clone)]
 pub struct Checkpoint {
     pub spot: Spot,
-    pub strategy_flags: Vec<StrategyFlag>,
+    pub items: Vec<Item>,
 }
 
 pub struct Sphere(pub Vec<Checkpoint>);
@@ -27,9 +27,9 @@ impl fmt::Display for SpoilerLog {
                     "{} = {}",
                     checkpoint.spot,
                     checkpoint
-                        .strategy_flags
+                        .items
                         .iter()
-                        .map(|x| x.get())
+                        .map(|x| x.name().get())
                         .collect::<Vec<_>>()
                         .join(", ")
                 )?;

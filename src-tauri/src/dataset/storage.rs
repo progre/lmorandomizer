@@ -20,17 +20,17 @@ pub struct StorageIndices {
     pub seal_chest_idx: usize,
 }
 
-#[derive(Clone, Debug, getset::Getters)]
+#[derive(Clone, Debug, getset::Getters, getset::MutGetters)]
 pub struct Storage {
-    #[get = "pub"]
+    #[getset(get = "pub", get_mut = "pub")]
     main_weapon_shutters: Vec<ItemSpot>,
-    #[get = "pub"]
+    #[getset(get = "pub", get_mut = "pub")]
     sub_weapon_shutters: Vec<ItemSpot>,
-    #[get = "pub"]
+    #[getset(get = "pub", get_mut = "pub")]
     chests: Vec<ItemSpot>,
-    #[get = "pub"]
+    #[getset(get = "pub", get_mut = "pub")]
     seal_chests: Vec<ItemSpot>,
-    #[get = "pub"]
+    #[getset(get = "pub", get_mut = "pub")]
     shops: Vec<Shop>,
 }
 
@@ -49,25 +49,6 @@ impl Storage {
             seal_chests,
             shops,
         }
-    }
-
-    #[allow(clippy::type_complexity)]
-    pub fn into_inner(
-        self,
-    ) -> (
-        Vec<ItemSpot>,
-        Vec<ItemSpot>,
-        Vec<ItemSpot>,
-        Vec<ItemSpot>,
-        Vec<Shop>,
-    ) {
-        (
-            self.main_weapon_shutters,
-            self.sub_weapon_shutters,
-            self.chests,
-            self.seal_chests,
-            self.shops,
-        )
     }
 
     pub fn all_items(&self) -> impl Iterator<Item = &Item> {
