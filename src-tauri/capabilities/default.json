@@ -3,17 +3,5 @@
   "identifier": "default",
   "description": "Capability for the main window",
   "windows": ["main"],
-  "permissions": [
-    "app:default",
-    "event:default",
-    "image:default",
-    "log:default",
-    "menu:default",
-    "path:default",
-    "resources:default",
-    "shell:allow-open",
-    "store:default",
-    "tray:default",
-    "window:default"
-  ]
+  "permissions": ["log:default"]
 }
