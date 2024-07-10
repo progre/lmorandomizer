@@ -14,6 +14,10 @@ impl SpotName {
         self.0.as_str()
     }
 
+    pub fn is_ankh_jewel(&self) -> bool {
+        self.0.starts_with("ankhJewel:")
+    }
+
     pub fn into_inner(self) -> String {
         self.0
     }
@@ -177,13 +181,23 @@ impl Spot {
         }
     }
 
-    pub fn requirements(&self) -> &Option<AnyOfAllRequirements> {
+    pub fn requirements(&self) -> Option<&AnyOfAllRequirements> {
         match self {
-            Self::MainWeaponShutter(x) => &x.requirements,
-            Self::SubWeaponShutter(x) => &x.requirements,
-            Self::Chest(x) => &x.requirements,
-            Self::SealChest(x) => &x.requirements,
-            Self::Shop(x) => &x.requirements,
+            Self::MainWeaponShutter(x) => x.requirements.as_ref(),
+            Self::SubWeaponShutter(x) => x.requirements.as_ref(),
+            Self::Chest(x) => x.requirements.as_ref(),
+            Self::SealChest(x) => x.requirements.as_ref(),
+            Self::Shop(x) => x.requirements.as_ref(),
+        }
+    }
+
+    pub fn requirements_mut(&mut self) -> &mut Option<AnyOfAllRequirements> {
+        match self {
+            Self::MainWeaponShutter(x) => &mut x.requirements,
+            Self::SubWeaponShutter(x) => &mut x.requirements,
+            Self::Chest(x) => &mut x.requirements,
+            Self::SealChest(x) => &mut x.requirements,
+            Self::Shop(x) => &mut x.requirements,
         }
     }
 
