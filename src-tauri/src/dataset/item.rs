@@ -1,4 +1,56 @@
-use super::{spot::Spot, supplements::StrategyFlag};
+use super::spot::{RequirementFlag, Spot, SpotName};
+
+#[derive(Clone, Debug, Hash, Eq, Ord, PartialEq, PartialOrd)]
+pub struct StrategyFlag(pub String);
+
+impl StrategyFlag {
+    pub fn new(spot_name: String) -> Self {
+        debug_assert!(
+            !spot_name.starts_with("sacredOrb:")
+                || spot_name
+                    .split(':')
+                    .nth(1)
+                    .map_or(false, |x| x.parse::<u8>().is_err())
+        );
+        Self(spot_name)
+    }
+
+    pub fn is_sacred_orb(&self) -> bool {
+        self.0.starts_with("sacredOrb:")
+    }
+    pub fn is_map(&self) -> bool {
+        self.0.starts_with("map:")
+    }
+
+    pub fn is_consumable(&self) -> bool {
+        [
+            "weights",
+            "shurikenAmmo",
+            "toukenAmmo",
+            "spearAmmo",
+            "flareGunAmmo",
+            "bombAmmo",
+            "ammunition",
+        ]
+        .contains(&self.0.as_str())
+    }
+
+    pub fn get(&self) -> &str {
+        self.0.as_str()
+    }
+}
+
+impl PartialEq<RequirementFlag> for StrategyFlag {
+    fn eq(&self, other: &RequirementFlag) -> bool {
+        self.0 == other.get()
+    }
+}
+
+impl From<SpotName> for StrategyFlag {
+    fn from(x: SpotName) -> Self {
+        Self::new(x.into_inner())
+    }
+}
 
 #[derive(Clone, Debug)]
 pub struct MainWeapon {

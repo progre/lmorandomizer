@@ -42,14 +42,14 @@ pub struct Shop {
     pub items: (ShopItem, ShopItem, ShopItem),
 }
 
-#[derive(Clone, serde::Deserialize, serde::Serialize)]
+#[derive(Clone)]
 pub struct Start {
     /// max 99999
     pub flag: u32,
     pub run_when_unset: bool,
 }
 
-#[derive(Clone, serde::Deserialize, serde::Serialize)]
+#[derive(Clone)]
 pub struct Object {
     pub number: u16,
     pub x: i32,

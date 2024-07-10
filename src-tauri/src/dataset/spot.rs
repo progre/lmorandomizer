@@ -1,8 +1,8 @@
 use std::{any::type_name, collections::HashSet, fmt};
 
-use super::supplements::StrategyFlag;
+use super::item::StrategyFlag;
 
-#[derive(Clone, Debug, serde::Serialize)]
+#[derive(Clone, Debug)]
 pub struct SpotName(String);
 
 impl SpotName {

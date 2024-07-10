@@ -12,16 +12,14 @@ use crate::dataset::{
 use super::{
     get_all_items::{get_all_items, AllItems},
     spot::{AnyOfAllRequirements, RequirementFlag},
+    supplements::SupplementFiles,
 };
 
 #[test]
 fn test_create_source() {
     use sha3::{Digest, Sha3_512};
 
-    use crate::dataset::{
-        create_source::create_source,
-        supplements::{SupplementFiles, Supplements},
-    };
+    use crate::dataset::{create_source::create_source, supplements::SupplementFiles};
 
     let files = SupplementFiles {
         weapons_yml: include_str!("../../../public/res/weapons.yml").to_owned(),
@@ -30,14 +28,14 @@ fn test_create_source() {
         shops_yml: include_str!("../../../public/res/shops.yml").to_owned(),
         events_yml: include_str!("../../../public/res/events.yml").to_owned(),
     };
-    let supplements = Supplements::new(&files);
-    let source = create_source(supplements);
+    let source = create_source(&files);
     let script_dat_hash = Sha3_512::digest(format!("{:?}", source)).to_vec();
-    const HASH: &str = "3390414b584a1728d18c5cc067e42607159f0f8908d8e02b87bfaf8fc8caff68ecddb6fdd0de3bc9de377d035c0203f8226910670c246e9851b7b8e1ebd30967";
-    assert_eq!(script_dat_hash, hex::decode(HASH).unwrap());
+    const HASH: &str = "84ddb0a5bea1ba0d3d369ab7112c31e6dd67694ac8a97dca0e787960f2c9becc731beeea8046fbe442cf4df900b2e2d3c49eb88314bd4a1a3346f17360accfcf";
+    assert_eq!(hex::encode(script_dat_hash).to_string(), HASH);
 }
 
-pub fn create_source(supplements: Supplements) -> Storage {
+pub fn create_source(supplement_files: &SupplementFiles) -> Storage {
+    let supplements = Supplements::new(supplement_files);
     let all_items = get_all_items(&supplements);
     let enumerate_items: Vec<_> = all_items
         .main_weapons

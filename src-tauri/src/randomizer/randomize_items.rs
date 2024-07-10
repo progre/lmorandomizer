@@ -8,10 +8,9 @@ use rand_xoshiro::Xoshiro256PlusPlus;
 
 use crate::{
     dataset::{
-        item::Item,
+        item::{Item, StrategyFlag},
         spot::Spot,
         storage::{ItemSpot, Shop, Storage},
-        supplements::StrategyFlag,
     },
     script::data::script::Script,
 };
