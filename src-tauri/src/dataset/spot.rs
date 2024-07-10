@@ -177,7 +177,7 @@ impl Spot {
         }
     }
 
-    fn requirements(&self) -> &Option<AnyOfAllRequirements> {
+    pub fn requirements(&self) -> &Option<AnyOfAllRequirements> {
         match self {
             Self::MainWeaponShutter(x) => &x.requirements,
             Self::SubWeaponShutter(x) => &x.requirements,

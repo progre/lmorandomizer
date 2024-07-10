@@ -73,9 +73,7 @@ fn shuffle_items(
     shop_count: usize,
 ) -> (Vec<Item>, Vec<Item>) {
     sellable_items.as_mut_slice().shuffle(rng);
-    let new_shop_items: Vec<_> = sellable_items
-        .drain((sellable_items.len() - shop_count * 3)..)
-        .collect();
+    let new_shop_items = sellable_items.split_off(sellable_items.len() - shop_count * 3);
     let mut new_items = unsellable_items;
     new_items.append(&mut sellable_items);
     drop(sellable_items);
@@ -91,61 +89,105 @@ fn shop_to_spots(src: &[Shop]) -> Vec<Spot> {
     src.iter().map(|x| x.spot.clone()).collect()
 }
 
-fn partition_reachables_unreachables<'a>(
-    src: &[&'a Spot],
-    strategy_flag_strs: &HashSet<&str>,
-    sacred_orb_count: u8,
-) -> (Vec<&'a Spot>, Vec<&'a Spot>) {
-    src.iter()
-        .partition::<Vec<_>, _>(|x| x.is_reachable(strategy_flag_strs, sacred_orb_count))
-}
-
-fn reach_spots<'a>(
-    spots: &mut Vec<&'a Spot>,
-    new_items_pool: &mut Vec<Item>,
-    strategy_flags: &mut HashSet<StrategyFlag>,
-    checkpoints: &mut Vec<(&'a Spot, Vec<Item>)>,
-    current_strategy_flag_strs: &HashSet<&str>,
-    current_sacred_orb_count: u8,
-) {
-    let (reachables, unreachables) = partition_reachables_unreachables(
-        spots.as_ref(),
-        current_strategy_flag_strs,
-        current_sacred_orb_count,
-    );
-    reachables.into_iter().for_each(|spot| {
-        let item = new_items_pool.pop().unwrap();
-        strategy_flags.insert(item.name().clone());
-        checkpoints.push((spot, vec![item]));
+fn pick_items_include_requires(
+    rng: &mut impl Rng,
+    items_pool: &mut Vec<Item>,
+    spots: &[&Spot],
+    count: usize,
+) -> Vec<Item> {
+    let Some(pos) = items_pool.iter().position(|item| item.is_required(spots)) else {
+        return (0..count).map(|_| items_pool.pop().unwrap()).collect();
+    };
+    let req_item = items_pool.swap_remove(pos);
+    let mut field_items = vec![req_item];
+    (0..count - 1).for_each(|_| {
+        field_items.push(items_pool.pop().unwrap());
     });
-    *spots = unreachables;
+    debug_assert!(!field_items.is_empty());
+    field_items.as_mut_slice().shuffle(rng);
+    field_items
 }
 
-fn reach_shop_spots<'a>(
-    spots: &mut Vec<&'a Spot>,
-    new_shop_items_pool: &mut Vec<Item>,
+type SphereRef<'a> = Vec<(&'a Spot, Vec<Item>)>;
+
+fn sphere<'a>(
+    mut rng: impl Rng,
+    field_items_pool: &mut Vec<Item>,
+    shop_items_pool: &mut Vec<Item>,
+    field_item_spots: &mut Vec<&'a Spot>,
+    shop_spots: &mut Vec<&'a Spot>,
     strategy_flags: &mut HashSet<StrategyFlag>,
-    checkpoints: &mut Vec<(&'a Spot, Vec<Item>)>,
-    current_strategy_flag_strs: &HashSet<&str>,
-    current_sacred_orb_count: u8,
-) {
-    let (reachables, unreachables) = partition_reachables_unreachables(
-        spots.as_ref(),
-        current_strategy_flag_strs,
-        current_sacred_orb_count,
-    );
-    reachables.into_iter().for_each(|spot| {
+) -> Option<(SphereRef<'a>, bool)> {
+    let spots: Vec<_> = field_item_spots
+        .iter()
+        .chain(shop_spots.iter())
+        .copied()
+        .collect();
+    let strategy_flag_strings: Vec<_> = strategy_flags.iter().map(|x| x.get().to_owned()).collect();
+    let strategy_flag_strs: HashSet<_> = strategy_flag_strings.iter().map(|x| x.as_str()).collect();
+    let sacred_orb_count = strategy_flags.iter().filter(|x| x.is_sacred_orb()).count() as u8;
+
+    let mut sphere: Vec<_> = Default::default();
+
+    let (reachables_field_item_spots, unreachables_field_item_spots) = field_item_spots
+        .iter()
+        .partition::<Vec<_>, _>(|x| x.is_reachable(&strategy_flag_strs, sacred_orb_count));
+    let (reachables_shop_spots, unreachable_shop_spots) = shop_spots
+        .iter()
+        .partition::<Vec<_>, _>(|x| x.is_reachable(&strategy_flag_strs, sacred_orb_count));
+    if reachables_field_item_spots.is_empty() && reachables_shop_spots.is_empty() {
+        return None;
+    }
+
+    *field_item_spots = unreachables_field_item_spots;
+    *shop_spots = unreachable_shop_spots;
+
+    // 少なくとも一つは行動を広げるアイテムを配置する
+    let numerator = reachables_field_item_spots.len() as u32;
+    let denominator = (reachables_field_item_spots.len() + reachables_shop_spots.len() * 3) as u32;
+    let (mut field_items, mut shop_items) = if rng.gen_ratio(numerator, denominator) {
+        (
+            pick_items_include_requires(
+                &mut rng,
+                field_items_pool,
+                &spots,
+                reachables_field_item_spots.len(),
+            ),
+            shop_items_pool.split_off(shop_items_pool.len() - reachables_shop_spots.len() * 3),
+        )
+    } else {
+        (
+            field_items_pool.split_off(field_items_pool.len() - reachables_field_item_spots.len()),
+            pick_items_include_requires(
+                &mut rng,
+                shop_items_pool,
+                &spots,
+                reachables_shop_spots.len() * 3,
+            ),
+        )
+    };
+
+    reachables_field_item_spots.into_iter().for_each(|spot| {
+        let item = field_items.pop().unwrap();
+        strategy_flags.insert(item.name().clone());
+        sphere.push((spot, vec![item]));
+    });
+    reachables_shop_spots.into_iter().for_each(|spot| {
         let items = vec![
-            new_shop_items_pool.pop().unwrap(),
-            new_shop_items_pool.pop().unwrap(),
-            new_shop_items_pool.pop().unwrap(),
+            shop_items.pop().unwrap(),
+            shop_items.pop().unwrap(),
+            shop_items.pop().unwrap(),
         ];
         items.iter().for_each(|x| {
             strategy_flags.insert(x.name().clone());
         });
-        checkpoints.push((spot, items));
+        sphere.push((spot, items));
     });
-    *spots = unreachables;
+
+    if !field_item_spots.is_empty() || !shop_spots.is_empty() {
+        return Some((sphere, false));
+    }
+    Some((sphere, true))
 }
 
 fn spoiler(
@@ -157,7 +199,7 @@ fn spoiler(
 ) -> Option<SpoilerLog> {
     let start = std::time::Instant::now();
     let mut rng = make_rng(seed);
-    let (mut new_items_pool, mut new_shop_items_pool) = shuffle_items(
+    let (mut field_items_pool, mut shop_items_pool) = shuffle_items(
         &mut rng,
         sellable_items.to_owned(),
         unsellable_items.to_owned(),
@@ -171,52 +213,38 @@ fn spoiler(
     let mut progression = Vec::new();
 
     for i in 0..100 {
-        let strategy_flag_strings: Vec<_> =
-            strategy_flags.iter().map(|x| x.get().to_owned()).collect();
-        let strategy_flag_strs: HashSet<_> =
-            strategy_flag_strings.iter().map(|x| x.as_str()).collect();
-        let sacred_orb_count = strategy_flags.iter().filter(|x| x.is_sacred_orb()).count() as u8;
-        let mut checkpoints = Default::default();
-        reach_spots(
+        let Some((sphere, complete)) = sphere(
+            &mut rng,
+            &mut field_items_pool,
+            &mut shop_items_pool,
             &mut field_item_spots,
-            &mut new_items_pool,
-            &mut strategy_flags,
-            &mut checkpoints,
-            &strategy_flag_strs,
-            sacred_orb_count,
-        );
-        reach_shop_spots(
             &mut shop_spots,
-            &mut new_shop_items_pool,
             &mut strategy_flags,
-            &mut checkpoints,
-            &strategy_flag_strs,
-            sacred_orb_count,
-        );
-        progression.push(checkpoints);
-
-        if strategy_flags.len() == strategy_flag_strs.len() {
+        ) else {
             trace!("Retry (spheres: {}, time: {:?})", i, start.elapsed());
             return None;
+        };
+        progression.push(sphere);
+        if !complete {
+            continue;
         }
-        if field_item_spots.is_empty() && shop_spots.is_empty() {
-            return Some(SpoilerLog {
-                progression: progression
-                    .into_iter()
-                    .map(|sphere| {
-                        Sphere(
-                            sphere
-                                .into_iter()
-                                .map(|(spot, items)| Checkpoint {
-                                    spot: spot.to_owned(),
-                                    items,
-                                })
-                                .collect(),
-                        )
-                    })
-                    .collect(),
-            });
-        }
+        info!("Sphere: {}, time: {:?}", i, start.elapsed());
+        return Some(SpoilerLog {
+            progression: progression
+                .into_iter()
+                .map(|sphere| {
+                    Sphere(
+                        sphere
+                            .into_iter()
+                            .map(|(spot, items)| Checkpoint {
+                                spot: spot.to_owned(),
+                                items,
+                            })
+                            .collect(),
+                    )
+                })
+                .collect(),
+        });
     }
     unreachable!();
 }
@@ -254,7 +282,7 @@ fn shuffle(
                 .collect::<Vec<_>>();
             if let Some(spoiler_log) = handles.into_iter().filter_map(|h| h.join().unwrap()).next()
             {
-                info!("Shuffle was tryed: {} times", i * thread_count);
+                info!("Shuffle was tried: {} times", (i + 1) * thread_count);
                 return spoiler_log;
             }
         }

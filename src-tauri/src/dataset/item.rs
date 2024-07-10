@@ -1,4 +1,4 @@
-use super::supplements::StrategyFlag;
+use super::{spot::Spot, supplements::StrategyFlag};
 
 #[derive(Clone, Debug)]
 pub struct MainWeapon {
@@ -106,5 +106,21 @@ impl Item {
             Self::Seal(_) => false,
             Self::ShopItem(_) => true,
         }
+    }
+
+    /// 与えられたスポット一覧のいずれかから必要とされているか
+    pub fn is_required(&self, spots: &[&Spot]) -> bool {
+        let name = match self {
+            Self::MainWeapon(x) => &x.name,
+            Self::SubWeaponBody(x) => &x.name,
+            Self::SubWeaponAmmo(x) => &x.name,
+            Self::ChestItem(x) => &x.name,
+            Self::Seal(x) => &x.name,
+            Self::ShopItem(x) => &x.name,
+        };
+        spots
+            .iter()
+            .flat_map(|spot| spot.requirements())
+            .any(|reqs| reqs.0.iter().any(|all| all.0.iter().any(|req| req == name)))
     }
 }
