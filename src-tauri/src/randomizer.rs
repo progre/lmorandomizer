@@ -1,4 +1,5 @@
 mod randomize_items;
+mod spoiler;
 mod spoiler_log;
 
 use anyhow::Result;
