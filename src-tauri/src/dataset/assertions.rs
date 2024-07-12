@@ -13,7 +13,7 @@ pub fn assert_chests(chests: &[ItemSpot]) {
     debug_assert_eq!(
         chests
             .iter()
-            .find(|x| x.item.name().get() == "iceCape")
+            .find(|x| x.item.name.get() == "iceCape")
             .unwrap()
             .spot
             .requirements(),
@@ -69,15 +69,9 @@ fn append<'a>(
 pub fn ware_missing_requirements(storage: &Storage) {
     let all_items: Vec<_> = storage.all_items().cloned().collect();
     let mut set = HashSet::new();
-    let main_weapon_requirements = storage
-        .main_weapon_shutters()
-        .iter()
-        .map(|x| x.spot.requirements());
+    let main_weapon_requirements = storage.main_weapons().iter().map(|x| x.spot.requirements());
     append(&mut set, main_weapon_requirements);
-    let sub_weapon_requirements = storage
-        .sub_weapon_shutters()
-        .iter()
-        .map(|x| x.spot.requirements());
+    let sub_weapon_requirements = storage.sub_weapons().iter().map(|x| x.spot.requirements());
     append(&mut set, sub_weapon_requirements);
     append(
         &mut set,
@@ -85,7 +79,7 @@ pub fn ware_missing_requirements(storage: &Storage) {
     );
     append(
         &mut set,
-        storage.seal_chests().iter().map(|x| x.spot.requirements()),
+        storage.seals().iter().map(|x| x.spot.requirements()),
     );
     append(
         &mut set,
@@ -93,7 +87,7 @@ pub fn ware_missing_requirements(storage: &Storage) {
     );
     let mut vec: Vec<_> = set
         .iter()
-        .filter(|&x| all_items.iter().all(|y| y.name() != x))
+        .filter(|&x| all_items.iter().all(|y| &y.name != x))
         .filter(|x| !x.is_sacred_orb())
         .collect();
     vec.sort();

@@ -39,10 +39,10 @@ fn randomize_storage(source: &Storage, rng: &mut impl Rng) -> (Storage, SpoilerL
         .all_items()
         .cloned()
         .partition(|x| x.can_display_in_shop());
-    debug_assert!(unsellable_items.iter().all(|x| !x.name().is_consumable()));
+    debug_assert!(unsellable_items.iter().all(|x| !x.name.is_consumable()));
     let (_consumable_items, sellable_items): (Vec<_>, Vec<_>) = sellable_items
         .into_iter()
-        .partition(|x| x.name().is_consumable());
+        .partition(|x| x.name.is_consumable());
 
     debug_assert_eq!(
         unsellable_items.len() + sellable_items.len() + _consumable_items.len(),
@@ -50,10 +50,10 @@ fn randomize_storage(source: &Storage, rng: &mut impl Rng) -> (Storage, SpoilerL
     );
     debug_assert_eq!(
         unsellable_items.len() + sellable_items.len() + _consumable_items.len(),
-        source.main_weapon_shutters().len()
-            + source.sub_weapon_shutters().len()
+        source.main_weapons().len()
+            + source.sub_weapons().len()
             + source.chests().len()
-            + source.seal_chests().len()
+            + source.seals().len()
             + source
                 .shops()
                 .iter()
@@ -62,10 +62,10 @@ fn randomize_storage(source: &Storage, rng: &mut impl Rng) -> (Storage, SpoilerL
     );
     debug_assert_eq!(
         unsellable_items.len() + sellable_items.len(),
-        source.main_weapon_shutters().len()
-            + source.sub_weapon_shutters().len()
+        source.main_weapons().len()
+            + source.sub_weapons().len()
             + source.chests().len()
-            + source.seal_chests().len()
+            + source.seals().len()
             + source
                 .shops()
                 .iter()
@@ -94,10 +94,10 @@ fn shuffle(
     unsellables: &[Item],
     rng: &mut impl Rng,
 ) -> (Storage, SpoilerLog) {
-    let mut field_item_spots = to_spots(source.main_weapon_shutters());
-    field_item_spots.append(&mut to_spots(source.sub_weapon_shutters()));
+    let mut field_item_spots = to_spots(source.main_weapons());
+    field_item_spots.append(&mut to_spots(source.sub_weapons()));
     field_item_spots.append(&mut to_spots(source.chests()));
-    field_item_spots.append(&mut to_spots(source.seal_chests()));
+    field_item_spots.append(&mut to_spots(source.seals()));
     let field_item_spots: &Vec<_> = &field_item_spots.iter().collect();
 
     let shops: &Vec<_> = &source.shops().iter().collect();
@@ -126,17 +126,17 @@ fn shuffle(
     let mut storage = source.clone();
     for checkpoint in spoiler_log.progression.iter().flat_map(|sphere| &sphere.0) {
         match &checkpoint.spot {
-            Spot::MainWeaponShutter(spot) => {
-                storage.main_weapon_shutters_mut()[spot.src_idx].item = checkpoint.items[0].clone();
+            Spot::MainWeapon(spot) => {
+                storage.main_weapons_mut()[spot.src_idx].item = checkpoint.items[0].clone();
             }
-            Spot::SubWeaponShutter(spot) => {
-                storage.sub_weapon_shutters_mut()[spot.src_idx].item = checkpoint.items[0].clone();
+            Spot::SubWeapon(spot) => {
+                storage.sub_weapons_mut()[spot.src_idx].item = checkpoint.items[0].clone();
             }
             Spot::Chest(spot) => {
                 storage.chests_mut()[spot.src_idx].item = checkpoint.items[0].clone();
             }
-            Spot::SealChest(spot) => {
-                storage.seal_chests_mut()[spot.src_idx].item = checkpoint.items[0].clone();
+            Spot::Seal(spot) => {
+                storage.seals_mut()[spot.src_idx].item = checkpoint.items[0].clone();
             }
             Spot::Shop(spot) => {
                 storage.shops_mut()[spot.src_idx].items = (
@@ -154,17 +154,12 @@ fn assert_unique(storage: &Storage) {
     let mut names = HashSet::new();
 
     storage
-        .main_weapon_shutters()
+        .main_weapons()
         .iter()
-        .map(|x| ("weaponShutter", x))
-        .chain(
-            storage
-                .sub_weapon_shutters()
-                .iter()
-                .map(|x| ("weaponShutter", x)),
-        )
+        .map(|x| ("weapon", x))
+        .chain(storage.sub_weapons().iter().map(|x| ("weapon", x)))
         .chain(storage.chests().iter().map(|x| ("chest", x)))
-        .chain(storage.seal_chests().iter().map(|x| ("sealChest", x)))
+        .chain(storage.seals().iter().map(|x| ("seal", x)))
         .map(|(item_type, item_spot)| (item_type, item_spot.item.clone()))
         .chain(storage.shops().iter().flat_map(|x| {
             [&x.items.0, &x.items.1, &x.items.2]
@@ -173,14 +168,14 @@ fn assert_unique(storage: &Storage) {
                 .map(|item| ("shop", item))
         }))
         .for_each(|(item_type, item)| {
-            if !item.name().is_consumable()
+            if !item.name.is_consumable()
                 && ![
                     StrategyFlag::new("shellHorn".to_owned()),
                     StrategyFlag::new("finder".to_owned()),
                 ]
-                .contains(item.name())
+                .contains(&item.name)
             {
-                let key = format!("{}:{:?}", item_type, item.name());
+                let key = format!("{}:{:?}", item_type, &item.name);
                 if names.contains(&key) {
                     panic!("Duplicate item: {}", key);
                 }

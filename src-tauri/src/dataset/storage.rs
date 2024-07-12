@@ -13,9 +13,9 @@ pub struct Shop {
 }
 impl Shop {
     pub fn count_general_items(&self) -> usize {
-        !self.items.0.name().is_consumable() as usize
-            + !self.items.1.name().is_consumable() as usize
-            + !self.items.2.name().is_consumable() as usize
+        !self.items.0.name.is_consumable() as usize
+            + !self.items.1.name.is_consumable() as usize
+            + !self.items.2.name.is_consumable() as usize
     }
 }
 
@@ -30,41 +30,41 @@ pub struct StorageIndices {
 #[derive(Clone, Debug, getset::Getters, getset::MutGetters)]
 pub struct Storage {
     #[getset(get = "pub", get_mut = "pub")]
-    main_weapon_shutters: Vec<ItemSpot>,
+    main_weapons: Vec<ItemSpot>,
     #[getset(get = "pub", get_mut = "pub")]
-    sub_weapon_shutters: Vec<ItemSpot>,
+    sub_weapons: Vec<ItemSpot>,
     #[getset(get = "pub", get_mut = "pub")]
     chests: Vec<ItemSpot>,
     #[getset(get = "pub", get_mut = "pub")]
-    seal_chests: Vec<ItemSpot>,
+    seals: Vec<ItemSpot>,
     #[getset(get = "pub", get_mut = "pub")]
     shops: Vec<Shop>,
 }
 
 impl Storage {
     pub fn new(
-        main_weapon_shutters: Vec<ItemSpot>,
-        sub_weapon_shutters: Vec<ItemSpot>,
+        main_weapons: Vec<ItemSpot>,
+        sub_weapons: Vec<ItemSpot>,
         chests: Vec<ItemSpot>,
-        seal_chests: Vec<ItemSpot>,
+        seals: Vec<ItemSpot>,
         shops: Vec<Shop>,
     ) -> Self {
         Self {
-            main_weapon_shutters,
-            sub_weapon_shutters,
+            main_weapons,
+            sub_weapons,
             chests,
-            seal_chests,
+            seals,
             shops,
         }
     }
 
     pub fn all_items(&self) -> impl Iterator<Item = &Item> {
-        self.main_weapon_shutters
+        self.main_weapons
             .iter()
             .map(|x| &x.item)
-            .chain(self.sub_weapon_shutters.iter().map(|x| &x.item))
+            .chain(self.sub_weapons.iter().map(|x| &x.item))
             .chain(self.chests.iter().map(|x| &x.item))
-            .chain(self.seal_chests.iter().map(|x| &x.item))
+            .chain(self.seals.iter().map(|x| &x.item))
             .chain(
                 self.shops
                     .iter()

@@ -8,10 +8,7 @@ use crate::dataset::{
 
 use super::{
     assertions::{assert_chests, ware_missing_requirements},
-    spot::{
-        self, AnyOfAllRequirements, Chest, MainWeaponShutter, RequirementFlag, SealChest, SpotName,
-        SubWeaponShutter,
-    },
+    spot::{self, AnyOfAllRequirements, RequirementFlag, SpotName},
     storage,
     supplements::{SpotYaml, SupplementFiles, WeaponsYaml, YamlShop, YamlSpot},
 };
@@ -211,11 +208,7 @@ pub fn create_source(supplement_files: &SupplementFiles) -> Storage {
 
     let mut main_weapons = parse_item_spot_requirements(
         |src_idx, name, requirements| ItemSpot {
-            spot: Spot::MainWeaponShutter(MainWeaponShutter::new(
-                src_idx,
-                name.clone(),
-                requirements,
-            )),
+            spot: Spot::main_weapon(src_idx, name.clone(), requirements),
             item: Item::main_weapon(src_idx, name.into()),
         },
         main_weapons,
@@ -228,18 +221,8 @@ pub fn create_source(supplement_files: &SupplementFiles) -> Storage {
 
     let mut sub_weapons = parse_item_spot_requirements(
         |src_idx, name, requirements| ItemSpot {
-            spot: Spot::SubWeaponShutter(SubWeaponShutter::new(
-                src_idx,
-                name.clone(),
-                requirements,
-            )),
-            item: {
-                if name.is_ankh_jewel() {
-                    Item::sub_weapon_ammo(src_idx, name.into())
-                } else {
-                    Item::sub_weapon_body(src_idx, name.into())
-                }
-            },
+            spot: Spot::sub_weapon(src_idx, name.clone(), requirements),
+            item: Item::sub_weapon(src_idx, name.into()),
         },
         sub_weapons,
     );
@@ -251,7 +234,7 @@ pub fn create_source(supplement_files: &SupplementFiles) -> Storage {
 
     let mut chests = parse_item_spot_requirements(
         |src_idx, name, requirements| ItemSpot {
-            spot: Spot::Chest(Chest::new(src_idx, name.clone(), requirements)),
+            spot: Spot::chest(src_idx, name.clone(), requirements),
             item: Item::chest_item(src_idx, name.into()),
         },
         chests.0,
@@ -264,7 +247,7 @@ pub fn create_source(supplement_files: &SupplementFiles) -> Storage {
 
     let mut seals = parse_item_spot_requirements(
         |src_idx, name, requirements| ItemSpot {
-            spot: Spot::SealChest(SealChest::new(src_idx, name.clone(), requirements)),
+            spot: Spot::seal(src_idx, name.clone(), requirements),
             item: Item::seal(src_idx, name.into()),
         },
         seals.0,
@@ -280,7 +263,7 @@ pub fn create_source(supplement_files: &SupplementFiles) -> Storage {
             let shop_spot = spot::Shop::new(src_idx, name.clone(), requirements);
             let flags = shop_spot.to_strategy_flags();
             storage::Shop {
-                spot: Spot::Shop(shop_spot),
+                spot: Spot::shop(shop_spot),
                 items: (
                     Item::shop_item(src_idx, 0, flags.0),
                     Item::shop_item(src_idx, 1, flags.1),

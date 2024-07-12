@@ -113,21 +113,21 @@ fn place_items<'a>(
 
     reachables_field_item_spots.into_iter().for_each(|spot| {
         let item = field_items.pop().unwrap();
-        strategy_flags.insert(item.name().clone());
+        strategy_flags.insert(item.name.clone());
         sphere.push((spot, vec![item]));
     });
     reachables_shops.into_iter().for_each(|shop| {
         let items: Vec<_> = [&shop.items.0, &shop.items.1, &shop.items.2]
             .into_iter()
             .map(|item| {
-                if item.name().is_consumable() {
+                if item.name.is_consumable() {
                     item.clone()
                 } else {
                     shop_items.pop().unwrap()
                 }
             })
             .inspect(|item| {
-                strategy_flags.insert(item.name().clone());
+                strategy_flags.insert(item.name.clone());
             })
             .collect();
         sphere.push((&shop.spot, items));

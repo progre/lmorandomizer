@@ -29,7 +29,7 @@ impl fmt::Display for SpoilerLog {
                     checkpoint
                         .items
                         .iter()
-                        .map(|x| x.name().get())
+                        .map(|x| x.name.get())
                         .collect::<Vec<_>>()
                         .join(", ")
                 )?;

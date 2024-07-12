@@ -14,10 +14,6 @@ impl SpotName {
         self.0.as_str()
     }
 
-    pub fn is_ankh_jewel(&self) -> bool {
-        self.0.starts_with("ankhJewel:")
-    }
-
     pub fn into_inner(self) -> String {
         self.0
     }
@@ -64,37 +60,17 @@ pub struct AllRequirements(pub Vec<RequirementFlag>);
 pub struct AnyOfAllRequirements(pub Vec<AllRequirements>);
 
 #[derive(Clone, Debug)]
-pub struct MainWeaponShutter {
+pub struct MainWeapon {
     pub src_idx: usize,
     pub name: SpotName,
     pub requirements: Option<AnyOfAllRequirements>,
-}
-
-impl MainWeaponShutter {
-    pub fn new(src_idx: usize, name: SpotName, requirements: Option<AnyOfAllRequirements>) -> Self {
-        Self {
-            src_idx,
-            name,
-            requirements,
-        }
-    }
 }
 
 #[derive(Clone, Debug)]
-pub struct SubWeaponShutter {
+pub struct SubWeapon {
     pub src_idx: usize,
     pub name: SpotName,
     pub requirements: Option<AnyOfAllRequirements>,
-}
-
-impl SubWeaponShutter {
-    pub fn new(src_idx: usize, name: SpotName, requirements: Option<AnyOfAllRequirements>) -> Self {
-        Self {
-            src_idx,
-            name,
-            requirements,
-        }
-    }
 }
 
 #[derive(Clone, Debug)]
@@ -104,31 +80,11 @@ pub struct Chest {
     pub requirements: Option<AnyOfAllRequirements>,
 }
 
-impl Chest {
-    pub fn new(src_idx: usize, name: SpotName, requirements: Option<AnyOfAllRequirements>) -> Self {
-        Self {
-            src_idx,
-            name,
-            requirements,
-        }
-    }
-}
-
 #[derive(Clone, Debug)]
-pub struct SealChest {
+pub struct Seal {
     pub src_idx: usize,
     pub name: SpotName,
     pub requirements: Option<AnyOfAllRequirements>,
-}
-
-impl SealChest {
-    pub fn new(src_idx: usize, name: SpotName, requirements: Option<AnyOfAllRequirements>) -> Self {
-        Self {
-            src_idx,
-            name,
-            requirements,
-        }
-    }
 }
 
 #[derive(Clone, Debug)]
@@ -163,40 +119,72 @@ impl Shop {
 
 #[derive(Clone, Debug)]
 pub enum Spot {
-    MainWeaponShutter(MainWeaponShutter),
-    SubWeaponShutter(SubWeaponShutter),
+    MainWeapon(MainWeapon),
+    SubWeapon(SubWeapon),
     Chest(Chest),
-    SealChest(SealChest),
+    Seal(Seal),
     Shop(Shop),
 }
 
 impl Spot {
+    pub fn main_weapon(src_idx: usize, name: SpotName, reqs: Option<AnyOfAllRequirements>) -> Self {
+        Self::MainWeapon(MainWeapon {
+            src_idx,
+            name,
+            requirements: reqs,
+        })
+    }
+    pub fn sub_weapon(src_idx: usize, name: SpotName, reqs: Option<AnyOfAllRequirements>) -> Self {
+        Self::SubWeapon(SubWeapon {
+            src_idx,
+            name,
+            requirements: reqs,
+        })
+    }
+    pub fn chest(src_idx: usize, name: SpotName, reqs: Option<AnyOfAllRequirements>) -> Self {
+        Self::Chest(Chest {
+            src_idx,
+            name,
+            requirements: reqs,
+        })
+    }
+    pub fn seal(src_idx: usize, name: SpotName, reqs: Option<AnyOfAllRequirements>) -> Self {
+        Self::Seal(Seal {
+            src_idx,
+            name,
+            requirements: reqs,
+        })
+    }
+    pub fn shop(shop: Shop) -> Self {
+        Self::Shop(shop)
+    }
+
     fn name(&self) -> &SpotName {
         match self {
-            Self::MainWeaponShutter(x) => &x.name,
-            Self::SubWeaponShutter(x) => &x.name,
+            Self::MainWeapon(x) => &x.name,
+            Self::SubWeapon(x) => &x.name,
             Self::Chest(x) => &x.name,
-            Self::SealChest(x) => &x.name,
+            Self::Seal(x) => &x.name,
             Self::Shop(x) => &x.name,
         }
     }
 
     pub fn requirements(&self) -> Option<&AnyOfAllRequirements> {
         match self {
-            Self::MainWeaponShutter(x) => x.requirements.as_ref(),
-            Self::SubWeaponShutter(x) => x.requirements.as_ref(),
+            Self::MainWeapon(x) => x.requirements.as_ref(),
+            Self::SubWeapon(x) => x.requirements.as_ref(),
             Self::Chest(x) => x.requirements.as_ref(),
-            Self::SealChest(x) => x.requirements.as_ref(),
+            Self::Seal(x) => x.requirements.as_ref(),
             Self::Shop(x) => x.requirements.as_ref(),
         }
     }
 
     pub fn requirements_mut(&mut self) -> &mut Option<AnyOfAllRequirements> {
         match self {
-            Self::MainWeaponShutter(x) => &mut x.requirements,
-            Self::SubWeaponShutter(x) => &mut x.requirements,
+            Self::MainWeapon(x) => &mut x.requirements,
+            Self::SubWeapon(x) => &mut x.requirements,
             Self::Chest(x) => &mut x.requirements,
-            Self::SealChest(x) => &mut x.requirements,
+            Self::Seal(x) => &mut x.requirements,
             Self::Shop(x) => &mut x.requirements,
         }
     }
@@ -221,17 +209,17 @@ impl Spot {
 impl fmt::Display for Spot {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let full_type_name = match self {
-            Self::MainWeaponShutter(_) => type_name::<MainWeaponShutter>(),
-            Self::SubWeaponShutter(_) => type_name::<SubWeaponShutter>(),
+            Self::MainWeapon(_) => type_name::<MainWeapon>(),
+            Self::SubWeapon(_) => type_name::<SubWeapon>(),
             Self::Chest(_) => type_name::<Chest>(),
-            Self::SealChest(_) => type_name::<SealChest>(),
+            Self::Seal(_) => type_name::<Seal>(),
             Self::Shop(_) => type_name::<Shop>(),
         };
         let src_idx = match self {
-            Self::MainWeaponShutter(x) => x.src_idx,
-            Self::SubWeaponShutter(x) => x.src_idx,
+            Self::MainWeapon(x) => x.src_idx,
+            Self::SubWeapon(x) => x.src_idx,
             Self::Chest(x) => x.src_idx,
-            Self::SealChest(x) => x.src_idx,
+            Self::Seal(x) => x.src_idx,
             Self::Shop(x) => x.src_idx,
         };
         write!(
