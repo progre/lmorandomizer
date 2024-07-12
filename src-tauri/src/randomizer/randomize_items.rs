@@ -40,16 +40,16 @@ fn randomize_storage(source: &Storage, rng: &mut impl Rng) -> (Storage, SpoilerL
         .cloned()
         .partition(|x| x.can_display_in_shop());
     debug_assert!(unsellable_items.iter().all(|x| !x.name.is_consumable()));
-    let (_consumable_items, sellable_items): (Vec<_>, Vec<_>) = sellable_items
+    let (consumable_items, sellable_items): (Vec<_>, Vec<_>) = sellable_items
         .into_iter()
         .partition(|x| x.name.is_consumable());
 
     debug_assert_eq!(
-        unsellable_items.len() + sellable_items.len() + _consumable_items.len(),
+        unsellable_items.len() + sellable_items.len() + consumable_items.len(),
         source.all_items().count(),
     );
     debug_assert_eq!(
-        unsellable_items.len() + sellable_items.len() + _consumable_items.len(),
+        unsellable_items.len() + sellable_items.len() + consumable_items.len(),
         source.main_weapons().len()
             + source.sub_weapons().len()
             + source.chests().len()
@@ -76,8 +76,9 @@ fn randomize_storage(source: &Storage, rng: &mut impl Rng) -> (Storage, SpoilerL
     let start = std::time::Instant::now();
     let (storage, spoiler_log) = shuffle(
         source,
-        &sellable_items.to_vec(),
-        &unsellable_items.to_vec(),
+        &sellable_items,
+        &unsellable_items,
+        &consumable_items,
         rng,
     );
     trace!("Shuffled in {:?}", start.elapsed());
@@ -90,8 +91,9 @@ fn to_spots(src: &[ItemSpot]) -> Vec<Spot> {
 
 fn shuffle(
     source: &Storage,
-    sellables: &[Item],
-    unsellables: &[Item],
+    sellable_items: &[Item],
+    unsellable_items: &[Item],
+    consumable_items: &[Item],
     rng: &mut impl Rng,
 ) -> (Storage, SpoilerLog) {
     let mut field_item_spots = to_spots(source.main_weapons());
@@ -110,7 +112,14 @@ fn shuffle(
                 .map(|_| {
                     let seed = rng.next_u64();
                     scope.spawn(move || {
-                        spoiler(seed, sellables, unsellables, field_item_spots, shops)
+                        spoiler(
+                            seed,
+                            sellable_items,
+                            unsellable_items,
+                            consumable_items,
+                            field_item_spots,
+                            shops,
+                        )
                     })
                 })
                 .collect::<Vec<_>>();

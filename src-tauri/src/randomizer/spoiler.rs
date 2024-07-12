@@ -19,17 +19,20 @@ pub fn make_rng<H: Hash>(seed: H) -> Xoshiro256PlusPlus {
 
 fn shuffle_items(
     rng: &mut impl Rng,
-    mut sellable_items: Vec<Item>,
-    unsellable_items: Vec<Item>,
+    sellable_items: &[Item],
+    unsellable_items: &[Item],
+    consumable_items: &[Item],
     shop_display_count: usize,
-) -> (Vec<Item>, Vec<Item>) {
+) -> (Vec<Item>, Vec<Item>, Vec<Item>) {
+    let mut sellable_items = sellable_items.to_vec();
     sellable_items.as_mut_slice().shuffle(rng);
     let new_shop_items = sellable_items.split_off(sellable_items.len() - shop_display_count);
-    let mut new_field_items = unsellable_items;
-    new_field_items.append(&mut sellable_items);
-    drop(sellable_items);
+    let mut new_field_items = sellable_items;
+    new_field_items.append(&mut unsellable_items.to_vec());
     new_field_items.as_mut_slice().shuffle(rng);
-    (new_field_items, new_shop_items)
+    let mut consumable_items = consumable_items.to_vec();
+    consumable_items.shuffle(rng);
+    (new_field_items, new_shop_items, consumable_items)
 }
 
 fn pick_items_include_requires(
@@ -78,7 +81,9 @@ type SphereRef<'a> = Vec<(&'a Spot, Vec<Item>)>;
 
 fn place_items<'a>(
     rng: &mut impl Rng,
-    (field_items_pool, shop_items_pool): (&mut Vec<Item>, &mut Vec<Item>),
+    field_items_pool: &mut Vec<Item>,
+    shop_items_pool: &mut Vec<Item>,
+    consumable_items_pool: &mut Vec<Item>,
     (reachables_field_item_spots, reachables_shops): (Vec<&'a Spot>, Vec<&'a Shop>),
     (unreachable_field_item_spots, unreachable_shops): (&[&'a Spot], &[&'a Shop]),
     strategy_flags: &mut HashSet<StrategyFlag>,
@@ -121,7 +126,7 @@ fn place_items<'a>(
             .into_iter()
             .map(|item| {
                 if item.name.is_consumable() {
-                    item.clone()
+                    consumable_items_pool.pop().unwrap()
                 } else {
                     shop_items.pop().unwrap()
                 }
@@ -143,6 +148,7 @@ fn sphere<'a>(
     mut rng: impl Rng,
     field_items_pool: &mut Vec<Item>,
     shop_items_pool: &mut Vec<Item>,
+    consumable_items_pool: &mut Vec<Item>,
     field_item_spots: &mut Vec<&'a Spot>,
     shops: &mut Vec<&'a Shop>,
     strategy_flags: &mut HashSet<StrategyFlag>,
@@ -159,7 +165,9 @@ fn sphere<'a>(
 
     let sphere = place_items(
         &mut rng,
-        (field_items_pool, shop_items_pool),
+        field_items_pool,
+        shop_items_pool,
+        consumable_items_pool,
         (reachables_field_item_spots, reachables_shops),
         (&unreachables_field_item_spots, &unreachable_shops),
         strategy_flags,
@@ -175,16 +183,32 @@ pub fn spoiler(
     seed: u64,
     sellable_items: &[Item],
     unsellable_items: &[Item],
+    consumable_items: &[Item],
     field_item_spots: &[&Spot],
     shops: &[&Shop],
 ) -> Option<SpoilerLog> {
     let start = std::time::Instant::now();
     let mut rng = make_rng(seed);
-    let shop_display_count = shops.iter().map(|shop| shop.count_general_items()).sum();
-    let (mut field_items_pool, mut shop_items_pool) = shuffle_items(
+    let shop_display_count = shops.len() * 3 - consumable_items.len();
+    debug_assert_eq!(
+        shops.len() * 3 - consumable_items.len(),
+        shops
+            .iter()
+            .map(|shop| shop.count_general_items())
+            .sum::<usize>(),
+    );
+    debug_assert_eq!(
+        shops
+            .iter()
+            .map(|shop| 3 - shop.count_general_items())
+            .sum::<usize>(),
+        consumable_items.len()
+    );
+    let (mut field_items_pool, mut shop_items_pool, mut consumable_items_pool) = shuffle_items(
         &mut rng,
-        sellable_items.to_owned(),
-        unsellable_items.to_owned(),
+        sellable_items,
+        unsellable_items,
+        consumable_items,
         shop_display_count,
     );
 
@@ -199,6 +223,7 @@ pub fn spoiler(
             &mut rng,
             &mut field_items_pool,
             &mut shop_items_pool,
+            &mut consumable_items_pool,
             &mut field_item_spots,
             &mut shops,
             &mut strategy_flags,
