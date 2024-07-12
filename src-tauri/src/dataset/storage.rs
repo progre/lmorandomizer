@@ -11,6 +11,13 @@ pub struct Shop {
     pub spot: Spot,
     pub items: (Item, Item, Item),
 }
+impl Shop {
+    pub fn count_general_items(&self) -> usize {
+        !self.items.0.name().is_consumable() as usize
+            + !self.items.1.name().is_consumable() as usize
+            + !self.items.2.name().is_consumable() as usize
+    }
+}
 
 #[derive(Default)]
 pub struct StorageIndices {

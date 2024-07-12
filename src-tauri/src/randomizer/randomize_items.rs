@@ -8,7 +8,7 @@ use crate::{
     dataset::{
         item::{Item, StrategyFlag},
         spot::Spot,
-        storage::{ItemSpot, Shop, Storage},
+        storage::{ItemSpot, Storage},
     },
     randomizer::spoiler::{make_rng, spoiler},
     script::data::script::Script,
@@ -39,14 +39,38 @@ fn randomize_storage(source: &Storage, rng: &mut impl Rng) -> (Storage, SpoilerL
         .all_items()
         .cloned()
         .partition(|x| x.can_display_in_shop());
+    debug_assert!(unsellable_items.iter().all(|x| !x.name().is_consumable()));
+    let (_consumable_items, sellable_items): (Vec<_>, Vec<_>) = sellable_items
+        .into_iter()
+        .partition(|x| x.name().is_consumable());
 
     debug_assert_eq!(
-        sellable_items.len() + unsellable_items.len(),
+        unsellable_items.len() + sellable_items.len() + _consumable_items.len(),
+        source.all_items().count(),
+    );
+    debug_assert_eq!(
+        unsellable_items.len() + sellable_items.len() + _consumable_items.len(),
         source.main_weapon_shutters().len()
             + source.sub_weapon_shutters().len()
             + source.chests().len()
             + source.seal_chests().len()
-            + source.shops().len() * 3,
+            + source
+                .shops()
+                .iter()
+                .map(|_| true as usize + true as usize + true as usize)
+                .sum::<usize>(),
+    );
+    debug_assert_eq!(
+        unsellable_items.len() + sellable_items.len(),
+        source.main_weapon_shutters().len()
+            + source.sub_weapon_shutters().len()
+            + source.chests().len()
+            + source.seal_chests().len()
+            + source
+                .shops()
+                .iter()
+                .map(|shop| shop.count_general_items())
+                .sum::<usize>(),
     );
 
     let start = std::time::Instant::now();
@@ -64,10 +88,6 @@ fn to_spots(src: &[ItemSpot]) -> Vec<Spot> {
     src.iter().map(|x| x.spot.clone()).collect()
 }
 
-fn shop_to_spots(src: &[Shop]) -> Vec<Spot> {
-    src.iter().map(|x| x.spot.clone()).collect()
-}
-
 fn shuffle(
     source: &Storage,
     sellables: &[Item],
@@ -80,8 +100,7 @@ fn shuffle(
     field_item_spots.append(&mut to_spots(source.seal_chests()));
     let field_item_spots: &Vec<_> = &field_item_spots.iter().collect();
 
-    let shop_spots = shop_to_spots(source.shops());
-    let shop_spots: &Vec<_> = &shop_spots.iter().collect();
+    let shops: &Vec<_> = &source.shops().iter().collect();
 
     let thread_count = std::thread::available_parallelism().unwrap().get();
 
@@ -91,7 +110,7 @@ fn shuffle(
                 .map(|_| {
                     let seed = rng.next_u64();
                     scope.spawn(move || {
-                        spoiler(seed, sellables, unsellables, field_item_spots, shop_spots)
+                        spoiler(seed, sellables, unsellables, field_item_spots, shops)
                     })
                 })
                 .collect::<Vec<_>>();
