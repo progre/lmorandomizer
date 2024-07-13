@@ -1,6 +1,6 @@
 {
   "productName": "lmorandomizer",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "identifier": "net.prgrssv.lmorandomizer",
   "build": {
     "beforeDevCommand": "npm run dev",

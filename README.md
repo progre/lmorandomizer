@@ -1,6 +1,6 @@
 # La-Mulana (Original version) Randomizer
 
-[![Build Status](https://travis-ci.org/progre/lmorandomizer.svg?branch=master)](https://travis-ci.org/progre/lmorandomizer) ![License](https://img.shields.io/github/license/progre/lmorandomizer.svg) [![Version](https://img.shields.io/github/release/progre/lmorandomizer/all.svg)](https://github.com/progre/lmorandomizer/releases)
+[![Build Status](https://github.com/progre/lmorandomizer/actions/workflows/ci.yml/badge.svg)](https://github.com/progre/lmorandomizer/actions) [![License](https://img.shields.io/github/license/progre/lmorandomizer.svg)](https://github.com/progre/lmorandomizer/blob/main/LICENSE) [![Version](https://img.shields.io/github/release/progre/lmorandomizer/all.svg)](https://github.com/progre/lmorandomizer/releases)
 
 Randomizer for La-Mulana (Original version). Original game is found at [Internet Archive](https://archive.org/details/La-Mulana)
 
