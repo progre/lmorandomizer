@@ -1,3 +1,7 @@
+# TODO: 基本セットが必要かどうかはフィールドで判断する
+- name: event:basicSet
+  requirements:
+    - handScanner, shellHorn, holyGrail, gameMaster, glyphReader
 # TODO: unsupported events
 - name: event:qBert
   requirements:

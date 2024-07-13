@@ -1,4 +1,6 @@
+mod pickup_items;
 mod randomize_items;
+mod sphere;
 mod spoiler;
 mod spoiler_log;
 

@@ -26,8 +26,14 @@ subWeapons:
     requirements:
       - event:reachedBackDoorOfSurface, bomb
   - name: touken
+    requirements:
+      - event:basicSet
   - name: ankhJewel:mausoleumOfTheGiants
+    requirements:
+      - event:basicSet
   - name: ankhJewel:templeOfTheSun
+    requirements:
+      - event:basicSet
   - name: ankhJewel:springInTheSky
     requirements:
       - scalesphere

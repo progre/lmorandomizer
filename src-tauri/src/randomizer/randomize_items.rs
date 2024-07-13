@@ -35,9 +35,19 @@ pub fn randomize_items(script: &mut Script, source: &Storage, seed: &str) -> Res
 }
 
 fn randomize_storage(source: &Storage, rng: &mut impl Rng) -> (Storage, SpoilerLog) {
-    let (sellable_items, unsellable_items): (Vec<_>, Vec<_>) = source
-        .all_items()
-        .cloned()
+    let (priority_items, remaining_items) =
+        source.all_items().cloned().partition::<Vec<_>, _>(|item| {
+            [
+                "handScanner",
+                "shellHorn",
+                "holyGrail",
+                "gameMaster",
+                "glyphReader",
+            ]
+            .contains(&item.name.get())
+        });
+    let (sellable_items, unsellable_items): (Vec<_>, Vec<_>) = remaining_items
+        .into_iter()
         .partition(|x| x.can_display_in_shop());
     debug_assert!(unsellable_items.iter().all(|x| !x.name.is_consumable()));
     let (consumable_items, sellable_items): (Vec<_>, Vec<_>) = sellable_items
@@ -45,11 +55,17 @@ fn randomize_storage(source: &Storage, rng: &mut impl Rng) -> (Storage, SpoilerL
         .partition(|x| x.name.is_consumable());
 
     debug_assert_eq!(
-        unsellable_items.len() + sellable_items.len() + consumable_items.len(),
+        priority_items.len()
+            + unsellable_items.len()
+            + sellable_items.len()
+            + consumable_items.len(),
         source.all_items().count(),
     );
     debug_assert_eq!(
-        unsellable_items.len() + sellable_items.len() + consumable_items.len(),
+        priority_items.len()
+            + unsellable_items.len()
+            + sellable_items.len()
+            + consumable_items.len(),
         source.main_weapons().len()
             + source.sub_weapons().len()
             + source.chests().len()
@@ -61,7 +77,7 @@ fn randomize_storage(source: &Storage, rng: &mut impl Rng) -> (Storage, SpoilerL
                 .sum::<usize>(),
     );
     debug_assert_eq!(
-        unsellable_items.len() + sellable_items.len(),
+        priority_items.len() + unsellable_items.len() + sellable_items.len(),
         source.main_weapons().len()
             + source.sub_weapons().len()
             + source.chests().len()
@@ -76,6 +92,7 @@ fn randomize_storage(source: &Storage, rng: &mut impl Rng) -> (Storage, SpoilerL
     let start = std::time::Instant::now();
     let (storage, spoiler_log) = shuffle(
         source,
+        &priority_items,
         &sellable_items,
         &unsellable_items,
         &consumable_items,
@@ -91,6 +108,7 @@ fn to_spots(src: &[ItemSpot]) -> Vec<Spot> {
 
 fn shuffle(
     source: &Storage,
+    priority_items: &[Item],
     sellable_items: &[Item],
     unsellable_items: &[Item],
     consumable_items: &[Item],
@@ -114,6 +132,7 @@ fn shuffle(
                     scope.spawn(move || {
                         spoiler(
                             seed,
+                            priority_items,
                             sellable_items,
                             unsellable_items,
                             consumable_items,

@@ -34,14 +34,20 @@
 
 # Mausoleum of the Giants
 - name: map:mausoleumOfTheGiants
+  requirements:
+    - event:basicSet
 # skip ankhJewel
 - name: sacredOrb:mausoleumOfTheGiants
+  requirements:
+    - event:basicSet
 
 # Temple of the Sun
 - name: bronzeMirror
   requirements:
     - ankhJewel:templeOfTheSun, handScanner, glyphReader
 - name: map:templeOfTheSun
+  requirements:
+    - event:basicSet
 - name: talisman
   requirements:
     - event:defeatedViy
@@ -50,6 +56,8 @@
     - event:floodedTempleOfTheSun
     - feather
 - name: sacredOrb:templeOfTheSun
+  requirements:
+    - event:basicSet
 # skip ankhJewel
 
 # Spring in the Sky
@@ -60,6 +68,8 @@
   requirements:
     - event:floodedSpringInTheSky
 - name: map:springInTheSky
+  requirements:
+    - event:basicSet
 - name: scalesphere
   requirements:
     - event:SpringElevator, originSeal # new event allows more varied options for getting up
@@ -68,6 +78,8 @@
 
 # Inferno Cavern
 - name: map:infernoCavern
+  requirements:
+    - event:basicSet
 - name: grappleClaw
   requirements:
     - iceCape
@@ -87,6 +99,8 @@
 
 # Endless Corridor
 - name: map:endlessCorridor
+  requirements:
+    - event:basicSet
 - name: twinStatue
   requirements:
     - keyOfEternity, feather

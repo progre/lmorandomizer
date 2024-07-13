@@ -10,6 +10,8 @@
 
 # Mausoleum of the Giants
 - names: toukenAmmo, sealOfElGiza, weights
+  requirements:
+    - event:basicSet
 
 # Temple of the Sun
 - names: toukenAmmo, spearAmmo, flareGunAmmo
@@ -19,6 +21,8 @@
     - bomb, bombAmmo # bombs can reach
     - feather
 - names: heatproofCase, divinerSensation, weights
+  requirements:
+    - event:basicSet
 - names: ammunition, bombAmmo, shurikenAmmo
   requirements:
     - deathSeal, feather # need feather
@@ -33,6 +37,8 @@
 
 # Inferno Cavern
 - names: mahjongWizard, spearAmmo, toukenAmmo
+  requirements:
+    - event:basicSet
 
 # Chamber of Extinction
 - names: spearAmmo, flareGunAmmo, bombAmmo
@@ -48,6 +54,8 @@
 
 # Twin Labyrinths (front)
 - names: helmet, bombAmmo, fakeHandScanner
+  requirements:
+    - event:basicSet
 - names: lampOfTime, shurikenAmmo, toukenAmmo
   requirements:
     - event:releasedTwins, feather, boots # need feather and boots. puzzle is unsolvable so bombs not needed
@@ -87,5 +95,5 @@
 - names: ammunition, ankhJewel:chamberOfBirth, weights
   requirements:
     - event:reachedLowerOfChamberOfBirth, cogOfTheSoul
-
+#
 # Dimensional Corridor
