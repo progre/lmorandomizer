@@ -26,18 +26,21 @@ pub struct SubWeaponBody {
 pub struct SubWeaponAmmo {
     pub content: items::SubWeapon,
     pub amount: NonZero<u8>,
+    pub price: Option<u16>,
     pub set_flag: u16,
 }
 
 #[derive(Clone)]
 pub struct Equipment {
     pub content: items::Equipment,
+    pub price: Option<u16>,
     pub set_flag: u16,
 }
 
 #[derive(Clone)]
 pub struct Rom {
     pub content: items::Rom,
+    pub price: Option<u16>,
     pub set_flag: u16,
 }
 
@@ -106,6 +109,7 @@ impl Item {
                         amount: NonZero::new(u8::try_from(item.count)?).ok_or_else(|| {
                             anyhow!("invalid sub weapon ammo count: {}", item.count)
                         })?,
+                        price: None,
                         set_flag,
                     }))
                 }
@@ -119,12 +123,20 @@ impl Item {
                     Some(ChestContent::Equipment(content)) => {
                         let set_flag = u16::try_from(item.flag)?;
                         Self::initial_assert(content as i8, set_flag, false);
-                        Ok(Self::Equipment(Equipment { content, set_flag }))
+                        Ok(Self::Equipment(Equipment {
+                            content,
+                            price: None,
+                            set_flag,
+                        }))
                     }
                     Some(ChestContent::Rom(content)) => {
                         let set_flag = u16::try_from(item.flag)?;
                         Self::initial_assert(content.0 as i8, set_flag, false);
-                        Ok(Self::Rom(Rom { content, set_flag }))
+                        Ok(Self::Rom(Rom {
+                            content,
+                            price: None,
+                            set_flag,
+                        }))
                     }
                     None => bail!("chest item type mismatch"),
                 }
@@ -145,32 +157,19 @@ impl Item {
                 match item {
                     ShopItem::SubWeaponBody(item) => {
                         Self::initial_assert(item.item.content as i8, item.item.set_flag, true);
-                        Ok(Self::SubWeaponBody(SubWeaponBody {
-                            content: item.item.content,
-                            set_flag: item.item.set_flag,
-                        }))
+                        Ok(Self::SubWeaponBody(item.item.clone()))
                     }
                     ShopItem::SubWeaponAmmo(item) => {
                         Self::initial_assert(item.item.content as i8, item.item.set_flag, true);
-                        Ok(Self::SubWeaponAmmo(SubWeaponAmmo {
-                            content: item.item.content,
-                            amount: item.item.amount,
-                            set_flag: item.item.set_flag,
-                        }))
+                        Ok(Self::SubWeaponAmmo(item.item.clone()))
                     }
                     ShopItem::Equipment(item) => {
                         Self::initial_assert(item.item.content as i8, item.item.set_flag, false);
-                        Ok(Self::Equipment(Equipment {
-                            content: item.item.content,
-                            set_flag: item.item.set_flag,
-                        }))
+                        Ok(Self::Equipment(item.item.clone()))
                     }
                     ShopItem::Rom(item) => {
                         Self::initial_assert(item.item.content.0 as i8, item.item.set_flag, false);
-                        Ok(Self::Rom(Rom {
-                            content: item.item.content,
-                            set_flag: item.item.set_flag,
-                        }))
+                        Ok(Self::Rom(item.item.clone()))
                     }
                 }
             }
@@ -185,6 +184,15 @@ impl Item {
             Self::Equipment(item) => item.set_flag,
             Self::Rom(item) => item.set_flag,
             Self::Seal(item) => item.set_flag,
+        }
+    }
+
+    pub fn price(&self) -> Option<u16> {
+        match self {
+            Self::SubWeaponAmmo(item) => item.price,
+            Self::Equipment(item) => item.price,
+            Self::Rom(item) => item.price,
+            _ => None,
         }
     }
 }

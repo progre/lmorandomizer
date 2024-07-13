@@ -40,8 +40,14 @@ pub fn replace_shops(
             .enumerate()
             .map(|(j, old_item)| {
                 let new_item = [&new_shop.items.0, &new_shop.items.1, &new_shop.items.2][j];
+                let is_consumable = new_item.name.is_consumable();
                 let new_item = Item::from_dataset(new_item, script)?;
-                Ok(ShopItem::from_item(new_item, old_item.price()))
+                let price = if is_consumable {
+                    new_item.price().unwrap()
+                } else {
+                    old_item.price()
+                };
+                Ok(ShopItem::from_item(new_item, price))
             })
             .collect::<Result<Vec<_>>>()?
             .into_iter();

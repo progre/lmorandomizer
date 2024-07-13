@@ -95,8 +95,9 @@ impl ShopItem {
                     let item = item::SubWeaponAmmo {
                         content: items::SubWeapon::from_u8(number)
                             .ok_or_else(|| anyhow!("Invalid subweapon number: {}", number))?,
-                        set_flag,
                         amount,
+                        price: Some(price),
+                        set_flag,
                     };
                     Ok(Self::SubWeaponAmmo(ShopSubWeaponAmmo { item, price }))
                 },
@@ -105,6 +106,7 @@ impl ShopItem {
                 let item = item::Equipment {
                     content: items::Equipment::from_u8(number)
                         .ok_or_else(|| anyhow!("Invalid equipment number: {}", number))?,
+                    price: Some(price),
                     set_flag,
                 };
                 Ok(Self::Equipment(ShopEquipment { item, price }))
@@ -112,7 +114,11 @@ impl ShopItem {
             // NOTE: 占いセンセーション(72) count is not as specified. It has 1 in it, not 0.
             2 => {
                 let content = items::Rom(number);
-                let item = item::Rom { content, set_flag };
+                let item = item::Rom {
+                    content,
+                    price: Some(price),
+                    set_flag,
+                };
                 Ok(Self::Rom(ShopRom { item, price }))
             }
             _ => bail!("Invalid shop item type: {}", shop_item_type),
