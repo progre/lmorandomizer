@@ -1,99 +1,80 @@
 # Gate of Guidance
-- names: shurikenAmmo, finder, weights
-  requirements:
+- shurikenAmmo, finder, weights:
     - originSeal
 
 # Surface
-- names: gameMaster, glyphReader, ruinsRAM8k
-- names: handScanner, ammunition, buckler
-- names: msx2, waterproofCase, shurikenAmmo
+- gameMaster, glyphReader, ruinsRAM8k:
+- handScanner, ammunition, buckler:
+- msx2, waterproofCase, shurikenAmmo:
 
 # Mausoleum of the Giants
-- names: toukenAmmo, sealOfElGiza, weights
-  requirements:
+- toukenAmmo, sealOfElGiza, weights:
     - event:basicSet
 
 # Temple of the Sun
-- names: toukenAmmo, spearAmmo, flareGunAmmo
-  requirements:
+- toukenAmmo, spearAmmo, flareGunAmmo:
     - shuriken, shurikenAmmo
     - pistol, ammunition # pistol can reach
     - bomb, bombAmmo # bombs can reach
     - feather
-- names: heatproofCase, divinerSensation, weights
-  requirements:
+- heatproofCase, divinerSensation, weights:
     - event:basicSet
-- names: ammunition, bombAmmo, shurikenAmmo
-  requirements:
+- ammunition, bombAmmo, shurikenAmmo:
     - deathSeal, feather # need feather
 
 # Spring in the Sky
-- names: weights, shurikenAmmo, toukenAmmo
-  requirements:
+- weights, shurikenAmmo, toukenAmmo:
     - event:SpringElevator, originSeal # more varied ways to reach
-- names: shellHorn, finder, castlevania
-  requirements:
+- shellHorn, finder, castlevania:
     - event:SpringElevator, originSeal, divinerSensation, event:qBert, msx2 # need msx2
 
 # Inferno Cavern
-- names: mahjongWizard, spearAmmo, toukenAmmo
-  requirements:
+- mahjongWizard, spearAmmo, toukenAmmo:
     - event:basicSet
 
 # Chamber of Extinction
-- names: spearAmmo, flareGunAmmo, bombAmmo
-  requirements:
+- spearAmmo, flareGunAmmo, bombAmmo:
     - event:reachedPalenque
 
 # Endless Corridor
-- names: bombAmmo, toukenAmmo, weights
-  requirements:
+- bombAmmo, toukenAmmo, weights:
     - lifeSeal
 
 # Shrine of the Mother
 
 # Twin Labyrinths (front)
-- names: helmet, bombAmmo, fakeHandScanner
-  requirements:
+- helmet, bombAmmo, fakeHandScanner:
     - event:basicSet
-- names: lampOfTime, shurikenAmmo, toukenAmmo
-  requirements:
+- lampOfTime, shurikenAmmo, toukenAmmo:
     - event:releasedTwins, feather, boots # need feather and boots. puzzle is unsolvable so bombs not needed
 
 # Twin Labyrinths (back)
-- names: scriptures, bombAmmo, spearAmmo
-  requirements:
+- scriptures, bombAmmo, spearAmmo:
     - event:releasedTwins, feather
-- names: dragonBone, spearAmmo, flareGunAmmo
-  requirements:
+- dragonBone, spearAmmo, flareGunAmmo:
     - fakeHandScanner
 
 # Gate of Illusion
-- names: f1Spirit, f1Spirit3d, weights
-  requirements:
+- f1Spirit, f1Spirit3d, weights:
     - event:reachedElevatorOfGateOfIllusion
 
 # Graveyard of the Giants
-- names: spearAmmo, fakeSilverShield, weights
-  requirements:
+- spearAmmo, fakeSilverShield, weights:
     - event:reachedLiarOfGraveyardOfTheGiants # need to reach Liar shop not just front door
 
 # Tower of the Goddess
 
 # Temple of Moonlight
-- names: bracelet, shurikenAmmo, ammunition
-  requirements:
+- bracelet, shurikenAmmo, ammunition:
     - event:reachedFrontOfTempleOfMoonlight, bomb, bombAmmo, event:surviveAnubis # survive anubis
 
 # Tower of Ruin
-- names: knightmare, bombAmmo, flareGunAmmo
-  requirements:
+- knightmare, bombAmmo, flareGunAmmo:
     - event:reachedFrontOfTowerOfRuin, katana, feather
     - event:reachedFrontOfTowerOfRuin, katana, boots, grappleClaw # can reach with boots and grapple claw
 
 # Chamber of Birth
-- names: ammunition, ankhJewel:chamberOfBirth, weights
-  requirements:
+- ammunition, ankhJewel:chamberOfBirth, weights:
     - event:reachedLowerOfChamberOfBirth, cogOfTheSoul
 #
 # Dimensional Corridor

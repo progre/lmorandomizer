@@ -55,7 +55,7 @@ pub fn randomize(
 
     trace!("Loaded supplements in {:?}", start.elapsed());
 
-    let source = create_source(supplement_files);
+    let source = create_source(supplement_files)?;
 
     let start = std::time::Instant::now();
     if cfg!(debug_assertions) {

@@ -1,20 +1,16 @@
 # Gate of Guidance
-- name: treasures
-  requirements:
+- treasures:
     - event:pepper
-- name: sacredOrb:gateOfGuidance
-- name: crucifix
-  requirements:
+- sacredOrb:gateOfGuidance:
+- crucifix:
     - flareGun, birthSeal
-- name: map:gateOfGuidance
-- name: gameMaster2
-  requirements:
+- map:gateOfGuidance:
+- gameMaster2:
     - event:reachedGrailOfGateOfIllusion, event:defeatedAmphisbaena, bronzeMirror
-- name: holyGrail
+- holyGrail:
 
 # Surface
-- name: feather
-  requirements:
+- feather:
     - serpentStaff, gauntlet
     - serpentStaff, shuriken, shurikenAmmo
     - serpentStaff, bomb, bombAmmo
@@ -25,223 +21,170 @@
     - serpentStaff, axe
     - serpentStaff, katana
     - serpentStaff, castlevania, mahjongWizard, msx2 # need msx2 to equip rom combos
-- name: shellHorn
+- shellHorn:
 # skip birthSeal
-- name: sacredOrb:surface
-  requirements:
+- sacredOrb:surface:
     - scalesphere
     - sacredOrb:3 # TODO: いくつあれば足りるのか？
 
 # Mausoleum of the Giants
-- name: map:mausoleumOfTheGiants
-  requirements:
+- map:mausoleumOfTheGiants:
     - event:basicSet
 # skip ankhJewel
-- name: sacredOrb:mausoleumOfTheGiants
-  requirements:
+- sacredOrb:mausoleumOfTheGiants:
     - event:basicSet
 
 # Temple of the Sun
-- name: bronzeMirror
-  requirements:
+- bronzeMirror:
     - ankhJewel:templeOfTheSun, handScanner, glyphReader
-- name: map:templeOfTheSun
-  requirements:
+- map:templeOfTheSun:
     - event:basicSet
-- name: talisman
-  requirements:
+- talisman:
     - event:defeatedViy
-- name: boots
-  requirements:
+- boots:
     - event:floodedTempleOfTheSun
     - feather
-- name: sacredOrb:templeOfTheSun
-  requirements:
+- sacredOrb:templeOfTheSun:
     - event:basicSet
 # skip ankhJewel
 
 # Spring in the Sky
-- name: sacredOrb:springInTheSky
-  requirements:
+- sacredOrb:springInTheSky:
     - birthSeal # life seal is from the remake
-- name: glove
-  requirements:
+- glove:
     - event:floodedSpringInTheSky
-- name: map:springInTheSky
-  requirements:
+- map:springInTheSky:
     - event:basicSet
-- name: scalesphere
-  requirements:
+- scalesphere:
     - event:SpringElevator, originSeal # new event allows more varied options for getting up
 # skip originSeal
 # skip ankhJewel
 
 # Inferno Cavern
-- name: map:infernoCavern
-  requirements:
+- map:infernoCavern:
     - event:basicSet
-- name: grappleClaw
-  requirements:
+- grappleClaw:
     - iceCape
     - glove, sacredOrb:3 # TODO: test
     - sacredOrb:5 # tested
 
 # Chamber of Extinction
-- name: sacredOrb:chamberOfExtinction
-  requirements:
+- sacredOrb:chamberOfExtinction:
     - event:lightedUpChamberOfExtinction, feather # need a way out
     - event:lightedUpChamberOfExtinction, originSeal # need a way out
     - event:lightedUpChamberOfExtinction, holyGrail # need a way out
-- name: map:chamberOfExtinction
-  requirements:
+- map:chamberOfExtinction:
     - event:lightedUpChamberOfExtinction
 # skip lifeSeal
 
 # Endless Corridor
-- name: map:endlessCorridor
-  requirements:
+- map:endlessCorridor:
     - event:basicSet
-- name: twinStatue
-  requirements:
+- twinStatue:
     - keyOfEternity, feather
     - keyOfEternity, grappleClaw
 
 # Shrine of the Mother
-- name: crystalSkull
-  requirements:
+- crystalSkull:
     - event:reachedFrontOfShrineOfTheMother, lifeSeal, event:mulanaTalisman
-- name: sacredOrb:shrineOfTheMother
-  requirements:
+- sacredOrb:shrineOfTheMother:
     - event:reachedFrontOfShrineOfTheMother, originSeal, birthSeal, lifeSeal, deathSeal
-- name: diary
-  requirements:
+- diary:
     - event:reachedFrontOfShrineOfTheMother, talisman, lifeSeal, lampOfTime, feather # need feather
-- name: map:shrineOfTheMother
-  requirements:
+- map:shrineOfTheMother:
     - event:releasedTwins, dragonBone
 # skip deathSeal
 
 # Twin Labyrinths (front)
-- name: ring
-  requirements:
+- ring:
     - event:releasedTwins
-- name: map:twinLabyrinths
-  requirements:
+- map:twinLabyrinths:
     - event:releasedTwins
-- name: sacredOrb:twinLabyrinths
-  requirements:
+- sacredOrb:twinLabyrinths:
     - event:releasedTwins
 
 # Twin Labyrinths (back)
 # skip fake ankhJewel
 
 # Gate of Illusion
-- name: keyOfEternity
-  requirements:
+- keyOfEternity:
     - event:reachedElevatorOfGateOfIllusion, event:miniDoll, event:escapeShu # need mini doll and a way to get out from Shu area
-- name: protectiveClothes
-  requirements:
+- protectiveClothes:
     - event:reachedElevatorOfGateOfIllusion, katana, divinerSensation, event:qBert, msx2 # need msx2 for diviner sensation
-- name: map:gateOfIllusion
-  requirements:
+- map:gateOfIllusion:
     - event:reachedFrontOfGateOfIllusion
-- name: cogOfTheSoul
-  requirements:
+- cogOfTheSoul:
     - event:reachedBackDoorOfGateOfIllusion, event:reachedElevatorOfGateOfIllusion, lampOfTime, event:escapeShu # need to kill Shu to open chest
 
 # Graveyard of the Giants
-- name: contra
-  requirements:
+- contra:
     - event:reachedLiarOfGraveyardOfTheGiants
     - event:reachedFrontOfTempleOfMoonlight, katana, keySword, knife, event:subWeaponWallForward
-- name: map:graveyardOfTheGiants
-  requirements:
+- map:graveyardOfTheGiants:
     - event:reachedFrontOfGraveyardOfTheGiants, feather
     - event:reachedFrontOfGraveyardOfTheGiants, boots
-- name: gauntlet
-  requirements:
+- gauntlet:
     - event:reachedFrontOfGraveyardOfTheGiants, birthSeal, grappleClaw
 
 # Tower of the Goddess
-- name: a1Spirit
-  requirements:
+- a1Spirit:
     - event:reachedTowerOfTheGoddess, planeModel, pistol, ammunition
-- name: planeModel
-  requirements:
+- planeModel:
     - event:reachedTowerOfTheGoddess, feather, grappleClaw, boots, handScanner, glyphReader # need boots to climb tower. need to flood tower to open chest
-- name: map:TowerOfTheGoddess
-  requirements:
+- map:TowerOfTheGoddess:
     - event:reachedTowerOfTheGoddess
-- name: gradius
-  requirements:
+- gradius:
     - event:reachedTowerOfTheGoddess # do not need feather
-- name: eyeOfTruth
-  requirements:
+- eyeOfTruth:
     - event:reachedLowerOfChamberOfBirth # need to reach entrance to lower birth to place weights
 
 # Temple of Moonlight
-- name: bookOfTheDead
-  requirements:
+- bookOfTheDead:
     - event:reachedFrontOfTempleOfMoonlight, birthSeal, feather, event:surviveAnubis # need a way out and survive anubis
     - event:reachedFrontOfTempleOfMoonlight, birthSeal, grappleClaw, event:surviveAnubis
     - event:reachedFrontOfTempleOfMoonlight, birthSeal, holyGrail, event:surviveAnubis
-- name: iceCape
-  requirements:
+- iceCape:
     - event:reachedGrailOfTempleOfMoonlight
-- name: map:TempleOfMoonlight
-  requirements:
+- map:TempleOfMoonlight:
     - event:reachedGrailOfTempleOfMoonlight
 # skip open from front
 # skip open from front
 # skip open from front
 # skip open from front
-- name: ocarina
-  requirements:
+- ocarina:
     - flareGun, womanStatue, feather, event:escapeFromTempleOfMoonlight # need a way out of moonlight
     - flareGun, womanStatue, grappleClaw, event:escapeFromTempleOfMoonlight
-- name: serpentStaff
-  requirements:
+- serpentStaff:
     - event:reachedFrontOfTempleOfMoonlight, grappleClaw
     - event:reachedFrontOfTempleOfMoonlight, feather
 
 # Tower of Ruin
-- name: djedPillar
-  requirements:
+- djedPillar:
     - event:reachedBackDoorOfTowerOfRuin, ocarina, event:mulanaTalisman # need to talk to sage in spring. need mulana talisman to get item
-- name: map:towerOfRuin
-  requirements:
+- map:towerOfRuin:
     - event:reachedFrontOfTowerOfRuin
-- name: sacredOrb:towerOfRuin
-  requirements:
+- sacredOrb:towerOfRuin:
     - event:reachedFrontOfTowerOfRuin
 
 # Chamber of Birth
-- name: vessel
-  requirements:
+- vessel:
     - event:reachedUpperOfChamberOfBirth, silverShield
     - event:reachedUpperOfChamberOfBirth, angelShield
-- name: perfume
-  requirements:
+- perfume:
     - event:reachedUpperOfChamberOfBirth, cogOfTheSoul
-- name: womanStatue
-  requirements:
+- womanStatue:
     - event:reachedUpperOfChamberOfBirth, feather
     - event:reachedUpperOfChamberOfBirth, holyGrail
-- name: map:chamberOfBirth
-  requirements:
+- map:chamberOfBirth:
     - event:reachedLowerOfChamberOfBirth
-- name: pochetteKey
-  requirements:
+- pochetteKey:
     - event:reachedLowerOfChamberOfBirth, bomb, bombAmmo, cogOfTheSoul
 
 # Dimensional Corridor
-- name: magatamaJewel
-  requirements:
+- magatamaJewel:
     - event:defeatedTiamat, event:mulanaTalisman # need mulana talisman to get item
-- name: sacredOrb:dimensionalCorridor
-  requirements:
+- sacredOrb:dimensionalCorridor:
     - event:reachedDimensionalCorridor, feather, lampOfTime, sacredOrb:2 # do not need grapple claw. should have some health to beat bosses
 # skip ankhJewel
-- name: map:dimensionalCorridor
-  requirements:
+- map:dimensionalCorridor:
     - event:reachedDimensionalCorridor

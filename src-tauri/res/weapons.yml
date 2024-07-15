@@ -1,63 +1,44 @@
 mainWeapons:
-  - name: knife
-    requirements:
+  - knife:
       - shuriken
       - pistol, ammunition # pistol can reach
       - bomb, bombAmmo # bombs can reach
-  - name: chainWhip
-    requirements:
+  - chainWhip:
       - birthSeal, grappleClaw
-  - name: keySword
-    requirements:
+  - keySword:
       - keyOfEternity
-  - name: katana
-    requirements:
+  - katana:
       - event:releasedTwins, flareGun, knife
-  - name: mace
-    requirements:
+  - mace:
       - event:reachedTowerOfTheGoddess
-  - name: axe
-    requirements:
+  - axe:
       - event:reachedFrontOfTempleOfMoonlight, shuriken, knife, boots
 subWeapons:
-  - name: shuriken
-  - name: ankhJewel:gateOfGuidance
-  - name: pistol
-    requirements:
+  - shuriken:
+  - ankhJewel:gateOfGuidance:
+  - pistol:
       - event:reachedBackDoorOfSurface, bomb
-  - name: touken
-    requirements:
+  - touken:
       - event:basicSet
-  - name: ankhJewel:mausoleumOfTheGiants
-    requirements:
+  - ankhJewel:mausoleumOfTheGiants:
       - event:basicSet
-  - name: ankhJewel:templeOfTheSun
-    requirements:
+  - ankhJewel:templeOfTheSun:
       - event:basicSet
-  - name: ankhJewel:springInTheSky
-    requirements:
+  - ankhJewel:springInTheSky:
       - scalesphere
-  - name: flareGun
-    requirements:
+  - flareGun:
       - glove # super boring puzzle without gloves
-  - name: ankhJewel:twinLabyrinths
-    requirements:
+  - ankhJewel:twinLabyrinths:
       - event:releasedTwins
-  - name: silverShield
-    requirements:
+  - silverShield:
       - event:reachedLiarOfGraveyardOfTheGiants, katana
-  - name: bomb
-    requirements:
+  - bomb:
       - event:reachedBackDoorOfGraveyardOfTheGiants
-  - name: ankhJewel:towerOfRuin
-    requirements:
+  - ankhJewel:towerOfRuin:
       - event:reachedFrontOfTowerOfRuin
-  - name: spear
-    requirements:
+  - spear:
       - event:reachedFrontOfTowerOfRuin
-  - name: angelShield
-    requirements:
+  - angelShield:
       - event:reachedDimensionalCorridor, sacredOrb:2 # should have some health to beat bosses
-  - name: ankhJewel:dimensionalCorridor
-    requirements:
+  - ankhJewel:dimensionalCorridor:
       - event:reachedDimensionalCorridor

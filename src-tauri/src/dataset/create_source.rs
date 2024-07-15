@@ -1,9 +1,11 @@
+use anyhow::Result;
 use log::trace;
 
 use crate::dataset::{
     item::Item,
     spot::{AllRequirements, Spot},
     storage::{ItemSpot, Storage},
+    supplements::ShopYaml,
 };
 
 use super::{
@@ -176,16 +178,15 @@ fn merge_events(requirements: AnyOfAllRequirements, events: &[Event]) -> AnyOfAl
     current
 }
 
-pub fn create_source(supplement_files: &SupplementFiles) -> Storage {
+pub fn create_source(supplement_files: &SupplementFiles) -> Result<Storage> {
     let start = std::time::Instant::now();
     let weapons: WeaponsYaml = serde_yaml::from_str(&supplement_files.weapons_yml).unwrap();
-    let main_weapons = weapons.main_weapons;
-    let sub_weapons = weapons.sub_weapons;
+    let (main_weapons, sub_weapons) = weapons.try_into_parsed_inner()?;
     let chests: SpotYaml = serde_yaml::from_str(&supplement_files.chests_yml).unwrap();
     let seals: SpotYaml = serde_yaml::from_str(&supplement_files.seals_yml).unwrap();
-    let shops: Vec<YamlShop> = serde_yaml::from_str(&supplement_files.shops_yml).unwrap();
+    let shops: ShopYaml = serde_yaml::from_str(&supplement_files.shops_yml).unwrap();
     let events: SpotYaml = serde_yaml::from_str(&supplement_files.events_yml).unwrap();
-    let events = parse_requirements_of_events(events.0);
+    let events = parse_requirements_of_events(events.try_into_parsed_inner()?);
 
     let mut main_weapons = parse_item_spot_requirements(
         |src_idx, name, requirements| ItemSpot {
@@ -218,7 +219,7 @@ pub fn create_source(supplement_files: &SupplementFiles) -> Storage {
             spot: Spot::chest(src_idx, name.clone(), requirements),
             item: Item::chest_item(src_idx, name.into()),
         },
-        chests.0,
+        chests.try_into_parsed_inner()?,
     );
     chests.iter_mut().for_each(|item_spot| {
         if let Some(requirements) = item_spot.spot.requirements_mut().take() {
@@ -231,7 +232,7 @@ pub fn create_source(supplement_files: &SupplementFiles) -> Storage {
             spot: Spot::seal(src_idx, name.clone(), requirements),
             item: Item::seal(src_idx, name.into()),
         },
-        seals.0,
+        seals.try_into_parsed_inner()?,
     );
     seals.iter_mut().for_each(|item_spot| {
         if let Some(requirements) = item_spot.spot.requirements_mut().take() {
@@ -252,7 +253,7 @@ pub fn create_source(supplement_files: &SupplementFiles) -> Storage {
                 ),
             }
         },
-        shops,
+        shops.try_into_parsed_inner()?,
     );
     shops.iter_mut().for_each(|shop| {
         if let Some(requirements) = shop.spot.requirements_mut().take() {
@@ -274,5 +275,5 @@ pub fn create_source(supplement_files: &SupplementFiles) -> Storage {
         ware_missing_requirements(&storage);
         trace!("ware_missing_requirements: {:?}", start.elapsed());
     }
-    storage
+    Ok(storage)
 }
