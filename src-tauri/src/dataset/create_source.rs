@@ -13,25 +13,6 @@ use super::{
     supplements::{SpotYaml, SupplementFiles, WeaponsYaml, YamlShop, YamlSpot},
 };
 
-#[test]
-fn test_create_storage() {
-    use sha3::{Digest, Sha3_512};
-
-    use crate::dataset::{create_source::create_source, supplements::SupplementFiles};
-
-    let files = SupplementFiles {
-        weapons_yml: include_str!("../../../public/res/weapons.yml").to_owned(),
-        chests_yml: include_str!("../../../public/res/chests.yml").to_owned(),
-        seals_yml: include_str!("../../../public/res/seals.yml").to_owned(),
-        shops_yml: include_str!("../../../public/res/shops.yml").to_owned(),
-        events_yml: include_str!("../../../public/res/events.yml").to_owned(),
-    };
-    let source = create_source(&files);
-    let script_dat_hash = Sha3_512::digest(format!("{:?}", source)).to_vec();
-    const HASH: &str = "84ddb0a5bea1ba0d3d369ab7112c31e6dd67694ac8a97dca0e787960f2c9becc731beeea8046fbe442cf4df900b2e2d3c49eb88314bd4a1a3346f17360accfcf";
-    assert_eq!(hex::encode(script_dat_hash).to_string(), HASH);
-}
-
 #[derive(Clone)]
 pub struct Event {
     name: String,

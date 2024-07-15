@@ -1,10 +1,11 @@
+use futures::future::join_all;
 use log::info;
 use serde_json::json;
 use std::path::PathBuf;
-use tauri::{AppHandle, Manager, State, Wry};
+use tauri::{path::BaseDirectory, AppHandle, Manager, State, Wry};
 use tauri_plugin_store::{with_store, Store, StoreCollection};
 use tokio::{
-    fs::File,
+    fs::{read_to_string, File},
     io::{self, AsyncReadExt, AsyncWriteExt},
 };
 
@@ -126,8 +127,46 @@ async fn write_file(path: &str, contents: &[u8]) -> io::Result<()> {
     Ok(())
 }
 
+async fn read_game_structure_files(handle: AppHandle) -> tauri::Result<SupplementFiles> {
+    let file_paths = [
+        "res/weapons.yml",
+        "res/chests.yml",
+        "res/seals.yml",
+        "res/shops.yml",
+        "res/events.yml",
+    ];
+    let futures: Vec<_> = file_paths
+        .map(|path| handle.path().resolve(path, BaseDirectory::Resource))
+        .into_iter()
+        .collect::<tauri::Result<Vec<_>>>()?
+        .into_iter()
+        .map(read_to_string)
+        .collect();
+    let mut files: Vec<_> = join_all(futures)
+        .await
+        .into_iter()
+        .collect::<io::Result<_>>()?;
+
+    let events_yml = files.pop().unwrap();
+    let shops_yml = files.pop().unwrap();
+    let seals_yml = files.pop().unwrap();
+    let chests_yml = files.pop().unwrap();
+    let weapons_yml = files.pop().unwrap();
+    Ok(SupplementFiles {
+        weapons_yml,
+        chests_yml,
+        seals_yml,
+        shops_yml,
+        events_yml,
+    })
+}
+
 #[tauri::command]
-pub async fn apply(install_directory: String, options: RandomizeOptions) -> String {
+pub async fn apply(
+    handle: AppHandle,
+    install_directory: String,
+    options: RandomizeOptions,
+) -> String {
     log::trace!("{}", install_directory);
     let target_file_path = format!("{}/data/script.dat", install_directory);
     let backup_file_path = format!("{}/data/script.dat.bak", install_directory);
@@ -146,15 +185,12 @@ pub async fn apply(install_directory: String, options: RandomizeOptions) -> Stri
         }
         working
     };
-    let supplement_files = SupplementFiles {
-        weapons_yml: include_str!("../../public/res/weapons.yml").to_owned(),
-        chests_yml: include_str!("../../public/res/chests.yml").to_owned(),
-        seals_yml: include_str!("../../public/res/seals.yml").to_owned(),
-        shops_yml: include_str!("../../public/res/shops.yml").to_owned(),
-        events_yml: include_str!("../../public/res/events.yml").to_owned(),
+    let game_structure = match read_game_structure_files(handle).await {
+        Ok(ok) => ok,
+        Err(err) => return format!("Failed to read game structure files: {}", err),
     };
 
-    let (randomized, spoiler_log) = match randomize(&working, &supplement_files, &options) {
+    let (randomized, spoiler_log) = match randomize(&working, &game_structure, &options) {
         Ok(randomized) => randomized,
         Err(e) => {
             return format!("Randomization failed: {}", e);
