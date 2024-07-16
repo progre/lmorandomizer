@@ -10,7 +10,7 @@ use crate::dataset::{
 use super::{
     assertions::{assert_chests, ware_missing_requirements},
     game_structure::{GameStructureFiles, YamlShop, YamlSpot},
-    spot::{self, AnyOfAllRequirements, RequirementFlag, SpotName},
+    spot::{self, AnyOfAllRequirements, FieldId, RequirementFlag, SpotName},
     storage,
 };
 
@@ -40,14 +40,15 @@ fn to_any_of_all_requirements(requirements: Vec<String>) -> Option<AnyOfAllRequi
 }
 
 fn parse_item_spot_requirements<T>(
-    create: impl Fn(usize, SpotName, Option<AnyOfAllRequirements>) -> T,
-    items: Vec<YamlSpot>,
+    create: impl Fn(FieldId, usize, SpotName, Option<AnyOfAllRequirements>) -> T,
+    items: Vec<(FieldId, YamlSpot)>,
 ) -> Vec<T> {
     items
         .into_iter()
         .enumerate()
-        .map(|(src_idx, spot)| {
+        .map(|(src_idx, (field_id, spot))| {
             create(
+                field_id,
                 src_idx,
                 SpotName::new(spot.name),
                 to_any_of_all_requirements(spot.requirements),
@@ -57,14 +58,15 @@ fn parse_item_spot_requirements<T>(
 }
 
 fn parse_shop_requirements<T>(
-    create: impl Fn(usize, SpotName, Option<AnyOfAllRequirements>) -> T,
-    items: Vec<YamlShop>,
+    create: impl Fn(FieldId, usize, SpotName, Option<AnyOfAllRequirements>) -> T,
+    items: Vec<(FieldId, YamlShop)>,
 ) -> Vec<T> {
     items
         .into_iter()
         .enumerate()
-        .map(|(src_idx, shop)| {
+        .map(|(src_idx, (field_id, shop))| {
             create(
+                field_id,
                 src_idx,
                 SpotName::new(shop.names),
                 to_any_of_all_requirements(shop.requirements),
@@ -185,8 +187,8 @@ pub fn create_source(game_structure_files: &GameStructureFiles) -> Result<Storag
     let events = parse_requirements_of_events(events);
 
     let mut main_weapons = parse_item_spot_requirements(
-        |src_idx, name, requirements| ItemSpot {
-            spot: Spot::main_weapon(src_idx, name.clone(), requirements),
+        |field_id, src_idx, name, requirements| ItemSpot {
+            spot: Spot::main_weapon(field_id, src_idx, name.clone(), requirements),
             item: Item::main_weapon(src_idx, name.into()),
         },
         main_weapons,
@@ -198,8 +200,8 @@ pub fn create_source(game_structure_files: &GameStructureFiles) -> Result<Storag
     });
 
     let mut sub_weapons = parse_item_spot_requirements(
-        |src_idx, name, requirements| ItemSpot {
-            spot: Spot::sub_weapon(src_idx, name.clone(), requirements),
+        |field_id, src_idx, name, requirements| ItemSpot {
+            spot: Spot::sub_weapon(field_id, src_idx, name.clone(), requirements),
             item: Item::sub_weapon(src_idx, name.into()),
         },
         sub_weapons,
@@ -211,8 +213,8 @@ pub fn create_source(game_structure_files: &GameStructureFiles) -> Result<Storag
     });
 
     let mut chests = parse_item_spot_requirements(
-        |src_idx, name, requirements| ItemSpot {
-            spot: Spot::chest(src_idx, name.clone(), requirements),
+        |field_id, src_idx, name, requirements| ItemSpot {
+            spot: Spot::chest(field_id, src_idx, name.clone(), requirements),
             item: Item::chest_item(src_idx, name.into()),
         },
         chests,
@@ -224,8 +226,8 @@ pub fn create_source(game_structure_files: &GameStructureFiles) -> Result<Storag
     });
 
     let mut seals = parse_item_spot_requirements(
-        |src_idx, name, requirements| ItemSpot {
-            spot: Spot::seal(src_idx, name.clone(), requirements),
+        |field_id, src_idx, name, requirements| ItemSpot {
+            spot: Spot::seal(field_id, src_idx, name.clone(), requirements),
             item: Item::seal(src_idx, name.into()),
         },
         seals,
@@ -237,8 +239,8 @@ pub fn create_source(game_structure_files: &GameStructureFiles) -> Result<Storag
     });
 
     let mut shops = parse_shop_requirements(
-        |src_idx, name, requirements| {
-            let shop_spot = spot::Shop::new(src_idx, name.clone(), requirements);
+        |field_id, src_idx, name, requirements| {
+            let shop_spot = spot::Shop::new(field_id, src_idx, name.clone(), requirements);
             let flags = shop_spot.to_strategy_flags();
             storage::Shop {
                 spot: Spot::shop(shop_spot),

@@ -1,6 +1,9 @@
 use std::fmt;
 
-use crate::dataset::{item::Item, spot::Spot};
+use crate::dataset::{
+    item::Item,
+    spot::{FieldId, Spot},
+};
 
 #[derive(Clone)]
 pub struct Checkpoint {
@@ -9,6 +12,14 @@ pub struct Checkpoint {
 }
 
 pub struct Sphere(pub Vec<Checkpoint>);
+
+fn compare_key_for_spoiler_log(field_id: FieldId) -> u8 {
+    if matches!(field_id, FieldId::TwinLabyrinthsRight) {
+        FieldId::TwinLabyrinthsLeft as u8 * 10 + 1
+    } else {
+        field_id as u8 * 10
+    }
+}
 
 pub struct SpoilerLog {
     pub progression: Vec<Sphere>,
@@ -21,7 +32,12 @@ impl fmt::Display for SpoilerLog {
                 writeln!(f)?;
             }
             writeln!(f, "[Sphere {}]", i + 1)?;
-            for checkpoint in &sphere.0 {
+            let mut sphere: Vec<_> = sphere.0.iter().collect();
+            sphere.sort_by(|a, b| {
+                compare_key_for_spoiler_log(a.spot.field_id())
+                    .cmp(&compare_key_for_spoiler_log(b.spot.field_id()))
+            });
+            for checkpoint in sphere {
                 writeln!(
                     f,
                     "{} = {}",

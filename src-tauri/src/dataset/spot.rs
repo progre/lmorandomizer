@@ -2,6 +2,29 @@ use std::{any::type_name, collections::HashSet, fmt};
 
 use super::item::StrategyFlag;
 
+#[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd, num_derive::FromPrimitive)]
+pub enum FieldId {
+    Surface = 0,
+    GateOfGuidance,
+    MausoleumOfTheGiants,
+    TempleOfTheSun,
+    SpringInTheSky,
+    InfernoCavern,
+    ChamberOfExtinction,
+    TwinLabyrinthsLeft,
+    EndlessCorridor,
+    ShrineOfTheMother,
+    GateOfIllusion = 11,
+    GraveyardOfTheGiants,
+    TempleOfMoonlight,
+    TowerOfTheGoddess,
+    TowerOfRuin,
+    ChamberOfBirth,
+    TwinLabyrinthsRight,
+    DimensionalCorridor,
+    TrueShrineOfTheMother,
+}
+
 #[derive(Clone, Debug)]
 pub struct SpotName(String);
 
@@ -61,6 +84,7 @@ pub struct AnyOfAllRequirements(pub Vec<AllRequirements>);
 
 #[derive(Clone, Debug)]
 pub struct MainWeapon {
+    pub field_id: FieldId,
     pub src_idx: usize,
     pub name: SpotName,
     pub requirements: Option<AnyOfAllRequirements>,
@@ -68,6 +92,7 @@ pub struct MainWeapon {
 
 #[derive(Clone, Debug)]
 pub struct SubWeapon {
+    pub field_id: FieldId,
     pub src_idx: usize,
     pub name: SpotName,
     pub requirements: Option<AnyOfAllRequirements>,
@@ -75,6 +100,7 @@ pub struct SubWeapon {
 
 #[derive(Clone, Debug)]
 pub struct Chest {
+    pub field_id: FieldId,
     pub src_idx: usize,
     pub name: SpotName,
     pub requirements: Option<AnyOfAllRequirements>,
@@ -82,6 +108,7 @@ pub struct Chest {
 
 #[derive(Clone, Debug)]
 pub struct Seal {
+    pub field_id: FieldId,
     pub src_idx: usize,
     pub name: SpotName,
     pub requirements: Option<AnyOfAllRequirements>,
@@ -89,18 +116,25 @@ pub struct Seal {
 
 #[derive(Clone, Debug)]
 pub struct Shop {
+    pub field_id: FieldId,
     pub src_idx: usize,
     pub name: SpotName,
     pub requirements: Option<AnyOfAllRequirements>,
 }
 
 impl Shop {
-    pub fn new(src_idx: usize, name: SpotName, requirements: Option<AnyOfAllRequirements>) -> Self {
+    pub fn new(
+        field_id: FieldId,
+        src_idx: usize,
+        name: SpotName,
+        requirements: Option<AnyOfAllRequirements>,
+    ) -> Self {
         if cfg!(debug_assertions) {
             let names: Vec<_> = name.0.split(',').map(|x| x.trim()).collect();
             debug_assert_eq!(names.len(), 3);
         }
         Self {
+            field_id,
             src_idx,
             name,
             requirements,
@@ -127,29 +161,53 @@ pub enum Spot {
 }
 
 impl Spot {
-    pub fn main_weapon(src_idx: usize, name: SpotName, reqs: Option<AnyOfAllRequirements>) -> Self {
+    pub fn main_weapon(
+        field_id: FieldId,
+        src_idx: usize,
+        name: SpotName,
+        reqs: Option<AnyOfAllRequirements>,
+    ) -> Self {
         Self::MainWeapon(MainWeapon {
+            field_id,
             src_idx,
             name,
             requirements: reqs,
         })
     }
-    pub fn sub_weapon(src_idx: usize, name: SpotName, reqs: Option<AnyOfAllRequirements>) -> Self {
+    pub fn sub_weapon(
+        field_id: FieldId,
+        src_idx: usize,
+        name: SpotName,
+        reqs: Option<AnyOfAllRequirements>,
+    ) -> Self {
         Self::SubWeapon(SubWeapon {
+            field_id,
             src_idx,
             name,
             requirements: reqs,
         })
     }
-    pub fn chest(src_idx: usize, name: SpotName, reqs: Option<AnyOfAllRequirements>) -> Self {
+    pub fn chest(
+        field_id: FieldId,
+        src_idx: usize,
+        name: SpotName,
+        reqs: Option<AnyOfAllRequirements>,
+    ) -> Self {
         Self::Chest(Chest {
+            field_id,
             src_idx,
             name,
             requirements: reqs,
         })
     }
-    pub fn seal(src_idx: usize, name: SpotName, reqs: Option<AnyOfAllRequirements>) -> Self {
+    pub fn seal(
+        field_id: FieldId,
+        src_idx: usize,
+        name: SpotName,
+        reqs: Option<AnyOfAllRequirements>,
+    ) -> Self {
         Self::Seal(Seal {
+            field_id,
             src_idx,
             name,
             requirements: reqs,
@@ -159,13 +217,13 @@ impl Spot {
         Self::Shop(shop)
     }
 
-    fn name(&self) -> &SpotName {
+    pub fn field_id(&self) -> FieldId {
         match self {
-            Self::MainWeapon(x) => &x.name,
-            Self::SubWeapon(x) => &x.name,
-            Self::Chest(x) => &x.name,
-            Self::Seal(x) => &x.name,
-            Self::Shop(x) => &x.name,
+            Self::MainWeapon(x) => x.field_id,
+            Self::SubWeapon(x) => x.field_id,
+            Self::Chest(x) => x.field_id,
+            Self::Seal(x) => x.field_id,
+            Self::Shop(x) => x.field_id,
         }
     }
 
@@ -222,12 +280,20 @@ impl fmt::Display for Spot {
             Self::Seal(x) => x.src_idx,
             Self::Shop(x) => x.src_idx,
         };
+        let name = match self {
+            Self::MainWeapon(x) => &x.name,
+            Self::SubWeapon(x) => &x.name,
+            Self::Chest(x) => &x.name,
+            Self::Seal(x) => &x.name,
+            Self::Shop(x) => &x.name,
+        };
         write!(
             f,
-            "{}{}({})",
+            "{:?}_{}{}({})",
+            self.field_id(),
             full_type_name.split("::").last().unwrap(),
             src_idx,
-            self.name().get()
+            name.get()
         )
     }
 }
