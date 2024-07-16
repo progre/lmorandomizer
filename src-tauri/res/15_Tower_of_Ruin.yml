@@ -1,0 +1,16 @@
+subWeapons:
+  - ankhJewel:towerOfRuin:
+      - event:reachedFrontOfTowerOfRuin
+  - spear:
+      - event:reachedFrontOfTowerOfRuin
+chests:
+  - djedPillar:
+      - event:reachedBackDoorOfTowerOfRuin, ocarina, event:mulanaTalisman # need to talk to sage in spring. need mulana talisman to get item
+  - map:towerOfRuin:
+      - event:reachedFrontOfTowerOfRuin
+  - sacredOrb:towerOfRuin:
+      - event:reachedFrontOfTowerOfRuin
+shops:
+  - knightmare, bombAmmo, flareGunAmmo:
+      - event:reachedFrontOfTowerOfRuin, katana, feather
+      - event:reachedFrontOfTowerOfRuin, katana, boots, grappleClaw # can reach with boots and grapple claw

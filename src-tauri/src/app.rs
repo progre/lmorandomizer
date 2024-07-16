@@ -10,7 +10,7 @@ use tokio::{
 };
 
 use crate::{
-    dataset::supplements::SupplementFiles,
+    dataset::game_structure::GameStructureFiles,
     randomizer::{randomize, RandomizeOptions, SpoilerLog},
     script::file::scriptconverter::is_valid_script_dat,
 };
@@ -127,13 +127,27 @@ async fn write_file(path: &str, contents: &[u8]) -> io::Result<()> {
     Ok(())
 }
 
-async fn read_game_structure_files(handle: AppHandle) -> tauri::Result<SupplementFiles> {
+async fn read_game_structure_files(handle: AppHandle) -> tauri::Result<GameStructureFiles> {
     let file_paths = [
-        "res/weapons.yml",
-        "res/chests.yml",
-        "res/seals.yml",
-        "res/shops.yml",
-        "res/events.yml",
+        "res/01_Gate_of_Guidance.yml",
+        "res/00_Surface.yml",
+        "res/02_Mausoleum_of_the_Giants.yml",
+        "res/03_Temple_of_the_Sun.yml",
+        "res/04_Spring_in_the_Sky.yml",
+        "res/05_Inferno_Cavern.yml",
+        "res/06_Chamber_of_Extinction.yml",
+        "res/08_Endless_Corridor.yml",
+        "res/09_Shrine_of_the_Mother.yml",
+        "res/07_Twin_Labyrinths_Left.yml",
+        "res/17_Twin_Labyrinths_Right.yml",
+        "res/11_Gate_of_Illusion.yml",
+        "res/12_Graveyard_of_the_Giants.yml",
+        "res/14_Tower_of_the_Goddess.yml",
+        "res/13_Temple_of_Moonlight.yml",
+        "res/15_Tower_of_Ruin.yml",
+        "res/16_Chamber_of_Birth.yml",
+        "res/18_Dimensional_Corridor.yml",
+        "res/19_True_Shrine_of_the_Mother.yml",
     ];
     let futures: Vec<_> = file_paths
         .map(|path| handle.path().resolve(path, BaseDirectory::Resource))
@@ -142,23 +156,18 @@ async fn read_game_structure_files(handle: AppHandle) -> tauri::Result<Supplemen
         .into_iter()
         .map(read_to_string)
         .collect();
-    let mut files: Vec<_> = join_all(futures)
+    let fields: Vec<_> = join_all(futures)
         .await
         .into_iter()
         .collect::<io::Result<_>>()?;
+    let events = read_to_string(
+        handle
+            .path()
+            .resolve("res/events.yml", BaseDirectory::Resource)?,
+    )
+    .await?;
 
-    let events_yml = files.pop().unwrap();
-    let shops_yml = files.pop().unwrap();
-    let seals_yml = files.pop().unwrap();
-    let chests_yml = files.pop().unwrap();
-    let weapons_yml = files.pop().unwrap();
-    Ok(SupplementFiles {
-        weapons_yml,
-        chests_yml,
-        seals_yml,
-        shops_yml,
-        events_yml,
-    })
+    Ok(GameStructureFiles { fields, events })
 }
 
 #[tauri::command]

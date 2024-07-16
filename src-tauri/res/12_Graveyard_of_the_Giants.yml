@@ -1,0 +1,17 @@
+subWeapons:
+  - silverShield:
+      - event:reachedLiarOfGraveyardOfTheGiants, katana
+  - bomb:
+      - event:reachedBackDoorOfGraveyardOfTheGiants
+chests:
+  - contra:
+      - event:reachedLiarOfGraveyardOfTheGiants
+      - event:reachedFrontOfTempleOfMoonlight, katana, keySword, knife, event:subWeaponWallForward
+  - map:graveyardOfTheGiants:
+      - event:reachedFrontOfGraveyardOfTheGiants, feather
+      - event:reachedFrontOfGraveyardOfTheGiants, boots
+  - gauntlet:
+      - event:reachedFrontOfGraveyardOfTheGiants, birthSeal, grappleClaw
+shops:
+  - spearAmmo, fakeSilverShield, weights:
+      - event:reachedLiarOfGraveyardOfTheGiants # need to reach Liar shop not just front door

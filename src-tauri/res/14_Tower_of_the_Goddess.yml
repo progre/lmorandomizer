@@ -1,0 +1,14 @@
+mainWeapons:
+  - mace:
+      - event:reachedTowerOfTheGoddess
+chests:
+  - a1Spirit:
+      - event:reachedTowerOfTheGoddess, planeModel, pistol, ammunition
+  - planeModel:
+      - event:reachedTowerOfTheGoddess, feather, grappleClaw, boots, handScanner, glyphReader # need boots to climb tower. need to flood tower to open chest
+  - map:TowerOfTheGoddess:
+      - event:reachedTowerOfTheGoddess
+  - gradius:
+      - event:reachedTowerOfTheGoddess # do not need feather
+  - eyeOfTruth:
+      - event:reachedLowerOfChamberOfBirth # need to reach entrance to lower birth to place weights

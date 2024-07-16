@@ -1,0 +1,25 @@
+mainWeapons:
+  - axe:
+      - event:reachedFrontOfTempleOfMoonlight, shuriken, knife, boots
+chests:
+  - bookOfTheDead:
+      - event:reachedFrontOfTempleOfMoonlight, birthSeal, feather, event:surviveAnubis # need a way out and survive anubis
+      - event:reachedFrontOfTempleOfMoonlight, birthSeal, grappleClaw, event:surviveAnubis
+      - event:reachedFrontOfTempleOfMoonlight, birthSeal, holyGrail, event:surviveAnubis
+  - iceCape:
+      - event:reachedGrailOfTempleOfMoonlight
+  - map:TempleOfMoonlight:
+      - event:reachedGrailOfTempleOfMoonlight
+  # skip open from front
+  # skip open from front
+  # skip open from front
+  # skip open from front
+  - ocarina:
+      - flareGun, womanStatue, feather, event:escapeFromTempleOfMoonlight # need a way out of moonlight
+      - flareGun, womanStatue, grappleClaw, event:escapeFromTempleOfMoonlight
+  - serpentStaff:
+      - event:reachedFrontOfTempleOfMoonlight, grappleClaw
+      - event:reachedFrontOfTempleOfMoonlight, feather
+shops:
+  - bracelet, shurikenAmmo, ammunition:
+      - event:reachedFrontOfTempleOfMoonlight, bomb, bombAmmo, event:surviveAnubis # survive anubis

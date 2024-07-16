@@ -1,0 +1,18 @@
+mainWeapons:
+  - katana:
+      - event:releasedTwins, flareGun, knife
+subWeapons:
+  - ankhJewel:twinLabyrinths:
+      - event:releasedTwins
+chests:
+  - ring:
+      - event:releasedTwins
+  - map:twinLabyrinths:
+      - event:releasedTwins
+  - sacredOrb:twinLabyrinths:
+      - event:releasedTwins
+shops:
+  - helmet, bombAmmo, fakeHandScanner:
+      - event:basicSet
+  - lampOfTime, shurikenAmmo, toukenAmmo:
+      - event:releasedTwins, feather, boots # need feather and boots. puzzle is unsolvable so bombs not needed

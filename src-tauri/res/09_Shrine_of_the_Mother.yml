@@ -1,0 +1,13 @@
+chests:
+  - crystalSkull:
+      - event:reachedFrontOfShrineOfTheMother, lifeSeal, event:mulanaTalisman
+  - sacredOrb:shrineOfTheMother:
+      - event:reachedFrontOfShrineOfTheMother, originSeal, birthSeal, lifeSeal, deathSeal
+  - diary:
+      - event:reachedFrontOfShrineOfTheMother, talisman, lifeSeal, lampOfTime, feather # need feather
+  - map:shrineOfTheMother:
+      - event:releasedTwins, dragonBone
+  # skip deathSeal
+seals:
+  - deathSeal:
+      - keyOfEternity, dragonBone, bomb, bombAmmo, ocarina, flareGun # need to talk to sage in Moonlight

@@ -1,0 +1,31 @@
+mainWeapons:
+  - knife:
+      - shuriken
+      - pistol, ammunition # pistol can reach
+      - bomb, bombAmmo # bombs can reach
+subWeapons:
+  - ankhJewel:templeOfTheSun:
+      - event:basicSet
+chests:
+  - bronzeMirror:
+      - ankhJewel:templeOfTheSun, handScanner, glyphReader
+  - map:templeOfTheSun:
+      - event:basicSet
+  - talisman:
+      - event:defeatedViy
+  - boots:
+      - event:floodedTempleOfTheSun
+      - feather
+  - sacredOrb:templeOfTheSun:
+      - event:basicSet
+  # skip ankhJewel
+shops:
+  - toukenAmmo, spearAmmo, flareGunAmmo:
+      - shuriken, shurikenAmmo
+      - pistol, ammunition # pistol can reach
+      - bomb, bombAmmo # bombs can reach
+      - feather
+  - heatproofCase, divinerSensation, weights:
+      - event:basicSet
+  - ammunition, bombAmmo, shurikenAmmo:
+      - deathSeal, feather # need feather

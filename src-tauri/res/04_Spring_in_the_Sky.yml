@@ -1,0 +1,22 @@
+subWeapons:
+  - ankhJewel:springInTheSky:
+      - scalesphere
+chests:
+  - sacredOrb:springInTheSky:
+      - birthSeal # life seal is from the remake
+  - glove:
+      - event:floodedSpringInTheSky
+  - map:springInTheSky:
+      - event:basicSet
+  - scalesphere:
+      - event:SpringElevator, originSeal # new event allows more varied options for getting up
+  # skip originSeal
+  # skip ankhJewel
+seals:
+  - originSeal:
+      - event:SpringElevator, helmet
+shops:
+  - weights, shurikenAmmo, toukenAmmo:
+      - event:SpringElevator, originSeal # more varied ways to reach
+  - shellHorn, finder, castlevania:
+      - event:SpringElevator, originSeal, divinerSensation, event:qBert, msx2 # need msx2

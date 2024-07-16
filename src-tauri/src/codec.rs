@@ -1,10 +1,11 @@
-use script::file::dat::{cipher_to_text, text_to_cipher};
-
 #[allow(unused)]
+#[cfg(not(test))]
 mod dataset;
 #[allow(unused)]
+#[cfg(not(test))]
 mod script;
 
+#[cfg(not(test))]
 fn main() {
     let args: Vec<String> = std::env::args().collect();
     if args.len() <= 3 {
@@ -20,11 +21,11 @@ fn main() {
     let output_file_path = &args[3];
     if mode == "decode" {
         let input_file = std::fs::read(input_file_path).unwrap();
-        let output = cipher_to_text(&input_file);
+        let output = script::file::dat::cipher_to_text(&input_file);
         std::fs::write(output_file_path, output).unwrap();
     } else {
         let input_file = std::fs::read_to_string(input_file_path).unwrap();
-        let output = text_to_cipher(&input_file);
+        let output = script::file::dat::text_to_cipher(&input_file);
         std::fs::write(output_file_path, output).unwrap();
     }
 }

@@ -1,0 +1,14 @@
+chests:
+  - sacredOrb:chamberOfExtinction:
+      - event:lightedUpChamberOfExtinction, feather # need a way out
+      - event:lightedUpChamberOfExtinction, originSeal # need a way out
+      - event:lightedUpChamberOfExtinction, holyGrail # need a way out
+  - map:chamberOfExtinction:
+      - event:lightedUpChamberOfExtinction
+  # skip lifeSeal
+seals:
+  - lifeSeal:
+      - event:lightedUpChamberOfExtinction, birthSeal, axe # need axe to open wall
+shops:
+  - spearAmmo, flareGunAmmo, bombAmmo:
+      - event:reachedPalenque

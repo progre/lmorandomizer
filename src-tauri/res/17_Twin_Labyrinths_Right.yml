@@ -1,0 +1,7 @@
+chests:
+  # skip fake ankhJewel
+shops:
+  - scriptures, bombAmmo, spearAmmo:
+      - event:releasedTwins, feather
+  - dragonBone, spearAmmo, flareGunAmmo:
+      - fakeHandScanner

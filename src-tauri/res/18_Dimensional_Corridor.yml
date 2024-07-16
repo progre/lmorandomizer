@@ -1,0 +1,13 @@
+subWeapons:
+  - angelShield:
+      - event:reachedDimensionalCorridor, sacredOrb:2 # should have some health to beat bosses
+  - ankhJewel:dimensionalCorridor:
+      - event:reachedDimensionalCorridor
+chests:
+  - magatamaJewel:
+      - event:defeatedTiamat, event:mulanaTalisman # need mulana talisman to get item
+  - sacredOrb:dimensionalCorridor:
+      - event:reachedDimensionalCorridor, feather, lampOfTime, sacredOrb:2 # do not need grapple claw. should have some health to beat bosses
+  # skip ankhJewel
+  - map:dimensionalCorridor:
+      - event:reachedDimensionalCorridor

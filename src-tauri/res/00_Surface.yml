@@ -1,0 +1,29 @@
+subWeapons:
+  - pistol:
+      - event:reachedBackDoorOfSurface, bomb
+chests:
+  - feather:
+      - serpentStaff, gauntlet
+      - serpentStaff, shuriken, shurikenAmmo
+      - serpentStaff, bomb, bombAmmo
+      - serpentStaff, pistol, ammunition
+      - serpentStaff, chainWhip
+      - serpentStaff, mace
+      - serpentStaff, knife
+      - serpentStaff, axe
+      - serpentStaff, katana
+      - serpentStaff, castlevania, mahjongWizard, msx2 # need msx2 to equip rom combos
+  - shellHorn:
+  # skip birthSeal
+  - sacredOrb:surface:
+      - scalesphere
+      - sacredOrb:3 # TODO: いくつあれば足りるのか？
+seals:
+  - birthSeal:
+      - originSeal, sacredOrb:2 # need a way out
+      - originSeal, scalesphere
+      - originSeal, holyGrail
+shops:
+  - gameMaster, glyphReader, ruinsRAM8k:
+  - handScanner, ammunition, buckler:
+  - msx2, waterproofCase, shurikenAmmo:

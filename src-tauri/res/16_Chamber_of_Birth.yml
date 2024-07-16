@@ -1,0 +1,16 @@
+chests:
+  - vessel:
+      - event:reachedUpperOfChamberOfBirth, silverShield
+      - event:reachedUpperOfChamberOfBirth, angelShield
+  - perfume:
+      - event:reachedUpperOfChamberOfBirth, cogOfTheSoul
+  - womanStatue:
+      - event:reachedUpperOfChamberOfBirth, feather
+      - event:reachedUpperOfChamberOfBirth, holyGrail
+  - map:chamberOfBirth:
+      - event:reachedLowerOfChamberOfBirth
+  - pochetteKey:
+      - event:reachedLowerOfChamberOfBirth, bomb, bombAmmo, cogOfTheSoul
+shops:
+  - ammunition, ankhJewel:chamberOfBirth, weights:
+      - event:reachedLowerOfChamberOfBirth, cogOfTheSoul

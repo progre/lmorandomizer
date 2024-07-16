@@ -11,7 +11,7 @@ pub use spoiler_log::SpoilerLog;
 
 use crate::{
     dataset::{
-        create_source::create_source, storage::Storage, supplements::SupplementFiles,
+        create_source::create_source, game_structure::GameStructureFiles, storage::Storage,
         NIGHT_SURFACE_CHEST_COUNT, NIGHT_SURFACE_SEAL_COUNT, NIGHT_SURFACE_SUB_WEAPON_COUNT,
         TRUE_SHRINE_OF_THE_MOTHER_SEAL_COUNT, WARE_NO_MISE_COUNT,
     },
@@ -44,24 +44,20 @@ pub struct RandomizeOptions {
 
 pub fn randomize(
     script_dat: &[u8],
-    supplement_files: &SupplementFiles,
+    game_structure_files: &GameStructureFiles,
     options: &RandomizeOptions,
 ) -> Result<(Vec<u8>, SpoilerLog)> {
     let start = std::time::Instant::now();
     let mut script = read_script_dat(script_dat)?;
     trace!("Read script.dat in {:?}", start.elapsed());
 
-    let start = std::time::Instant::now();
+    let source = create_source(game_structure_files)?;
 
-    trace!("Loaded supplements in {:?}", start.elapsed());
-
-    let source = create_source(supplement_files)?;
-
-    let start = std::time::Instant::now();
     if cfg!(debug_assertions) {
+        let start = std::time::Instant::now();
         assert_eq_elem_count(&source, &script);
+        trace!("assert_eq_elem_count {:?}", start.elapsed());
     }
-    trace!("assert_eq_elem_count {:?}", start.elapsed());
 
     let start = std::time::Instant::now();
     let spoiler_log = randomize_items(&mut script, &source, &options.seed)?;
