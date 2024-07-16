@@ -5,26 +5,28 @@ use log::{info, trace};
 use rand::Rng;
 
 use crate::{
-    dataset::{
-        item::{Item, StrategyFlag},
-        spot::Spot,
-        storage::{ItemSpot, Storage},
-    },
+    dataset::{item::StrategyFlag, spot::Spot, storage::Storage},
     randomizer::spoiler::{make_rng, spoiler},
     script::data::script::Script,
 };
 
-use super::spoiler_log::SpoilerLog;
+use super::{
+    spoiler::{Items, Spots},
+    spoiler_log::SpoilerLogRef,
+};
 
-pub fn randomize_items(script: &mut Script, source: &Storage, seed: &str) -> Result<SpoilerLog> {
+pub fn randomize_items<'a>(
+    script: &mut Script,
+    source: &'a Storage,
+    seed: &str,
+) -> Result<SpoilerLogRef<'a>> {
     let start = std::time::Instant::now();
-    // debug_assert!(validate(source));
     assert_unique(source);
     trace!("Assertion in {:?}", start.elapsed());
 
     let start = std::time::Instant::now();
     let mut rng = make_rng(seed);
-    let (shuffled, spoiler_log) = randomize_storage(source, &mut rng);
+    let (shuffled, spoiler_log) = shuffle(&mut rng, source);
     trace!("Randomized items in {:?}", start.elapsed());
 
     let start = std::time::Instant::now();
@@ -34,18 +36,17 @@ pub fn randomize_items(script: &mut Script, source: &Storage, seed: &str) -> Res
     Ok(spoiler_log)
 }
 
-fn randomize_storage(source: &Storage, rng: &mut impl Rng) -> (Storage, SpoilerLog) {
-    let (priority_items, remaining_items) =
-        source.all_items().cloned().partition::<Vec<_>, _>(|item| {
-            [
-                "handScanner",
-                "shellHorn",
-                "holyGrail",
-                "gameMaster",
-                "glyphReader",
-            ]
-            .contains(&item.name.get())
-        });
+fn to_all_items(source: &Storage) -> Items {
+    let (priority_items, remaining_items) = source.all_items().partition::<Vec<_>, _>(|item| {
+        [
+            "handScanner",
+            "shellHorn",
+            "holyGrail",
+            "gameMaster",
+            "glyphReader",
+        ]
+        .contains(&item.name.get())
+    });
     let (sellable_items, unsellable_items): (Vec<_>, Vec<_>) = remaining_items
         .into_iter()
         .partition(|x| x.can_display_in_shop());
@@ -89,68 +90,29 @@ fn randomize_storage(source: &Storage, rng: &mut impl Rng) -> (Storage, SpoilerL
                 .sum::<usize>(),
     );
 
-    let start = std::time::Instant::now();
-    let (storage, spoiler_log) = shuffle(
-        source,
-        &priority_items,
-        &sellable_items,
-        &unsellable_items,
-        &consumable_items,
-        rng,
-    );
-    trace!("Shuffled in {:?}", start.elapsed());
-    (storage, spoiler_log)
+    Items {
+        priority_items,
+        sellable_items,
+        unsellable_items,
+        consumable_items,
+    }
 }
 
-fn to_spots(src: &[ItemSpot]) -> Vec<Spot> {
-    src.iter().map(|x| x.spot.clone()).collect()
+fn to_all_spots(source: &Storage) -> Spots {
+    Spots {
+        field_item_spots: source
+            .main_weapons()
+            .iter()
+            .chain(source.sub_weapons())
+            .chain(source.chests())
+            .chain(source.seals())
+            .map(|x| &x.spot)
+            .collect(),
+        shops: source.shops().iter().collect(),
+    }
 }
 
-fn shuffle(
-    source: &Storage,
-    priority_items: &[Item],
-    sellable_items: &[Item],
-    unsellable_items: &[Item],
-    consumable_items: &[Item],
-    rng: &mut impl Rng,
-) -> (Storage, SpoilerLog) {
-    let mut field_item_spots = to_spots(source.main_weapons());
-    field_item_spots.append(&mut to_spots(source.sub_weapons()));
-    field_item_spots.append(&mut to_spots(source.chests()));
-    field_item_spots.append(&mut to_spots(source.seals()));
-    let field_item_spots: &Vec<_> = &field_item_spots.iter().collect();
-
-    let shops: &Vec<_> = &source.shops().iter().collect();
-
-    let thread_count = std::thread::available_parallelism().unwrap().get();
-
-    let spoiler_log = std::thread::scope(|scope| {
-        for i in 0..100000 {
-            let handles = (0..thread_count)
-                .map(|_| {
-                    let seed = rng.next_u64();
-                    scope.spawn(move || {
-                        spoiler(
-                            seed,
-                            priority_items,
-                            sellable_items,
-                            unsellable_items,
-                            consumable_items,
-                            field_item_spots,
-                            shops,
-                        )
-                    })
-                })
-                .collect::<Vec<_>>();
-            let Some(spoiler_log) = handles.into_iter().filter_map(|h| h.join().unwrap()).next()
-            else {
-                continue;
-            };
-            info!("Shuffle was tried: {} times", (i + 1) * thread_count);
-            return spoiler_log;
-        }
-        unreachable!();
-    });
+fn create_shuffled_storage(source: &Storage, spoiler_log: &SpoilerLogRef) -> Storage {
     let mut storage = source.clone();
     for checkpoint in spoiler_log.progression.iter().flat_map(|sphere| &sphere.0) {
         match &checkpoint.spot {
@@ -175,6 +137,53 @@ fn shuffle(
             }
         }
     }
+    storage
+}
+
+fn shuffle<'a>(rng: &mut impl Rng, source: &'a Storage) -> (Storage, SpoilerLogRef<'a>) {
+    let start = std::time::Instant::now();
+    let items = &to_all_items(source);
+    let spots = &to_all_spots(source);
+    debug_assert!(items
+        .priority_items
+        .iter()
+        .all(|item| item.can_display_in_shop()));
+    debug_assert_eq!(
+        spots.shops.len() * 3 - items.consumable_items.len(),
+        spots
+            .shops
+            .iter()
+            .map(|shop| shop.count_general_items())
+            .sum::<usize>(),
+    );
+    debug_assert_eq!(
+        spots
+            .shops
+            .iter()
+            .map(|shop| 3 - shop.count_general_items())
+            .sum::<usize>(),
+        items.consumable_items.len()
+    );
+    trace!("Prepared items and spots in {:?}", start.elapsed());
+
+    let thread_count = std::thread::available_parallelism().unwrap().get();
+
+    let spoiler_log = std::thread::scope(|scope| {
+        for i in 0..100000 {
+            let handles: Vec<_> = (0..thread_count)
+                .map(|_| rng.next_u64())
+                .map(|seed| scope.spawn(move || spoiler(seed, items, spots)))
+                .collect();
+            let Some(spoiler_log) = handles.into_iter().filter_map(|h| h.join().unwrap()).next()
+            else {
+                continue;
+            };
+            info!("Shuffle was tried: {} times", (i + 1) * thread_count);
+            return spoiler_log;
+        }
+        unreachable!();
+    });
+    let storage = create_shuffled_storage(source, &spoiler_log);
     (storage, spoiler_log)
 }
 

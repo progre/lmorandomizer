@@ -61,10 +61,10 @@ impl Storage {
     pub fn all_items(&self) -> impl Iterator<Item = &Item> {
         self.main_weapons
             .iter()
+            .chain(&self.sub_weapons)
+            .chain(&self.chests)
+            .chain(&self.seals)
             .map(|x| &x.item)
-            .chain(self.sub_weapons.iter().map(|x| &x.item))
-            .chain(self.chests.iter().map(|x| &x.item))
-            .chain(self.seals.iter().map(|x| &x.item))
             .chain(
                 self.shops
                     .iter()

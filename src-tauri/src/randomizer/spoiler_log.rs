@@ -5,14 +5,6 @@ use crate::dataset::{
     spot::{FieldId, Spot},
 };
 
-#[derive(Clone)]
-pub struct Checkpoint {
-    pub spot: Spot,
-    pub items: Vec<Item>,
-}
-
-pub struct Sphere(pub Vec<Checkpoint>);
-
 fn compare_key_for_spoiler_log(field_id: FieldId) -> u8 {
     if matches!(field_id, FieldId::TwinLabyrinthsRight) {
         FieldId::TwinLabyrinthsLeft as u8 * 10 + 1
@@ -21,8 +13,24 @@ fn compare_key_for_spoiler_log(field_id: FieldId) -> u8 {
     }
 }
 
+pub struct Checkpoint<TSpot, TItem> {
+    pub spot: TSpot,
+    pub items: Vec<TItem>,
+}
+
+impl<'a> Checkpoint<&'a Spot, &'a Item> {
+    pub fn into_owned(self) -> Checkpoint<Spot, Item> {
+        Checkpoint {
+            spot: self.spot.to_owned(),
+            items: self.items.into_iter().map(|x| x.to_owned()).collect(),
+        }
+    }
+}
+
+pub struct Sphere<TSpot, TItem>(pub Vec<Checkpoint<TSpot, TItem>>);
+
 pub struct SpoilerLog {
-    pub progression: Vec<Sphere>,
+    pub progression: Vec<Sphere<Spot, Item>>,
 }
 
 impl fmt::Display for SpoilerLog {
@@ -52,5 +60,28 @@ impl fmt::Display for SpoilerLog {
             }
         }
         Ok(())
+    }
+}
+
+pub struct SpoilerLogRef<'a> {
+    pub progression: Vec<Sphere<&'a Spot, &'a Item>>,
+}
+
+impl SpoilerLogRef<'_> {
+    pub fn into_owned(self) -> SpoilerLog {
+        SpoilerLog {
+            progression: self
+                .progression
+                .into_iter()
+                .map(|sphere| {
+                    sphere
+                        .0
+                        .into_iter()
+                        .map(|checkpoint| checkpoint.into_owned())
+                        .collect()
+                })
+                .map(Sphere)
+                .collect(),
+        }
     }
 }

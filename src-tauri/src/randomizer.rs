@@ -1,4 +1,4 @@
-mod pickup_items;
+mod items_pool;
 mod randomize_items;
 mod sphere;
 mod spoiler;
@@ -70,5 +70,5 @@ pub fn randomize(
     let dat = build_script_dat(&script);
     trace!("Built script.dat in {:?}", start.elapsed());
 
-    Ok((dat, spoiler_log))
+    Ok((dat, spoiler_log.into_owned()))
 }

@@ -8,12 +8,31 @@ use crate::dataset::{
     storage::Shop,
 };
 
-use super::pickup_items::{pickup_items, ItemsPool};
+use super::{
+    items_pool::{ItemsPool, ShuffledItems},
+    spoiler_log::{Checkpoint, Sphere},
+};
+
+fn is_empty_shop_displays(shops: &[&Shop]) -> bool {
+    shops.iter().all(|shop| shop.count_general_items() == 0)
+}
+
+#[derive(Clone)]
+pub struct Spots<'a> {
+    pub field_item_spots: Vec<&'a Spot>,
+    pub shops: Vec<&'a Shop>,
+}
+
+impl Spots<'_> {
+    pub fn is_empty(&self) -> bool {
+        self.field_item_spots.is_empty() && is_empty_shop_displays(&self.shops)
+    }
+}
 
 fn explore<'a>(
-    remainging_spots: &RemainingSpots<'a>,
+    remainging_spots: &Spots<'a>,
     strategy_flags: &HashSet<StrategyFlag>,
-) -> (Vec<&'a Spot>, Vec<&'a Shop>, Vec<&'a Spot>, Vec<&'a Shop>) {
+) -> (Spots<'a>, Spots<'a>) {
     let strategy_flag_strings: Vec<_> = strategy_flags.iter().map(|x| x.get().to_owned()).collect();
     let strategy_flag_strs: HashSet<_> = strategy_flag_strings.iter().map(|x| x.as_str()).collect();
     let sacred_orb_count = strategy_flags.iter().filter(|x| x.is_sacred_orb()).count() as u8;
@@ -26,30 +45,35 @@ fn explore<'a>(
         .shops
         .iter()
         .partition::<Vec<_>, _>(|x| x.spot.is_reachable(&strategy_flag_strs, sacred_orb_count));
-    (
-        reachables_field_item_spots,
-        reachables_shops,
-        unreachables_field_item_spots,
-        unreachable_shops,
-    )
+
+    let reachables = Spots {
+        field_item_spots: reachables_field_item_spots,
+        shops: reachables_shops,
+    };
+    let unreachables = Spots {
+        field_item_spots: unreachables_field_item_spots,
+        shops: unreachable_shops,
+    };
+    (reachables, unreachables)
 }
 
-type SphereRef<'a> = Vec<(&'a Spot, Vec<Item>)>;
-
 fn place_items<'a>(
-    mut field_items: Vec<Item>,
-    mut shop_items: Vec<Item>,
-    consumable_items_pool: &mut Vec<Item>,
-    (reachables_field_item_spots, reachables_shops): (Vec<&'a Spot>, Vec<&'a Shop>),
+    mut field_items: ShuffledItems<'a>,
+    mut shop_items: ShuffledItems<'a>,
+    consumable_items_pool: &mut ShuffledItems<'a>,
+    reachables: Spots<'a>,
     strategy_flags: &mut HashSet<StrategyFlag>,
-) -> SphereRef<'a> {
+) -> Sphere<&'a Spot, &'a Item> {
     let mut sphere: Vec<_> = Default::default();
-    reachables_field_item_spots.into_iter().for_each(|spot| {
+    reachables.field_item_spots.into_iter().for_each(|spot| {
         let item = field_items.pop().unwrap();
         strategy_flags.insert(item.name.clone());
-        sphere.push((spot, vec![item]));
+        sphere.push(Checkpoint {
+            spot,
+            items: vec![item],
+        });
     });
-    reachables_shops.into_iter().for_each(|shop| {
+    reachables.shops.into_iter().for_each(|shop| {
         let items: Vec<_> = [&shop.items.0, &shop.items.1, &shop.items.2]
             .into_iter()
             .map(|item| {
@@ -63,59 +87,36 @@ fn place_items<'a>(
                 strategy_flags.insert(item.name.clone());
             })
             .collect();
-        sphere.push((&shop.spot, items));
+        sphere.push(Checkpoint {
+            spot: &shop.spot,
+            items,
+        });
     });
-    sphere
-}
-
-fn is_empty_shop_displays(shops: &[&Shop]) -> bool {
-    shops.iter().all(|shop| shop.count_general_items() == 0)
-}
-
-pub struct RemainingSpots<'a> {
-    pub field_item_spots: Vec<&'a Spot>,
-    pub shops: Vec<&'a Shop>,
-}
-
-impl RemainingSpots<'_> {
-    pub fn is_empty(&self) -> bool {
-        self.field_item_spots.is_empty() && is_empty_shop_displays(&self.shops)
-    }
+    Sphere(sphere)
 }
 
 pub fn sphere<'a>(
     rng: &mut impl Rng,
-    items_pool: &mut ItemsPool,
-    remainging_spots: &mut RemainingSpots<'a>,
+    items_pool: &mut ItemsPool<'a>,
+    remainging_spots: &mut Spots<'a>,
     strategy_flags: &mut HashSet<StrategyFlag>,
-) -> Option<SphereRef<'a>> {
-    let (
-        reachable_field_item_spots,
-        reachable_shops,
-        unreachable_field_item_spots,
-        unreachable_shops,
-    ) = explore(remainging_spots.deref(), strategy_flags.deref());
-    if reachable_field_item_spots.is_empty() && is_empty_shop_displays(&reachable_shops) {
+) -> Option<Sphere<&'a Spot, &'a Item>> {
+    let (reachables, unreachables) = explore(remainging_spots.deref(), strategy_flags.deref());
+    if reachables.field_item_spots.is_empty() && is_empty_shop_displays(&reachables.shops) {
         return None;
     }
 
-    let (field_items, shop_items) = pickup_items(
-        rng,
-        items_pool,
-        (&reachable_field_item_spots, &reachable_shops),
-        (&unreachable_field_item_spots, &unreachable_shops),
-    );
+    let (field_items, shop_items) = items_pool.pick_items_randomly(rng, &reachables, &unreachables);
 
     let sphere = place_items(
         field_items,
         shop_items,
         &mut items_pool.consumable_items,
-        (reachable_field_item_spots, reachable_shops),
+        reachables,
         strategy_flags,
     );
 
-    remainging_spots.field_item_spots = unreachable_field_item_spots;
-    remainging_spots.shops = unreachable_shops;
+    *remainging_spots = unreachables;
 
     Some(sphere)
 }
