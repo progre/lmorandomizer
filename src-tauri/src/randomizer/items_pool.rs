@@ -153,14 +153,14 @@ impl<'a> ItemsPool<'a> {
         let remaining_spots: Vec<_> = unreachables
             .field_item_spots
             .iter()
-            .copied()
             .chain(unreachables.shops.iter().map(|shop| &shop.spot))
+            .copied()
             .collect();
         let fi_spot_cnt = reachables.field_item_spots.len();
         let shop_display_cnt = reachables
             .shops
             .iter()
-            .map(|shop| shop.count_general_items())
+            .map(|shop| (!shop.name.is_consumable()) as usize)
             .sum::<usize>();
 
         let (mut field_items, mut shop_items) =

@@ -5,7 +5,6 @@ use rand::Rng;
 use crate::dataset::{
     item::{Item, StrategyFlag},
     spot::Spot,
-    storage::Shop,
 };
 
 use super::{
@@ -13,14 +12,21 @@ use super::{
     spoiler_log::{Checkpoint, Sphere},
 };
 
-fn is_empty_shop_displays(shops: &[&Shop]) -> bool {
-    shops.iter().all(|shop| shop.count_general_items() == 0)
+#[derive(Clone)]
+pub struct ShopItemDisplay<'a> {
+    pub spot: &'a Spot,
+    pub idx: usize,
+    pub name: &'a StrategyFlag,
+}
+
+fn is_empty_shop_displays(shops: &[ShopItemDisplay]) -> bool {
+    shops.iter().all(|shop| shop.name.is_consumable())
 }
 
 #[derive(Clone)]
 pub struct Spots<'a> {
     pub field_item_spots: Vec<&'a Spot>,
-    pub shops: Vec<&'a Shop>,
+    pub shops: Vec<ShopItemDisplay<'a>>,
 }
 
 impl Spots<'_> {
@@ -44,7 +50,11 @@ fn explore<'a>(
     let (reachables_shops, unreachable_shops) = remainging_spots
         .shops
         .iter()
-        .partition::<Vec<_>, _>(|x| x.spot.is_reachable(&strategy_flag_strs, sacred_orb_count));
+        .cloned()
+        .partition::<Vec<_>, _>(|shop| {
+            shop.spot
+                .is_reachable(&strategy_flag_strs, sacred_orb_count)
+        });
 
     let reachables = Spots {
         field_item_spots: reachables_field_item_spots,
@@ -68,28 +78,19 @@ fn place_items<'a>(
     reachables.field_item_spots.into_iter().for_each(|spot| {
         let item = field_items.pop().unwrap();
         strategy_flags.insert(item.name.clone());
-        sphere.push(Checkpoint {
-            spot,
-            items: vec![item],
-        });
+        sphere.push(Checkpoint { spot, idx: 0, item });
     });
     reachables.shops.into_iter().for_each(|shop| {
-        let items: Vec<_> = [&shop.items.0, &shop.items.1, &shop.items.2]
-            .into_iter()
-            .map(|item| {
-                if item.name.is_consumable() {
-                    consumable_items_pool.pop().unwrap()
-                } else {
-                    shop_items.pop().unwrap()
-                }
-            })
-            .inspect(|item| {
-                strategy_flags.insert(item.name.clone());
-            })
-            .collect();
+        let item = if shop.name.is_consumable() {
+            consumable_items_pool.pop().unwrap()
+        } else {
+            shop_items.pop().unwrap()
+        };
+        strategy_flags.insert(item.name.clone());
         sphere.push(Checkpoint {
-            spot: &shop.spot,
-            items,
+            spot: shop.spot,
+            idx: shop.idx,
+            item,
         });
     });
     Sphere(sphere)
@@ -98,10 +99,19 @@ fn place_items<'a>(
 pub fn sphere<'a>(
     rng: &mut impl Rng,
     items_pool: &mut ItemsPool<'a>,
-    remainging_spots: &mut Spots<'a>,
+    remaining_spots: &mut Spots<'a>,
     strategy_flags: &mut HashSet<StrategyFlag>,
 ) -> Option<Sphere<&'a Spot, &'a Item>> {
-    let (reachables, unreachables) = explore(remainging_spots.deref(), strategy_flags.deref());
+    debug_assert_eq!(
+        items_pool.priority_items.as_ref().map_or(0, |x| x.len())
+            + items_pool.field_items.len()
+            + items_pool.shop_items.len()
+            + items_pool.consumable_items.len(),
+        remaining_spots.field_item_spots.len() + remaining_spots.shops.len()
+    );
+
+    let (reachables, unreachables) = explore(remaining_spots.deref(), strategy_flags.deref());
+
     if reachables.field_item_spots.is_empty() && is_empty_shop_displays(&reachables.shops) {
         return None;
     }
@@ -116,7 +126,7 @@ pub fn sphere<'a>(
         strategy_flags,
     );
 
-    *remainging_spots = unreachables;
+    *remaining_spots = unreachables;
 
     Some(sphere)
 }

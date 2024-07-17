@@ -28,9 +28,9 @@ pub struct Items<'a> {
 }
 
 impl<'a> Items<'a> {
-    fn to_items_pool(&self, rng: &mut impl Rng, shop_count: usize) -> ItemsPool<'a> {
+    fn to_items_pool(&self, rng: &mut impl Rng, shop_display_count: usize) -> ItemsPool<'a> {
         let mut sellable_items = UnorderedItems::new(self.sellable_items.clone()).shuffle(rng);
-        let shop_display_count = shop_count * 3 - self.consumable_items.len();
+        let shop_display_count = shop_display_count - self.consumable_items.len();
         let shop_items = sellable_items.split_off(sellable_items.len() - shop_display_count);
         let mut field_items = sellable_items.into_unordered();
         field_items.append(&mut self.unsellable_items.clone());

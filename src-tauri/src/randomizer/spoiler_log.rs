@@ -1,4 +1,4 @@
-use std::fmt;
+use std::{collections::BTreeMap, fmt};
 
 use crate::dataset::{
     item::Item,
@@ -13,16 +13,29 @@ fn compare_key_for_spoiler_log(field_id: FieldId) -> u8 {
     }
 }
 
+fn spot_idx(spot: &Spot) -> usize {
+    compare_key_for_spoiler_log(spot.field_id()) as usize * 10000
+        + match spot {
+            Spot::MainWeapon(spot) => 1000 + spot.src_idx,
+            Spot::SubWeapon(spot) => 2000 + spot.src_idx,
+            Spot::Chest(spot) => 3000 + spot.src_idx,
+            Spot::Seal(spot) => 4000 + spot.src_idx,
+            Spot::Shop(spot) => 5000 + spot.src_idx,
+        }
+}
+
 pub struct Checkpoint<TSpot, TItem> {
     pub spot: TSpot,
-    pub items: Vec<TItem>,
+    pub idx: usize,
+    pub item: TItem,
 }
 
 impl<'a> Checkpoint<&'a Spot, &'a Item> {
     pub fn into_owned(self) -> Checkpoint<Spot, Item> {
         Checkpoint {
             spot: self.spot.to_owned(),
-            items: self.items.into_iter().map(|x| x.to_owned()).collect(),
+            idx: self.idx,
+            item: self.item.to_owned(),
         }
     }
 }
@@ -40,23 +53,24 @@ impl fmt::Display for SpoilerLog {
                 writeln!(f)?;
             }
             writeln!(f, "[Sphere {}]", i + 1)?;
-            let mut sphere: Vec<_> = sphere.0.iter().collect();
-            sphere.sort_by(|a, b| {
-                compare_key_for_spoiler_log(a.spot.field_id())
-                    .cmp(&compare_key_for_spoiler_log(b.spot.field_id()))
-            });
-            for checkpoint in sphere {
-                writeln!(
-                    f,
-                    "{} = {}",
-                    checkpoint.spot,
-                    checkpoint
-                        .items
-                        .iter()
-                        .map(|x| x.name.get())
-                        .collect::<Vec<_>>()
-                        .join(", ")
-                )?;
+            let mut map: BTreeMap<_, Vec<_>> = BTreeMap::new();
+            for checkpoint in &sphere.0 {
+                map.entry(spot_idx(&checkpoint.spot))
+                    .or_default()
+                    .push(checkpoint);
+            }
+            for checkpoints in map.values_mut() {
+                if checkpoints.len() == 1 {
+                    let spot = &checkpoints[0].spot;
+                    let name = checkpoints[0].item.name.get();
+                    writeln!(f, "{} = {}", spot, name)?;
+                } else {
+                    let spot = &checkpoints[0].spot;
+                    checkpoints.sort_by_key(|x| x.idx);
+                    let names: Vec<_> = checkpoints.iter().map(|x| x.item.name.get()).collect();
+                    let names = names.join(", ");
+                    writeln!(f, "{} = {}", spot, names)?;
+                }
             }
         }
         Ok(())

@@ -11,6 +11,7 @@ use crate::{
 };
 
 use super::{
+    sphere::ShopItemDisplay,
     spoiler::{Items, Spots},
     spoiler_log::SpoilerLogRef,
 };
@@ -108,7 +109,20 @@ fn to_all_spots(source: &Storage) -> Spots {
             .chain(source.seals())
             .map(|x| &x.spot)
             .collect(),
-        shops: source.shops().iter().collect(),
+        shops: source
+            .shops()
+            .iter()
+            .flat_map(|shop| {
+                [&shop.items.0, &shop.items.1, &shop.items.2]
+                    .into_iter()
+                    .enumerate()
+                    .map(|(idx, item)| ShopItemDisplay {
+                        spot: &shop.spot,
+                        idx,
+                        name: &item.name,
+                    })
+            })
+            .collect(),
     }
 }
 
@@ -117,23 +131,21 @@ fn create_shuffled_storage(source: &Storage, spoiler_log: &SpoilerLogRef) -> Sto
     for checkpoint in spoiler_log.progression.iter().flat_map(|sphere| &sphere.0) {
         match &checkpoint.spot {
             Spot::MainWeapon(spot) => {
-                storage.main_weapons_mut()[spot.src_idx].item = checkpoint.items[0].clone();
+                storage.main_weapons_mut()[spot.src_idx].item = checkpoint.item.clone();
             }
             Spot::SubWeapon(spot) => {
-                storage.sub_weapons_mut()[spot.src_idx].item = checkpoint.items[0].clone();
+                storage.sub_weapons_mut()[spot.src_idx].item = checkpoint.item.clone();
             }
             Spot::Chest(spot) => {
-                storage.chests_mut()[spot.src_idx].item = checkpoint.items[0].clone();
+                storage.chests_mut()[spot.src_idx].item = checkpoint.item.clone();
             }
             Spot::Seal(spot) => {
-                storage.seals_mut()[spot.src_idx].item = checkpoint.items[0].clone();
+                storage.seals_mut()[spot.src_idx].item = checkpoint.item.clone();
             }
             Spot::Shop(spot) => {
-                storage.shops_mut()[spot.src_idx].items = (
-                    checkpoint.items[0].clone(),
-                    checkpoint.items[1].clone(),
-                    checkpoint.items[2].clone(),
-                );
+                let items = &mut storage.shops_mut()[spot.src_idx].items;
+                *[&mut items.0, &mut items.1, &mut items.2][checkpoint.idx] =
+                    checkpoint.item.clone();
             }
         }
     }
@@ -149,18 +161,18 @@ fn shuffle<'a>(rng: &mut impl Rng, source: &'a Storage) -> (Storage, SpoilerLogR
         .iter()
         .all(|item| item.can_display_in_shop()));
     debug_assert_eq!(
-        spots.shops.len() * 3 - items.consumable_items.len(),
+        spots.shops.len() - items.consumable_items.len(),
         spots
             .shops
             .iter()
-            .map(|shop| shop.count_general_items())
+            .map(|spot| (!spot.name.is_consumable()) as usize)
             .sum::<usize>(),
     );
     debug_assert_eq!(
         spots
             .shops
             .iter()
-            .map(|shop| 3 - shop.count_general_items())
+            .map(|spot| spot.name.is_consumable() as usize)
             .sum::<usize>(),
         items.consumable_items.len()
     );
