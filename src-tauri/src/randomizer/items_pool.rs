@@ -6,6 +6,14 @@ use crate::dataset::{item::Item, spot::Spot};
 
 use super::sphere::Spots;
 
+fn move_items_to<'a>(
+    mut dst: ShuffledItems<'a>,
+    src: &mut ShuffledItems<'a>,
+    cnt: usize,
+) -> UnorderedItems<'a> {
+    dst.0.append(&mut src.split_off(src.len() - cnt).0);
+    UnorderedItems(dst.0)
+}
 fn move_items<'a>(dst: &mut UnorderedItems<'a>, src: &mut ShuffledItems<'a>, cnt: usize) {
     dst.0.append(&mut src.split_off(src.len() - cnt).0);
 }
@@ -20,35 +28,29 @@ fn fill_items_from<'a>(
 }
 
 fn pick_items_including_requires<'a>(
-    rng: &mut impl Rng,
     items_pool: &mut ShuffledItems<'a>,
     spots: &[&Spot],
     cnt: usize,
 ) -> UnorderedItems<'a> {
     let Some(pos) = items_pool.0.iter().position(|item| item.is_required(spots)) else {
-        let mut list = items_pool.split_off(items_pool.len() - cnt);
-        list.0.reverse(); // TODO: reverse() は不要
-        return UnorderedItems(list.0);
+        let shuffled_items = items_pool.split_off(items_pool.len() - cnt);
+        return shuffled_items.into_unordered();
     };
     let req_item = items_pool.0.swap_remove(pos);
     let mut field_items = UnorderedItems(vec![req_item]);
-    let mut items_pool = items_pool.split_off(items_pool.len() - (cnt - 1)); // TODO: reverse() は不要
-    items_pool.0.reverse();
-    move_items(&mut field_items, &mut items_pool, cnt - 1);
+    move_items(&mut field_items, items_pool, cnt - 1);
     debug_assert!(!field_items.0.is_empty());
-    field_items.0.shuffle(rng); // TODO: このタイミングでのソートは不要
     field_items
 }
 
 fn fill_items_including_requires_from<'a>(
-    rng: &mut impl Rng,
     dst: &mut UnorderedItems<'a>,
     target_len: usize,
     src: &mut ShuffledItems<'a>,
     spots: &[&Spot],
 ) {
     let cnt = target_len - dst.len();
-    let mut items = pick_items_including_requires(rng, src, spots, cnt);
+    let mut items = pick_items_including_requires(src, spots, cnt);
     dst.0.append(&mut items.0);
 }
 
@@ -134,17 +136,12 @@ impl<'a> ItemsPool<'a> {
         let Some(priority_items) = self.priority_items.take() else {
             return Default::default();
         };
-        let (field_items, shop_items) =
+        let (picked_field_items, picked_shop_items) =
             partition_randomly(rng, priority_items, fi_spot_cnt, shop_display_cnt);
-        let mut list = self
-            .shop_items
-            .split_off(self.shop_items.0.len() - shop_items.len()); // TODO: reverse() は不要
-        list.0.reverse();
-        let mut unordered_field_items = take(&mut self.field_items).into_unordered();
-        move_items(&mut unordered_field_items, &mut list, shop_items.len());
-        // self.field_items = unordered_field_items.shuffle(rng); TODO: シャッフルする必要がある
-        self.field_items = ShuffledItems(unordered_field_items.0);
-        (field_items, shop_items)
+        let cnt = picked_shop_items.len();
+        let field_items = take(&mut self.field_items);
+        self.field_items = move_items_to(field_items, &mut self.shop_items, cnt).shuffle(rng);
+        (picked_field_items, picked_shop_items)
     }
 
     pub fn pick_items_randomly(
@@ -184,19 +181,13 @@ impl<'a> ItemsPool<'a> {
             if rng.gen_ratio(numerator, denominator) {
                 let dst = &mut field_items;
                 let src = &mut self.field_items;
-                fill_items_including_requires_from(rng, dst, fi_spot_cnt, src, &remaining_spots);
+                fill_items_including_requires_from(dst, fi_spot_cnt, src, &remaining_spots);
                 fill_items_from(&mut shop_items, shop_display_cnt, &mut self.shop_items);
             } else {
                 fill_items_from(&mut field_items, fi_spot_cnt, &mut self.field_items);
                 let dst = &mut shop_items;
                 let src = &mut self.shop_items;
-                fill_items_including_requires_from(
-                    rng,
-                    dst,
-                    shop_display_cnt,
-                    src,
-                    &remaining_spots,
-                );
+                fill_items_including_requires_from(dst, shop_display_cnt, src, &remaining_spots);
             };
         }
         let field_items = field_items.shuffle(rng);
