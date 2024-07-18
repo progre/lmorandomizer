@@ -43,7 +43,8 @@ impl<'a> Checkpoint<&'a Spot, &'a Item> {
 pub struct Sphere<TSpot, TItem>(pub Vec<Checkpoint<TSpot, TItem>>);
 
 pub struct SpoilerLog {
-    pub progression: Vec<Sphere<Spot, Item>>,
+    progression: Vec<Sphere<Spot, Item>>,
+    maps: Vec<Checkpoint<Spot, Item>>,
 }
 
 impl fmt::Display for SpoilerLog {
@@ -73,12 +74,20 @@ impl fmt::Display for SpoilerLog {
                 }
             }
         }
+        writeln!(f)?;
+        writeln!(f, "[Maps]")?;
+        for checkpoint in &self.maps {
+            let spot = &checkpoint.spot;
+            let name = checkpoint.item.name.get();
+            writeln!(f, "{} = {}", spot, name)?;
+        }
         Ok(())
     }
 }
 
 pub struct SpoilerLogRef<'a> {
     pub progression: Vec<Sphere<&'a Spot, &'a Item>>,
+    pub maps: Vec<Checkpoint<&'a Spot, &'a Item>>,
 }
 
 impl SpoilerLogRef<'_> {
@@ -95,6 +104,11 @@ impl SpoilerLogRef<'_> {
                         .collect()
                 })
                 .map(Sphere)
+                .collect(),
+            maps: self
+                .maps
+                .into_iter()
+                .map(|checkpoint| checkpoint.into_owned())
                 .collect(),
         }
     }

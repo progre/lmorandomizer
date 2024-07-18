@@ -32,6 +32,7 @@ fn pick_items_including_requires<'a>(
     spots: &[&Spot],
     cnt: usize,
 ) -> UnorderedItems<'a> {
+    debug_assert!(items_pool.len() >= cnt);
     let Some(pos) = items_pool.0.iter().position(|item| item.is_required(spots)) else {
         let shuffled_items = items_pool.split_off(items_pool.len() - cnt);
         return shuffled_items.into_unordered();
@@ -49,6 +50,7 @@ fn fill_items_including_requires_from<'a>(
     src: &mut ShuffledItems<'a>,
     spots: &[&Spot],
 ) {
+    debug_assert!(dst.len() + src.len() >= target_len);
     let cnt = target_len - dst.len();
     let mut items = pick_items_including_requires(src, spots, cnt);
     dst.0.append(&mut items.0);
@@ -150,6 +152,17 @@ impl<'a> ItemsPool<'a> {
         reachables: &Spots<'a>,
         unreachables: &Spots<'a>,
     ) -> (ShuffledItems<'a>, ShuffledItems<'a>) {
+        debug_assert_eq!(
+            reachables.field_item_spots.len()
+                + unreachables.field_item_spots.len()
+                + reachables.shops.len()
+                + unreachables.shops.len(),
+            self.priority_items.as_ref().map_or(0, |x| x.len())
+                + self.field_items.len()
+                + self.shop_items.len()
+                + self.consumable_items.len(),
+        );
+
         let remaining_spots: Vec<_> = unreachables
             .field_item_spots
             .iter()

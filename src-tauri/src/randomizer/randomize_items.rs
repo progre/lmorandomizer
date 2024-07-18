@@ -1,11 +1,15 @@
-use std::collections::HashSet;
+use std::collections::{BTreeMap, HashSet};
 
 use anyhow::Result;
 use log::{info, trace};
 use rand::Rng;
 
 use crate::{
-    dataset::{item::StrategyFlag, spot::Spot, storage::Storage},
+    dataset::{
+        item::{Item, StrategyFlag},
+        spot::{FieldId, Spot},
+        storage::Storage,
+    },
     randomizer::spoiler::{make_rng, spoiler},
     script::data::script::Script,
 };
@@ -38,7 +42,29 @@ pub fn randomize_items<'a>(
 }
 
 fn to_all_items(source: &Storage) -> Items {
-    let (priority_items, remaining_items) = source.all_items().partition::<Vec<_>, _>(|item| {
+    let (maps, chests) = source
+        .chests()
+        .iter()
+        .partition::<Vec<_>, _>(|x| x.item.name.is_map());
+    let maps: BTreeMap<FieldId, &Item> = maps
+        .into_iter()
+        .map(|x| (x.spot.field_id(), &x.item))
+        .collect();
+
+    let items = source
+        .main_weapons()
+        .iter()
+        .chain(source.sub_weapons())
+        .chain(chests)
+        .chain(source.seals())
+        .map(|x| &x.item)
+        .chain(
+            source
+                .shops()
+                .iter()
+                .flat_map(|x| [&x.items.0, &x.items.1, &x.items.2]),
+        );
+    let (priority_items, remaining_items) = items.partition::<Vec<_>, _>(|item| {
         [
             "handScanner",
             "shellHorn",
@@ -51,23 +77,25 @@ fn to_all_items(source: &Storage) -> Items {
     let (sellable_items, unsellable_items): (Vec<_>, Vec<_>) = remaining_items
         .into_iter()
         .partition(|x| x.can_display_in_shop());
-    debug_assert!(unsellable_items.iter().all(|x| !x.name.is_consumable()));
     let (consumable_items, sellable_items): (Vec<_>, Vec<_>) = sellable_items
         .into_iter()
         .partition(|x| x.name.is_consumable());
 
+    debug_assert!(unsellable_items.iter().all(|x| !x.name.is_consumable()));
     debug_assert_eq!(
         priority_items.len()
             + unsellable_items.len()
             + sellable_items.len()
-            + consumable_items.len(),
+            + consumable_items.len()
+            + maps.len(),
         source.all_items().count(),
     );
     debug_assert_eq!(
         priority_items.len()
             + unsellable_items.len()
             + sellable_items.len()
-            + consumable_items.len(),
+            + consumable_items.len()
+            + maps.len(),
         source.main_weapons().len()
             + source.sub_weapons().len()
             + source.chests().len()
@@ -79,7 +107,7 @@ fn to_all_items(source: &Storage) -> Items {
                 .sum::<usize>(),
     );
     debug_assert_eq!(
-        priority_items.len() + unsellable_items.len() + sellable_items.len(),
+        priority_items.len() + unsellable_items.len() + sellable_items.len() + maps.len(),
         source.main_weapons().len()
             + source.sub_weapons().len()
             + source.chests().len()
@@ -93,9 +121,10 @@ fn to_all_items(source: &Storage) -> Items {
 
     Items {
         priority_items,
-        sellable_items,
+        maps,
         unsellable_items,
         consumable_items,
+        sellable_items,
     }
 }
 
@@ -128,7 +157,12 @@ fn to_all_spots(source: &Storage) -> Spots {
 
 fn create_shuffled_storage(source: &Storage, spoiler_log: &SpoilerLogRef) -> Storage {
     let mut storage = source.clone();
-    for checkpoint in spoiler_log.progression.iter().flat_map(|sphere| &sphere.0) {
+    for checkpoint in spoiler_log
+        .progression
+        .iter()
+        .flat_map(|sphere| &sphere.0)
+        .chain(spoiler_log.maps.iter())
+    {
         match &checkpoint.spot {
             Spot::MainWeapon(spot) => {
                 storage.main_weapons_mut()[spot.src_idx].item = checkpoint.item.clone();

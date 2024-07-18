@@ -1,19 +1,26 @@
-use std::{collections::HashSet, hash::Hash};
+use std::{
+    collections::{BTreeMap, HashSet},
+    hash::Hash,
+    ptr,
+};
 
 use log::{info, trace};
-use rand::Rng;
+use rand::{seq::SliceRandom, Rng};
 use rand_seeder::Seeder;
 use rand_xoshiro::Xoshiro256PlusPlus;
 
 use crate::{
-    dataset::item::{Item, StrategyFlag},
+    dataset::{
+        item::{Item, StrategyFlag},
+        spot::{FieldId, Spot},
+    },
     randomizer::sphere::sphere,
 };
 
 pub use super::sphere::Spots;
 use super::{
     items_pool::{ItemsPool, UnorderedItems},
-    spoiler_log::SpoilerLogRef,
+    spoiler_log::{Checkpoint, SpoilerLogRef},
 };
 
 pub fn make_rng<H: Hash>(seed: H) -> Xoshiro256PlusPlus {
@@ -22,9 +29,10 @@ pub fn make_rng<H: Hash>(seed: H) -> Xoshiro256PlusPlus {
 
 pub struct Items<'a> {
     pub priority_items: Vec<&'a Item>,
-    pub sellable_items: Vec<&'a Item>,
+    pub maps: BTreeMap<FieldId, &'a Item>,
     pub unsellable_items: Vec<&'a Item>,
     pub consumable_items: Vec<&'a Item>,
+    pub sellable_items: Vec<&'a Item>,
 }
 
 impl<'a> Items<'a> {
@@ -43,11 +51,50 @@ impl<'a> Items<'a> {
     }
 }
 
+fn maps<'a>(
+    rng: &mut impl Rng,
+    maps: &BTreeMap<FieldId, &'a Item>,
+    spots: &mut Spots<'a>,
+) -> Vec<Checkpoint<&'a Spot, &'a Item>> {
+    let mut hash_map: BTreeMap<FieldId, Vec<&'a Spot>> = Default::default();
+    for spot in &spots.field_item_spots {
+        hash_map.entry(spot.field_id()).or_default().push(spot);
+    }
+    maps.iter()
+        .map(|(field_id, item)| {
+            let spot = hash_map[field_id].choose(rng).unwrap();
+            Checkpoint::<&Spot, &Item> {
+                spot,
+                idx: 0,
+                item: *item,
+            }
+        })
+        .inspect(|checkpoint| {
+            let idx = spots
+                .field_item_spots
+                .iter()
+                .position(|&x| ptr::eq(x, checkpoint.spot))
+                .unwrap();
+            spots.field_item_spots.swap_remove(idx);
+        })
+        .collect()
+}
+
 pub fn spoiler<'a>(seed: u64, items: &Items<'a>, spots: &Spots<'a>) -> Option<SpoilerLogRef<'a>> {
     let start = std::time::Instant::now();
     let mut rng = make_rng(seed);
     let mut items_pool = items.to_items_pool(&mut rng, spots.shops.len());
     let mut remaining_spots = spots.clone();
+    let maps = maps(&mut rng, &items.maps, &mut remaining_spots);
+
+    debug_assert_eq!(
+        items.priority_items.len()
+            + items.unsellable_items.len()
+            + items.consumable_items.len()
+            + items.sellable_items.len(),
+        remaining_spots.field_item_spots.len() + remaining_spots.shops.len()
+    );
+
     let mut strategy_flags: HashSet<StrategyFlag> = Default::default();
     let mut progression = Vec::new();
 
@@ -67,7 +114,7 @@ pub fn spoiler<'a>(seed: u64, items: &Items<'a>, spots: &Spots<'a>) -> Option<Sp
             continue;
         }
         info!("Sphere: {}, time: {:?}", i, start.elapsed());
-        return Some(SpoilerLogRef { progression });
+        return Some(SpoilerLogRef { progression, maps });
     }
     unreachable!();
 }
