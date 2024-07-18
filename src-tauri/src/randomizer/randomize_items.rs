@@ -1,22 +1,17 @@
-use std::collections::{BTreeMap, HashSet};
+use std::collections::HashSet;
 
 use anyhow::Result;
 use log::{info, trace};
 use rand::Rng;
 
 use crate::{
-    dataset::{
-        item::{Item, StrategyFlag},
-        spot::{FieldId, Spot},
-        storage::Storage,
-    },
-    randomizer::spoiler::{make_rng, spoiler},
+    dataset::{item::StrategyFlag, spot::Spot, storage::Storage},
     script::data::script::Script,
 };
 
 use super::{
-    sphere::ShopItemDisplay,
-    spoiler::{Items, Spots},
+    items_spots::{Items, Spots},
+    spoiler::{make_rng, spoiler},
     spoiler_log::SpoilerLogRef,
 };
 
@@ -39,120 +34,6 @@ pub fn randomize_items<'a>(
     script.replace_items(&script.clone(), &shuffled)?;
     trace!("Replaced items in {:?}", start.elapsed());
     Ok(spoiler_log)
-}
-
-fn to_all_items(source: &Storage) -> Items {
-    let (maps, chests) = source
-        .chests()
-        .iter()
-        .partition::<Vec<_>, _>(|x| x.item.name.is_map());
-    let maps: BTreeMap<FieldId, &Item> = maps
-        .into_iter()
-        .map(|x| (x.spot.field_id(), &x.item))
-        .collect();
-
-    let items = source
-        .main_weapons()
-        .iter()
-        .chain(source.sub_weapons())
-        .chain(chests)
-        .chain(source.seals())
-        .map(|x| &x.item)
-        .chain(
-            source
-                .shops()
-                .iter()
-                .flat_map(|x| [&x.items.0, &x.items.1, &x.items.2]),
-        );
-    let (priority_items, remaining_items) = items.partition::<Vec<_>, _>(|item| {
-        [
-            "handScanner",
-            "shellHorn",
-            "holyGrail",
-            "gameMaster",
-            "glyphReader",
-        ]
-        .contains(&item.name.get())
-    });
-    let (sellable_items, unsellable_items): (Vec<_>, Vec<_>) = remaining_items
-        .into_iter()
-        .partition(|x| x.can_display_in_shop());
-    let (consumable_items, sellable_items): (Vec<_>, Vec<_>) = sellable_items
-        .into_iter()
-        .partition(|x| x.name.is_consumable());
-
-    debug_assert!(unsellable_items.iter().all(|x| !x.name.is_consumable()));
-    debug_assert_eq!(
-        priority_items.len()
-            + unsellable_items.len()
-            + sellable_items.len()
-            + consumable_items.len()
-            + maps.len(),
-        source.all_items().count(),
-    );
-    debug_assert_eq!(
-        priority_items.len()
-            + unsellable_items.len()
-            + sellable_items.len()
-            + consumable_items.len()
-            + maps.len(),
-        source.main_weapons().len()
-            + source.sub_weapons().len()
-            + source.chests().len()
-            + source.seals().len()
-            + source
-                .shops()
-                .iter()
-                .map(|_| true as usize + true as usize + true as usize)
-                .sum::<usize>(),
-    );
-    debug_assert_eq!(
-        priority_items.len() + unsellable_items.len() + sellable_items.len() + maps.len(),
-        source.main_weapons().len()
-            + source.sub_weapons().len()
-            + source.chests().len()
-            + source.seals().len()
-            + source
-                .shops()
-                .iter()
-                .map(|shop| shop.count_general_items())
-                .sum::<usize>(),
-    );
-
-    Items {
-        priority_items,
-        maps,
-        unsellable_items,
-        consumable_items,
-        sellable_items,
-    }
-}
-
-fn to_all_spots(source: &Storage) -> Spots {
-    Spots {
-        field_item_spots: source
-            .main_weapons()
-            .iter()
-            .chain(source.sub_weapons())
-            .chain(source.chests())
-            .chain(source.seals())
-            .map(|x| &x.spot)
-            .collect(),
-        shops: source
-            .shops()
-            .iter()
-            .flat_map(|shop| {
-                [&shop.items.0, &shop.items.1, &shop.items.2]
-                    .into_iter()
-                    .enumerate()
-                    .map(|(idx, item)| ShopItemDisplay {
-                        spot: &shop.spot,
-                        idx,
-                        name: &item.name,
-                    })
-            })
-            .collect(),
-    }
 }
 
 fn create_shuffled_storage(source: &Storage, spoiler_log: &SpoilerLogRef) -> Storage {
@@ -186,16 +67,12 @@ fn create_shuffled_storage(source: &Storage, spoiler_log: &SpoilerLogRef) -> Sto
     storage
 }
 
-fn shuffle<'a>(rng: &mut impl Rng, source: &'a Storage) -> (Storage, SpoilerLogRef<'a>) {
+fn random_spoiler<'a>(rng: &mut impl Rng, source: &'a Storage) -> SpoilerLogRef<'a> {
     let start = std::time::Instant::now();
-    let items = &to_all_items(source);
-    let spots = &to_all_spots(source);
-    debug_assert!(items
-        .priority_items
-        .iter()
-        .all(|item| item.can_display_in_shop()));
+    let items = &Items::new(source);
+    let spots = &Spots::new(source);
     debug_assert_eq!(
-        spots.shops.len() - items.consumable_items.len(),
+        spots.shops.len() - items.consumable_items().len(),
         spots
             .shops
             .iter()
@@ -208,13 +85,12 @@ fn shuffle<'a>(rng: &mut impl Rng, source: &'a Storage) -> (Storage, SpoilerLogR
             .iter()
             .map(|spot| spot.name.is_consumable() as usize)
             .sum::<usize>(),
-        items.consumable_items.len()
+        items.consumable_items().len()
     );
     trace!("Prepared items and spots in {:?}", start.elapsed());
 
     let thread_count = std::thread::available_parallelism().unwrap().get();
-
-    let spoiler_log = std::thread::scope(|scope| {
+    std::thread::scope(|scope| {
         for i in 0..100000 {
             let handles: Vec<_> = (0..thread_count)
                 .map(|_| rng.next_u64())
@@ -228,12 +104,19 @@ fn shuffle<'a>(rng: &mut impl Rng, source: &'a Storage) -> (Storage, SpoilerLogR
             return spoiler_log;
         }
         unreachable!();
-    });
+    })
+}
+
+fn shuffle<'a>(rng: &mut impl Rng, source: &'a Storage) -> (Storage, SpoilerLogRef<'a>) {
+    let spoiler_log = random_spoiler(rng, source);
     let storage = create_shuffled_storage(source, &spoiler_log);
     (storage, spoiler_log)
 }
 
 fn assert_unique(storage: &Storage) {
+    if cfg!(not(debug_assertions)) {
+        return;
+    }
     let mut names = HashSet::new();
 
     storage

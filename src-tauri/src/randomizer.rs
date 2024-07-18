@@ -1,4 +1,5 @@
 mod items_pool;
+mod items_spots;
 mod randomize_items;
 mod sphere;
 mod spoiler;

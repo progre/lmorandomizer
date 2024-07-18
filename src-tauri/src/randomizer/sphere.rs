@@ -9,6 +9,7 @@ use crate::dataset::{
 
 use super::{
     items_pool::{ItemsPool, ShuffledItems},
+    items_spots::Spots,
     spoiler_log::{Checkpoint, Sphere},
 };
 
@@ -17,22 +18,6 @@ pub struct ShopItemDisplay<'a> {
     pub spot: &'a Spot,
     pub idx: usize,
     pub name: &'a StrategyFlag,
-}
-
-fn is_empty_shop_displays(shops: &[ShopItemDisplay]) -> bool {
-    shops.iter().all(|shop| shop.name.is_consumable())
-}
-
-#[derive(Clone)]
-pub struct Spots<'a> {
-    pub field_item_spots: Vec<&'a Spot>,
-    pub shops: Vec<ShopItemDisplay<'a>>,
-}
-
-impl Spots<'_> {
-    pub fn is_empty(&self) -> bool {
-        self.field_item_spots.is_empty() && is_empty_shop_displays(&self.shops)
-    }
 }
 
 fn explore<'a>(
@@ -112,7 +97,7 @@ pub fn sphere<'a>(
 
     let (reachables, unreachables) = explore(remaining_spots.deref(), strategy_flags.deref());
 
-    if reachables.field_item_spots.is_empty() && is_empty_shop_displays(&reachables.shops) {
+    if reachables.is_empty() {
         return None;
     }
 

@@ -17,38 +17,13 @@ use crate::{
     randomizer::sphere::sphere,
 };
 
-pub use super::sphere::Spots;
 use super::{
-    items_pool::{ItemsPool, UnorderedItems},
+    items_spots::{Items, Spots},
     spoiler_log::{Checkpoint, SpoilerLogRef},
 };
 
 pub fn make_rng<H: Hash>(seed: H) -> Xoshiro256PlusPlus {
     Seeder::from(seed).make_rng()
-}
-
-pub struct Items<'a> {
-    pub priority_items: Vec<&'a Item>,
-    pub maps: BTreeMap<FieldId, &'a Item>,
-    pub unsellable_items: Vec<&'a Item>,
-    pub consumable_items: Vec<&'a Item>,
-    pub sellable_items: Vec<&'a Item>,
-}
-
-impl<'a> Items<'a> {
-    fn to_items_pool(&self, rng: &mut impl Rng, shop_display_count: usize) -> ItemsPool<'a> {
-        let mut sellable_items = UnorderedItems::new(self.sellable_items.clone()).shuffle(rng);
-        let shop_display_count = shop_display_count - self.consumable_items.len();
-        let shop_items = sellable_items.split_off(sellable_items.len() - shop_display_count);
-        let mut field_items = sellable_items.into_unordered();
-        field_items.append(&mut self.unsellable_items.clone());
-        ItemsPool {
-            priority_items: Some(UnorderedItems::new(self.priority_items.clone())),
-            field_items: field_items.shuffle(rng),
-            shop_items,
-            consumable_items: UnorderedItems::new(self.consumable_items.clone()).shuffle(rng),
-        }
-    }
 }
 
 fn maps<'a>(
@@ -85,13 +60,13 @@ pub fn spoiler<'a>(seed: u64, items: &Items<'a>, spots: &Spots<'a>) -> Option<Sp
     let mut rng = make_rng(seed);
     let mut items_pool = items.to_items_pool(&mut rng, spots.shops.len());
     let mut remaining_spots = spots.clone();
-    let maps = maps(&mut rng, &items.maps, &mut remaining_spots);
+    let maps = maps(&mut rng, items.maps(), &mut remaining_spots);
 
     debug_assert_eq!(
-        items.priority_items.len()
-            + items.unsellable_items.len()
-            + items.consumable_items.len()
-            + items.sellable_items.len(),
+        items.priority_items().len()
+            + items.unsellable_items().len()
+            + items.consumable_items().len()
+            + items.sellable_items().len(),
         remaining_spots.field_item_spots.len() + remaining_spots.shops.len()
     );
 
