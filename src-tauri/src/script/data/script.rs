@@ -113,7 +113,7 @@ impl Script {
     pub fn replace_items(&mut self, script: &Script, shuffled: &Storage) -> Result<()> {
         let shops = self.shops()?;
         replace_items(&mut self.worlds, script, shuffled)?;
-        replace_shops(&mut self.talks, script, &shops, shuffled.shops())?;
+        replace_shops(&mut self.talks, script, &shops, &shuffled.shops)?;
         Ok(())
     }
 

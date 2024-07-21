@@ -24,7 +24,7 @@ pub struct Items<'a> {
 impl<'a> Items<'a> {
     pub fn new(source: &'a Storage) -> Self {
         let (maps, chests) = source
-            .chests()
+            .chests
             .iter()
             .partition::<Vec<_>, _>(|x| x.item.name.is_map());
         let maps: BTreeMap<FieldId, &Item> = maps
@@ -33,15 +33,15 @@ impl<'a> Items<'a> {
             .collect();
 
         let items = source
-            .main_weapons()
+            .main_weapons
             .iter()
-            .chain(source.sub_weapons())
+            .chain(&source.sub_weapons)
             .chain(chests)
-            .chain(source.seals())
+            .chain(&source.seals)
             .map(|x| &x.item)
             .chain(
                 source
-                    .shops()
+                    .shops
                     .iter()
                     .flat_map(|x| [&x.items.0, &x.items.1, &x.items.2]),
             );
@@ -77,24 +77,24 @@ impl<'a> Items<'a> {
                 + sellable_items.len()
                 + consumable_items.len()
                 + maps.len(),
-            source.main_weapons().len()
-                + source.sub_weapons().len()
-                + source.chests().len()
-                + source.seals().len()
+            source.main_weapons.len()
+                + source.sub_weapons.len()
+                + source.chests.len()
+                + source.seals.len()
                 + source
-                    .shops()
+                    .shops
                     .iter()
                     .map(|_| true as usize + true as usize + true as usize)
                     .sum::<usize>(),
         );
         debug_assert_eq!(
             priority_items.len() + unsellable_items.len() + sellable_items.len() + maps.len(),
-            source.main_weapons().len()
-                + source.sub_weapons().len()
-                + source.chests().len()
-                + source.seals().len()
+            source.main_weapons.len()
+                + source.sub_weapons.len()
+                + source.chests.len()
+                + source.seals.len()
                 + source
-                    .shops()
+                    .shops
                     .iter()
                     .map(|shop| shop.count_general_items())
                     .sum::<usize>(),
@@ -151,15 +151,15 @@ impl<'a> Spots<'a> {
     pub fn new(source: &'a Storage) -> Self {
         Self {
             field_item_spots: source
-                .main_weapons()
+                .main_weapons
                 .iter()
-                .chain(source.sub_weapons())
-                .chain(source.chests())
-                .chain(source.seals())
+                .chain(&source.sub_weapons)
+                .chain(&source.chests)
+                .chain(&source.seals)
                 .map(|x| &x.spot)
                 .collect(),
             shops: source
-                .shops()
+                .shops
                 .iter()
                 .flat_map(|shop| {
                     [&shop.items.0, &shop.items.1, &shop.items.2]

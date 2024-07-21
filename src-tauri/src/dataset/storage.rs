@@ -27,18 +27,13 @@ pub struct StorageIndices {
     pub seal_chest_idx: usize,
 }
 
-#[derive(Clone, Debug, getset::Getters, getset::MutGetters)]
+#[derive(Clone, Debug)]
 pub struct Storage {
-    #[getset(get = "pub", get_mut = "pub")]
-    main_weapons: Vec<ItemSpot>,
-    #[getset(get = "pub", get_mut = "pub")]
-    sub_weapons: Vec<ItemSpot>,
-    #[getset(get = "pub", get_mut = "pub")]
-    chests: Vec<ItemSpot>,
-    #[getset(get = "pub", get_mut = "pub")]
-    seals: Vec<ItemSpot>,
-    #[getset(get = "pub", get_mut = "pub")]
-    shops: Vec<Shop>,
+    pub main_weapons: Vec<ItemSpot>,
+    pub sub_weapons: Vec<ItemSpot>,
+    pub chests: Vec<ItemSpot>,
+    pub seals: Vec<ItemSpot>,
+    pub shops: Vec<Shop>,
 }
 
 impl Storage {

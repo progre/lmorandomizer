@@ -74,7 +74,7 @@ fn new_objs(
     match obj.number {
         // Main weapons
         77 => {
-            let item = &shuffled.main_weapons()[indices.main_weapon_spot_idx].item;
+            let item = &shuffled.main_weapons[indices.main_weapon_spot_idx].item;
             let item = &Item::from_dataset(item, script)?;
             indices.main_weapon_spot_idx += 1;
             let next_shutter_check_flag = get_next_shutter_check_flag(next_objs)?
@@ -88,14 +88,14 @@ fn new_objs(
         // Sub weapons
         13 => {
             // TODO: nightSurface
-            if indices.sub_weapon_spot_idx >= shuffled.sub_weapons().len() {
-                let sum = shuffled.sub_weapons().len() + NIGHT_SURFACE_SUB_WEAPON_COUNT;
+            if indices.sub_weapon_spot_idx >= shuffled.sub_weapons.len() {
+                let sum = shuffled.sub_weapons.len() + NIGHT_SURFACE_SUB_WEAPON_COUNT;
                 debug_assert!(indices.sub_weapon_spot_idx < sum);
                 indices.sub_weapon_spot_idx += 1;
                 return Ok(vec![obj.clone()]);
             }
             // Ankh Jewel
-            let item = &shuffled.sub_weapons()[indices.sub_weapon_spot_idx].item;
+            let item = &shuffled.sub_weapons[indices.sub_weapon_spot_idx].item;
             let item = &Item::from_dataset(item, script)?;
             indices.sub_weapon_spot_idx += 1;
             if obj.op1 == SubWeapon::AnkhJewel as i32 {
@@ -130,19 +130,19 @@ fn new_objs(
                 return Ok(vec![obj.clone()]);
             }
             // TODO: nightSurface
-            if indices.chest_idx >= shuffled.chests().len() {
-                let sum = shuffled.chests().len() + NIGHT_SURFACE_CHEST_COUNT;
+            if indices.chest_idx >= shuffled.chests.len() {
+                let sum = shuffled.chests.len() + NIGHT_SURFACE_CHEST_COUNT;
                 debug_assert!(indices.chest_idx < sum);
                 indices.chest_idx += 1;
                 return Ok(vec![obj.clone()]);
             }
             // twinStatue
             if obj.op1 == 420 {
-                let item = &shuffled.chests()[indices.chest_idx - 1].item;
+                let item = &shuffled.chests[indices.chest_idx - 1].item;
                 let item = &Item::from_dataset(item, script)?;
                 return to_objects_for_chest(obj, item);
             }
-            let item = &shuffled.chests()[indices.chest_idx].item;
+            let item = &shuffled.chests[indices.chest_idx].item;
             let item = &Item::from_dataset(item, script)?;
             indices.chest_idx += 1;
             to_objects_for_chest(obj, item)
@@ -151,15 +151,15 @@ fn new_objs(
         // TODO: trueShrineOfTheMother
         // TODO: nightSurface
         71 => {
-            if indices.seal_chest_idx >= shuffled.seals().len() {
-                let sum = shuffled.seals().len()
+            if indices.seal_chest_idx >= shuffled.seals.len() {
+                let sum = shuffled.seals.len()
                     + TRUE_SHRINE_OF_THE_MOTHER_SEAL_COUNT
                     + NIGHT_SURFACE_SEAL_COUNT;
                 debug_assert!(indices.seal_chest_idx < sum);
                 indices.seal_chest_idx += 1;
                 return Ok(vec![obj.clone()]);
             }
-            let item = &shuffled.seals()[indices.seal_chest_idx].item;
+            let item = &shuffled.seals[indices.seal_chest_idx].item;
             let item = &Item::from_dataset(item, script)?;
             indices.seal_chest_idx += 1;
             Ok(vec![to_object_for_special_chest(obj, item)?])
@@ -169,7 +169,7 @@ fn new_objs(
         140 if obj.x == 49152 && obj.y == 16384 => {
             let mut obj = obj.clone();
             let prev_sub_weapon_shutter_item =
-                &shuffled.sub_weapons()[indices.sub_weapon_spot_idx - 1].item;
+                &shuffled.sub_weapons[indices.sub_weapon_spot_idx - 1].item;
             let prev_sub_weapon_shutter_item =
                 &Item::from_dataset(prev_sub_weapon_shutter_item, script)?;
             fix_trap_of_mausoleum_of_the_giants(&mut obj, prev_sub_weapon_shutter_item);

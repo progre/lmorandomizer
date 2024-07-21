@@ -69,22 +69,16 @@ fn append<'a>(
 pub fn ware_missing_requirements(storage: &Storage) {
     let all_items: Vec<_> = storage.all_items().cloned().collect();
     let mut set = HashSet::new();
-    let main_weapon_requirements = storage.main_weapons().iter().map(|x| x.spot.requirements());
+    let main_weapon_requirements = storage.main_weapons.iter().map(|x| x.spot.requirements());
     append(&mut set, main_weapon_requirements);
-    let sub_weapon_requirements = storage.sub_weapons().iter().map(|x| x.spot.requirements());
+    let sub_weapon_requirements = storage.sub_weapons.iter().map(|x| x.spot.requirements());
     append(&mut set, sub_weapon_requirements);
-    append(
-        &mut set,
-        storage.chests().iter().map(|x| x.spot.requirements()),
-    );
-    append(
-        &mut set,
-        storage.seals().iter().map(|x| x.spot.requirements()),
-    );
-    append(
-        &mut set,
-        storage.shops().iter().map(|x| x.spot.requirements()),
-    );
+    let chest_requirements = storage.chests.iter().map(|x| x.spot.requirements());
+    append(&mut set, chest_requirements);
+    let seal_requirements = storage.seals.iter().map(|x| x.spot.requirements());
+    append(&mut set, seal_requirements);
+    let shop_requirements = storage.shops.iter().map(|x| x.spot.requirements());
+    append(&mut set, shop_requirements);
     let mut vec: Vec<_> = set
         .iter()
         .filter(|&x| all_items.iter().all(|y| &y.name != x))

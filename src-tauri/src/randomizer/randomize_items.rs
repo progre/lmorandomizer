@@ -46,19 +46,19 @@ fn create_shuffled_storage(source: &Storage, spoiler_log: &SpoilerLogRef) -> Sto
     {
         match &checkpoint.spot {
             Spot::MainWeapon(spot) => {
-                storage.main_weapons_mut()[spot.src_idx].item = checkpoint.item.clone();
+                storage.main_weapons[spot.src_idx].item = checkpoint.item.clone();
             }
             Spot::SubWeapon(spot) => {
-                storage.sub_weapons_mut()[spot.src_idx].item = checkpoint.item.clone();
+                storage.sub_weapons[spot.src_idx].item = checkpoint.item.clone();
             }
             Spot::Chest(spot) => {
-                storage.chests_mut()[spot.src_idx].item = checkpoint.item.clone();
+                storage.chests[spot.src_idx].item = checkpoint.item.clone();
             }
             Spot::Seal(spot) => {
-                storage.seals_mut()[spot.src_idx].item = checkpoint.item.clone();
+                storage.seals[spot.src_idx].item = checkpoint.item.clone();
             }
             Spot::Shop(spot) => {
-                let items = &mut storage.shops_mut()[spot.src_idx].items;
+                let items = &mut storage.shops[spot.src_idx].items;
                 *[&mut items.0, &mut items.1, &mut items.2][checkpoint.idx] =
                     checkpoint.item.clone();
             }
@@ -120,14 +120,14 @@ fn assert_unique(storage: &Storage) {
     let mut names = HashSet::new();
 
     storage
-        .main_weapons()
+        .main_weapons
         .iter()
         .map(|x| ("weapon", x))
-        .chain(storage.sub_weapons().iter().map(|x| ("weapon", x)))
-        .chain(storage.chests().iter().map(|x| ("chest", x)))
-        .chain(storage.seals().iter().map(|x| ("seal", x)))
+        .chain(storage.sub_weapons.iter().map(|x| ("weapon", x)))
+        .chain(storage.chests.iter().map(|x| ("chest", x)))
+        .chain(storage.seals.iter().map(|x| ("seal", x)))
         .map(|(item_type, item_spot)| (item_type, item_spot.item.clone()))
-        .chain(storage.shops().iter().flat_map(|x| {
+        .chain(storage.shops.iter().flat_map(|x| {
             [&x.items.0, &x.items.1, &x.items.2]
                 .into_iter()
                 .cloned()
