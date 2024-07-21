@@ -65,7 +65,7 @@ fn parse_shop_requirements(
             let (names, requirements) = shop.into_iter().next().unwrap();
             let name = SpotName::new(names);
             let requirements = to_any_of_all_requirements(requirements);
-            let shop_spot = spot::Shop::new(field_id, src_idx, name.clone(), requirements);
+            let shop_spot = spot::ShopSpot::new(field_id, src_idx, name.clone(), requirements);
             let flags = shop_spot.to_strategy_flags();
             storage::Shop {
                 spot: Spot::shop(shop_spot),

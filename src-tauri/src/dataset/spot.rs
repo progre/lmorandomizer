@@ -83,7 +83,7 @@ pub struct AllRequirements(pub Vec<RequirementFlag>);
 pub struct AnyOfAllRequirements(pub Vec<AllRequirements>);
 
 #[derive(Clone, Debug)]
-pub struct MainWeapon {
+pub struct MainWeaponSpot {
     pub field_id: FieldId,
     pub src_idx: usize,
     pub name: SpotName,
@@ -91,7 +91,7 @@ pub struct MainWeapon {
 }
 
 #[derive(Clone, Debug)]
-pub struct SubWeapon {
+pub struct SubWeaponSpot {
     pub field_id: FieldId,
     pub src_idx: usize,
     pub name: SpotName,
@@ -99,7 +99,7 @@ pub struct SubWeapon {
 }
 
 #[derive(Clone, Debug)]
-pub struct Chest {
+pub struct ChestSpot {
     pub field_id: FieldId,
     pub src_idx: usize,
     pub name: SpotName,
@@ -107,7 +107,7 @@ pub struct Chest {
 }
 
 #[derive(Clone, Debug)]
-pub struct Seal {
+pub struct SealSpot {
     pub field_id: FieldId,
     pub src_idx: usize,
     pub name: SpotName,
@@ -115,14 +115,14 @@ pub struct Seal {
 }
 
 #[derive(Clone, Debug)]
-pub struct Shop {
+pub struct ShopSpot {
     pub field_id: FieldId,
     pub src_idx: usize,
     pub name: SpotName,
     pub requirements: Option<AnyOfAllRequirements>,
 }
 
-impl Shop {
+impl ShopSpot {
     pub fn new(
         field_id: FieldId,
         src_idx: usize,
@@ -153,11 +153,11 @@ impl Shop {
 
 #[derive(Clone, Debug)]
 pub enum Spot {
-    MainWeapon(MainWeapon),
-    SubWeapon(SubWeapon),
-    Chest(Chest),
-    Seal(Seal),
-    Shop(Shop),
+    MainWeapon(MainWeaponSpot),
+    SubWeapon(SubWeaponSpot),
+    Chest(ChestSpot),
+    Seal(SealSpot),
+    Shop(ShopSpot),
 }
 
 impl Spot {
@@ -167,7 +167,7 @@ impl Spot {
         name: SpotName,
         reqs: Option<AnyOfAllRequirements>,
     ) -> Self {
-        Self::MainWeapon(MainWeapon {
+        Self::MainWeapon(MainWeaponSpot {
             field_id,
             src_idx,
             name,
@@ -180,7 +180,7 @@ impl Spot {
         name: SpotName,
         reqs: Option<AnyOfAllRequirements>,
     ) -> Self {
-        Self::SubWeapon(SubWeapon {
+        Self::SubWeapon(SubWeaponSpot {
             field_id,
             src_idx,
             name,
@@ -193,7 +193,7 @@ impl Spot {
         name: SpotName,
         reqs: Option<AnyOfAllRequirements>,
     ) -> Self {
-        Self::Chest(Chest {
+        Self::Chest(ChestSpot {
             field_id,
             src_idx,
             name,
@@ -206,14 +206,14 @@ impl Spot {
         name: SpotName,
         reqs: Option<AnyOfAllRequirements>,
     ) -> Self {
-        Self::Seal(Seal {
+        Self::Seal(SealSpot {
             field_id,
             src_idx,
             name,
             requirements: reqs,
         })
     }
-    pub fn shop(shop: Shop) -> Self {
+    pub fn shop(shop: ShopSpot) -> Self {
         Self::Shop(shop)
     }
 
@@ -267,11 +267,11 @@ impl Spot {
 impl fmt::Display for Spot {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let full_type_name = match self {
-            Self::MainWeapon(_) => type_name::<MainWeapon>(),
-            Self::SubWeapon(_) => type_name::<SubWeapon>(),
-            Self::Chest(_) => type_name::<Chest>(),
-            Self::Seal(_) => type_name::<Seal>(),
-            Self::Shop(_) => type_name::<Shop>(),
+            Self::MainWeapon(_) => type_name::<MainWeaponSpot>(),
+            Self::SubWeapon(_) => type_name::<SubWeaponSpot>(),
+            Self::Chest(_) => type_name::<ChestSpot>(),
+            Self::Seal(_) => type_name::<SealSpot>(),
+            Self::Shop(_) => type_name::<ShopSpot>(),
         };
         let src_idx = match self {
             Self::MainWeapon(x) => x.src_idx,
