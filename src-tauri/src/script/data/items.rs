@@ -1,4 +1,4 @@
-#[derive(Clone, Copy, Debug, num_derive::FromPrimitive)]
+#[derive(Clone, Copy, num_derive::FromPrimitive)]
 #[repr(u8)]
 pub enum MainWeapon {
     Whip,
@@ -10,7 +10,7 @@ pub enum MainWeapon {
     Katana,
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, num_derive::FromPrimitive)]
+#[derive(Clone, Copy, PartialEq, num_derive::FromPrimitive)]
 #[repr(u8)]
 pub enum SubWeapon {
     Shuriken = 0,
@@ -28,7 +28,7 @@ pub enum SubWeapon {
     Ammunition,
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, num_derive::FromPrimitive)]
+#[derive(Clone, Copy, PartialEq, num_derive::FromPrimitive)]
 #[repr(u8)]
 pub enum Equipment {
     /// 0 MSX
@@ -155,10 +155,10 @@ pub enum Equipment {
     GameMaster = 100,
 }
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, PartialEq)]
 pub struct Rom(pub u8);
 
-#[derive(Clone, Copy, Debug, num_derive::FromPrimitive)]
+#[derive(Clone, Copy, num_derive::FromPrimitive)]
 #[repr(u8)]
 pub enum Seal {
     Origin,

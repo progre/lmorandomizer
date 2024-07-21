@@ -25,7 +25,7 @@ pub enum FieldId {
     TrueShrineOfTheMother,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone)]
 pub struct SpotName(String);
 
 impl SpotName {
@@ -82,44 +82,68 @@ pub struct AllRequirements(pub Vec<RequirementFlag>);
 #[derive(Clone, Debug, PartialEq)]
 pub struct AnyOfAllRequirements(pub Vec<AllRequirements>);
 
-#[derive(Clone, Debug)]
+#[derive(Clone)]
 pub struct MainWeaponSpot {
-    pub field_id: FieldId,
-    pub src_idx: usize,
-    pub name: SpotName,
-    pub requirements: Option<AnyOfAllRequirements>,
+    field_id: FieldId,
+    src_idx: usize,
+    name: SpotName,
+    requirements: Option<AnyOfAllRequirements>,
 }
 
-#[derive(Clone, Debug)]
+impl MainWeaponSpot {
+    pub fn src_idx(&self) -> usize {
+        self.src_idx
+    }
+}
+
+#[derive(Clone)]
 pub struct SubWeaponSpot {
-    pub field_id: FieldId,
-    pub src_idx: usize,
-    pub name: SpotName,
-    pub requirements: Option<AnyOfAllRequirements>,
+    field_id: FieldId,
+    src_idx: usize,
+    name: SpotName,
+    requirements: Option<AnyOfAllRequirements>,
 }
 
-#[derive(Clone, Debug)]
+impl SubWeaponSpot {
+    pub fn src_idx(&self) -> usize {
+        self.src_idx
+    }
+}
+
+#[derive(Clone)]
 pub struct ChestSpot {
-    pub field_id: FieldId,
-    pub src_idx: usize,
-    pub name: SpotName,
-    pub requirements: Option<AnyOfAllRequirements>,
+    field_id: FieldId,
+    src_idx: usize,
+    name: SpotName,
+    requirements: Option<AnyOfAllRequirements>,
 }
 
-#[derive(Clone, Debug)]
+impl ChestSpot {
+    pub fn src_idx(&self) -> usize {
+        self.src_idx
+    }
+}
+
+#[derive(Clone)]
 pub struct SealSpot {
-    pub field_id: FieldId,
-    pub src_idx: usize,
-    pub name: SpotName,
-    pub requirements: Option<AnyOfAllRequirements>,
+    field_id: FieldId,
+    src_idx: usize,
+    name: SpotName,
+    requirements: Option<AnyOfAllRequirements>,
 }
 
-#[derive(Clone, Debug)]
+impl SealSpot {
+    pub fn src_idx(&self) -> usize {
+        self.src_idx
+    }
+}
+
+#[derive(Clone)]
 pub struct ShopSpot {
-    pub field_id: FieldId,
-    pub src_idx: usize,
-    pub name: SpotName,
-    pub requirements: Option<AnyOfAllRequirements>,
+    field_id: FieldId,
+    src_idx: usize,
+    name: SpotName,
+    requirements: Option<AnyOfAllRequirements>,
 }
 
 impl ShopSpot {
@@ -141,6 +165,10 @@ impl ShopSpot {
         }
     }
 
+    pub fn src_idx(&self) -> usize {
+        self.src_idx
+    }
+
     pub fn to_strategy_flags(&self) -> (StrategyFlag, StrategyFlag, StrategyFlag) {
         let mut names = self.name.0.split(',').map(|x| x.trim());
         (
@@ -151,7 +179,7 @@ impl ShopSpot {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone)]
 pub enum Spot {
     MainWeapon(MainWeaponSpot),
     SubWeapon(SubWeaponSpot),

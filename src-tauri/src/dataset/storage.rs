@@ -1,12 +1,12 @@
 use super::{item::Item, spot::Spot};
 
-#[derive(Clone, Debug)]
+#[derive(Clone)]
 pub struct ItemSpot {
     pub spot: Spot,
     pub item: Item,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone)]
 pub struct Shop {
     pub spot: Spot,
     pub items: (Item, Item, Item),
@@ -27,7 +27,7 @@ pub struct StorageIndices {
     pub seal_chest_idx: usize,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone)]
 pub struct Storage {
     pub main_weapons: Vec<ItemSpot>,
     pub sub_weapons: Vec<ItemSpot>,

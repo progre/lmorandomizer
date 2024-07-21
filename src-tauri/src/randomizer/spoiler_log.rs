@@ -16,11 +16,11 @@ fn compare_key_for_spoiler_log(field_id: FieldId) -> u8 {
 fn spot_idx(spot: &Spot) -> usize {
     compare_key_for_spoiler_log(spot.field_id()) as usize * 10000
         + match spot {
-            Spot::MainWeapon(spot) => 1000 + spot.src_idx,
-            Spot::SubWeapon(spot) => 2000 + spot.src_idx,
-            Spot::Chest(spot) => 3000 + spot.src_idx,
-            Spot::Seal(spot) => 4000 + spot.src_idx,
-            Spot::Shop(spot) => 5000 + spot.src_idx,
+            Spot::MainWeapon(spot) => 1000 + spot.src_idx(),
+            Spot::SubWeapon(spot) => 2000 + spot.src_idx(),
+            Spot::Chest(spot) => 3000 + spot.src_idx(),
+            Spot::Seal(spot) => 4000 + spot.src_idx(),
+            Spot::Shop(spot) => 5000 + spot.src_idx(),
         }
 }
 

@@ -46,19 +46,19 @@ fn create_shuffled_storage(source: &Storage, spoiler_log: &SpoilerLogRef) -> Sto
     {
         match &checkpoint.spot {
             Spot::MainWeapon(spot) => {
-                storage.main_weapons[spot.src_idx].item = checkpoint.item.clone();
+                storage.main_weapons[spot.src_idx()].item = checkpoint.item.clone();
             }
             Spot::SubWeapon(spot) => {
-                storage.sub_weapons[spot.src_idx].item = checkpoint.item.clone();
+                storage.sub_weapons[spot.src_idx()].item = checkpoint.item.clone();
             }
             Spot::Chest(spot) => {
-                storage.chests[spot.src_idx].item = checkpoint.item.clone();
+                storage.chests[spot.src_idx()].item = checkpoint.item.clone();
             }
             Spot::Seal(spot) => {
-                storage.seals[spot.src_idx].item = checkpoint.item.clone();
+                storage.seals[spot.src_idx()].item = checkpoint.item.clone();
             }
             Spot::Shop(spot) => {
-                let items = &mut storage.shops[spot.src_idx].items;
+                let items = &mut storage.shops[spot.src_idx()].items;
                 *[&mut items.0, &mut items.1, &mut items.2][checkpoint.idx] =
                     checkpoint.item.clone();
             }
