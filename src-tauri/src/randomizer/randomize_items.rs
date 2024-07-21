@@ -5,7 +5,7 @@ use log::{info, trace};
 use rand::Rng;
 
 use crate::{
-    dataset::{item::StrategyFlag, spot::Spot, storage::Storage},
+    dataset::{item::StrategyFlag, spot::SpotRef, storage::Storage},
     script::data::script::Script,
 };
 
@@ -45,19 +45,19 @@ fn create_shuffled_storage(source: &Storage, spoiler_log: &SpoilerLogRef) -> Sto
         .chain(spoiler_log.maps.iter())
     {
         match &checkpoint.spot {
-            Spot::MainWeapon(spot) => {
+            SpotRef::MainWeapon(spot) => {
                 storage.main_weapons[spot.src_idx()].item = checkpoint.item.clone();
             }
-            Spot::SubWeapon(spot) => {
+            SpotRef::SubWeapon(spot) => {
                 storage.sub_weapons[spot.src_idx()].item = checkpoint.item.clone();
             }
-            Spot::Chest(spot) => {
+            SpotRef::Chest(spot) => {
                 storage.chests[spot.src_idx()].item = checkpoint.item.clone();
             }
-            Spot::Seal(spot) => {
+            SpotRef::Seal(spot) => {
                 storage.seals[spot.src_idx()].item = checkpoint.item.clone();
             }
-            Spot::Shop(spot) => {
+            SpotRef::Shop(spot) => {
                 let items = &mut storage.shops[spot.src_idx()].items;
                 *[&mut items.0, &mut items.1, &mut items.2][checkpoint.idx] =
                     checkpoint.item.clone();
@@ -122,17 +122,16 @@ fn assert_unique(storage: &Storage) {
     storage
         .main_weapons
         .iter()
-        .map(|x| ("weapon", x))
-        .chain(storage.sub_weapons.iter().map(|x| ("weapon", x)))
-        .chain(storage.chests.iter().map(|x| ("chest", x)))
-        .chain(storage.seals.iter().map(|x| ("seal", x)))
-        .map(|(item_type, item_spot)| (item_type, item_spot.item.clone()))
-        .chain(storage.shops.iter().flat_map(|x| {
-            [&x.items.0, &x.items.1, &x.items.2]
-                .into_iter()
-                .cloned()
-                .map(|item| ("shop", item))
-        }))
+        .map(|x| ("weapon", &x.item))
+        .chain(storage.sub_weapons.iter().map(|x| ("weapon", &x.item)))
+        .chain(storage.chests.iter().map(|x| ("chest", &x.item)))
+        .chain(storage.seals.iter().map(|x| ("seal", &x.item)))
+        .chain(
+            storage
+                .shops
+                .iter()
+                .flat_map(|x| [&x.items.0, &x.items.1, &x.items.2].map(|item| ("shop", item))),
+        )
         .for_each(|(item_type, item)| {
             if !item.name.is_consumable()
                 && ![

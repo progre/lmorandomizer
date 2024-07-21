@@ -4,18 +4,15 @@ use anyhow::Result;
 use log::trace;
 
 use crate::dataset::{
-    item::Item,
-    spot::{AllRequirements, Spot},
-    storage::{ItemSpot, Storage},
-};
-
-use super::{
     assertions::{assert_chests, ware_missing_requirements},
     game_structure::GameStructureFiles,
-    item::StrategyFlag,
+    item::Item,
     merge_events::{merge_events, Event},
-    spot::{self, AnyOfAllRequirements, FieldId, RequirementFlag, SpotName},
-    storage,
+    spot::{
+        AllRequirements, AnyOfAllRequirements, ChestSpot, FieldId, MainWeaponSpot, RequirementFlag,
+        SealSpot, ShopSpot, SpotName, SubWeaponSpot,
+    },
+    storage::{Chest, MainWeapon, Seal, Shop, Storage, SubWeapon},
 };
 
 fn to_any_of_all_requirements(requirements: Vec<String>) -> Option<AnyOfAllRequirements> {
@@ -35,29 +32,22 @@ fn to_any_of_all_requirements(requirements: Vec<String>) -> Option<AnyOfAllRequi
     }
 }
 
-fn parse_item_spot_requirements(
-    create_spot: impl Fn(FieldId, usize, SpotName, Option<AnyOfAllRequirements>) -> Spot,
-    create_item: impl Fn(usize, StrategyFlag) -> Item,
-    items: Vec<(FieldId, HashMap<String, Vec<String>>)>,
-) -> Vec<ItemSpot> {
-    items
-        .into_iter()
+fn parse_game_structure<T>(
+    list: Vec<(FieldId, HashMap<String, Vec<String>>)>,
+    create: impl Fn(FieldId, usize, SpotName, Option<AnyOfAllRequirements>) -> T,
+) -> Vec<T> {
+    list.into_iter()
         .enumerate()
         .map(|(src_idx, (field_id, spot))| {
             let (name, requirements) = spot.into_iter().next().unwrap();
             let name = SpotName::new(name);
             let requirements = to_any_of_all_requirements(requirements);
-            ItemSpot {
-                spot: create_spot(field_id, src_idx, name.clone(), requirements),
-                item: create_item(src_idx, name.into()),
-            }
+            create(field_id, src_idx, name, requirements)
         })
         .collect()
 }
 
-fn parse_shop_requirements(
-    items: Vec<(FieldId, HashMap<String, Vec<String>>)>,
-) -> Vec<storage::Shop> {
+fn parse_shop_requirements(items: Vec<(FieldId, HashMap<String, Vec<String>>)>) -> Vec<Shop> {
     items
         .into_iter()
         .enumerate()
@@ -65,10 +55,10 @@ fn parse_shop_requirements(
             let (names, requirements) = shop.into_iter().next().unwrap();
             let name = SpotName::new(names);
             let requirements = to_any_of_all_requirements(requirements);
-            let shop_spot = spot::ShopSpot::new(field_id, src_idx, name.clone(), requirements);
-            let flags = shop_spot.to_strategy_flags();
-            storage::Shop {
-                spot: Spot::shop(shop_spot),
+            let spot = ShopSpot::new(field_id, src_idx, name.clone(), requirements);
+            let flags = spot.to_strategy_flags();
+            Shop {
+                spot,
                 items: (
                     Item::shop_item(src_idx, 0, flags.0),
                     Item::shop_item(src_idx, 1, flags.1),
@@ -143,7 +133,12 @@ pub fn create_source(game_structure_files: GameStructureFiles) -> Result<Storage
     let events = parse_requirements_of_events(game_structure_files.events.0);
 
     let mut main_weapons =
-        parse_item_spot_requirements(Spot::main_weapon, Item::main_weapon, main_weapons);
+        parse_game_structure(main_weapons, |field_id, src_idx, name, requirements| {
+            MainWeapon {
+                spot: MainWeaponSpot::new(field_id, src_idx, name.clone(), requirements),
+                item: Item::main_weapon(src_idx, name.into()),
+            }
+        });
     main_weapons.iter_mut().for_each(|item_spot| {
         if let Some(requirements) = item_spot.spot.requirements_mut().take() {
             *item_spot.spot.requirements_mut() = Some(merge_events(requirements, &events));
@@ -151,21 +146,32 @@ pub fn create_source(game_structure_files: GameStructureFiles) -> Result<Storage
     });
 
     let mut sub_weapons =
-        parse_item_spot_requirements(Spot::sub_weapon, Item::sub_weapon, sub_weapons);
+        parse_game_structure(sub_weapons, |field_id, src_idx, name, requirements| {
+            SubWeapon {
+                spot: SubWeaponSpot::new(field_id, src_idx, name.clone(), requirements),
+                item: Item::sub_weapon(src_idx, name.into()),
+            }
+        });
     sub_weapons.iter_mut().for_each(|item_spot| {
         if let Some(requirements) = item_spot.spot.requirements_mut().take() {
             *item_spot.spot.requirements_mut() = Some(merge_events(requirements, &events));
         }
     });
 
-    let mut chests = parse_item_spot_requirements(Spot::chest, Item::chest_item, chests);
+    let mut chests = parse_game_structure(chests, |field_id, src_idx, name, requirements| Chest {
+        spot: ChestSpot::new(field_id, src_idx, name.clone(), requirements),
+        item: Item::chest_item(src_idx, name.into()),
+    });
     chests.iter_mut().for_each(|item_spot| {
         if let Some(requirements) = item_spot.spot.requirements_mut().take() {
             *item_spot.spot.requirements_mut() = Some(merge_events(requirements, &events));
         }
     });
 
-    let mut seals = parse_item_spot_requirements(Spot::seal, Item::seal, seals);
+    let mut seals = parse_game_structure(seals, |field_id, src_idx, name, requirements| Seal {
+        spot: SealSpot::new(field_id, src_idx, name.clone(), requirements),
+        item: Item::seal(src_idx, name.into()),
+    });
     seals.iter_mut().for_each(|item_spot| {
         if let Some(requirements) = item_spot.spot.requirements_mut().take() {
             *item_spot.spot.requirements_mut() = Some(merge_events(requirements, &events));

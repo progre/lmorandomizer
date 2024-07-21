@@ -2,7 +2,7 @@ use std::mem::take;
 
 use rand::{seq::SliceRandom, Rng};
 
-use crate::dataset::{item::Item, spot::Spot};
+use crate::dataset::{item::Item, spot::SpotRef};
 
 use super::items_spots::Spots;
 
@@ -29,7 +29,7 @@ fn fill_items_from<'a>(
 
 fn pick_items_including_requires<'a>(
     items_pool: &mut ShuffledItems<'a>,
-    spots: &[&Spot],
+    spots: &[&SpotRef<'a>],
     cnt: usize,
 ) -> UnorderedItems<'a> {
     debug_assert!(items_pool.len() >= cnt);
@@ -48,7 +48,7 @@ fn fill_items_including_requires_from<'a>(
     dst: &mut UnorderedItems<'a>,
     target_len: usize,
     src: &mut ShuffledItems<'a>,
-    spots: &[&Spot],
+    spots: &[&SpotRef<'a>],
 ) {
     debug_assert!(dst.len() + src.len() >= target_len);
     let cnt = target_len - dst.len();
@@ -163,11 +163,15 @@ impl<'a> ItemsPool<'a> {
                 + self.consumable_items.len(),
         );
 
+        let shops: Vec<_> = unreachables
+            .shops
+            .iter()
+            .map(|shop| SpotRef::Shop(shop.spot))
+            .collect();
         let remaining_spots: Vec<_> = unreachables
             .field_item_spots
             .iter()
-            .chain(unreachables.shops.iter().map(|shop| &shop.spot))
-            .copied()
+            .chain(shops.iter())
             .collect();
         let fi_spot_cnt = reachables.field_item_spots.len();
         let shop_display_cnt = reachables

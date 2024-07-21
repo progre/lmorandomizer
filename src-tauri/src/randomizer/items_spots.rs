@@ -4,7 +4,7 @@ use rand::Rng;
 
 use crate::dataset::{
     item::Item,
-    spot::{FieldId, Spot},
+    spot::{FieldId, SpotRef},
     storage::Storage,
 };
 
@@ -35,10 +35,10 @@ impl<'a> Items<'a> {
         let items = source
             .main_weapons
             .iter()
-            .chain(&source.sub_weapons)
-            .chain(chests)
-            .chain(&source.seals)
             .map(|x| &x.item)
+            .chain(source.sub_weapons.iter().map(|x| &x.item))
+            .chain(chests.iter().map(|x| &x.item))
+            .chain(source.seals.iter().map(|x| &x.item))
             .chain(
                 source
                     .shops
@@ -143,7 +143,7 @@ impl<'a> Items<'a> {
 
 #[derive(Clone)]
 pub struct Spots<'a> {
-    pub field_item_spots: Vec<&'a Spot>,
+    pub field_item_spots: Vec<SpotRef<'a>>,
     pub shops: Vec<ShopItemDisplay<'a>>,
 }
 
@@ -153,10 +153,15 @@ impl<'a> Spots<'a> {
             field_item_spots: source
                 .main_weapons
                 .iter()
-                .chain(&source.sub_weapons)
-                .chain(&source.chests)
-                .chain(&source.seals)
-                .map(|x| &x.spot)
+                .map(|x| SpotRef::MainWeapon(&x.spot))
+                .chain(
+                    source
+                        .sub_weapons
+                        .iter()
+                        .map(|x| SpotRef::SubWeapon(&x.spot)),
+                )
+                .chain(source.chests.iter().map(|x| SpotRef::Chest(&x.spot)))
+                .chain(source.seals.iter().map(|x| SpotRef::Seal(&x.spot)))
                 .collect(),
             shops: source
                 .shops

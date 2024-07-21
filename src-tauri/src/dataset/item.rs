@@ -1,4 +1,4 @@
-use super::spot::{RequirementFlag, Spot, SpotName};
+use super::spot::{RequirementFlag, SpotName, SpotRef};
 
 #[derive(Clone, Debug, Hash, Eq, Ord, PartialEq, PartialOrd)]
 pub struct StrategyFlag(pub String);
@@ -110,7 +110,7 @@ impl Item {
     }
 
     /// 与えられたスポット一覧のいずれかから必要とされているか
-    pub fn is_required(&self, spots: &[&Spot]) -> bool {
+    pub fn is_required(&self, spots: &[&SpotRef]) -> bool {
         spots
             .iter()
             .flat_map(|spot| spot.requirements())

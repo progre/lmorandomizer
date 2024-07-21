@@ -6,10 +6,10 @@ use crate::dataset::spot::AllRequirements;
 
 use super::{
     spot::{AnyOfAllRequirements, RequirementFlag},
-    storage::{ItemSpot, Storage},
+    storage::{Chest, Storage},
 };
 
-pub fn assert_chests(chests: &[ItemSpot]) {
+pub fn assert_chests(chests: &[Chest]) {
     debug_assert_eq!(
         chests
             .iter()

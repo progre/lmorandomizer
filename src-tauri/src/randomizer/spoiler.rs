@@ -12,7 +12,7 @@ use rand_xoshiro::Xoshiro256PlusPlus;
 use crate::{
     dataset::{
         item::{Item, StrategyFlag},
-        spot::{FieldId, Spot},
+        spot::{FieldId, SpotRef},
     },
     randomizer::sphere::sphere,
 };
@@ -26,19 +26,30 @@ pub fn make_rng<H: Hash>(seed: H) -> Xoshiro256PlusPlus {
     Seeder::from(seed).make_rng()
 }
 
+fn ptr_eq<'a>(a: SpotRef<'a>, b: SpotRef<'a>) -> bool {
+    match (a, b) {
+        (SpotRef::MainWeapon(a), SpotRef::MainWeapon(b)) => ptr::eq(a, b),
+        (SpotRef::SubWeapon(a), SpotRef::SubWeapon(b)) => ptr::eq(a, b),
+        (SpotRef::Chest(a), SpotRef::Chest(b)) => ptr::eq(a, b),
+        (SpotRef::Seal(a), SpotRef::Seal(b)) => ptr::eq(a, b),
+        (SpotRef::Shop(a), SpotRef::Shop(b)) => ptr::eq(a, b),
+        _ => false,
+    }
+}
+
 fn maps<'a>(
     rng: &mut impl Rng,
     maps: &BTreeMap<FieldId, &'a Item>,
     spots: &mut Spots<'a>,
-) -> Vec<Checkpoint<&'a Spot, &'a Item>> {
-    let mut hash_map: BTreeMap<FieldId, Vec<&'a Spot>> = Default::default();
+) -> Vec<Checkpoint<SpotRef<'a>, &'a Item>> {
+    let mut hash_map: BTreeMap<FieldId, Vec<SpotRef<'a>>> = Default::default();
     for spot in &spots.field_item_spots {
-        hash_map.entry(spot.field_id()).or_default().push(spot);
+        hash_map.entry(spot.field_id()).or_default().push(*spot);
     }
     maps.iter()
         .map(|(field_id, item)| {
-            let spot = hash_map[field_id].choose(rng).unwrap();
-            Checkpoint::<&Spot, &Item> {
+            let spot = *hash_map[field_id].choose(rng).unwrap();
+            Checkpoint {
                 spot,
                 idx: 0,
                 item: *item,
@@ -48,7 +59,7 @@ fn maps<'a>(
             let idx = spots
                 .field_item_spots
                 .iter()
-                .position(|&x| ptr::eq(x, checkpoint.spot))
+                .position(|&x| ptr_eq(x, checkpoint.spot))
                 .unwrap();
             spots.field_item_spots.swap_remove(idx);
         })

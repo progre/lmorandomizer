@@ -1,23 +1,7 @@
-use super::{item::Item, spot::Spot};
-
-#[derive(Clone)]
-pub struct ItemSpot {
-    pub spot: Spot,
-    pub item: Item,
-}
-
-#[derive(Clone)]
-pub struct Shop {
-    pub spot: Spot,
-    pub items: (Item, Item, Item),
-}
-impl Shop {
-    pub fn count_general_items(&self) -> usize {
-        !self.items.0.name.is_consumable() as usize
-            + !self.items.1.name.is_consumable() as usize
-            + !self.items.2.name.is_consumable() as usize
-    }
-}
+use super::{
+    item::Item,
+    spot::{ChestSpot, MainWeaponSpot, SealSpot, ShopSpot, SubWeaponSpot},
+};
 
 #[derive(Default)]
 pub struct StorageIndices {
@@ -28,20 +12,58 @@ pub struct StorageIndices {
 }
 
 #[derive(Clone)]
+pub struct MainWeapon {
+    pub spot: MainWeaponSpot,
+    pub item: Item,
+}
+
+#[derive(Clone)]
+pub struct SubWeapon {
+    pub spot: SubWeaponSpot,
+    pub item: Item,
+}
+
+#[derive(Clone)]
+pub struct Chest {
+    pub spot: ChestSpot,
+    pub item: Item,
+}
+
+#[derive(Clone)]
+pub struct Seal {
+    pub spot: SealSpot,
+    pub item: Item,
+}
+
+#[derive(Clone)]
+pub struct Shop {
+    pub spot: ShopSpot,
+    pub items: (Item, Item, Item),
+}
+
+impl Shop {
+    pub fn count_general_items(&self) -> usize {
+        !self.items.0.name.is_consumable() as usize
+            + !self.items.1.name.is_consumable() as usize
+            + !self.items.2.name.is_consumable() as usize
+    }
+}
+
+#[derive(Clone)]
 pub struct Storage {
-    pub main_weapons: Vec<ItemSpot>,
-    pub sub_weapons: Vec<ItemSpot>,
-    pub chests: Vec<ItemSpot>,
-    pub seals: Vec<ItemSpot>,
+    pub main_weapons: Vec<MainWeapon>,
+    pub sub_weapons: Vec<SubWeapon>,
+    pub chests: Vec<Chest>,
+    pub seals: Vec<Seal>,
     pub shops: Vec<Shop>,
 }
 
 impl Storage {
     pub fn new(
-        main_weapons: Vec<ItemSpot>,
-        sub_weapons: Vec<ItemSpot>,
-        chests: Vec<ItemSpot>,
-        seals: Vec<ItemSpot>,
+        main_weapons: Vec<MainWeapon>,
+        sub_weapons: Vec<SubWeapon>,
+        chests: Vec<Chest>,
+        seals: Vec<Seal>,
         shops: Vec<Shop>,
     ) -> Self {
         Self {
@@ -56,10 +78,10 @@ impl Storage {
     pub fn all_items(&self) -> impl Iterator<Item = &Item> {
         self.main_weapons
             .iter()
-            .chain(&self.sub_weapons)
-            .chain(&self.chests)
-            .chain(&self.seals)
             .map(|x| &x.item)
+            .chain(self.sub_weapons.iter().map(|x| &x.item))
+            .chain(self.chests.iter().map(|x| &x.item))
+            .chain(self.seals.iter().map(|x| &x.item))
             .chain(
                 self.shops
                     .iter()

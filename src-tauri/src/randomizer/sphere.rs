@@ -4,7 +4,7 @@ use rand::Rng;
 
 use crate::dataset::{
     item::{Item, StrategyFlag},
-    spot::Spot,
+    spot::{AnyOfAllRequirements, ShopSpot, SpotRef},
 };
 
 use super::{
@@ -15,9 +15,25 @@ use super::{
 
 #[derive(Clone)]
 pub struct ShopItemDisplay<'a> {
-    pub spot: &'a Spot,
+    pub spot: &'a ShopSpot,
     pub idx: usize,
     pub name: &'a StrategyFlag,
+}
+
+fn is_reachable(
+    requirements: Option<&AnyOfAllRequirements>,
+    current_strategy_flags: &HashSet<&str>,
+    sacred_orb_count: u8,
+) -> bool {
+    let Some(any) = requirements else {
+        return true;
+    };
+    any.0.iter().any(|all| {
+        all.0.iter().all(|x| {
+            x.is_sacred_orb() && x.sacred_orb_count() <= sacred_orb_count
+                || current_strategy_flags.contains(x.get())
+        })
+    })
 }
 
 fn explore<'a>(
@@ -31,14 +47,20 @@ fn explore<'a>(
     let (reachables_field_item_spots, unreachables_field_item_spots) = remainging_spots
         .field_item_spots
         .iter()
-        .partition::<Vec<_>, _>(|x| x.is_reachable(&strategy_flag_strs, sacred_orb_count));
+        .copied()
+        .partition::<Vec<_>, _>(|x| {
+            is_reachable(x.requirements(), &strategy_flag_strs, sacred_orb_count)
+        });
     let (reachables_shops, unreachable_shops) = remainging_spots
         .shops
         .iter()
         .cloned()
         .partition::<Vec<_>, _>(|shop| {
-            shop.spot
-                .is_reachable(&strategy_flag_strs, sacred_orb_count)
+            is_reachable(
+                shop.spot.requirements(),
+                &strategy_flag_strs,
+                sacred_orb_count,
+            )
         });
 
     let reachables = Spots {
@@ -58,7 +80,7 @@ fn place_items<'a>(
     consumable_items_pool: &mut ShuffledItems<'a>,
     reachables: Spots<'a>,
     strategy_flags: &mut HashSet<StrategyFlag>,
-) -> Sphere<&'a Spot, &'a Item> {
+) -> Sphere<SpotRef<'a>, &'a Item> {
     let mut sphere: Vec<_> = Default::default();
     reachables.field_item_spots.into_iter().for_each(|spot| {
         let item = field_items.pop().unwrap();
@@ -73,7 +95,7 @@ fn place_items<'a>(
         };
         strategy_flags.insert(item.name.clone());
         sphere.push(Checkpoint {
-            spot: shop.spot,
+            spot: SpotRef::Shop(shop.spot),
             idx: shop.idx,
             item,
         });
@@ -86,7 +108,7 @@ pub fn sphere<'a>(
     items_pool: &mut ItemsPool<'a>,
     remaining_spots: &mut Spots<'a>,
     strategy_flags: &mut HashSet<StrategyFlag>,
-) -> Option<Sphere<&'a Spot, &'a Item>> {
+) -> Option<Sphere<SpotRef<'a>, &'a Item>> {
     debug_assert_eq!(
         items_pool.priority_items.as_ref().map_or(0, |x| x.len())
             + items_pool.field_items.len()

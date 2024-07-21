@@ -2,7 +2,7 @@ use std::{collections::BTreeMap, fmt};
 
 use crate::dataset::{
     item::Item,
-    spot::{FieldId, Spot},
+    spot::{FieldId, Spot, SpotRef},
 };
 
 fn compare_key_for_spoiler_log(field_id: FieldId) -> u8 {
@@ -30,10 +30,10 @@ pub struct Checkpoint<TSpot, TItem> {
     pub item: TItem,
 }
 
-impl<'a> Checkpoint<&'a Spot, &'a Item> {
+impl<'a> Checkpoint<SpotRef<'a>, &'a Item> {
     pub fn into_owned(self) -> Checkpoint<Spot, Item> {
         Checkpoint {
-            spot: self.spot.to_owned(),
+            spot: self.spot.into(),
             idx: self.idx,
             item: self.item.to_owned(),
         }
@@ -86,8 +86,8 @@ impl fmt::Display for SpoilerLog {
 }
 
 pub struct SpoilerLogRef<'a> {
-    pub progression: Vec<Sphere<&'a Spot, &'a Item>>,
-    pub maps: Vec<Checkpoint<&'a Spot, &'a Item>>,
+    pub progression: Vec<Sphere<SpotRef<'a>, &'a Item>>,
+    pub maps: Vec<Checkpoint<SpotRef<'a>, &'a Item>>,
 }
 
 impl SpoilerLogRef<'_> {
