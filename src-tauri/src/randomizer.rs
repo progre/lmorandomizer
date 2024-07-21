@@ -45,7 +45,7 @@ pub struct RandomizeOptions {
 
 pub fn randomize(
     script_dat: &[u8],
-    game_structure_files: &GameStructureFiles,
+    game_structure_files: GameStructureFiles,
     options: &RandomizeOptions,
 ) -> Result<(Vec<u8>, SpoilerLog)> {
     let start = std::time::Instant::now();

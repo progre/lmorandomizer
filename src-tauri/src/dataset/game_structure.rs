@@ -1,140 +1,83 @@
+use std::collections::{BTreeMap, HashMap};
+
 use anyhow::{bail, Result};
-use serde_yaml::{Mapping, Value};
+use num_traits::FromPrimitive;
 
 use super::spot::FieldId;
 
-fn try_parse_mapping(map: Mapping) -> Result<(String, Vec<String>)> {
-    debug_assert_eq!(map.len(), 1);
-    let (key, requirements) = map.into_iter().next().unwrap();
-    let Value::String(key) = key else {
-        bail!("key is not string")
-    };
-    let requirements = match requirements {
-        Value::Null => vec![],
-        Value::Sequence(requirements) => requirements,
-        _ => bail!("requirements is not sequence"),
-    };
-    let requirements: Vec<_> = requirements
-        .into_iter()
-        .map(|x| {
-            if let Value::String(x) = x {
-                Ok(x)
-            } else {
-                bail!("requirement is not string")
-            }
-        })
-        .collect::<Result<_>>()?;
-    Ok((key, requirements))
-}
-
-fn try_parse_events(vec: Vec<Mapping>) -> Result<Vec<YamlSpot>> {
-    vec.into_iter()
-        .map(|map| {
-            let (name, requirements) = try_parse_mapping(map)?;
-            Ok(YamlSpot { name, requirements })
-        })
-        .collect()
-}
-
-fn try_parse_spots(vec: Vec<(FieldId, Mapping)>) -> Result<Vec<(FieldId, YamlSpot)>> {
-    vec.into_iter()
-        .map(|(field_id, map)| {
-            debug_assert_eq!(map.len(), 1);
-            let (name, requirements) = try_parse_mapping(map)?;
-            Ok((field_id, YamlSpot { name, requirements }))
-        })
-        .collect()
-}
-
-fn try_parse_shops(vec: Vec<(FieldId, Mapping)>) -> Result<Vec<(FieldId, YamlShop)>> {
-    vec.into_iter()
-        .map(|(field_id, map)| {
-            let (names, requirements) = try_parse_mapping(map)?;
-            let shop = YamlShop {
-                names,
-                requirements,
-            };
-            Ok((field_id, shop))
-        })
-        .collect()
-}
-
 pub struct GameStructureFiles {
-    pub fields: Vec<(FieldId, String)>,
-    pub events: String,
+    pub fields: Vec<(FieldId, FieldYaml)>,
+    pub events: EventsYaml,
 }
 
 impl GameStructureFiles {
-    #[allow(clippy::type_complexity)]
-    pub fn try_parse(
-        &self,
-    ) -> Result<(
-        Vec<(FieldId, YamlSpot)>,
-        Vec<(FieldId, YamlSpot)>,
-        Vec<(FieldId, YamlSpot)>,
-        Vec<(FieldId, YamlSpot)>,
-        Vec<(FieldId, YamlShop)>,
-        Vec<YamlSpot>,
-    )> {
-        let mut main_weapons = Vec::new();
-        let mut sub_weapons = Vec::new();
-        let mut chests = Vec::new();
-        let mut seals = Vec::new();
-        let mut shops = Vec::new();
-        for (field_id, field_data) in &self.fields {
-            let yaml: GameStructureYaml = serde_yaml::from_str(field_data)?;
-            for item in yaml.main_weapons {
-                main_weapons.push((*field_id, item));
-            }
-            for item in yaml.sub_weapons {
-                sub_weapons.push((*field_id, item));
-            }
-            for item in yaml.chests {
-                chests.push((*field_id, item));
-            }
-            for item in yaml.seals {
-                seals.push((*field_id, item));
-            }
-            for item in yaml.shops {
-                shops.push((*field_id, item));
-            }
-        }
-        let events: SpotYaml = serde_yaml::from_str(&self.events)?;
-        Ok((
-            try_parse_spots(main_weapons)?,
-            try_parse_spots(sub_weapons)?,
-            try_parse_spots(chests)?,
-            try_parse_spots(seals)?,
-            try_parse_shops(shops)?,
-            try_parse_events(events.0)?,
-        ))
+    pub fn new(fields: BTreeMap<FieldId, String>, events: String) -> Result<GameStructureFiles> {
+        const ORDER_OF_FIELD_DATA: [u8; 19] = [
+            1, 0, 2, 3, 4, 5, 6, 8, 9, 7, 17, 11, 12, 14, 13, 15, 16, 18, 19,
+        ];
+        let fields = ORDER_OF_FIELD_DATA
+            .map(|x| {
+                let field_id = FieldId::from_u8(x).unwrap();
+                let yaml = FieldYaml::new(&fields[&field_id])?;
+                Ok((field_id, yaml))
+            })
+            .into_iter()
+            .collect::<Result<_>>()?;
+        let events = EventsYaml::new(&events)?;
+        Ok(Self { fields, events })
     }
 }
 
 #[derive(Default, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
-struct GameStructureYaml {
+pub struct FieldYaml {
     #[serde(default)]
-    pub main_weapons: Vec<Mapping>,
+    pub main_weapons: Vec<HashMap<String, Vec<String>>>,
     #[serde(default)]
-    pub sub_weapons: Vec<Mapping>,
+    pub sub_weapons: Vec<HashMap<String, Vec<String>>>,
     #[serde(default)]
-    pub chests: Vec<Mapping>,
+    pub chests: Vec<HashMap<String, Vec<String>>>,
     #[serde(default)]
-    pub seals: Vec<Mapping>,
+    pub seals: Vec<HashMap<String, Vec<String>>>,
     #[serde(default)]
-    pub shops: Vec<Mapping>,
+    pub shops: Vec<HashMap<String, Vec<String>>>,
+}
+
+impl FieldYaml {
+    fn new(raw_str: &str) -> Result<Self> {
+        let zelf: Self = serde_yaml::from_str(raw_str)?;
+        if zelf
+            .main_weapons
+            .iter()
+            .chain(&zelf.sub_weapons)
+            .chain(&zelf.chests)
+            .chain(&zelf.seals)
+            .chain(&zelf.shops)
+            .any(|x| x.len() != 1)
+        {
+            bail!("invalid data format");
+        }
+        Ok(zelf)
+    }
 }
 
 #[derive(serde::Deserialize)]
-struct SpotYaml(Vec<Mapping>);
+pub struct EventsYaml(pub Vec<HashMap<String, Vec<String>>>);
 
-pub struct YamlSpot {
-    pub name: String,
-    pub requirements: Vec<String>,
-}
-
-pub struct YamlShop {
-    pub names: String,
-    pub requirements: Vec<String>,
+impl EventsYaml {
+    fn new(raw_str: &str) -> Result<Self> {
+        let zelf: Self = serde_yaml::from_str(raw_str)?;
+        if zelf.0.iter().any(|x| x.len() != 1) {
+            bail!("invalid data format");
+        }
+        if zelf
+            .0
+            .iter()
+            .flat_map(|x| x.values())
+            .any(|requirements| requirements.is_empty())
+        {
+            bail!("invalid data format");
+        }
+        Ok(zelf)
+    }
 }

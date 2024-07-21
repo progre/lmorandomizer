@@ -2,6 +2,7 @@ mod assertions;
 pub mod create_source;
 pub mod game_structure;
 pub mod item;
+mod merge_events;
 pub mod spot;
 pub mod storage;
 
