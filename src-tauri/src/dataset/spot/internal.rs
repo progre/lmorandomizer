@@ -114,9 +114,6 @@ impl MainWeaponSpot {
     pub fn requirements(&self) -> Option<&AnyOfAllRequirements> {
         self.requirements.as_ref()
     }
-    pub fn requirements_mut(&mut self) -> &mut Option<AnyOfAllRequirements> {
-        &mut self.requirements
-    }
 }
 
 impl fmt::Display for MainWeaponSpot {
@@ -159,9 +156,6 @@ impl SubWeaponSpot {
     }
     pub fn requirements(&self) -> Option<&AnyOfAllRequirements> {
         self.requirements.as_ref()
-    }
-    pub fn requirements_mut(&mut self) -> &mut Option<AnyOfAllRequirements> {
-        &mut self.requirements
     }
 }
 
@@ -206,9 +200,6 @@ impl ChestSpot {
     pub fn requirements(&self) -> Option<&AnyOfAllRequirements> {
         self.requirements.as_ref()
     }
-    pub fn requirements_mut(&mut self) -> &mut Option<AnyOfAllRequirements> {
-        &mut self.requirements
-    }
 }
 
 impl fmt::Display for ChestSpot {
@@ -251,9 +242,6 @@ impl SealSpot {
     }
     pub fn requirements(&self) -> Option<&AnyOfAllRequirements> {
         self.requirements.as_ref()
-    }
-    pub fn requirements_mut(&mut self) -> &mut Option<AnyOfAllRequirements> {
-        &mut self.requirements
     }
 }
 
@@ -304,9 +292,6 @@ impl ShopSpot {
     }
     pub fn requirements(&self) -> Option<&AnyOfAllRequirements> {
         self.requirements.as_ref()
-    }
-    pub fn requirements_mut(&mut self) -> &mut Option<AnyOfAllRequirements> {
-        &mut self.requirements
     }
 
     pub fn to_strategy_flags(&self) -> (StrategyFlag, StrategyFlag, StrategyFlag) {

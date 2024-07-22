@@ -1,7 +1,7 @@
 use std::fmt;
 
 use crate::dataset::{
-    item::Item,
+    item::{Item, StrategyFlag},
     spot::{FieldId, SpotRef},
     storage::{
         Chest, ChestRef, MainWeapon, MainWeaponRef, Seal, SealRef, Shop, ShopRef, SubWeapon,
@@ -23,6 +23,7 @@ pub enum Checkpoint {
     Chest(Chest),
     Seal(Seal),
     Shop(Shop),
+    Event(StrategyFlag),
 }
 
 impl fmt::Display for Checkpoint {
@@ -46,6 +47,7 @@ impl fmt::Display for Checkpoint {
                 let items = (items.0.name.get(), items.1.name.get(), items.2.name.get());
                 write!(f, "{} = {}, {}, {}", spot, items.0, items.1, items.2)
             }
+            Self::Event(flag) => write!(f, "{}", flag.get()),
         }
     }
 }
@@ -56,6 +58,7 @@ pub enum CheckpointRef<'a> {
     Chest(ChestRef<'a>),
     Seal(SealRef<'a>),
     Shop(ShopRef<'a>),
+    Event(&'a StrategyFlag),
 }
 
 impl<'a> CheckpointRef<'a> {
@@ -95,6 +98,7 @@ impl<'a> CheckpointRef<'a> {
                     checkpoint.items.2.to_owned(),
                 ),
             }),
+            Self::Event(flag) => Checkpoint::Event((*flag).to_owned()),
         }
     }
 }
@@ -123,6 +127,7 @@ impl fmt::Display for SpoilerLog {
                     Checkpoint::Chest(x) => (x.spot.field_id(), 3, x.spot.src_idx()),
                     Checkpoint::Seal(x) => (x.spot.field_id(), 4, x.spot.src_idx()),
                     Checkpoint::Shop(x) => (x.spot.field_id(), 5, x.spot.src_idx()),
+                    Checkpoint::Event(_) => return 10000000,
                 };
                 compare_key_for_spoiler_log(field) as usize * 10000 + type_num * 1000 + src_idx
             });

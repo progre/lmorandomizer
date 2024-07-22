@@ -5,7 +5,7 @@ use rand::Rng;
 use crate::dataset::{
     item::Item,
     spot::{FieldId, SpotRef},
-    storage::Storage,
+    storage::{Event, Storage},
 };
 
 use super::{
@@ -145,6 +145,7 @@ impl<'a> Items<'a> {
 pub struct Spots<'a> {
     pub field_item_spots: Vec<SpotRef<'a>>,
     pub shops: Vec<ShopItemDisplay<'a>>,
+    pub events: Vec<&'a Event>,
 }
 
 impl<'a> Spots<'a> {
@@ -177,6 +178,7 @@ impl<'a> Spots<'a> {
                         })
                 })
                 .collect(),
+            events: source.events.iter().collect(),
         }
     }
 

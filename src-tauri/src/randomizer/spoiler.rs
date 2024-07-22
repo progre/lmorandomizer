@@ -74,7 +74,7 @@ pub fn spoiler<'a>(seed: u64, items: &Items<'a>, spots: &Spots<'a>) -> Option<Sp
         remaining_spots.field_item_spots.len() + remaining_spots.shops.len()
     );
 
-    let mut strategy_flags: HashSet<StrategyFlag> = Default::default();
+    let mut strategy_flags: HashSet<&'a StrategyFlag> = Default::default();
     let mut progression = Vec::new();
 
     for i in 0..100 {

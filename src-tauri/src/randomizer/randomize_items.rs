@@ -44,7 +44,7 @@ fn create_shuffled_storage(source: &Storage, spoiler_log: &SpoilerLogRef) -> Sto
         .flat_map(|sphere| &sphere.0)
         .chain(&spoiler_log.maps)
     {
-        match &checkpoint {
+        match checkpoint {
             CheckpointRef::MainWeapon(checkpoint) => {
                 storage.main_weapons[checkpoint.spot.src_idx()].item = checkpoint.item.clone();
             }
@@ -63,6 +63,7 @@ fn create_shuffled_storage(source: &Storage, spoiler_log: &SpoilerLogRef) -> Sto
                 items.1 = checkpoint.items.1.clone();
                 items.2 = checkpoint.items.2.clone();
             }
+            CheckpointRef::Event(_) => {}
         }
     }
     storage

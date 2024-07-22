@@ -1,6 +1,9 @@
+use anyhow::Result;
+
 use super::{
-    item::Item,
-    spot::{ChestSpot, MainWeaponSpot, SealSpot, ShopSpot, SubWeaponSpot},
+    assertions::ware_missing_requirements,
+    item::{Item, StrategyFlag},
+    spot::{AnyOfAllRequirements, ChestSpot, MainWeaponSpot, SealSpot, ShopSpot, SubWeaponSpot},
 };
 
 #[derive(Default)]
@@ -75,12 +78,19 @@ pub struct ShopRef<'a> {
 }
 
 #[derive(Clone)]
+pub struct Event {
+    pub name: StrategyFlag,
+    pub requirements: AnyOfAllRequirements,
+}
+
+#[derive(Clone)]
 pub struct Storage {
     pub main_weapons: Vec<MainWeapon>,
     pub sub_weapons: Vec<SubWeapon>,
     pub chests: Vec<Chest>,
     pub seals: Vec<Seal>,
     pub shops: Vec<Shop>,
+    pub events: Vec<Event>,
 }
 
 impl Storage {
@@ -90,14 +100,20 @@ impl Storage {
         chests: Vec<Chest>,
         seals: Vec<Seal>,
         shops: Vec<Shop>,
-    ) -> Self {
-        Self {
+        events: Vec<Event>,
+    ) -> Result<Self> {
+        let zelf = Self {
             main_weapons,
             sub_weapons,
             chests,
             seals,
             shops,
+            events,
+        };
+        if cfg!(debug_assertions) {
+            ware_missing_requirements(&zelf)?;
         }
+        Ok(zelf)
     }
 
     pub fn all_items(&self) -> impl Iterator<Item = &Item> {
