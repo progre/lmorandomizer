@@ -1,10 +1,14 @@
-use std::{collections::HashSet, ops::Deref};
+use std::{
+    collections::{BTreeMap, HashSet},
+    ops::Deref,
+};
 
 use rand::Rng;
 
 use crate::dataset::{
     item::StrategyFlag,
-    spot::{AnyOfAllRequirements, ShopSpot, SpotRef},
+    spot::{AnyOfAllRequirements, ShopSpot},
+    storage::ShopRef,
 };
 
 use super::{
@@ -85,21 +89,38 @@ fn place_items<'a>(
     reachables.field_item_spots.into_iter().for_each(|spot| {
         let item = field_items.pop().unwrap();
         strategy_flags.insert(item.name.clone());
-        sphere.push(CheckpointRef { spot, idx: 0, item });
+        sphere.push(CheckpointRef::from_field_spot_item(spot, item));
     });
-    reachables.shops.into_iter().for_each(|shop| {
-        let item = if shop.name.is_consumable() {
-            consumable_items_pool.pop().unwrap()
-        } else {
-            shop_items.pop().unwrap()
-        };
-        strategy_flags.insert(item.name.clone());
-        sphere.push(CheckpointRef {
-            spot: SpotRef::Shop(shop.spot),
-            idx: shop.idx,
-            item,
+    let shops = reachables
+        .shops
+        .into_iter()
+        .fold(BTreeMap::<_, Vec<_>>::new(), |mut map, shop| {
+            map.entry(shop.spot as *const ShopSpot)
+                .or_default()
+                .push(shop);
+            map
         });
-    });
+    for mut shops in shops.into_values() {
+        shops.sort_by_key(|x| x.idx);
+        let spot = shops[0].spot;
+        let items: Vec<_> = shops
+            .into_iter()
+            .map(|shop| {
+                if shop.name.is_consumable() {
+                    consumable_items_pool.pop().unwrap()
+                } else {
+                    shop_items.pop().unwrap()
+                }
+            })
+            .collect();
+        for item in &items {
+            strategy_flags.insert(item.name.clone());
+        }
+        sphere.push(CheckpointRef::Shop(ShopRef {
+            spot,
+            items: (items[0], items[1], items[2]),
+        }));
+    }
     SphereRef(sphere)
 }
 

@@ -1,8 +1,12 @@
-use std::{collections::BTreeMap, fmt};
+use std::fmt;
 
 use crate::dataset::{
     item::Item,
-    spot::{FieldId, Spot, SpotRef},
+    spot::{FieldId, SpotRef},
+    storage::{
+        Chest, ChestRef, MainWeapon, MainWeaponRef, Seal, SealRef, Shop, ShopRef, SubWeapon,
+        SubWeaponRef,
+    },
 };
 
 fn compare_key_for_spoiler_log(field_id: FieldId) -> u8 {
@@ -13,35 +17,84 @@ fn compare_key_for_spoiler_log(field_id: FieldId) -> u8 {
     }
 }
 
-fn spot_idx(spot: &Spot) -> usize {
-    compare_key_for_spoiler_log(spot.field_id()) as usize * 10000
-        + match spot {
-            Spot::MainWeapon(spot) => 1000 + spot.src_idx(),
-            Spot::SubWeapon(spot) => 2000 + spot.src_idx(),
-            Spot::Chest(spot) => 3000 + spot.src_idx(),
-            Spot::Seal(spot) => 4000 + spot.src_idx(),
-            Spot::Shop(spot) => 5000 + spot.src_idx(),
+pub enum Checkpoint {
+    MainWeapon(MainWeapon),
+    SubWeapon(SubWeapon),
+    Chest(Chest),
+    Seal(Seal),
+    Shop(Shop),
+}
+
+impl fmt::Display for Checkpoint {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::MainWeapon(checkpoint) => {
+                write!(f, "{} = {}", checkpoint.spot, checkpoint.item.name.get())
+            }
+            Self::SubWeapon(checkpoint) => {
+                write!(f, "{} = {}", checkpoint.spot, checkpoint.item.name.get())
+            }
+            Self::Chest(checkpoint) => {
+                write!(f, "{} = {}", checkpoint.spot, checkpoint.item.name.get())
+            }
+            Self::Seal(checkpoint) => {
+                write!(f, "{} = {}", checkpoint.spot, checkpoint.item.name.get())
+            }
+            Self::Shop(checkpoint) => {
+                let spot = &checkpoint.spot;
+                let items = &checkpoint.items;
+                let items = (items.0.name.get(), items.1.name.get(), items.2.name.get());
+                write!(f, "{} = {}, {}, {}", spot, items.0, items.1, items.2)
+            }
         }
+    }
 }
 
-pub struct Checkpoint {
-    pub spot: Spot,
-    pub idx: usize,
-    pub item: Item,
+pub enum CheckpointRef<'a> {
+    MainWeapon(MainWeaponRef<'a>),
+    SubWeapon(SubWeaponRef<'a>),
+    Chest(ChestRef<'a>),
+    Seal(SealRef<'a>),
+    Shop(ShopRef<'a>),
 }
 
-pub struct CheckpointRef<'a> {
-    pub spot: SpotRef<'a>,
-    pub idx: usize,
-    pub item: &'a Item,
-}
+impl<'a> CheckpointRef<'a> {
+    pub fn from_field_spot_item(spot: SpotRef<'a>, item: &'a Item) -> Self {
+        match spot {
+            SpotRef::MainWeapon(spot) => Self::MainWeapon(MainWeaponRef { spot, item }),
+            SpotRef::SubWeapon(spot) => Self::SubWeapon(SubWeaponRef { spot, item }),
+            SpotRef::Chest(spot) => Self::Chest(ChestRef { spot, item }),
+            SpotRef::Seal(spot) => Self::Seal(SealRef { spot, item }),
+            SpotRef::Shop(_) => unreachable!(),
+        }
+    }
 
-impl CheckpointRef<'_> {
     pub fn to_owned(&self) -> Checkpoint {
-        Checkpoint {
-            spot: self.spot.to_owned(),
-            idx: self.idx,
-            item: self.item.to_owned(),
+        match self {
+            Self::MainWeapon(checkpoint) => Checkpoint::MainWeapon(MainWeapon {
+                spot: checkpoint.spot.to_owned(),
+                item: checkpoint.item.to_owned(),
+            }),
+            Self::SubWeapon(checkpoint) => Checkpoint::SubWeapon(SubWeapon {
+                spot: checkpoint.spot.to_owned(),
+                item: checkpoint.item.to_owned(),
+            }),
+            Self::Chest(checkpoint) => Checkpoint::Chest(Chest {
+                spot: checkpoint.spot.to_owned(),
+                item: checkpoint.item.to_owned(),
+            }),
+            Self::Seal(checkpoint) => Checkpoint::Seal(Seal {
+                spot: checkpoint.spot.to_owned(),
+                item: checkpoint.item.to_owned(),
+            }),
+            Self::Shop(checkpoint) => Checkpoint::Shop(Shop {
+                spot: checkpoint.spot.to_owned(),
+                items: (
+                    checkpoint.items.0.to_owned(),
+                    checkpoint.items.1.to_owned(),
+                    checkpoint.items.2.to_owned(),
+                ),
+            }),
         }
     }
 }
@@ -62,32 +115,25 @@ impl fmt::Display for SpoilerLog {
                 writeln!(f)?;
             }
             writeln!(f, "[Sphere {}]", i + 1)?;
-            let mut map: BTreeMap<_, Vec<_>> = BTreeMap::new();
-            for checkpoint in &sphere.0 {
-                map.entry(spot_idx(&checkpoint.spot))
-                    .or_default()
-                    .push(checkpoint);
-            }
-            for checkpoints in map.values_mut() {
-                if checkpoints.len() == 1 {
-                    let spot = &checkpoints[0].spot;
-                    let name = checkpoints[0].item.name.get();
-                    writeln!(f, "{} = {}", spot, name)?;
-                } else {
-                    let spot = &checkpoints[0].spot;
-                    checkpoints.sort_by_key(|x| x.idx);
-                    let names: Vec<_> = checkpoints.iter().map(|x| x.item.name.get()).collect();
-                    let names = names.join(", ");
-                    writeln!(f, "{} = {}", spot, names)?;
-                }
+            let mut checkpoints: Vec<_> = sphere.0.iter().collect();
+            checkpoints.sort_by_key(|checkpoint| {
+                let (field, type_num, src_idx) = match checkpoint {
+                    Checkpoint::MainWeapon(x) => (x.spot.field_id(), 1, x.spot.src_idx()),
+                    Checkpoint::SubWeapon(x) => (x.spot.field_id(), 2, x.spot.src_idx()),
+                    Checkpoint::Chest(x) => (x.spot.field_id(), 3, x.spot.src_idx()),
+                    Checkpoint::Seal(x) => (x.spot.field_id(), 4, x.spot.src_idx()),
+                    Checkpoint::Shop(x) => (x.spot.field_id(), 5, x.spot.src_idx()),
+                };
+                compare_key_for_spoiler_log(field) as usize * 10000 + type_num * 1000 + src_idx
+            });
+            for checkpoint in checkpoints {
+                writeln!(f, "{}", checkpoint)?;
             }
         }
         writeln!(f)?;
         writeln!(f, "[Maps]")?;
         for checkpoint in &self.maps {
-            let spot = &checkpoint.spot;
-            let name = checkpoint.item.name.get();
-            writeln!(f, "{} = {}", spot, name)?;
+            writeln!(f, "{}", checkpoint)?;
         }
         Ok(())
     }

@@ -1,3 +1,5 @@
+use std::{any::type_name, fmt};
+
 use super::super::item::StrategyFlag;
 
 #[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd, num_derive::FromPrimitive)]
@@ -109,14 +111,20 @@ impl MainWeaponSpot {
     pub fn src_idx(&self) -> usize {
         self.src_idx
     }
-    pub fn name(&self) -> &SpotName {
-        &self.name
-    }
     pub fn requirements(&self) -> Option<&AnyOfAllRequirements> {
         self.requirements.as_ref()
     }
     pub fn requirements_mut(&mut self) -> &mut Option<AnyOfAllRequirements> {
         &mut self.requirements
+    }
+}
+
+impl fmt::Display for MainWeaponSpot {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let field_id = &self.field_id;
+        let type_name = type_name::<Self>().split("::").last().unwrap();
+        let name = self.name.get();
+        write!(f, "{:?}_{}{}({})", field_id, type_name, self.src_idx, name)
     }
 }
 
@@ -149,14 +157,20 @@ impl SubWeaponSpot {
     pub fn src_idx(&self) -> usize {
         self.src_idx
     }
-    pub fn name(&self) -> &SpotName {
-        &self.name
-    }
     pub fn requirements(&self) -> Option<&AnyOfAllRequirements> {
         self.requirements.as_ref()
     }
     pub fn requirements_mut(&mut self) -> &mut Option<AnyOfAllRequirements> {
         &mut self.requirements
+    }
+}
+
+impl fmt::Display for SubWeaponSpot {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let field_id = &self.field_id;
+        let type_name = type_name::<Self>().split("::").last().unwrap();
+        let name = self.name.get();
+        write!(f, "{:?}_{}{}({})", field_id, type_name, self.src_idx, name)
     }
 }
 
@@ -189,14 +203,20 @@ impl ChestSpot {
     pub fn src_idx(&self) -> usize {
         self.src_idx
     }
-    pub fn name(&self) -> &SpotName {
-        &self.name
-    }
     pub fn requirements(&self) -> Option<&AnyOfAllRequirements> {
         self.requirements.as_ref()
     }
     pub fn requirements_mut(&mut self) -> &mut Option<AnyOfAllRequirements> {
         &mut self.requirements
+    }
+}
+
+impl fmt::Display for ChestSpot {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let field_id = &self.field_id;
+        let type_name = type_name::<Self>().split("::").last().unwrap();
+        let name = self.name.get();
+        write!(f, "{:?}_{}{}({})", field_id, type_name, self.src_idx, name)
     }
 }
 
@@ -229,14 +249,20 @@ impl SealSpot {
     pub fn src_idx(&self) -> usize {
         self.src_idx
     }
-    pub fn name(&self) -> &SpotName {
-        &self.name
-    }
     pub fn requirements(&self) -> Option<&AnyOfAllRequirements> {
         self.requirements.as_ref()
     }
     pub fn requirements_mut(&mut self) -> &mut Option<AnyOfAllRequirements> {
         &mut self.requirements
+    }
+}
+
+impl fmt::Display for SealSpot {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let field_id = &self.field_id;
+        let type_name = type_name::<Self>().split("::").last().unwrap();
+        let name = self.name.get();
+        write!(f, "{:?}_{}{}({})", field_id, type_name, self.src_idx, name)
     }
 }
 
@@ -289,6 +315,22 @@ impl ShopSpot {
             StrategyFlag::new(names.next().unwrap().to_string()),
             StrategyFlag::new(names.next().unwrap().to_string()),
             StrategyFlag::new(names.next().unwrap().to_string()),
+        )
+    }
+}
+
+impl fmt::Display for ShopSpot {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let full_type_name = type_name::<ShopSpot>();
+        let src_idx = self.src_idx();
+        let name = self.name();
+        write!(
+            f,
+            "{:?}_{}{}({})",
+            self.field_id(),
+            full_type_name.split("::").last().unwrap(),
+            src_idx,
+            name.get()
         )
     }
 }

@@ -49,6 +49,31 @@ impl Shop {
     }
 }
 
+pub struct MainWeaponRef<'a> {
+    pub spot: &'a MainWeaponSpot,
+    pub item: &'a Item,
+}
+
+pub struct SubWeaponRef<'a> {
+    pub spot: &'a SubWeaponSpot,
+    pub item: &'a Item,
+}
+
+pub struct ChestRef<'a> {
+    pub spot: &'a ChestSpot,
+    pub item: &'a Item,
+}
+
+pub struct SealRef<'a> {
+    pub spot: &'a SealSpot,
+    pub item: &'a Item,
+}
+
+pub struct ShopRef<'a> {
+    pub spot: &'a ShopSpot,
+    pub items: (&'a Item, &'a Item, &'a Item),
+}
+
 #[derive(Clone)]
 pub struct Storage {
     pub main_weapons: Vec<MainWeapon>,

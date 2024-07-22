@@ -24,13 +24,13 @@ pub fn make_rng<H: Hash>(seed: H) -> Xoshiro256PlusPlus {
     Seeder::from(seed).make_rng()
 }
 
-fn ptr_eq<'a>(a: SpotRef<'a>, b: SpotRef<'a>) -> bool {
+fn ptr_eq<'a>(a: SpotRef<'a>, b: &CheckpointRef<'a>) -> bool {
     match (a, b) {
-        (SpotRef::MainWeapon(a), SpotRef::MainWeapon(b)) => ptr::eq(a, b),
-        (SpotRef::SubWeapon(a), SpotRef::SubWeapon(b)) => ptr::eq(a, b),
-        (SpotRef::Chest(a), SpotRef::Chest(b)) => ptr::eq(a, b),
-        (SpotRef::Seal(a), SpotRef::Seal(b)) => ptr::eq(a, b),
-        (SpotRef::Shop(a), SpotRef::Shop(b)) => ptr::eq(a, b),
+        (SpotRef::MainWeapon(a), CheckpointRef::MainWeapon(b)) => ptr::eq(a, b.spot),
+        (SpotRef::SubWeapon(a), CheckpointRef::SubWeapon(b)) => ptr::eq(a, b.spot),
+        (SpotRef::Chest(a), CheckpointRef::Chest(b)) => ptr::eq(a, b.spot),
+        (SpotRef::Seal(a), CheckpointRef::Seal(b)) => ptr::eq(a, b.spot),
+        (SpotRef::Shop(a), CheckpointRef::Shop(b)) => ptr::eq(a, b.spot),
         _ => false,
     }
 }
@@ -46,14 +46,13 @@ fn maps<'a>(
     }
     maps.iter()
         .map(|(field_id, item)| {
-            let spot = *hash_map[field_id].choose(rng).unwrap();
-            CheckpointRef { spot, idx: 0, item }
+            CheckpointRef::from_field_spot_item(*hash_map[field_id].choose(rng).unwrap(), item)
         })
         .inspect(|checkpoint| {
             let idx = spots
                 .field_item_spots
                 .iter()
-                .position(|&x| ptr_eq(x, checkpoint.spot))
+                .position(|&x| ptr_eq(x, checkpoint))
                 .unwrap();
             spots.field_item_spots.swap_remove(idx);
         })

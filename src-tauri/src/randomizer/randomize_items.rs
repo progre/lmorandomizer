@@ -5,14 +5,14 @@ use log::{info, trace};
 use rand::Rng;
 
 use crate::{
-    dataset::{item::StrategyFlag, spot::SpotRef, storage::Storage},
+    dataset::{item::StrategyFlag, storage::Storage},
     script::data::script::Script,
 };
 
 use super::{
     items_spots::{Items, Spots},
     spoiler::{make_rng, spoiler},
-    spoiler_log::SpoilerLogRef,
+    spoiler_log::{CheckpointRef, SpoilerLogRef},
 };
 
 pub fn randomize_items<'a>(
@@ -42,25 +42,26 @@ fn create_shuffled_storage(source: &Storage, spoiler_log: &SpoilerLogRef) -> Sto
         .progression
         .iter()
         .flat_map(|sphere| &sphere.0)
-        .chain(spoiler_log.maps.iter())
+        .chain(&spoiler_log.maps)
     {
-        match &checkpoint.spot {
-            SpotRef::MainWeapon(spot) => {
-                storage.main_weapons[spot.src_idx()].item = checkpoint.item.clone();
+        match &checkpoint {
+            CheckpointRef::MainWeapon(checkpoint) => {
+                storage.main_weapons[checkpoint.spot.src_idx()].item = checkpoint.item.clone();
             }
-            SpotRef::SubWeapon(spot) => {
-                storage.sub_weapons[spot.src_idx()].item = checkpoint.item.clone();
+            CheckpointRef::SubWeapon(checkpoint) => {
+                storage.sub_weapons[checkpoint.spot.src_idx()].item = checkpoint.item.clone();
             }
-            SpotRef::Chest(spot) => {
-                storage.chests[spot.src_idx()].item = checkpoint.item.clone();
+            CheckpointRef::Chest(checkpoint) => {
+                storage.chests[checkpoint.spot.src_idx()].item = checkpoint.item.clone();
             }
-            SpotRef::Seal(spot) => {
-                storage.seals[spot.src_idx()].item = checkpoint.item.clone();
+            CheckpointRef::Seal(checkpoint) => {
+                storage.seals[checkpoint.spot.src_idx()].item = checkpoint.item.clone();
             }
-            SpotRef::Shop(spot) => {
-                let items = &mut storage.shops[spot.src_idx()].items;
-                *[&mut items.0, &mut items.1, &mut items.2][checkpoint.idx] =
-                    checkpoint.item.clone();
+            CheckpointRef::Shop(checkpoint) => {
+                let items = &mut storage.shops[checkpoint.spot.src_idx()].items;
+                items.0 = checkpoint.items.0.clone();
+                items.1 = checkpoint.items.1.clone();
+                items.2 = checkpoint.items.2.clone();
             }
         }
     }
