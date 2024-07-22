@@ -83,12 +83,38 @@ pub struct AllRequirements(pub Vec<RequirementFlag>);
 pub struct AnyOfAllRequirements(pub Vec<AllRequirements>);
 
 #[derive(Clone)]
-pub struct MainWeaponSpot {
+struct SpotParams {
     field_id: FieldId,
     src_idx: usize,
     name: SpotName,
     requirements: Option<AnyOfAllRequirements>,
 }
+
+impl SpotParams {
+    fn new(
+        field_id: FieldId,
+        src_idx: usize,
+        name: SpotName,
+        requirements: Option<AnyOfAllRequirements>,
+    ) -> Self {
+        Self {
+            field_id,
+            src_idx,
+            name,
+            requirements,
+        }
+    }
+
+    fn fmt<T>(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let field_id = &self.field_id;
+        let type_name = type_name::<T>().split("::").last().unwrap();
+        let name = self.name.get();
+        write!(f, "{:?}_{}{}({})", field_id, type_name, self.src_idx, name)
+    }
+}
+
+#[derive(Clone)]
+pub struct MainWeaponSpot(SpotParams);
 
 impl MainWeaponSpot {
     pub fn new(
@@ -97,41 +123,28 @@ impl MainWeaponSpot {
         name: SpotName,
         requirements: Option<AnyOfAllRequirements>,
     ) -> Self {
-        Self {
-            field_id,
-            src_idx,
-            name,
-            requirements,
-        }
+        Self(SpotParams::new(field_id, src_idx, name, requirements))
     }
 
     pub fn field_id(&self) -> FieldId {
-        self.field_id
+        self.0.field_id
     }
     pub fn src_idx(&self) -> usize {
-        self.src_idx
+        self.0.src_idx
     }
     pub fn requirements(&self) -> Option<&AnyOfAllRequirements> {
-        self.requirements.as_ref()
+        self.0.requirements.as_ref()
     }
 }
 
 impl fmt::Display for MainWeaponSpot {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let field_id = &self.field_id;
-        let type_name = type_name::<Self>().split("::").last().unwrap();
-        let name = self.name.get();
-        write!(f, "{:?}_{}{}({})", field_id, type_name, self.src_idx, name)
+        self.0.fmt::<Self>(f)
     }
 }
 
 #[derive(Clone)]
-pub struct SubWeaponSpot {
-    field_id: FieldId,
-    src_idx: usize,
-    name: SpotName,
-    requirements: Option<AnyOfAllRequirements>,
-}
+pub struct SubWeaponSpot(SpotParams);
 
 impl SubWeaponSpot {
     pub fn new(
@@ -140,41 +153,28 @@ impl SubWeaponSpot {
         name: SpotName,
         requirements: Option<AnyOfAllRequirements>,
     ) -> Self {
-        Self {
-            field_id,
-            src_idx,
-            name,
-            requirements,
-        }
+        Self(SpotParams::new(field_id, src_idx, name, requirements))
     }
 
     pub fn field_id(&self) -> FieldId {
-        self.field_id
+        self.0.field_id
     }
     pub fn src_idx(&self) -> usize {
-        self.src_idx
+        self.0.src_idx
     }
     pub fn requirements(&self) -> Option<&AnyOfAllRequirements> {
-        self.requirements.as_ref()
+        self.0.requirements.as_ref()
     }
 }
 
 impl fmt::Display for SubWeaponSpot {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let field_id = &self.field_id;
-        let type_name = type_name::<Self>().split("::").last().unwrap();
-        let name = self.name.get();
-        write!(f, "{:?}_{}{}({})", field_id, type_name, self.src_idx, name)
+        self.0.fmt::<Self>(f)
     }
 }
 
 #[derive(Clone)]
-pub struct ChestSpot {
-    field_id: FieldId,
-    src_idx: usize,
-    name: SpotName,
-    requirements: Option<AnyOfAllRequirements>,
-}
+pub struct ChestSpot(SpotParams);
 
 impl ChestSpot {
     pub fn new(
@@ -183,41 +183,28 @@ impl ChestSpot {
         name: SpotName,
         requirements: Option<AnyOfAllRequirements>,
     ) -> Self {
-        Self {
-            field_id,
-            src_idx,
-            name,
-            requirements,
-        }
+        Self(SpotParams::new(field_id, src_idx, name, requirements))
     }
 
     pub fn field_id(&self) -> FieldId {
-        self.field_id
+        self.0.field_id
     }
     pub fn src_idx(&self) -> usize {
-        self.src_idx
+        self.0.src_idx
     }
     pub fn requirements(&self) -> Option<&AnyOfAllRequirements> {
-        self.requirements.as_ref()
+        self.0.requirements.as_ref()
     }
 }
 
 impl fmt::Display for ChestSpot {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let field_id = &self.field_id;
-        let type_name = type_name::<Self>().split("::").last().unwrap();
-        let name = self.name.get();
-        write!(f, "{:?}_{}{}({})", field_id, type_name, self.src_idx, name)
+        self.0.fmt::<Self>(f)
     }
 }
 
 #[derive(Clone)]
-pub struct SealSpot {
-    field_id: FieldId,
-    src_idx: usize,
-    name: SpotName,
-    requirements: Option<AnyOfAllRequirements>,
-}
+pub struct SealSpot(SpotParams);
 
 impl SealSpot {
     pub fn new(
@@ -226,41 +213,28 @@ impl SealSpot {
         name: SpotName,
         requirements: Option<AnyOfAllRequirements>,
     ) -> Self {
-        Self {
-            field_id,
-            src_idx,
-            name,
-            requirements,
-        }
+        Self(SpotParams::new(field_id, src_idx, name, requirements))
     }
 
     pub fn field_id(&self) -> FieldId {
-        self.field_id
+        self.0.field_id
     }
     pub fn src_idx(&self) -> usize {
-        self.src_idx
+        self.0.src_idx
     }
     pub fn requirements(&self) -> Option<&AnyOfAllRequirements> {
-        self.requirements.as_ref()
+        self.0.requirements.as_ref()
     }
 }
 
 impl fmt::Display for SealSpot {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let field_id = &self.field_id;
-        let type_name = type_name::<Self>().split("::").last().unwrap();
-        let name = self.name.get();
-        write!(f, "{:?}_{}{}({})", field_id, type_name, self.src_idx, name)
+        self.0.fmt::<Self>(f)
     }
 }
 
 #[derive(Clone)]
-pub struct ShopSpot {
-    field_id: FieldId,
-    src_idx: usize,
-    name: SpotName,
-    requirements: Option<AnyOfAllRequirements>,
-}
+pub struct ShopSpot(SpotParams);
 
 impl ShopSpot {
     pub fn new(
@@ -273,29 +247,21 @@ impl ShopSpot {
             let names: Vec<_> = name.0.split(',').map(|x| x.trim()).collect();
             debug_assert_eq!(names.len(), 3);
         }
-        Self {
-            field_id,
-            src_idx,
-            name,
-            requirements,
-        }
+        Self(SpotParams::new(field_id, src_idx, name, requirements))
     }
 
     pub fn field_id(&self) -> FieldId {
-        self.field_id
+        self.0.field_id
     }
     pub fn src_idx(&self) -> usize {
-        self.src_idx
-    }
-    pub fn name(&self) -> &SpotName {
-        &self.name
+        self.0.src_idx
     }
     pub fn requirements(&self) -> Option<&AnyOfAllRequirements> {
-        self.requirements.as_ref()
+        self.0.requirements.as_ref()
     }
 
     pub fn to_strategy_flags(&self) -> (StrategyFlag, StrategyFlag, StrategyFlag) {
-        let mut names = self.name.0.split(',').map(|x| x.trim());
+        let mut names = self.0.name.0.split(',').map(|x| x.trim());
         (
             StrategyFlag::new(names.next().unwrap().to_string()),
             StrategyFlag::new(names.next().unwrap().to_string()),
@@ -306,16 +272,6 @@ impl ShopSpot {
 
 impl fmt::Display for ShopSpot {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let full_type_name = type_name::<ShopSpot>();
-        let src_idx = self.src_idx();
-        let name = self.name();
-        write!(
-            f,
-            "{:?}_{}{}({})",
-            self.field_id(),
-            full_type_name.split("::").last().unwrap(),
-            src_idx,
-            name.get()
-        )
+        self.0.fmt::<Self>(f)
     }
 }
