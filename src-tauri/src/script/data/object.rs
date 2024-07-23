@@ -19,7 +19,7 @@ pub struct SubWeapon {
     pub flag: u16,
 }
 
-#[derive(Clone, PartialEq)]
+#[derive(Clone, Copy, PartialEq)]
 pub enum ChestContent {
     Equipment(items::Equipment),
     Rom(items::Rom),
@@ -108,12 +108,12 @@ impl ChestObject {
         &self.starts
     }
 
-    pub fn to_chest_item(&self) -> Result<Option<ChestItem>> {
-        Ok(Some(ChestItem {
-            content: self.content.clone(),
+    pub fn to_chest_item(&self) -> ChestItem {
+        ChestItem {
+            content: self.content,
             open_flag: self.open_flag,
             flag: self.set_flag,
-        }))
+        }
     }
 }
 
@@ -121,7 +121,7 @@ impl ChestObject {
 pub struct SubWeaponObject {
     x: i32,
     y: i32,
-    pub content: items::SubWeapon,
+    content: items::SubWeapon,
     count: u16,
     set_flag: u16,
     starts: Vec<Start>,
@@ -151,6 +151,9 @@ impl SubWeaponObject {
         })
     }
 
+    pub fn content(&self) -> items::SubWeapon {
+        self.content
+    }
     fn op1(&self) -> i32 {
         self.content as i32
     }
@@ -167,12 +170,12 @@ impl SubWeaponObject {
         -1
     }
 
-    pub fn to_sub_weapon(&self) -> Result<Option<SubWeapon>> {
-        Ok(Some(SubWeapon {
+    pub fn to_sub_weapon(&self) -> SubWeapon {
+        SubWeapon {
             content: self.content,
             count: self.count,
             flag: self.set_flag,
-        }))
+        }
     }
 }
 
@@ -272,11 +275,11 @@ impl SealObject {
         -1
     }
 
-    pub fn to_seal(&self) -> Result<Option<Seal>> {
-        Ok(Some(Seal {
+    pub fn to_seal(&self) -> Seal {
+        Seal {
             content: self.content,
             flag: self.set_flag,
-        }))
+        }
     }
 }
 
@@ -323,11 +326,11 @@ impl MainWeaponObject {
         self.set_flag as i32
     }
 
-    pub fn to_main_weapon(&self) -> Result<Option<MainWeapon>> {
-        Ok(Some(MainWeapon {
+    pub fn to_main_weapon(&self) -> MainWeapon {
+        MainWeapon {
             content: self.content,
             flag: self.set_flag,
-        }))
+        }
     }
 }
 
@@ -556,10 +559,10 @@ impl Object {
 
     pub fn get_item_flag(&self) -> Result<u16> {
         Ok(match self {
-            Self::Chest(obj) => u16::try_from(obj.to_chest_item()?.unwrap().flag)?,
-            Self::SubWeapon(obj) => obj.to_sub_weapon()?.unwrap().flag,
-            Self::Seal(obj) => obj.to_seal()?.unwrap().flag,
-            Self::MainWeapon(obj) => obj.to_main_weapon()?.unwrap().flag,
+            Self::Chest(obj) => u16::try_from(obj.set_flag)?,
+            Self::SubWeapon(obj) => obj.set_flag,
+            Self::Seal(obj) => obj.set_flag,
+            Self::MainWeapon(obj) => obj.set_flag,
             Self::Shop(_) => bail!("shop has no item flag"),
             Self::Unknown(UnknownObject { number, .. }) => bail!("invalid number: {}", number),
         })

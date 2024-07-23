@@ -24,14 +24,14 @@ use crate::{
 
 pub fn assert_eq_elem_count(source: &Storage, script: &Script) {
     let main_weapon_count = source.main_weapons.len();
-    debug_assert_eq!(main_weapon_count, script.main_weapons().unwrap().len());
+    debug_assert_eq!(main_weapon_count, script.main_weapons().len());
     let sub_weapon_count = source.sub_weapons.len() + NIGHT_SURFACE_SUB_WEAPON_COUNT;
-    debug_assert_eq!(sub_weapon_count, script.sub_weapons().unwrap().len(),);
+    debug_assert_eq!(sub_weapon_count, script.sub_weapons().len(),);
     let chest_count = source.chests.len() + NIGHT_SURFACE_CHEST_COUNT;
-    debug_assert_eq!(chest_count, script.chests().unwrap().len(),);
+    debug_assert_eq!(chest_count, script.chests().len(),);
     let seal_count =
         source.seals.len() + TRUE_SHRINE_OF_THE_MOTHER_SEAL_COUNT + NIGHT_SURFACE_SEAL_COUNT;
-    debug_assert_eq!(seal_count, script.seals().unwrap().len());
+    debug_assert_eq!(seal_count, script.seals().len());
     let shop_count = source.shops.len() + WARE_NO_MISE_COUNT;
     debug_assert_eq!(shop_count, script.shops().unwrap().len());
 }

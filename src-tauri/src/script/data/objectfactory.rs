@@ -127,7 +127,7 @@ fn starts_that_hide_when_startup_and_taken(old_obj: &Object, flag: u16) -> Resul
             run_when_unset: true,
         },
         Start {
-            flag: u32::try_from(old_obj.to_chest_item()?.unwrap().open_flag)?,
+            flag: u32::try_from(old_obj.open_flag())?,
             run_when_unset: true,
         },
         Start {

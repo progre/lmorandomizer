@@ -84,7 +84,7 @@ impl Item {
     pub fn from_dataset(item: &dataset::item::Item, script: &Script) -> Result<Self> {
         match &item.src {
             dataset::item::ItemSource::MainWeapon(src_idx) => {
-                let main_weapons = script.main_weapons()?;
+                let main_weapons = script.main_weapons();
                 let item = main_weapons
                     .get(*src_idx)
                     .ok_or_else(|| anyhow!("invalid main weapon index: {}", src_idx))?;
@@ -94,7 +94,7 @@ impl Item {
                 Ok(Self::MainWeapon(MainWeapon { content, set_flag }))
             }
             dataset::item::ItemSource::SubWeapon(src_idx) => {
-                let sub_weapons = script.sub_weapons()?;
+                let sub_weapons = script.sub_weapons();
                 let item = sub_weapons
                     .get(*src_idx)
                     .ok_or_else(|| anyhow!("invalid sub weapon index: {}", src_idx))?;
@@ -115,7 +115,7 @@ impl Item {
                 }
             }
             dataset::item::ItemSource::Chest(src_idx) => {
-                let chests = script.chests()?;
+                let chests = script.chests();
                 let item = chests
                     .get(*src_idx)
                     .ok_or_else(|| anyhow!("invalid chest index: {}", src_idx))?;
@@ -142,7 +142,7 @@ impl Item {
                 }
             }
             dataset::item::ItemSource::Seal(src_idx) => {
-                let seals = script.seals()?;
+                let seals = script.seals();
                 let item = seals
                     .get(*src_idx)
                     .ok_or_else(|| anyhow!("invalid seal index: {}", src_idx))?;

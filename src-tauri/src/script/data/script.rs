@@ -58,33 +58,32 @@ impl Script {
         stringify_script_txt(&self.talks, &self.worlds)
     }
 
-    pub fn main_weapons(&self) -> Result<Vec<MainWeapon>> {
+    pub fn main_weapons(&self) -> Vec<MainWeapon> {
         self.view_objects()
             .iter()
             .filter_map(|x| {
                 let Object::MainWeapon(x) = x else {
                     return None;
                 };
-                x.to_main_weapon().transpose()
+                Some(x.to_main_weapon())
             })
             .collect()
     }
 
-    pub fn sub_weapons(&self) -> Result<Vec<SubWeapon>> {
+    pub fn sub_weapons(&self) -> Vec<SubWeapon> {
         self.view_objects()
             .iter()
             .filter_map(|x| {
                 let Object::SubWeapon(x) = x else {
                     return None;
                 };
-                x.to_sub_weapon().transpose()
+                Some(x.to_sub_weapon())
             })
             .collect()
     }
 
-    pub fn chests(&self) -> Result<Vec<ChestItem>> {
-        Ok(self
-            .view_objects()
+    pub fn chests(&self) -> Vec<ChestItem> {
+        self.view_objects()
             .iter()
             // without 2nd twinStatue
             .filter(|x| {
@@ -100,25 +99,23 @@ impl Script {
                 let Object::Chest(x) = x else {
                     return None;
                 };
-                x.to_chest_item().transpose()
+                Some(x.to_chest_item())
             })
-            .collect::<Result<Vec<_>>>()?
-            .into_iter()
             .filter(|ChestItem { content, .. }| {
                 content.is_some()
                     && content != &Some(ChestContent::Equipment(items::Equipment::SweetClothing))
             })
-            .collect())
+            .collect()
     }
 
-    pub fn seals(&self) -> Result<Vec<Seal>> {
+    pub fn seals(&self) -> Vec<Seal> {
         self.view_objects()
             .iter()
             .filter_map(|x| {
                 let Object::Seal(x) = x else {
                     return None;
                 };
-                x.to_seal().transpose()
+                Some(x.to_seal())
             })
             .collect()
     }
