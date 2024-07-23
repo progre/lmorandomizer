@@ -1,8 +1,8 @@
-use anyhow::{anyhow, bail, Result};
+use anyhow::{bail, Result};
 
 use crate::dataset;
 
-use super::{items, object::Shop, script::Script, shop_items_data::ShopItem};
+use super::{items, script::Script, shop_items_data::ShopItem};
 
 #[derive(Clone)]
 pub struct MainWeapon {
@@ -43,18 +43,6 @@ pub struct Seal {
     pub set_flag: u16,
 }
 
-fn shop_item(shops: &[Shop], shop_idx: usize, item_idx: usize) -> Result<&ShopItem> {
-    let shop = shops
-        .get(shop_idx)
-        .ok_or_else(|| anyhow!("invalid shop index: {}", shop_idx))?;
-    Ok(match item_idx {
-        0 => &shop.items.0,
-        1 => &shop.items.1,
-        2 => &shop.items.2,
-        _ => bail!("invalid shop item index: {}", item_idx),
-    })
-}
-
 pub enum Item {
     MainWeapon(MainWeapon),
     SubWeapon(SubWeapon),
@@ -75,57 +63,66 @@ impl Item {
     }
 
     pub fn from_dataset(item: &dataset::item::Item, script: &Script) -> Result<Self> {
-        match &item.src {
+        Ok(match &item.src {
             dataset::item::ItemSource::MainWeapon(src_idx) => {
-                let main_weapons = script.main_weapons();
-                let item = main_weapons
-                    .get(*src_idx)
-                    .ok_or_else(|| anyhow!("invalid main weapon index: {}", src_idx))?;
-                Ok(Self::MainWeapon(item.clone()))
+                let Some(item) = script.main_weapons().nth(*src_idx) else {
+                    bail!("invalid main weapon index: {}", src_idx)
+                };
+                Self::MainWeapon(item.to_main_weapon())
             }
             dataset::item::ItemSource::SubWeapon(src_idx) => {
-                let sub_weapons = script.sub_weapons();
-                let item = sub_weapons
-                    .get(*src_idx)
-                    .ok_or_else(|| anyhow!("invalid sub weapon index: {}", src_idx))?;
-                Ok(Self::SubWeapon(item.clone()))
+                let Some(item) = script.sub_weapons().nth(*src_idx) else {
+                    bail!("invalid sub weapon index: {}", src_idx)
+                };
+                Self::SubWeapon(item.to_sub_weapon())
             }
             dataset::item::ItemSource::Chest(src_idx) => {
-                let chests = script.chests();
-                let item = chests
-                    .get(*src_idx)
-                    .ok_or_else(|| anyhow!("invalid chest index: {}", src_idx))?;
-                match item {
-                    ChestItem::Equipment(content) => Ok(Self::Equipment(content.clone())),
-                    ChestItem::Rom(content) => Ok(Self::Rom(content.clone())),
+                let Some(item) = script.chests().nth(*src_idx) else {
+                    bail!("invalid chest index: {}", src_idx)
+                };
+                match item.to_chest_item().unwrap() {
+                    ChestItem::Equipment(content) => Self::Equipment(content),
+                    ChestItem::Rom(content) => Self::Rom(content),
                 }
             }
             dataset::item::ItemSource::Seal(src_idx) => {
-                let seals = script.seals();
-                let item = seals
-                    .get(*src_idx)
-                    .ok_or_else(|| anyhow!("invalid seal index: {}", src_idx))?;
-                Ok(Self::Seal(item.clone()))
+                let Some(item) = script.seals().nth(*src_idx) else {
+                    bail!("invalid seal index: {}", src_idx)
+                };
+                Self::Seal(item.to_seal())
             }
             dataset::item::ItemSource::Shop(shop_idx, item_idx) => {
-                let shops = script.shops()?;
-                let item = shop_item(&shops, *shop_idx, *item_idx)?;
+                let Some(shop) = script
+                    .shops()
+                    .filter_map(|x| x.to_shop(&script.talks).transpose())
+                    .collect::<Result<Vec<_>>>()?
+                    .into_iter()
+                    .nth(*shop_idx)
+                else {
+                    bail!("invalid shop index: {}", shop_idx)
+                };
+                let item = match *item_idx {
+                    0 => shop.items.0,
+                    1 => shop.items.1,
+                    2 => shop.items.2,
+                    _ => bail!("invalid shop item index: {}", item_idx),
+                };
                 match item {
                     ShopItem::SubWeapon(item) => {
                         Self::initial_assert(item.item.content as i8, item.item.set_flag, true);
-                        Ok(Self::SubWeapon(item.item.clone()))
+                        Self::SubWeapon(item.item)
                     }
                     ShopItem::Equipment(item) => {
                         Self::initial_assert(item.item.content as i8, item.item.set_flag, false);
-                        Ok(Self::Equipment(item.item.clone()))
+                        Self::Equipment(item.item)
                     }
                     ShopItem::Rom(item) => {
                         Self::initial_assert(item.item.content.0 as i8, item.item.set_flag, false);
-                        Ok(Self::Rom(item.item.clone()))
+                        Self::Rom(item.item)
                     }
                 }
             }
-        }
+        })
     }
 
     pub fn set_flag(&self) -> u16 {

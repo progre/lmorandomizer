@@ -9,9 +9,11 @@ use crate::{
 
 use super::{
     add_starting_items::add_starting_items,
-    item::{ChestItem, MainWeapon, Seal, SubWeapon},
     items,
-    object::{Object, Shop, UnknownObject},
+    object::{
+        ChestContent, ChestObject, MainWeaponObject, Object, SealObject, ShopObject,
+        SubWeaponObject, UnknownObject,
+    },
     scripteditor::{replace_items, replace_shops},
 };
 
@@ -59,33 +61,26 @@ impl Script {
         stringify_script_txt(&self.talks, &self.worlds)
     }
 
-    pub fn main_weapons(&self) -> Vec<MainWeapon> {
-        self.view_objects()
-            .iter()
-            .filter_map(|x| {
-                let Object::MainWeapon(x) = x else {
-                    return None;
-                };
-                Some(x.to_main_weapon())
-            })
-            .collect()
+    pub fn main_weapons(&self) -> impl Iterator<Item = &MainWeaponObject> {
+        self.view_objects().filter_map(|x| {
+            let Object::MainWeapon(x) = x else {
+                return None;
+            };
+            Some(x)
+        })
     }
 
-    pub fn sub_weapons(&self) -> Vec<SubWeapon> {
-        self.view_objects()
-            .iter()
-            .filter_map(|x| {
-                let Object::SubWeapon(x) = x else {
-                    return None;
-                };
-                Some(x.to_sub_weapon())
-            })
-            .collect()
+    pub fn sub_weapons(&self) -> impl Iterator<Item = &SubWeaponObject> {
+        self.view_objects().filter_map(|x| {
+            let Object::SubWeapon(x) = x else {
+                return None;
+            };
+            Some(x)
+        })
     }
 
-    pub fn chests(&self) -> Vec<ChestItem> {
+    pub fn chests(&self) -> impl Iterator<Item = &ChestObject> {
         self.view_objects()
-            .iter()
             // without 2nd twinStatue
             .filter(|x| {
                 !(x.number() == 1
@@ -100,43 +95,40 @@ impl Script {
                 let Object::Chest(x) = x else {
                     return None;
                 };
-                x.to_chest_item()
+                Some(x)
             })
-            .filter(|item| {
-                let ChestItem::Equipment(equipment) = item else {
-                    return true;
-                };
-                equipment.content != items::Equipment::SweetClothing
+            .filter(|item| match item.content() {
+                None => false,
+                Some(ChestContent::Rom(_)) => true,
+                Some(ChestContent::Equipment(equipment)) => {
+                    equipment != &items::Equipment::SweetClothing
+                }
             })
-            .collect()
     }
 
-    pub fn seals(&self) -> Vec<Seal> {
-        self.view_objects()
-            .iter()
-            .filter_map(|x| {
-                let Object::Seal(x) = x else {
-                    return None;
-                };
-                Some(x.to_seal())
-            })
-            .collect()
+    pub fn seals(&self) -> impl Iterator<Item = &SealObject> {
+        self.view_objects().filter_map(|x| {
+            let Object::Seal(x) = x else {
+                return None;
+            };
+            Some(x)
+        })
     }
 
-    pub fn shops(&self) -> Result<Vec<Shop>> {
-        self.view_objects()
-            .iter()
-            .filter_map(|x| {
-                let Object::Shop(x) = x else {
-                    return None;
-                };
-                x.to_shop(&self.talks).transpose()
-            })
-            .collect()
+    pub fn shops(&self) -> impl Iterator<Item = &ShopObject> {
+        self.view_objects().filter_map(|x| {
+            let Object::Shop(x) = x else {
+                return None;
+            };
+            Some(x)
+        })
     }
 
     pub fn replace_items(&mut self, script: &Script, shuffled: &Storage) -> Result<()> {
-        let shops = self.shops()?;
+        let shops: Vec<_> = self
+            .shops()
+            .filter_map(|x| x.to_shop(&self.talks).transpose())
+            .collect::<Result<_>>()?;
         replace_items(&mut self.worlds, script, shuffled)?;
         replace_shops(&mut self.talks, script, &shops, &shuffled.shops)?;
         Ok(())
@@ -150,13 +142,11 @@ impl Script {
         self.worlds = add_starting_items(take(&mut self.worlds), equipment_list, sub_weapon_list);
     }
 
-    fn view_objects(&self) -> Vec<Object> {
+    fn view_objects(&self) -> impl Iterator<Item = &Object> {
         self.worlds
             .iter()
             .flat_map(|x| &x.fields)
             .flat_map(|x| &x.maps)
             .flat_map(|y| &y.objects)
-            .cloned()
-            .collect()
     }
 }
