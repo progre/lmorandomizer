@@ -1,5 +1,6 @@
 mod field_objects;
 mod shop_object;
+pub mod starts;
 mod weapon_objects;
 
 use anyhow::{bail, Result};
@@ -56,83 +57,6 @@ impl Object {
                 starts,
             }),
         })
-    }
-
-    pub fn chest(
-        pos: &Object,
-        op1: i32,
-        number: i16,
-        set_flag: u16,
-        starts: Vec<Start>,
-    ) -> Result<Object> {
-        Ok(Object::Chest(ChestObject::new(
-            pos.x(),
-            pos.y(),
-            op1,
-            number as i32,
-            set_flag as i32,
-            -1,
-            starts,
-        )?))
-    }
-
-    pub fn sub_weapon(
-        pos: &Object,
-        content: items::SubWeapon,
-        count: u8,
-        set_flag: u16,
-        starts: Vec<Start>,
-    ) -> Result<Object> {
-        if cfg!(debug_assertions) {
-            if count == 0 {
-                debug_assert!(content != items::SubWeapon::AnkhJewel);
-            } else {
-                debug_assert!(content != items::SubWeapon::AnkhJewel || count == 1);
-            }
-        }
-        Ok(Object::SubWeapon(SubWeaponObject::new(
-            pos.x(),
-            pos.y(),
-            content as i32,
-            count as i32,
-            set_flag as i32,
-            -1,
-            starts,
-        )?))
-    }
-
-    pub fn seal(
-        pos: &Object,
-        content: items::Seal,
-        set_flag: u16,
-        starts: Vec<Start>,
-    ) -> Result<Object> {
-        Ok(Object::Seal(SealObject::new(
-            pos.x(),
-            pos.y(),
-            content as i32,
-            set_flag as i32,
-            -1,
-            -1,
-            starts,
-        )?))
-    }
-
-    pub fn main_weapon(
-        pos: &Object,
-        content: items::MainWeapon,
-        set_flag: u16,
-        starts: Vec<Start>,
-    ) -> Result<Object> {
-        Ok(Object::MainWeapon(MainWeaponObject::new(
-            pos.x(),
-            pos.y(),
-            content as i32,
-            set_flag as i32,
-            -1,
-            -1,
-            starts,
-        )?))
     }
 
     pub fn number(&self) -> u16 {

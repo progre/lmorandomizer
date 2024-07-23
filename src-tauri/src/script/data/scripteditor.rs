@@ -94,12 +94,12 @@ fn new_objs(
             if chest_obj.open_flag() == 420 {
                 let item = &shuffled.chests[indices.chest_idx - 1].item;
                 let item = &Item::from_dataset(item, script)?;
-                return to_objects_for_chest(obj, item);
+                return Ok(to_objects_for_chest(chest_obj, item));
             }
             let item = &shuffled.chests[indices.chest_idx].item;
             let item = &Item::from_dataset(item, script)?;
             indices.chest_idx += 1;
-            return to_objects_for_chest(obj, item);
+            return Ok(to_objects_for_chest(chest_obj, item));
         }
         Object::SubWeapon(sub_weapon_obj) => {
             // TODO: nightSurface
@@ -118,25 +118,18 @@ fn new_objs(
                 if sub_weapon_obj.set_flag() == 743 {
                     let wall_check_flag = get_next_wall_check_flag(next_objs)
                         .ok_or(anyhow!("wall_check_flag not found"))?;
-                    return Ok(vec![to_object_for_shutter(
-                        obj,
-                        u16::try_from(wall_check_flag)?,
-                        item,
-                    )?]);
+                    let open_flag = u16::try_from(wall_check_flag)?;
+                    return Ok(vec![to_object_for_shutter(obj, open_flag, item)]);
                 }
-                return Ok(vec![to_object_for_special_chest(obj, item)?]);
+                return Ok(vec![to_object_for_special_chest(obj, item)]);
             }
-            let next_shutter_check_flag = if sub_weapon_obj.content() == SubWeapon::Pistol {
+            let open_flag = if sub_weapon_obj.content() == SubWeapon::Pistol {
                 get_next_breakable_wall_check_flag(next_objs)?
             } else {
                 get_next_shutter_check_flag(next_objs)?
             }
             .ok_or(anyhow!("next_shutter_check_flag not found"))?;
-            return Ok(vec![to_object_for_shutter(
-                obj,
-                next_shutter_check_flag,
-                item,
-            )?]);
+            return Ok(vec![to_object_for_shutter(obj, open_flag, item)]);
         }
         Object::Shop(_) => return Ok(vec![obj.clone()]),
         Object::Seal(_) => {
@@ -153,19 +146,15 @@ fn new_objs(
             let item = &shuffled.seals[indices.seal_chest_idx].item;
             let item = &Item::from_dataset(item, script)?;
             indices.seal_chest_idx += 1;
-            return Ok(vec![to_object_for_special_chest(obj, item)?]);
+            return Ok(vec![to_object_for_special_chest(obj, item)]);
         }
         Object::MainWeapon(_) => {
             let item = &shuffled.main_weapons[indices.main_weapon_spot_idx].item;
             let item = &Item::from_dataset(item, script)?;
             indices.main_weapon_spot_idx += 1;
-            let next_shutter_check_flag = get_next_shutter_check_flag(next_objs)?
+            let open_flag = get_next_shutter_check_flag(next_objs)?
                 .ok_or(anyhow!("next_shutter_check_flag not found"))?;
-            return Ok(vec![to_object_for_shutter(
-                obj,
-                next_shutter_check_flag,
-                item,
-            )?]);
+            return Ok(vec![to_object_for_shutter(obj, open_flag, item)]);
         }
         Object::Unknown(unknown_obj) => unknown_obj,
     };
