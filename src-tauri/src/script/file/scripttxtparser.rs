@@ -212,7 +212,7 @@ fn flat_children(root: ElementRef) -> Vec<ElementRef> {
 
 fn parse_object(object: ElementRef) -> Result<Object> {
     let attrs = parse_attrs(&object.value().attrs)?;
-    Ok(Object::new(
+    Object::new(
         u16::try_from(attrs[0])?,
         attrs[1],
         attrs[2],
@@ -230,7 +230,7 @@ fn parse_object(object: ElementRef) -> Result<Object> {
                 })
             })
             .collect::<Result<_>>()?,
-    ))
+    )
 }
 
 #[allow(clippy::too_many_arguments)]

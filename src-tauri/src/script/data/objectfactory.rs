@@ -6,7 +6,7 @@ use super::{
 };
 
 pub fn to_object_for_shutter(old_obj: &Object, start_flag: u16, item: &Item) -> Result<Object> {
-    Ok(match item {
+    match item {
         Item::MainWeapon(item) => {
             let starts = starts_as_is(old_obj, item.set_flag)?;
             Object::main_weapon(old_obj, item.content, item.set_flag, starts)
@@ -32,11 +32,11 @@ pub fn to_object_for_shutter(old_obj: &Object, start_flag: u16, item: &Item) -> 
             let starts = starts_as_is(old_obj, item.set_flag)?;
             Object::seal(old_obj, item.content, item.set_flag, starts)
         }
-    })
+    }
 }
 
 pub fn to_object_for_special_chest(old_obj: &Object, item: &Item) -> Result<Object> {
-    Ok(match item {
+    match item {
         Item::MainWeapon(item) => {
             let starts = starts_as_is(old_obj, item.set_flag)?;
             Object::main_weapon(old_obj, item.content, item.set_flag, starts)
@@ -62,7 +62,7 @@ pub fn to_object_for_special_chest(old_obj: &Object, item: &Item) -> Result<Obje
             let starts = starts_as_is(old_obj, item.set_flag)?;
             Object::seal(old_obj, item.content, item.set_flag, starts)
         }
-    })
+    }
 }
 
 pub fn to_objects_for_chest(old_obj: &Object, item: &Item) -> Result<Vec<Object>> {
@@ -71,40 +71,40 @@ pub fn to_objects_for_chest(old_obj: &Object, item: &Item) -> Result<Vec<Object>
             let starts = starts_that_hide_when_startup_and_taken(old_obj, item.set_flag)?;
             vec![
                 create_empty_chest(old_obj, item.set_flag)?,
-                Object::main_weapon(old_obj, item.content, item.set_flag, starts),
+                Object::main_weapon(old_obj, item.content, item.set_flag, starts)?,
             ]
         }
         Item::SubWeaponBody(item) => {
             let starts = starts_that_hide_when_startup_and_taken(old_obj, item.set_flag)?;
             vec![
                 create_empty_chest(old_obj, item.set_flag)?,
-                Object::sub_weapon_body(old_obj, item.content, item.set_flag, starts),
+                Object::sub_weapon_body(old_obj, item.content, item.set_flag, starts)?,
             ]
         }
         Item::SubWeaponAmmo(item) => {
             let starts = starts_that_hide_when_startup_and_taken(old_obj, item.set_flag)?;
             vec![
                 create_empty_chest(old_obj, item.set_flag)?,
-                Object::sub_weapon_ammo(old_obj, item.content, item.amount, item.set_flag, starts),
+                Object::sub_weapon_ammo(old_obj, item.content, item.amount, item.set_flag, starts)?,
             ]
         }
         Item::Equipment(item) => {
             let starts = starts_as_is(old_obj, item.set_flag)?;
             let number = item.content as i16;
-            let chest = Object::chest(old_obj, old_obj.op1(), number, item.set_flag, starts);
+            let chest = Object::chest(old_obj, old_obj.op1(), number, item.set_flag, starts)?;
             vec![chest]
         }
         Item::Rom(item) => {
             let starts = starts_as_is(old_obj, item.set_flag)?;
             let number = 100 + item.content.0 as i16;
-            let chest = Object::chest(old_obj, old_obj.op1(), number, item.set_flag, starts);
+            let chest = Object::chest(old_obj, old_obj.op1(), number, item.set_flag, starts)?;
             vec![chest]
         }
         Item::Seal(item) => {
             let starts = starts_that_hide_when_startup_and_taken(old_obj, item.set_flag)?;
             vec![
                 create_empty_chest(old_obj, item.set_flag)?,
-                Object::seal(old_obj, item.content, item.set_flag, starts),
+                Object::seal(old_obj, item.content, item.set_flag, starts)?,
             ]
         }
     })
@@ -112,8 +112,7 @@ pub fn to_objects_for_chest(old_obj: &Object, item: &Item) -> Result<Vec<Object>
 
 fn create_empty_chest(old_obj: &Object, flag: u16) -> Result<Object> {
     let starts = starts_as_is(old_obj, flag)?;
-    let obj = Object::chest(old_obj, old_obj.op1(), -1, old_obj.op1() as u16, starts);
-    Ok(obj)
+    Object::chest(old_obj, old_obj.op1(), -1, old_obj.op1() as u16, starts)
 }
 
 fn starts_that_hide_when_startup_and_taken(old_obj: &Object, flag: u16) -> Result<Vec<Start>> {
@@ -139,7 +138,7 @@ fn starts_that_hide_when_startup_and_taken(old_obj: &Object, flag: u16) -> Resul
     .into_iter()
     .chain(
         old_obj
-            .starts
+            .starts()
             .iter()
             .filter(|x| ![99999, old_item_flag as u32].contains(&x.flag))
             .cloned(),

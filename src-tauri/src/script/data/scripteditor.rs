@@ -11,7 +11,7 @@ use anyhow::{anyhow, Result};
 use super::{
     item::Item,
     items::{Equipment, SubWeapon},
-    object::{Object, Start, UnknownObject},
+    object::{ChestContent, Object, Start, UnknownObject},
     objectfactory::{to_object_for_shutter, to_object_for_special_chest, to_objects_for_chest},
     script::{Script, World},
 };
@@ -77,7 +77,10 @@ fn new_objs(
     let unknown_obj = match obj {
         Object::Chest(chest_obj) => {
             // Skip the empty and Sweet Clothing
-            if [-1, Equipment::SweetClothing as i32].contains(&chest_obj.op2) {
+            if matches!(
+                chest_obj.content(),
+                None | Some(ChestContent::Equipment(Equipment::SweetClothing))
+            ) {
                 return Ok(vec![obj.clone()]);
             }
             // TODO: nightSurface
@@ -88,7 +91,7 @@ fn new_objs(
                 return Ok(vec![obj.clone()]);
             }
             // twinStatue
-            if chest_obj.op1 == 420 {
+            if chest_obj.open_flag() == 420 {
                 let item = &shuffled.chests[indices.chest_idx - 1].item;
                 let item = &Item::from_dataset(item, script)?;
                 return to_objects_for_chest(obj, item);
@@ -110,9 +113,9 @@ fn new_objs(
             let item = &shuffled.sub_weapons[indices.sub_weapon_spot_idx].item;
             let item = &Item::from_dataset(item, script)?;
             indices.sub_weapon_spot_idx += 1;
-            if sub_weapon_obj.op1 == SubWeapon::AnkhJewel as i32 {
+            if sub_weapon_obj.content == SubWeapon::AnkhJewel {
                 // Gate of Guidance
-                if sub_weapon_obj.op3 == 743 {
+                if sub_weapon_obj.set_flag() == 743 {
                     let wall_check_flag = get_next_wall_check_flag(next_objs)
                         .ok_or(anyhow!("wall_check_flag not found"))?;
                     return Ok(vec![to_object_for_shutter(
@@ -123,7 +126,7 @@ fn new_objs(
                 }
                 return Ok(vec![to_object_for_special_chest(obj, item)?]);
             }
-            let next_shutter_check_flag = if sub_weapon_obj.op1 == SubWeapon::Pistol as i32 {
+            let next_shutter_check_flag = if sub_weapon_obj.content == SubWeapon::Pistol {
                 get_next_breakable_wall_check_flag(next_objs)?
             } else {
                 get_next_shutter_check_flag(next_objs)?

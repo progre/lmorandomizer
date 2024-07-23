@@ -1,5 +1,5 @@
 use futures::future::join_all;
-use log::info;
+use log::{error, info};
 use num_traits::FromPrimitive;
 use serde_json::json;
 use std::{collections::BTreeMap, path::PathBuf};
@@ -212,6 +212,7 @@ pub async fn apply(
     let (randomized, spoiler_log) = match randomize(&working, game_structure, &options) {
         Ok(randomized) => randomized,
         Err(e) => {
+            error!("{:?}", e);
             return format!("Randomization failed: {}", e);
         }
     };
