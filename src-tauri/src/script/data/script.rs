@@ -9,8 +9,9 @@ use crate::{
 
 use super::{
     add_starting_items::add_starting_items,
+    item::{ChestItem, MainWeapon, Seal, SubWeapon},
     items,
-    object::{ChestContent, ChestItem, MainWeapon, Object, Seal, Shop, SubWeapon, UnknownObject},
+    object::{Object, Shop, UnknownObject},
     scripteditor::{replace_items, replace_shops},
 };
 
@@ -99,11 +100,13 @@ impl Script {
                 let Object::Chest(x) = x else {
                     return None;
                 };
-                Some(x.to_chest_item())
+                x.to_chest_item()
             })
-            .filter(|ChestItem { content, .. }| {
-                content.is_some()
-                    && content != &Some(ChestContent::Equipment(items::Equipment::SweetClothing))
+            .filter(|item| {
+                let ChestItem::Equipment(equipment) = item else {
+                    return true;
+                };
+                equipment.content != items::Equipment::SweetClothing
             })
             .collect()
     }

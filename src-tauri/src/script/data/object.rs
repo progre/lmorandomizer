@@ -1,40 +1,18 @@
-use std::num::NonZero;
-
 use anyhow::{anyhow, bail, Result};
 use num_traits::FromPrimitive;
 
+const U16_MAX: i32 = u16::MAX as i32;
+
 use super::{
+    item::{ChestItem, Equipment, MainWeapon, Rom, Seal, SubWeapon},
     items,
     shop_items_data::{self, ShopItem},
 };
-
-pub struct MainWeapon {
-    pub content: items::MainWeapon,
-    pub flag: u16,
-}
-
-pub struct SubWeapon {
-    pub content: items::SubWeapon,
-    pub count: u16,
-    pub flag: u16,
-}
 
 #[derive(Clone, Copy, PartialEq)]
 pub enum ChestContent {
     Equipment(items::Equipment),
     Rom(items::Rom),
-}
-
-pub struct ChestItem {
-    pub content: Option<ChestContent>,
-    pub open_flag: i32,
-    /// < 0 means not set
-    pub flag: i32,
-}
-
-pub struct Seal {
-    pub content: items::Seal,
-    pub flag: u16,
 }
 
 pub struct Shop {
@@ -73,6 +51,9 @@ impl ChestObject {
         if ![-1, 0].contains(&unused) {
             bail!("invalid parameter: op4={}", unused);
         }
+        if content >= 0 && !matches!(set_flag, 0..=U16_MAX) {
+            bail!("invalid parameters: op2={}, op3={}", content, set_flag);
+        }
         Ok(Self {
             x,
             y,
@@ -108,11 +89,19 @@ impl ChestObject {
         &self.starts
     }
 
-    pub fn to_chest_item(&self) -> ChestItem {
-        ChestItem {
-            content: self.content,
-            open_flag: self.open_flag,
-            flag: self.set_flag,
+    pub fn to_chest_item(&self) -> Option<ChestItem> {
+        match self.content {
+            Some(ChestContent::Equipment(content)) => Some(ChestItem::Equipment(Equipment {
+                content,
+                price: None,
+                set_flag: self.set_flag as u16,
+            })),
+            Some(ChestContent::Rom(rom)) => Some(ChestItem::Rom(Rom {
+                content: rom,
+                price: None,
+                set_flag: self.set_flag as u16,
+            })),
+            None => None,
         }
     }
 }
@@ -122,7 +111,7 @@ pub struct SubWeaponObject {
     x: i32,
     y: i32,
     content: items::SubWeapon,
-    count: u16,
+    amount: u8,
     set_flag: u16,
     starts: Vec<Start>,
 }
@@ -132,7 +121,7 @@ impl SubWeaponObject {
         x: i32,
         y: i32,
         content: i32,
-        count: i32,
+        amount: i32,
         set_flag: i32,
         unused: i32,
         starts: Vec<Start>,
@@ -145,7 +134,7 @@ impl SubWeaponObject {
             y,
             content: items::SubWeapon::from_i32(content)
                 .ok_or_else(|| anyhow!("invalid parameter: op1={}", content))?,
-            count: u16::try_from(count)?,
+            amount: u8::try_from(amount)?,
             set_flag: u16::try_from(set_flag)?,
             starts,
         })
@@ -158,7 +147,7 @@ impl SubWeaponObject {
         self.content as i32
     }
     fn op2(&self) -> i32 {
-        self.count as i32
+        self.amount as i32
     }
     pub fn set_flag(&self) -> u16 {
         self.set_flag
@@ -173,8 +162,9 @@ impl SubWeaponObject {
     pub fn to_sub_weapon(&self) -> SubWeapon {
         SubWeapon {
             content: self.content,
-            count: self.count,
-            flag: self.set_flag,
+            amount: self.amount,
+            price: None,
+            set_flag: self.set_flag,
         }
     }
 }
@@ -200,7 +190,6 @@ impl ShopObject {
         op4: i32,
         starts: Vec<Start>,
     ) -> Result<Self> {
-        const U16_MAX: i32 = u16::MAX as i32;
         if form < 100 && !(matches!(op4, 0..=U16_MAX)) || 200 <= form && op4 != 0 {
             bail!("invalid parameters: op1={}, op4={}", form, op4);
         }
@@ -278,7 +267,7 @@ impl SealObject {
     pub fn to_seal(&self) -> Seal {
         Seal {
             content: self.content,
-            flag: self.set_flag,
+            set_flag: self.set_flag,
         }
     }
 }
@@ -329,7 +318,7 @@ impl MainWeaponObject {
     pub fn to_main_weapon(&self) -> MainWeapon {
         MainWeapon {
             content: self.content,
-            flag: self.set_flag,
+            set_flag: self.set_flag,
         }
     }
 }
@@ -405,37 +394,25 @@ impl Object {
         )?))
     }
 
-    pub fn sub_weapon_body(
+    pub fn sub_weapon(
         pos: &Object,
         content: items::SubWeapon,
+        count: u8,
         set_flag: u16,
         starts: Vec<Start>,
     ) -> Result<Object> {
-        debug_assert!(content != items::SubWeapon::AnkhJewel);
+        if cfg!(debug_assertions) {
+            if count == 0 {
+                debug_assert!(content != items::SubWeapon::AnkhJewel);
+            } else {
+                debug_assert!(content != items::SubWeapon::AnkhJewel || count == 1);
+            }
+        }
         Ok(Object::SubWeapon(SubWeaponObject::new(
             pos.x(),
             pos.y(),
             content as i32,
-            0,
-            set_flag as i32,
-            -1,
-            starts,
-        )?))
-    }
-
-    pub fn sub_weapon_ammo(
-        pos: &Object,
-        content: items::SubWeapon,
-        count: NonZero<u8>,
-        set_flag: u16,
-        starts: Vec<Start>,
-    ) -> Result<Object> {
-        debug_assert!(content != items::SubWeapon::AnkhJewel || count.get() == 1);
-        Ok(Object::SubWeapon(SubWeaponObject::new(
-            pos.x(),
-            pos.y(),
-            content as i32,
-            count.get() as i32,
+            count as i32,
             set_flag as i32,
             -1,
             starts,

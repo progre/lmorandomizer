@@ -1,31 +1,19 @@
-use std::num::NonZero;
-
 use anyhow::{anyhow, bail, Result};
 
 use crate::dataset;
 
-use super::{
-    items,
-    object::{ChestContent, Shop},
-    script::Script,
-    shop_items_data::ShopItem,
-};
+use super::{items, object::Shop, script::Script, shop_items_data::ShopItem};
 
+#[derive(Clone)]
 pub struct MainWeapon {
     pub content: items::MainWeapon,
     pub set_flag: u16,
 }
 
 #[derive(Clone)]
-pub struct SubWeaponBody {
+pub struct SubWeapon {
     pub content: items::SubWeapon,
-    pub set_flag: u16,
-}
-
-#[derive(Clone)]
-pub struct SubWeaponAmmo {
-    pub content: items::SubWeapon,
-    pub amount: NonZero<u8>,
+    pub amount: u8,
     pub price: Option<u16>,
     pub set_flag: u16,
 }
@@ -44,6 +32,12 @@ pub struct Rom {
     pub set_flag: u16,
 }
 
+pub enum ChestItem {
+    Equipment(Equipment),
+    Rom(Rom),
+}
+
+#[derive(Clone)]
 pub struct Seal {
     pub content: items::Seal,
     pub set_flag: u16,
@@ -63,8 +57,7 @@ fn shop_item(shops: &[Shop], shop_idx: usize, item_idx: usize) -> Result<&ShopIt
 
 pub enum Item {
     MainWeapon(MainWeapon),
-    SubWeaponBody(SubWeaponBody),
-    SubWeaponAmmo(SubWeaponAmmo),
+    SubWeapon(SubWeapon),
     Equipment(Equipment),
     Rom(Rom),
     Seal(Seal),
@@ -88,57 +81,23 @@ impl Item {
                 let item = main_weapons
                     .get(*src_idx)
                     .ok_or_else(|| anyhow!("invalid main weapon index: {}", src_idx))?;
-                let content = item.content;
-                let set_flag = item.flag;
-                Self::initial_assert(content as i8, set_flag, false);
-                Ok(Self::MainWeapon(MainWeapon { content, set_flag }))
+                Ok(Self::MainWeapon(item.clone()))
             }
             dataset::item::ItemSource::SubWeapon(src_idx) => {
                 let sub_weapons = script.sub_weapons();
                 let item = sub_weapons
                     .get(*src_idx)
                     .ok_or_else(|| anyhow!("invalid sub weapon index: {}", src_idx))?;
-                let content = item.content;
-                let set_flag = item.flag;
-                Self::initial_assert(content as i8, set_flag, true);
-                if item.count == 0 {
-                    Ok(Self::SubWeaponBody(SubWeaponBody { content, set_flag }))
-                } else {
-                    Ok(Self::SubWeaponAmmo(SubWeaponAmmo {
-                        content,
-                        amount: NonZero::new(u8::try_from(item.count)?).ok_or_else(|| {
-                            anyhow!("invalid sub weapon ammo count: {}", item.count)
-                        })?,
-                        price: None,
-                        set_flag,
-                    }))
-                }
+                Ok(Self::SubWeapon(item.clone()))
             }
             dataset::item::ItemSource::Chest(src_idx) => {
                 let chests = script.chests();
                 let item = chests
                     .get(*src_idx)
                     .ok_or_else(|| anyhow!("invalid chest index: {}", src_idx))?;
-                match item.content {
-                    Some(ChestContent::Equipment(content)) => {
-                        let set_flag = u16::try_from(item.flag)?;
-                        Self::initial_assert(content as i8, set_flag, false);
-                        Ok(Self::Equipment(Equipment {
-                            content,
-                            price: None,
-                            set_flag,
-                        }))
-                    }
-                    Some(ChestContent::Rom(content)) => {
-                        let set_flag = u16::try_from(item.flag)?;
-                        Self::initial_assert(content.0 as i8, set_flag, false);
-                        Ok(Self::Rom(Rom {
-                            content,
-                            price: None,
-                            set_flag,
-                        }))
-                    }
-                    None => bail!("chest item type mismatch"),
+                match item {
+                    ChestItem::Equipment(content) => Ok(Self::Equipment(content.clone())),
+                    ChestItem::Rom(content) => Ok(Self::Rom(content.clone())),
                 }
             }
             dataset::item::ItemSource::Seal(src_idx) => {
@@ -146,22 +105,15 @@ impl Item {
                 let item = seals
                     .get(*src_idx)
                     .ok_or_else(|| anyhow!("invalid seal index: {}", src_idx))?;
-                let content = item.content;
-                let set_flag = item.flag;
-                Self::initial_assert(content as i8, set_flag, false);
-                Ok(Self::Seal(Seal { content, set_flag }))
+                Ok(Self::Seal(item.clone()))
             }
             dataset::item::ItemSource::Shop(shop_idx, item_idx) => {
                 let shops = script.shops()?;
                 let item = shop_item(&shops, *shop_idx, *item_idx)?;
                 match item {
-                    ShopItem::SubWeaponBody(item) => {
+                    ShopItem::SubWeapon(item) => {
                         Self::initial_assert(item.item.content as i8, item.item.set_flag, true);
-                        Ok(Self::SubWeaponBody(item.item.clone()))
-                    }
-                    ShopItem::SubWeaponAmmo(item) => {
-                        Self::initial_assert(item.item.content as i8, item.item.set_flag, true);
-                        Ok(Self::SubWeaponAmmo(item.item.clone()))
+                        Ok(Self::SubWeapon(item.item.clone()))
                     }
                     ShopItem::Equipment(item) => {
                         Self::initial_assert(item.item.content as i8, item.item.set_flag, false);
@@ -179,8 +131,7 @@ impl Item {
     pub fn set_flag(&self) -> u16 {
         match self {
             Self::MainWeapon(item) => item.set_flag,
-            Self::SubWeaponBody(item) => item.set_flag,
-            Self::SubWeaponAmmo(item) => item.set_flag,
+            Self::SubWeapon(item) => item.set_flag,
             Self::Equipment(item) => item.set_flag,
             Self::Rom(item) => item.set_flag,
             Self::Seal(item) => item.set_flag,
@@ -189,7 +140,7 @@ impl Item {
 
     pub fn price(&self) -> Option<u16> {
         match self {
-            Self::SubWeaponAmmo(item) => item.price,
+            Self::SubWeapon(item) => item.price,
             Self::Equipment(item) => item.price,
             Self::Rom(item) => item.price,
             _ => None,

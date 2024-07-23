@@ -11,13 +11,9 @@ pub fn to_object_for_shutter(old_obj: &Object, start_flag: u16, item: &Item) -> 
             let starts = starts_as_is(old_obj, item.set_flag)?;
             Object::main_weapon(old_obj, item.content, item.set_flag, starts)
         }
-        Item::SubWeaponBody(item) => {
+        Item::SubWeapon(item) => {
             let starts = starts_as_is(old_obj, item.set_flag)?;
-            Object::sub_weapon_body(old_obj, item.content, item.set_flag, starts)
-        }
-        Item::SubWeaponAmmo(item) => {
-            let starts = starts_as_is(old_obj, item.set_flag)?;
-            Object::sub_weapon_ammo(old_obj, item.content, item.amount, item.set_flag, starts)
+            Object::sub_weapon(old_obj, item.content, item.amount, item.set_flag, starts)
         }
         Item::Equipment(item) => {
             let starts = starts_that_hide_when_startup(old_obj, start_flag)?;
@@ -41,13 +37,9 @@ pub fn to_object_for_special_chest(old_obj: &Object, item: &Item) -> Result<Obje
             let starts = starts_as_is(old_obj, item.set_flag)?;
             Object::main_weapon(old_obj, item.content, item.set_flag, starts)
         }
-        Item::SubWeaponBody(item) => {
+        Item::SubWeapon(item) => {
             let starts = starts_as_is(old_obj, item.set_flag)?;
-            Object::sub_weapon_body(old_obj, item.content, item.set_flag, starts)
-        }
-        Item::SubWeaponAmmo(item) => {
-            let starts = starts_as_is(old_obj, item.set_flag)?;
-            Object::sub_weapon_ammo(old_obj, item.content, item.amount, item.set_flag, starts)
+            Object::sub_weapon(old_obj, item.content, item.amount, item.set_flag, starts)
         }
         Item::Equipment(item) => {
             let starts = starts_without_old_flag(old_obj)?;
@@ -74,18 +66,11 @@ pub fn to_objects_for_chest(old_obj: &Object, item: &Item) -> Result<Vec<Object>
                 Object::main_weapon(old_obj, item.content, item.set_flag, starts)?,
             ]
         }
-        Item::SubWeaponBody(item) => {
+        Item::SubWeapon(item) => {
             let starts = starts_that_hide_when_startup_and_taken(old_obj, item.set_flag)?;
             vec![
                 create_empty_chest(old_obj, item.set_flag)?,
-                Object::sub_weapon_body(old_obj, item.content, item.set_flag, starts)?,
-            ]
-        }
-        Item::SubWeaponAmmo(item) => {
-            let starts = starts_that_hide_when_startup_and_taken(old_obj, item.set_flag)?;
-            vec![
-                create_empty_chest(old_obj, item.set_flag)?,
-                Object::sub_weapon_ammo(old_obj, item.content, item.amount, item.set_flag, starts)?,
+                Object::sub_weapon(old_obj, item.content, item.amount, item.set_flag, starts)?,
             ]
         }
         Item::Equipment(item) => {
