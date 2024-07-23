@@ -11,7 +11,7 @@ use anyhow::{anyhow, Result};
 use super::{
     item::Item,
     items::{Equipment, SubWeapon},
-    object::{Object, Start},
+    object::{Object, Start, UnknownObject},
     objectfactory::{to_object_for_shutter, to_object_for_special_chest, to_objects_for_chest},
     script::{Script, World},
 };
@@ -60,7 +60,10 @@ pub fn replace_shops(
     Ok(())
 }
 
-fn fix_trap_of_mausoleum_of_the_giants(obj: &mut Object, prev_sub_weapon_shutter_item: &Item) {
+fn fix_trap_of_mausoleum_of_the_giants(
+    obj: &mut UnknownObject,
+    prev_sub_weapon_shutter_item: &Item,
+) {
     obj.op1 = prev_sub_weapon_shutter_item.set_flag() as i32;
 }
 
@@ -71,22 +74,31 @@ fn new_objs(
     shuffled: &Storage,
     indices: &mut StorageIndices,
 ) -> Result<Vec<Object>> {
-    match obj.number {
-        // Main weapons
-        77 => {
-            let item = &shuffled.main_weapons[indices.main_weapon_spot_idx].item;
+    let unknown_obj = match obj {
+        Object::Chest(chest_obj) => {
+            // Skip the empty and Sweet Clothing
+            if [-1, Equipment::SweetClothing as i32].contains(&chest_obj.op2) {
+                return Ok(vec![obj.clone()]);
+            }
+            // TODO: nightSurface
+            if indices.chest_idx >= shuffled.chests.len() {
+                let sum = shuffled.chests.len() + NIGHT_SURFACE_CHEST_COUNT;
+                debug_assert!(indices.chest_idx < sum);
+                indices.chest_idx += 1;
+                return Ok(vec![obj.clone()]);
+            }
+            // twinStatue
+            if chest_obj.op1 == 420 {
+                let item = &shuffled.chests[indices.chest_idx - 1].item;
+                let item = &Item::from_dataset(item, script)?;
+                return to_objects_for_chest(obj, item);
+            }
+            let item = &shuffled.chests[indices.chest_idx].item;
             let item = &Item::from_dataset(item, script)?;
-            indices.main_weapon_spot_idx += 1;
-            let next_shutter_check_flag = get_next_shutter_check_flag(next_objs)?
-                .ok_or(anyhow!("next_shutter_check_flag not found"))?;
-            Ok(vec![to_object_for_shutter(
-                obj,
-                next_shutter_check_flag,
-                item,
-            )?])
+            indices.chest_idx += 1;
+            return to_objects_for_chest(obj, item);
         }
-        // Sub weapons
-        13 => {
+        Object::SubWeapon(sub_weapon_obj) => {
             // TODO: nightSurface
             if indices.sub_weapon_spot_idx >= shuffled.sub_weapons.len() {
                 let sum = shuffled.sub_weapons.len() + NIGHT_SURFACE_SUB_WEAPON_COUNT;
@@ -98,9 +110,9 @@ fn new_objs(
             let item = &shuffled.sub_weapons[indices.sub_weapon_spot_idx].item;
             let item = &Item::from_dataset(item, script)?;
             indices.sub_weapon_spot_idx += 1;
-            if obj.op1 == SubWeapon::AnkhJewel as i32 {
+            if sub_weapon_obj.op1 == SubWeapon::AnkhJewel as i32 {
                 // Gate of Guidance
-                if obj.op3 == 743 {
+                if sub_weapon_obj.op3 == 743 {
                     let wall_check_flag = get_next_wall_check_flag(next_objs)
                         .ok_or(anyhow!("wall_check_flag not found"))?;
                     return Ok(vec![to_object_for_shutter(
@@ -111,46 +123,22 @@ fn new_objs(
                 }
                 return Ok(vec![to_object_for_special_chest(obj, item)?]);
             }
-            let next_shutter_check_flag = if obj.op1 == SubWeapon::Pistol as i32 {
+            let next_shutter_check_flag = if sub_weapon_obj.op1 == SubWeapon::Pistol as i32 {
                 get_next_breakable_wall_check_flag(next_objs)?
             } else {
                 get_next_shutter_check_flag(next_objs)?
             }
             .ok_or(anyhow!("next_shutter_check_flag not found"))?;
-            Ok(vec![to_object_for_shutter(
+            return Ok(vec![to_object_for_shutter(
                 obj,
                 next_shutter_check_flag,
                 item,
-            )?])
+            )?]);
         }
-        // Chests
-        1 => {
-            // Skip the empty and Sweet Clothing
-            if [-1, Equipment::SweetClothing as i32].contains(&obj.op2) {
-                return Ok(vec![obj.clone()]);
-            }
+        Object::Shop(_) => return Ok(vec![obj.clone()]),
+        Object::Seal(_) => {
+            // TODO: trueShrineOfTheMother
             // TODO: nightSurface
-            if indices.chest_idx >= shuffled.chests.len() {
-                let sum = shuffled.chests.len() + NIGHT_SURFACE_CHEST_COUNT;
-                debug_assert!(indices.chest_idx < sum);
-                indices.chest_idx += 1;
-                return Ok(vec![obj.clone()]);
-            }
-            // twinStatue
-            if obj.op1 == 420 {
-                let item = &shuffled.chests[indices.chest_idx - 1].item;
-                let item = &Item::from_dataset(item, script)?;
-                return to_objects_for_chest(obj, item);
-            }
-            let item = &shuffled.chests[indices.chest_idx].item;
-            let item = &Item::from_dataset(item, script)?;
-            indices.chest_idx += 1;
-            to_objects_for_chest(obj, item)
-        }
-        // Seal chests
-        // TODO: trueShrineOfTheMother
-        // TODO: nightSurface
-        71 => {
             if indices.seal_chest_idx >= shuffled.seals.len() {
                 let sum = shuffled.seals.len()
                     + TRUE_SHRINE_OF_THE_MOTHER_SEAL_COUNT
@@ -162,28 +150,47 @@ fn new_objs(
             let item = &shuffled.seals[indices.seal_chest_idx].item;
             let item = &Item::from_dataset(item, script)?;
             indices.seal_chest_idx += 1;
-            Ok(vec![to_object_for_special_chest(obj, item)?])
+            return Ok(vec![to_object_for_special_chest(obj, item)?]);
         }
+        Object::MainWeapon(_) => {
+            let item = &shuffled.main_weapons[indices.main_weapon_spot_idx].item;
+            let item = &Item::from_dataset(item, script)?;
+            indices.main_weapon_spot_idx += 1;
+            let next_shutter_check_flag = get_next_shutter_check_flag(next_objs)?
+                .ok_or(anyhow!("next_shutter_check_flag not found"))?;
+            return Ok(vec![to_object_for_shutter(
+                obj,
+                next_shutter_check_flag,
+                item,
+            )?]);
+        }
+        Object::Unknown(unknown_obj) => unknown_obj,
+    };
+    match unknown_obj.number {
+        // Chests | Sub weapons | Shop | Seal chests | Main weapons
+        1 | 13 | 14 | 71 | 77 => unreachable!(),
         // Trap object for the Ankh Jewel Treasure Chest in Mausoleum of the Giants.
         // It is made to work correctly when acquiring items.
-        140 if obj.x == 49152 && obj.y == 16384 => {
-            let mut obj = obj.clone();
+        140 if unknown_obj.x == 49152 && unknown_obj.y == 16384 => {
+            let mut obj = unknown_obj.clone();
             let prev_sub_weapon_shutter_item =
                 &shuffled.sub_weapons[indices.sub_weapon_spot_idx - 1].item;
             let prev_sub_weapon_shutter_item =
                 &Item::from_dataset(prev_sub_weapon_shutter_item, script)?;
             fix_trap_of_mausoleum_of_the_giants(&mut obj, prev_sub_weapon_shutter_item);
-            Ok(vec![obj])
+            Ok(vec![Object::Unknown(obj)])
         }
         // ヴィマーナは飛行機模型を取得したら出現しないようになっている。
         // 飛行機模型取得後に飛行機模型の宝箱を開けられるように、飛行機模型出現のフラグに変更する。
-        186 if obj.starts.len() == 1 && obj.starts[0].flag == 788 => Ok(vec![Object {
-            starts: vec![Start {
-                flag: 891,
-                run_when_unset: obj.starts[0].run_when_unset,
-            }],
-            ..obj.clone()
-        }]),
+        186 if unknown_obj.starts.len() == 1 && unknown_obj.starts[0].flag == 788 => {
+            Ok(vec![Object::Unknown(UnknownObject {
+                starts: vec![Start {
+                    flag: 891,
+                    run_when_unset: unknown_obj.starts[0].run_when_unset,
+                }],
+                ..unknown_obj.clone()
+            })])
+        }
         _ => Ok(vec![obj.clone()]),
     }
 }
@@ -214,20 +221,20 @@ pub fn replace_items(worlds: &mut [World], script: &Script, shuffled: &Storage) 
 fn get_next_shutter_check_flag(objs: &[Object]) -> Result<Option<u16>> {
     Ok(objs
         .iter()
-        .find(|x| x.number == 20)
-        .map(|x| u16::try_from(x.op1))
+        .find(|x| x.number() == 20)
+        .map(|x| u16::try_from(x.op1()))
         .transpose()?)
 }
 
 fn get_next_wall_check_flag(objs: &[Object]) -> Option<i32> {
-    Some(objs.iter().find(|x| x.number == 59)?.op3)
+    Some(objs.iter().find(|x| x.number() == 59)?.op3())
 }
 
 fn get_next_breakable_wall_check_flag(objs: &[Object]) -> Result<Option<u16>> {
     objs.iter()
-        .find(|x| x.number == 70)
+        .find(|x| x.number() == 70)
         .map(|x| {
-            let data = x.op4;
+            let data = x.op4();
             Ok(u16::try_from((data - (data / 10000) * 10000) / 10)?)
         })
         .transpose()

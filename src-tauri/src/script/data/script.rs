@@ -10,7 +10,7 @@ use crate::{
 use super::{
     add_starting_items::add_starting_items,
     items,
-    object::{ChestContent, ChestItem, MainWeapon, Object, Seal, Shop, SubWeapon},
+    object::{ChestContent, ChestItem, MainWeapon, Object, Seal, Shop, SubWeapon, UnknownObject},
     scripteditor::{replace_items, replace_shops},
 };
 
@@ -30,7 +30,7 @@ pub struct Field {
     pub chip_line: (u16, u16),
     pub hits: Vec<(i16, i16)>,
     pub animes: Vec<Vec<u16>>,
-    pub objects: Vec<Object>,
+    pub objects: Vec<UnknownObject>,
     pub maps: Vec<Map>,
 }
 
@@ -61,14 +61,24 @@ impl Script {
     pub fn main_weapons(&self) -> Result<Vec<MainWeapon>> {
         self.view_objects()
             .iter()
-            .filter_map(|x| x.to_main_weapon().transpose())
+            .filter_map(|x| {
+                let Object::MainWeapon(x) = x else {
+                    return None;
+                };
+                x.to_main_weapon().transpose()
+            })
             .collect()
     }
 
     pub fn sub_weapons(&self) -> Result<Vec<SubWeapon>> {
         self.view_objects()
             .iter()
-            .filter_map(|x| x.to_sub_weapon().transpose())
+            .filter_map(|x| {
+                let Object::SubWeapon(x) = x else {
+                    return None;
+                };
+                x.to_sub_weapon().transpose()
+            })
             .collect()
     }
 
@@ -78,15 +88,20 @@ impl Script {
             .iter()
             // without 2nd twinStatue
             .filter(|x| {
-                !(x.number == 1
-                    && x.x == 8192
-                    && x.y == 6144
-                    && x.op1 == 420
-                    && x.op2 == 14
-                    && x.op3 == 766
-                    && x.op4 == 0)
+                !(x.number() == 1
+                    && x.x() == 8192
+                    && x.y() == 6144
+                    && x.op1() == 420
+                    && x.op2() == 14
+                    && x.op3() == 766
+                    && x.op4() == 0)
             })
-            .filter_map(|x| x.to_chest_item().transpose())
+            .filter_map(|x| {
+                let Object::Chest(x) = x else {
+                    return None;
+                };
+                x.to_chest_item().transpose()
+            })
             .collect::<Result<Vec<_>>>()?
             .into_iter()
             .filter(|ChestItem { content, .. }| {
@@ -99,14 +114,24 @@ impl Script {
     pub fn seals(&self) -> Result<Vec<Seal>> {
         self.view_objects()
             .iter()
-            .filter_map(|x| x.to_seal().transpose())
+            .filter_map(|x| {
+                let Object::Seal(x) = x else {
+                    return None;
+                };
+                x.to_seal().transpose()
+            })
             .collect()
     }
 
     pub fn shops(&self) -> Result<Vec<Shop>> {
         self.view_objects()
             .iter()
-            .filter_map(|x| x.to_shop(&self.talks).transpose())
+            .filter_map(|x| {
+                let Object::Shop(x) = x else {
+                    return None;
+                };
+                x.to_shop(&self.talks).transpose()
+            })
             .collect()
     }
 

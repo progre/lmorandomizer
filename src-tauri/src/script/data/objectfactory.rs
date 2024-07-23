@@ -91,13 +91,13 @@ pub fn to_objects_for_chest(old_obj: &Object, item: &Item) -> Result<Vec<Object>
         Item::Equipment(item) => {
             let starts = starts_as_is(old_obj, item.set_flag)?;
             let number = item.content as i16;
-            let chest = Object::chest(old_obj, old_obj.op1, number, item.set_flag, starts);
+            let chest = Object::chest(old_obj, old_obj.op1(), number, item.set_flag, starts);
             vec![chest]
         }
         Item::Rom(item) => {
             let starts = starts_as_is(old_obj, item.set_flag)?;
             let number = 100 + item.content.0 as i16;
-            let chest = Object::chest(old_obj, old_obj.op1, number, item.set_flag, starts);
+            let chest = Object::chest(old_obj, old_obj.op1(), number, item.set_flag, starts);
             vec![chest]
         }
         Item::Seal(item) => {
@@ -112,13 +112,16 @@ pub fn to_objects_for_chest(old_obj: &Object, item: &Item) -> Result<Vec<Object>
 
 fn create_empty_chest(old_obj: &Object, flag: u16) -> Result<Object> {
     let starts = starts_as_is(old_obj, flag)?;
-    let obj = Object::chest(old_obj, old_obj.op1, -1, old_obj.op1 as u16, starts);
+    let obj = Object::chest(old_obj, old_obj.op1(), -1, old_obj.op1() as u16, starts);
     Ok(obj)
 }
 
 fn starts_that_hide_when_startup_and_taken(old_obj: &Object, flag: u16) -> Result<Vec<Start>> {
-    debug_assert_eq!(old_obj.number, 1);
+    debug_assert_eq!(old_obj.number(), 1);
     let old_item_flag = old_obj.get_item_flag()?;
+    let Object::Chest(old_obj) = old_obj else {
+        unreachable!()
+    };
     Ok([
         Start {
             flag: 99999,
@@ -159,7 +162,7 @@ fn starts_that_hide_when_startup(old_obj: &Object, start_flag: u16) -> Result<Ve
     .into_iter()
     .chain(
         old_obj
-            .starts
+            .starts()
             .iter()
             .filter(|x| ![99999, old_item_flag as u32].contains(&x.flag))
             .cloned(),
@@ -171,7 +174,7 @@ fn starts_as_is(old_obj: &Object, flag: u16) -> Result<Vec<Start>> {
     let mut vec = starts_without_old_flag(old_obj)?;
     let old_item_flag = old_obj.get_item_flag()?;
     if old_obj
-        .starts
+        .starts()
         .iter()
         .any(|x| x.flag == old_item_flag as u32)
     {
@@ -186,7 +189,7 @@ fn starts_as_is(old_obj: &Object, flag: u16) -> Result<Vec<Start>> {
 fn starts_without_old_flag(old_obj: &Object) -> Result<Vec<Start>> {
     let old_item_flag = old_obj.get_item_flag()?;
     Ok(old_obj
-        .starts
+        .starts()
         .iter()
         .filter(|x| x.flag != old_item_flag as u32)
         .cloned()
