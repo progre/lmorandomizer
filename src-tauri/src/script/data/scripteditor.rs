@@ -136,6 +136,7 @@ fn new_objs(
             return Ok(vec![to_object_for_shutter(obj, open_flag, item)]);
         }
         Object::Shop(_) => return Ok(vec![obj.clone()]),
+        Object::Rom(_) => return Ok(vec![obj.clone()]),
         Object::Seal(_) => {
             // TODO: trueShrineOfTheMother
             // TODO: nightSurface

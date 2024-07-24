@@ -1,3 +1,5 @@
+use crate::script::data::item::Rom;
+
 use super::{
     super::item::{ChestItem, Seal},
     Start,
@@ -46,6 +48,33 @@ impl ChestObject {
     }
     pub fn op4(&self) -> i32 {
         self.unused
+    }
+    pub fn starts(&self) -> &[Start] {
+        &self.starts
+    }
+}
+
+#[derive(Clone)]
+pub struct RomObject {
+    x: i32,
+    y: i32,
+    rom: Rom,
+    starts: Vec<Start>,
+}
+
+impl RomObject {
+    pub fn new(x: i32, y: i32, rom: Rom, starts: Vec<Start>) -> Self {
+        Self { x, y, rom, starts }
+    }
+
+    pub fn x(&self) -> i32 {
+        self.x
+    }
+    pub fn y(&self) -> i32 {
+        self.y
+    }
+    pub fn rom(&self) -> &Rom {
+        &self.rom
     }
     pub fn starts(&self) -> &[Start] {
         &self.starts
