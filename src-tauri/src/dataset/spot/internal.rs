@@ -25,7 +25,7 @@ pub enum FieldId {
     TrueShrineOfTheMother,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct SpotName(String);
 
 impl SpotName {
@@ -82,7 +82,7 @@ pub struct AllRequirements(pub Vec<RequirementFlag>);
 #[derive(Clone, Debug, PartialEq)]
 pub struct AnyOfAllRequirements(pub Vec<AllRequirements>);
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 struct SpotParams {
     field_id: FieldId,
     src_idx: usize,
@@ -113,7 +113,7 @@ impl SpotParams {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct MainWeaponSpot(SpotParams);
 
 impl MainWeaponSpot {
@@ -143,7 +143,7 @@ impl fmt::Display for MainWeaponSpot {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct SubWeaponSpot(SpotParams);
 
 impl SubWeaponSpot {
@@ -173,7 +173,7 @@ impl fmt::Display for SubWeaponSpot {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct ChestSpot(SpotParams);
 
 impl ChestSpot {
@@ -203,7 +203,7 @@ impl fmt::Display for ChestSpot {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct SealSpot(SpotParams);
 
 impl SealSpot {
@@ -233,7 +233,7 @@ impl fmt::Display for SealSpot {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct ShopSpot(SpotParams);
 
 impl ShopSpot {
@@ -276,7 +276,7 @@ impl fmt::Display for ShopSpot {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct RomSpot {
     field_id: FieldId,
     name: SpotName,

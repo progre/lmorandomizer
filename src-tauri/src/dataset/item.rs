@@ -54,7 +54,7 @@ impl From<SpotName> for StrategyFlag {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub enum ItemSource {
     MainWeapon(usize),
     SubWeapon(usize),
@@ -64,7 +64,7 @@ pub enum ItemSource {
     Rom(items::Rom),
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Item {
     pub src: ItemSource,
     pub name: StrategyFlag,

@@ -25,8 +25,7 @@ pub fn randomize_items<'a>(
     trace!("Assertion in {:?}", start.elapsed());
 
     let start = std::time::Instant::now();
-    let mut rng = make_rng(seed);
-    let (shuffled, spoiler_log) = shuffle(&mut rng, source);
+    let (shuffled, spoiler_log) = shuffle(seed, source);
     trace!("Randomized items in {:?}", start.elapsed());
 
     let start = std::time::Instant::now();
@@ -109,8 +108,9 @@ fn random_spoiler<'a>(rng: &mut impl Rng, source: &'a Storage) -> SpoilerLogRef<
     })
 }
 
-fn shuffle<'a>(rng: &mut impl Rng, source: &'a Storage) -> (Storage, SpoilerLogRef<'a>) {
-    let spoiler_log = random_spoiler(rng, source);
+fn shuffle<'a>(seed: &str, source: &'a Storage) -> (Storage, SpoilerLogRef<'a>) {
+    let mut rng = make_rng(seed);
+    let spoiler_log = random_spoiler(&mut rng, source);
     let storage = create_shuffled_storage(source, &spoiler_log);
     (storage, spoiler_log)
 }
@@ -149,4 +149,32 @@ fn assert_unique(storage: &Storage) {
                 names.insert(key);
             }
         });
+}
+
+#[cfg(test)]
+mod tests {
+    use sha3::Digest;
+
+    use crate::{app::read_game_structure_files_debug, dataset::create_source::create_source};
+
+    use super::*;
+
+    #[tokio::test]
+    async fn test_shuffle() -> Result<()> {
+        let game_structure_files = read_game_structure_files_debug().await?;
+        let source = create_source(game_structure_files)?;
+        let (shuffled, spoiler_log) = shuffle("test", &source);
+
+        let shuffled_str = format!("{:?}", shuffled);
+        let shuffled_hash = hex::encode(sha3::Sha3_512::digest(shuffled_str));
+        const EXPECTED_SHUFFLED_HASH: &str = "92d57a1984d27d7a640834efb8f13ab71efaae1b19f4fd3865bd8392c887326d87c55f2ba9452a2c5e9a71a6df7278dbdd4e001cce6e8666bb7627d0bdd1c98c";
+        assert_eq!(shuffled_hash, EXPECTED_SHUFFLED_HASH);
+
+        let spoiler_log_str = format!("{:?}", spoiler_log.to_owned());
+        let spoiler_log_hash = hex::encode(sha3::Sha3_512::digest(spoiler_log_str));
+        const EXPECTED_SPOILER_LOG_HASH: &str = "d626c59b383ceb22adc173dbfb8b3eb6fb02dd1d8929c6d88206e5fe8001f4424f115c65c015ea4a05ff20620394f0e0d269361166a1cdd8b86956522a3309a7";
+        assert_eq!(spoiler_log_hash, EXPECTED_SPOILER_LOG_HASH);
+
+        Ok(())
+    }
 }

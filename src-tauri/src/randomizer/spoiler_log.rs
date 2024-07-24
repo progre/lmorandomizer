@@ -17,6 +17,7 @@ fn compare_key_for_spoiler_log(field_id: FieldId) -> u8 {
     }
 }
 
+#[derive(Debug)]
 pub enum Checkpoint {
     MainWeapon(MainWeapon),
     SubWeapon(SubWeapon),
@@ -103,10 +104,12 @@ impl<'a> CheckpointRef<'a> {
     }
 }
 
+#[derive(Debug)]
 pub struct Sphere(pub Vec<Checkpoint>);
 
 pub struct SphereRef<'a>(pub Vec<CheckpointRef<'a>>);
 
+#[derive(Debug)]
 pub struct SpoilerLog {
     progression: Vec<Sphere>,
     maps: Vec<Checkpoint>,

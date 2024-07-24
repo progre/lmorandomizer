@@ -1,3 +1,4 @@
+use anyhow::Result;
 use futures::future::join_all;
 use log::{error, info};
 use num_traits::FromPrimitive;
@@ -128,7 +129,9 @@ async fn write_file(path: &str, contents: &[u8]) -> io::Result<()> {
     Ok(())
 }
 
-async fn read_game_structure_files(handle: AppHandle) -> anyhow::Result<GameStructureFiles> {
+async fn read_game_structure_files_internal(
+    resolve_path: impl Fn(&str) -> Result<PathBuf>,
+) -> anyhow::Result<GameStructureFiles> {
     let file_paths = [
         "res/00_Surface.yml",
         "res/01_Gate_of_Guidance.yml",
@@ -150,10 +153,11 @@ async fn read_game_structure_files(handle: AppHandle) -> anyhow::Result<GameStru
         "res/18_Dimensional_Corridor.yml",
         "res/19_True_Shrine_of_the_Mother.yml",
     ];
+    #[allow(clippy::redundant_closure)]
     let futures: Vec<_> = file_paths
-        .map(|path| handle.path().resolve(path, BaseDirectory::Resource))
+        .map(|file_path| resolve_path(file_path))
         .into_iter()
-        .collect::<tauri::Result<Vec<_>>>()?
+        .collect::<Result<Vec<_>>>()?
         .into_iter()
         .map(read_to_string)
         .collect();
@@ -170,14 +174,22 @@ async fn read_game_structure_files(handle: AppHandle) -> anyhow::Result<GameStru
             )
         })
         .collect();
-    let events = read_to_string(
-        handle
-            .path()
-            .resolve("res/events.yml", BaseDirectory::Resource)?,
-    )
-    .await?;
+    let events = read_to_string(resolve_path("res/events.yml")?).await?;
 
     GameStructureFiles::new(fields, events)
+}
+
+async fn read_game_structure_files(handle: AppHandle) -> Result<GameStructureFiles> {
+    let path = handle.path();
+    read_game_structure_files_internal(|file_path| {
+        Ok(path.resolve(file_path, BaseDirectory::Resource)?)
+    })
+    .await
+}
+
+#[allow(unused)]
+pub async fn read_game_structure_files_debug() -> Result<GameStructureFiles> {
+    read_game_structure_files_internal(|file_path| Ok(PathBuf::from(file_path))).await
 }
 
 #[tauri::command]

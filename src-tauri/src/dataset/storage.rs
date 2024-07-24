@@ -16,31 +16,31 @@ pub struct StorageIndices {
     pub seal_chest_idx: usize,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct MainWeapon {
     pub spot: MainWeaponSpot,
     pub item: Item,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct SubWeapon {
     pub spot: SubWeaponSpot,
     pub item: Item,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Chest {
     pub spot: ChestSpot,
     pub item: Item,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Seal {
     pub spot: SealSpot,
     pub item: Item,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Shop {
     pub spot: ShopSpot,
     pub items: (Item, Item, Item),
@@ -54,7 +54,7 @@ impl Shop {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Rom {
     pub spot: RomSpot,
     pub item: Item,
@@ -85,13 +85,13 @@ pub struct ShopRef<'a> {
     pub items: (&'a Item, &'a Item, &'a Item),
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Event {
     pub name: StrategyFlag,
     pub requirements: AnyOfAllRequirements,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Storage {
     pub main_weapons: Vec<MainWeapon>,
     pub sub_weapons: Vec<SubWeapon>,
