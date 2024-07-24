@@ -74,7 +74,7 @@ fn new_objs(
     shuffled: &Storage,
     indices: &mut StorageIndices,
 ) -> Result<Vec<Object>> {
-    let unknown_obj = match obj {
+    match obj {
         Object::Chest(chest_obj) => {
             // Skip the empty and Sweet Clothing
             if matches!(
@@ -103,7 +103,7 @@ fn new_objs(
             let item = &shuffled.chests[indices.chest_idx].item;
             let item = Item::from_dataset(item, script)?;
             indices.chest_idx += 1;
-            return Ok(to_objects_for_chest(chest_obj, item));
+            Ok(to_objects_for_chest(chest_obj, item))
         }
         Object::SubWeapon(sub_weapon_obj) => {
             // TODO: nightSurface
@@ -133,10 +133,10 @@ fn new_objs(
                 get_next_shutter_check_flag(next_objs)?
             }
             .ok_or(anyhow!("next_shutter_check_flag not found"))?;
-            return Ok(vec![to_object_for_shutter(obj, open_flag, item)]);
+            Ok(vec![to_object_for_shutter(obj, open_flag, item)])
         }
-        Object::Shop(_) => return Ok(vec![obj.clone()]),
-        Object::Rom(_) => return Ok(vec![obj.clone()]),
+        Object::Shop(_) => Ok(vec![obj.clone()]),
+        Object::Rom(_) => Ok(vec![obj.clone()]),
         Object::Seal(_) => {
             // TODO: trueShrineOfTheMother
             // TODO: nightSurface
@@ -151,7 +151,7 @@ fn new_objs(
             let item = &shuffled.seals[indices.seal_chest_idx].item;
             let item = Item::from_dataset(item, script)?;
             indices.seal_chest_idx += 1;
-            return Ok(vec![to_object_for_special_chest(obj, item)]);
+            Ok(vec![to_object_for_special_chest(obj, item)])
         }
         Object::MainWeapon(_) => {
             let item = &shuffled.main_weapons[indices.main_weapon_spot_idx].item;
@@ -159,36 +159,37 @@ fn new_objs(
             indices.main_weapon_spot_idx += 1;
             let open_flag = get_next_shutter_check_flag(next_objs)?
                 .ok_or(anyhow!("next_shutter_check_flag not found"))?;
-            return Ok(vec![to_object_for_shutter(obj, open_flag, item)]);
+            Ok(vec![to_object_for_shutter(obj, open_flag, item)])
         }
-        Object::Unknown(unknown_obj) => unknown_obj,
-    };
-    match unknown_obj.number {
-        // Chests | Sub weapons | Shop | Seal chests | Main weapons
-        1 | 13 | 14 | 71 | 77 => unreachable!(),
-        // Trap object for the Ankh Jewel Treasure Chest in Mausoleum of the Giants.
-        // It is made to work correctly when acquiring items.
-        140 if unknown_obj.x == 49152 && unknown_obj.y == 16384 => {
-            let mut obj = unknown_obj.clone();
-            let prev_sub_weapon_shutter_item =
-                &shuffled.sub_weapons[indices.sub_weapon_spot_idx - 1].item;
-            let prev_sub_weapon_shutter_item =
-                &Item::from_dataset(prev_sub_weapon_shutter_item, script)?;
-            fix_trap_of_mausoleum_of_the_giants(&mut obj, prev_sub_weapon_shutter_item);
-            Ok(vec![Object::Unknown(obj)])
+        Object::Unknown(unknown_obj) => {
+            match unknown_obj.number {
+                // Chests | Sub weapons | Shop | Seal chests | Main weapons
+                1 | 13 | 14 | 71 | 77 => unreachable!(),
+                // Trap object for the Ankh Jewel Treasure Chest in Mausoleum of the Giants.
+                // It is made to work correctly when acquiring items.
+                140 if unknown_obj.x == 49152 && unknown_obj.y == 16384 => {
+                    let mut obj = unknown_obj.clone();
+                    let prev_sub_weapon_shutter_item =
+                        &shuffled.sub_weapons[indices.sub_weapon_spot_idx - 1].item;
+                    let prev_sub_weapon_shutter_item =
+                        &Item::from_dataset(prev_sub_weapon_shutter_item, script)?;
+                    fix_trap_of_mausoleum_of_the_giants(&mut obj, prev_sub_weapon_shutter_item);
+                    Ok(vec![Object::Unknown(obj)])
+                }
+                // ヴィマーナは飛行機模型を取得したら出現しないようになっている。
+                // 飛行機模型取得後に飛行機模型の宝箱を開けられるように、飛行機模型出現のフラグに変更する。
+                186 if unknown_obj.starts.len() == 1 && unknown_obj.starts[0].flag == 788 => {
+                    Ok(vec![Object::Unknown(UnknownObject {
+                        starts: vec![Start {
+                            flag: 891,
+                            run_when: unknown_obj.starts[0].run_when,
+                        }],
+                        ..unknown_obj.clone()
+                    })])
+                }
+                _ => Ok(vec![obj.clone()]),
+            }
         }
-        // ヴィマーナは飛行機模型を取得したら出現しないようになっている。
-        // 飛行機模型取得後に飛行機模型の宝箱を開けられるように、飛行機模型出現のフラグに変更する。
-        186 if unknown_obj.starts.len() == 1 && unknown_obj.starts[0].flag == 788 => {
-            Ok(vec![Object::Unknown(UnknownObject {
-                starts: vec![Start {
-                    flag: 891,
-                    run_when: unknown_obj.starts[0].run_when,
-                }],
-                ..unknown_obj.clone()
-            })])
-        }
-        _ => Ok(vec![obj.clone()]),
     }
 }
 
