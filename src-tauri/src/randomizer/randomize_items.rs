@@ -62,6 +62,10 @@ fn create_shuffled_storage(source: &Storage, spoiler_log: &SpoilerLogRef) -> Sto
                 items.1 = checkpoint.items.1.clone();
                 items.2 = checkpoint.items.2.clone();
             }
+            CheckpointRef::Rom(checkpoint) => {
+                storage.roms.get_mut(&checkpoint.spot.rom()).unwrap().item =
+                    checkpoint.item.clone();
+            }
             CheckpointRef::Event(_) => {}
         }
     }
@@ -167,7 +171,7 @@ mod tests {
 
         let shuffled_str = format!("{:?}", shuffled);
         let shuffled_hash = hex::encode(sha3::Sha3_512::digest(shuffled_str));
-        const EXPECTED_SHUFFLED_HASH: &str = "92d57a1984d27d7a640834efb8f13ab71efaae1b19f4fd3865bd8392c887326d87c55f2ba9452a2c5e9a71a6df7278dbdd4e001cce6e8666bb7627d0bdd1c98c";
+        const EXPECTED_SHUFFLED_HASH: &str = "8dbbe72a83f3a4c9e8e82ddd77493ddfb53d51c54c1d3cb56cdc4e72d381c3ca8e8b585d2ef31af3793b5e0a1cf8506258b647d5d07bdc164daa0a850230ca00";
         assert_eq!(shuffled_hash, EXPECTED_SHUFFLED_HASH);
 
         let spoiler_log_str = format!("{:?}", spoiler_log.to_owned());

@@ -4,8 +4,8 @@ use crate::dataset::{
     item::{Item, StrategyFlag},
     spot::{FieldId, SpotRef},
     storage::{
-        Chest, ChestRef, MainWeapon, MainWeaponRef, Seal, SealRef, Shop, ShopRef, SubWeapon,
-        SubWeaponRef,
+        Chest, ChestRef, MainWeapon, MainWeaponRef, Rom, RomRef, Seal, SealRef, Shop, ShopRef,
+        SubWeapon, SubWeaponRef,
     },
 };
 
@@ -24,6 +24,7 @@ pub enum Checkpoint {
     Chest(Chest),
     Seal(Seal),
     Shop(Shop),
+    Rom(Rom),
     Event(StrategyFlag),
 }
 
@@ -48,6 +49,9 @@ impl fmt::Display for Checkpoint {
                 let items = (items.0.name.get(), items.1.name.get(), items.2.name.get());
                 write!(f, "{} = {}, {}, {}", spot, items.0, items.1, items.2)
             }
+            Self::Rom(checkpoint) => {
+                write!(f, "{} = {}", checkpoint.spot, checkpoint.item.name.get())
+            }
             Self::Event(flag) => write!(f, "{}", flag.get()),
         }
     }
@@ -59,6 +63,7 @@ pub enum CheckpointRef<'a> {
     Chest(ChestRef<'a>),
     Seal(SealRef<'a>),
     Shop(ShopRef<'a>),
+    Rom(RomRef<'a>),
     Event(&'a StrategyFlag),
 }
 
@@ -70,6 +75,7 @@ impl<'a> CheckpointRef<'a> {
             SpotRef::Chest(spot) => Self::Chest(ChestRef { spot, item }),
             SpotRef::Seal(spot) => Self::Seal(SealRef { spot, item }),
             SpotRef::Shop(_) => unreachable!(),
+            SpotRef::Rom(spot) => Self::Rom(RomRef { spot, item }),
         }
     }
 
@@ -98,6 +104,10 @@ impl<'a> CheckpointRef<'a> {
                     checkpoint.items.1.to_owned(),
                     checkpoint.items.2.to_owned(),
                 ),
+            }),
+            Self::Rom(checkpoint) => Checkpoint::Rom(Rom {
+                spot: checkpoint.spot.to_owned(),
+                item: checkpoint.item.to_owned(),
             }),
             Self::Event(flag) => Checkpoint::Event((*flag).to_owned()),
         }
@@ -130,6 +140,7 @@ impl fmt::Display for SpoilerLog {
                     Checkpoint::Chest(x) => (x.spot.field_id(), 3, x.spot.src_idx()),
                     Checkpoint::Seal(x) => (x.spot.field_id(), 4, x.spot.src_idx()),
                     Checkpoint::Shop(x) => (x.spot.field_id(), 5, x.spot.src_idx()),
+                    Checkpoint::Rom(x) => (x.spot.field_id(), 6, 0),
                     Checkpoint::Event(_) => return 10000000,
                 };
                 compare_key_for_spoiler_log(field) as usize * 10000 + type_num * 1000 + src_idx

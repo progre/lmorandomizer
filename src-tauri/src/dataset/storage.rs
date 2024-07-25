@@ -1,4 +1,8 @@
+use std::collections::BTreeMap;
+
 use anyhow::Result;
+
+use crate::script::data::items;
 
 use super::{
     assertions::ware_missing_requirements,
@@ -85,6 +89,11 @@ pub struct ShopRef<'a> {
     pub items: (&'a Item, &'a Item, &'a Item),
 }
 
+pub struct RomRef<'a> {
+    pub spot: &'a RomSpot,
+    pub item: &'a Item,
+}
+
 #[derive(Clone, Debug)]
 pub struct Event {
     pub name: StrategyFlag,
@@ -98,7 +107,7 @@ pub struct Storage {
     pub chests: Vec<Chest>,
     pub seals: Vec<Seal>,
     pub shops: Vec<Shop>,
-    pub roms: Vec<Rom>,
+    pub roms: BTreeMap<items::Rom, Rom>,
     pub events: Vec<Event>,
 }
 
@@ -109,7 +118,7 @@ impl Storage {
         chests: Vec<Chest>,
         seals: Vec<Seal>,
         shops: Vec<Shop>,
-        roms: Vec<Rom>,
+        roms: BTreeMap<items::Rom, Rom>,
         events: Vec<Event>,
     ) -> Result<Self> {
         let zelf = Self {
@@ -139,5 +148,6 @@ impl Storage {
                     .iter()
                     .flat_map(|x| [&x.items.0, &x.items.1, &x.items.2]),
             )
+            .chain(self.roms.values().map(|x| &x.item))
     }
 }

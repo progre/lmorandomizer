@@ -159,7 +159,9 @@ pub enum Equipment {
     GameMaster = 100,
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, num_derive::FromPrimitive, strum::EnumString)]
+#[derive(
+    Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd, num_derive::FromPrimitive, strum::EnumString,
+)]
 #[repr(u8)]
 pub enum Rom {
     /// 10倍カートリッジ

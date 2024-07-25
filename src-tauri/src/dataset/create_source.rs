@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{BTreeMap, HashMap};
 
 use anyhow::Result;
 use log::trace;
@@ -91,7 +91,7 @@ pub fn create_source(game_structure_files: GameStructureFiles) -> Result<Storage
     let mut chests = Vec::new();
     let mut seals = Vec::new();
     let mut shops = Vec::new();
-    let mut roms = Vec::new();
+    let mut roms = BTreeMap::new();
     for (field_id, field_data) in game_structure_files.fields {
         for item in field_data.main_weapons {
             main_weapons.push((field_id, item));
@@ -111,14 +111,18 @@ pub fn create_source(game_structure_files: GameStructureFiles) -> Result<Storage
         for (key, value) in field_data.roms {
             let name = StrategyFlag::new(key);
             let rom = items::Rom::try_from_camel_case(name.get()).unwrap();
-            roms.push(Rom {
-                spot: RomSpot::new(
-                    field_id,
-                    SpotName::new(name.get().to_owned()),
-                    to_any_of_all_requirements(value),
-                ),
-                item: Item::rom(name, rom),
-            });
+            roms.insert(
+                rom,
+                Rom {
+                    spot: RomSpot::new(
+                        field_id,
+                        rom,
+                        SpotName::new(name.get().to_owned()),
+                        to_any_of_all_requirements(value),
+                    ),
+                    item: Item::rom(name, rom),
+                },
+            );
         }
     }
 

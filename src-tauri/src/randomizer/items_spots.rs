@@ -44,7 +44,8 @@ impl<'a> Items<'a> {
                     .shops
                     .iter()
                     .flat_map(|x| [&x.items.0, &x.items.1, &x.items.2]),
-            );
+            )
+            .chain(source.roms.values().map(|x| &x.item));
         let (priority_items, remaining_items) = items.partition::<Vec<_>, _>(|item| {
             [
                 "handScanner",
@@ -72,22 +73,6 @@ impl<'a> Items<'a> {
             source.all_items().count(),
         );
         debug_assert_eq!(
-            priority_items.len()
-                + unsellable_items.len()
-                + sellable_items.len()
-                + consumable_items.len()
-                + maps.len(),
-            source.main_weapons.len()
-                + source.sub_weapons.len()
-                + source.chests.len()
-                + source.seals.len()
-                + source
-                    .shops
-                    .iter()
-                    .map(|_| true as usize + true as usize + true as usize)
-                    .sum::<usize>(),
-        );
-        debug_assert_eq!(
             priority_items.len() + unsellable_items.len() + sellable_items.len() + maps.len(),
             source.main_weapons.len()
                 + source.sub_weapons.len()
@@ -97,7 +82,8 @@ impl<'a> Items<'a> {
                     .shops
                     .iter()
                     .map(|shop| shop.count_general_items())
-                    .sum::<usize>(),
+                    .sum::<usize>()
+                + source.roms.len(),
         );
         debug_assert!(priority_items.iter().all(|item| item.can_display_in_shop()));
 
@@ -163,6 +149,7 @@ impl<'a> Spots<'a> {
                 )
                 .chain(source.chests.iter().map(|x| SpotRef::Chest(&x.spot)))
                 .chain(source.seals.iter().map(|x| SpotRef::Seal(&x.spot)))
+                .chain(source.roms.values().map(|x| SpotRef::Rom(&x.spot)))
                 .collect(),
             shops: source
                 .shops

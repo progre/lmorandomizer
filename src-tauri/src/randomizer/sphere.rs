@@ -142,6 +142,9 @@ fn append_flags<'a>(strategy_flags: &mut HashSet<&'a StrategyFlag>, sphere: &Sph
                 strategy_flags.insert(&checkpoint.items.1.name);
                 strategy_flags.insert(&checkpoint.items.2.name);
             }
+            CheckpointRef::Rom(checkpoint) => {
+                strategy_flags.insert(&checkpoint.item.name);
+            }
             CheckpointRef::Event(flag) => {
                 strategy_flags.insert(flag);
             }

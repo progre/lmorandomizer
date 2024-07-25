@@ -1,5 +1,7 @@
 use std::{any::type_name, fmt};
 
+use crate::script::data::items::Rom;
+
 use super::super::item::StrategyFlag;
 
 #[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd, num_derive::FromPrimitive)]
@@ -279,6 +281,7 @@ impl fmt::Display for ShopSpot {
 #[derive(Clone, Debug)]
 pub struct RomSpot {
     field_id: FieldId,
+    rom: Rom,
     name: SpotName,
     requirements: Option<AnyOfAllRequirements>,
 }
@@ -286,11 +289,13 @@ pub struct RomSpot {
 impl RomSpot {
     pub fn new(
         field_id: FieldId,
+        rom: Rom,
         name: SpotName,
         requirements: Option<AnyOfAllRequirements>,
     ) -> Self {
         Self {
             field_id,
+            rom,
             name,
             requirements,
         }
@@ -298,6 +303,9 @@ impl RomSpot {
 
     pub fn field_id(&self) -> FieldId {
         self.field_id
+    }
+    pub fn rom(&self) -> Rom {
+        self.rom
     }
     pub fn name(&self) -> &SpotName {
         &self.name

@@ -12,6 +12,7 @@ pub enum SpotRef<'a> {
     Chest(&'a ChestSpot),
     Seal(&'a SealSpot),
     Shop(&'a ShopSpot),
+    Rom(&'a RomSpot),
 }
 
 impl SpotRef<'_> {
@@ -22,6 +23,7 @@ impl SpotRef<'_> {
             Self::Chest(x) => x.field_id(),
             Self::Seal(x) => x.field_id(),
             Self::Shop(x) => x.field_id(),
+            Self::Rom(x) => x.field_id(),
         }
     }
     pub fn requirements(&self) -> Option<&AnyOfAllRequirements> {
@@ -31,6 +33,7 @@ impl SpotRef<'_> {
             Self::Chest(x) => x.requirements(),
             Self::Seal(x) => x.requirements(),
             Self::Shop(x) => x.requirements(),
+            Self::Rom(x) => x.requirements(),
         }
     }
 }
