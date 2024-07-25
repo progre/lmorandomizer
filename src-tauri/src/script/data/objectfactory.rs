@@ -10,47 +10,47 @@ use super::{
 
 fn hidden_equipment_chest(old_obj: &Object, item: &Equipment, open_flag: u16) -> ChestObject {
     let op2 = item.content as i32;
-    let set_flag = item.set_flag as i32;
+    let set_flag = item.flag as i32;
     let starts = starts_that_hide_when_startup(old_obj, open_flag).unwrap();
     ChestObject::new(old_obj.x(), old_obj.y(), 40, op2, set_flag, -1, starts).unwrap()
 }
 
 fn hidden_rom_chest(old_obj: &Object, item: &Rom, open_flag: u16) -> ChestObject {
     let op2 = 100 + item.content.0 as i32;
-    let set_flag = item.set_flag as i32;
+    let set_flag = item.flag as i32;
     let starts = starts_that_hide_when_startup(old_obj, open_flag).unwrap();
     ChestObject::new(old_obj.x(), old_obj.y(), 40, op2, set_flag, -1, starts).unwrap()
 }
 
 fn equipment_chest_from_ankh_jewel_or_seal(old_obj: &Object, item: &Equipment) -> ChestObject {
     let op2 = item.content as i32;
-    let set_flag = item.set_flag as i32;
-    let starts = starts_without_old_flag(old_obj.starts(), old_obj.get_item_flag().unwrap());
+    let set_flag = item.flag as i32;
+    let starts = starts_without_old_flag(old_obj.starts(), old_obj.set_flag().unwrap());
     ChestObject::new(old_obj.x(), old_obj.y(), 40, op2, set_flag, -1, starts).unwrap()
 }
 
 fn rom_chset_from_ankh_jewel_or_seal(old_obj: &Object, item: &Rom) -> ChestObject {
     let op2 = 100 + item.content.0 as i32;
-    let set_flag = item.set_flag as i32;
-    let starts = starts_without_old_flag(old_obj.starts(), old_obj.get_item_flag().unwrap());
+    let set_flag = item.flag as i32;
+    let starts = starts_without_old_flag(old_obj.starts(), old_obj.set_flag().unwrap());
     ChestObject::new(old_obj.x(), old_obj.y(), 40, op2, set_flag, -1, starts).unwrap()
 }
 
 fn equipment_chest(old_obj: &ChestObject, item: &Equipment) -> ChestObject {
     let op1 = old_obj.open_flag();
     let op2 = item.content as i32;
-    let op3 = item.set_flag as i32;
+    let op3 = item.flag as i32;
     let old_set_flag = u16::try_from(old_obj.set_flag()).unwrap();
-    let starts = starts_as_is(old_obj.starts(), old_set_flag, item.set_flag);
+    let starts = starts_as_is(old_obj.starts(), old_set_flag, item.flag);
     ChestObject::new(old_obj.x(), old_obj.y(), op1, op2, op3, -1, starts).unwrap()
 }
 
 fn rom_chest(old_obj: &ChestObject, item: &Rom) -> ChestObject {
     let op1 = old_obj.open_flag();
     let op2 = 100 + item.content.0 as i32;
-    let op3 = item.set_flag as i32;
+    let op3 = item.flag as i32;
     let old_set_flag = u16::try_from(old_obj.set_flag()).unwrap();
-    let starts = starts_as_is(old_obj.starts(), old_set_flag, item.set_flag);
+    let starts = starts_as_is(old_obj.starts(), old_set_flag, item.flag);
     ChestObject::new(old_obj.x(), old_obj.y(), op1, op2, op3, -1, starts).unwrap()
 }
 
@@ -66,47 +66,47 @@ fn empty_chest(old_obj: &ChestObject, set_flag: u16) -> ChestObject {
 fn sub_weapon(old_obj: &Object, item: &SubWeapon) -> SubWeaponObject {
     let op1 = item.content as i32;
     let op2 = item.amount as i32;
-    let op3 = item.set_flag as i32;
-    let old_set_flag = old_obj.get_item_flag().unwrap();
-    let starts = starts_as_is(old_obj.starts(), old_set_flag, item.set_flag);
+    let op3 = item.flag as i32;
+    let old_set_flag = old_obj.set_flag().unwrap();
+    let starts = starts_as_is(old_obj.starts(), old_set_flag, item.flag);
     SubWeaponObject::new(old_obj.x(), old_obj.y(), op1, op2, op3, -1, starts).unwrap()
 }
 
 fn hidden_sub_weapon(old_obj: &ChestObject, item: &SubWeapon) -> SubWeaponObject {
     let op1 = item.content as i32;
     let op2 = item.amount as i32;
-    let op3 = item.set_flag as i32;
-    let starts = starts_that_hide_when_startup_and_taken(old_obj, item.set_flag).unwrap();
+    let op3 = item.flag as i32;
+    let starts = starts_that_hide_when_startup_and_taken(old_obj, item.flag).unwrap();
     SubWeaponObject::new(old_obj.x(), old_obj.y(), op1, op2, op3, -1, starts).unwrap()
 }
 
 fn seal(old_obj: &Object, item: &Seal) -> SealObject {
     let op1 = item.content as i32;
-    let op2 = item.set_flag as i32;
-    let old_set_flag = old_obj.get_item_flag().unwrap();
-    let starts = starts_as_is(old_obj.starts(), old_set_flag, item.set_flag);
+    let op2 = item.flag as i32;
+    let old_set_flag = old_obj.set_flag().unwrap();
+    let starts = starts_as_is(old_obj.starts(), old_set_flag, item.flag);
     SealObject::new(old_obj.x(), old_obj.y(), op1, op2, -1, -1, starts).unwrap()
 }
 
 fn hidden_seal(old_obj: &ChestObject, item: &Seal) -> SealObject {
     let op1 = item.content as i32;
-    let op2 = item.set_flag as i32;
-    let starts = starts_that_hide_when_startup_and_taken(old_obj, item.set_flag).unwrap();
+    let op2 = item.flag as i32;
+    let starts = starts_that_hide_when_startup_and_taken(old_obj, item.flag).unwrap();
     SealObject::new(old_obj.x(), old_obj.y(), op1, op2, -1, -1, starts).unwrap()
 }
 
 fn main_weapon(old_obj: &Object, item: &MainWeapon) -> MainWeaponObject {
     let op1 = item.content as i32;
-    let op2 = item.set_flag as i32;
-    let old_set_flag = old_obj.get_item_flag().unwrap();
-    let starts = starts_as_is(old_obj.starts(), old_set_flag, item.set_flag);
+    let op2 = item.flag as i32;
+    let old_set_flag = old_obj.set_flag().unwrap();
+    let starts = starts_as_is(old_obj.starts(), old_set_flag, item.flag);
     MainWeaponObject::new(old_obj.x(), old_obj.y(), op1, op2, -1, -1, starts).unwrap()
 }
 
 fn hidden_main_weapon(old_obj: &ChestObject, item: &MainWeapon) -> MainWeaponObject {
     let op1 = item.content as i32;
-    let op2 = item.set_flag as i32;
-    let starts = starts_that_hide_when_startup_and_taken(old_obj, item.set_flag).unwrap();
+    let op2 = item.flag as i32;
+    let starts = starts_that_hide_when_startup_and_taken(old_obj, item.flag).unwrap();
     MainWeaponObject::new(old_obj.x(), old_obj.y(), op1, op2, -1, -1, starts).unwrap()
 }
 
@@ -135,11 +135,11 @@ pub fn to_object_for_special_chest(old_obj: &Object, item: &Item) -> Object {
 pub fn to_objects_for_chest(old_obj: &ChestObject, item: &Item) -> Vec<Object> {
     match item {
         Item::MainWeapon(item) => vec![
-            Object::Chest(empty_chest(old_obj, item.set_flag)),
+            Object::Chest(empty_chest(old_obj, item.flag)),
             Object::MainWeapon(hidden_main_weapon(old_obj, item)),
         ],
         Item::SubWeapon(item) => vec![
-            Object::Chest(empty_chest(old_obj, item.set_flag)),
+            Object::Chest(empty_chest(old_obj, item.flag)),
             Object::SubWeapon(hidden_sub_weapon(old_obj, item)),
         ],
         Item::Equipment(item) => vec![
@@ -149,7 +149,7 @@ pub fn to_objects_for_chest(old_obj: &ChestObject, item: &Item) -> Vec<Object> {
             Object::Chest(rom_chest(old_obj, item)), //
         ],
         Item::Seal(item) => vec![
-            Object::Chest(empty_chest(old_obj, item.set_flag)),
+            Object::Chest(empty_chest(old_obj, item.flag)),
             Object::Seal(hidden_seal(old_obj, item)),
         ],
     }

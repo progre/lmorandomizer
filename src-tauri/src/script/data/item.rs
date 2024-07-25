@@ -7,7 +7,7 @@ use super::{items, script::Script, shop_items_data::ShopItem};
 #[derive(Clone)]
 pub struct MainWeapon {
     pub content: items::MainWeapon,
-    pub set_flag: u16,
+    pub flag: u16,
 }
 
 #[derive(Clone)]
@@ -15,21 +15,21 @@ pub struct SubWeapon {
     pub content: items::SubWeapon,
     pub amount: u8,
     pub price: Option<u16>,
-    pub set_flag: u16,
+    pub flag: u16,
 }
 
 #[derive(Clone)]
 pub struct Equipment {
     pub content: items::Equipment,
     pub price: Option<u16>,
-    pub set_flag: u16,
+    pub flag: u16,
 }
 
 #[derive(Clone)]
 pub struct Rom {
     pub content: items::Rom,
     pub price: Option<u16>,
-    pub set_flag: u16,
+    pub flag: u16,
 }
 
 pub enum ChestItem {
@@ -40,7 +40,7 @@ pub enum ChestItem {
 #[derive(Clone)]
 pub struct Seal {
     pub content: items::Seal,
-    pub set_flag: u16,
+    pub flag: u16,
 }
 
 pub enum Item {
@@ -53,12 +53,12 @@ pub enum Item {
 
 impl Item {
     #[inline]
-    fn initial_assert(number: i8, set_flag: u16, is_sub_weapon: bool) {
+    fn initial_assert(number: i8, flag: u16, is_sub_weapon: bool) {
         debug_assert!(
-            [494, 524].contains(&set_flag)
-                || (684..=883).contains(&set_flag)
-                || is_sub_weapon && set_flag == 65279,
-            "invalid value: {set_flag} ({number})"
+            [494, 524].contains(&flag)
+                || (684..=883).contains(&flag)
+                || is_sub_weapon && flag == 65279,
+            "invalid value: {flag} ({number})"
         );
     }
 
@@ -109,15 +109,15 @@ impl Item {
                 };
                 match item {
                     ShopItem::SubWeapon(item) => {
-                        Self::initial_assert(item.item.content as i8, item.item.set_flag, true);
+                        Self::initial_assert(item.item.content as i8, item.item.flag, true);
                         Self::SubWeapon(item.item)
                     }
                     ShopItem::Equipment(item) => {
-                        Self::initial_assert(item.item.content as i8, item.item.set_flag, false);
+                        Self::initial_assert(item.item.content as i8, item.item.flag, false);
                         Self::Equipment(item.item)
                     }
                     ShopItem::Rom(item) => {
-                        Self::initial_assert(item.item.content.0 as i8, item.item.set_flag, false);
+                        Self::initial_assert(item.item.content.0 as i8, item.item.flag, false);
                         Self::Rom(item.item)
                     }
                 }
@@ -125,13 +125,13 @@ impl Item {
         })
     }
 
-    pub fn set_flag(&self) -> u16 {
+    pub fn flag(&self) -> u16 {
         match self {
-            Self::MainWeapon(item) => item.set_flag,
-            Self::SubWeapon(item) => item.set_flag,
-            Self::Equipment(item) => item.set_flag,
-            Self::Rom(item) => item.set_flag,
-            Self::Seal(item) => item.set_flag,
+            Self::MainWeapon(item) => item.flag,
+            Self::SubWeapon(item) => item.flag,
+            Self::Equipment(item) => item.flag,
+            Self::Rom(item) => item.flag,
+            Self::Seal(item) => item.flag,
         }
     }
 

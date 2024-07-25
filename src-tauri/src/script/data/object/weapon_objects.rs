@@ -73,7 +73,7 @@ impl SubWeaponObject {
             content: self.content,
             amount: self.amount,
             price: None,
-            set_flag: self.set_flag,
+            flag: self.set_flag,
         }
     }
 }
@@ -138,7 +138,7 @@ impl MainWeaponObject {
     pub fn to_main_weapon(&self) -> MainWeapon {
         MainWeapon {
             content: self.content,
-            set_flag: self.set_flag,
+            flag: self.set_flag,
         }
     }
 }

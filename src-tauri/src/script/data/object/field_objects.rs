@@ -93,12 +93,12 @@ impl ChestObject {
             Some(ChestContent::Equipment(content)) => Some(ChestItem::Equipment(Equipment {
                 content,
                 price: None,
-                set_flag: self.set_flag as u16,
+                flag: self.set_flag as u16,
             })),
             Some(ChestContent::Rom(rom)) => Some(ChestItem::Rom(Rom {
                 content: rom,
                 price: None,
-                set_flag: self.set_flag as u16,
+                flag: self.set_flag as u16,
             })),
             None => None,
         }
@@ -165,7 +165,7 @@ impl SealObject {
     pub fn to_seal(&self) -> Seal {
         Seal {
             content: self.content,
-            set_flag: self.set_flag,
+            flag: self.set_flag,
         }
     }
 }

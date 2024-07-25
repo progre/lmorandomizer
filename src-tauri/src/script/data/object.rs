@@ -140,7 +140,7 @@ impl Object {
         }
     }
 
-    pub fn get_item_flag(&self) -> Result<u16> {
+    pub fn set_flag(&self) -> Result<u16> {
         Ok(match self {
             Self::Chest(obj) => u16::try_from(obj.set_flag())?,
             Self::SubWeapon(obj) => obj.set_flag(),

@@ -64,7 +64,7 @@ fn fix_trap_of_mausoleum_of_the_giants(
     obj: &mut UnknownObject,
     prev_sub_weapon_shutter_item: &Item,
 ) {
-    obj.op1 = prev_sub_weapon_shutter_item.set_flag() as i32;
+    obj.op1 = prev_sub_weapon_shutter_item.flag() as i32;
 }
 
 fn new_objs(
