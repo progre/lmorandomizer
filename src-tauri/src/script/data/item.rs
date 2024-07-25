@@ -18,23 +18,36 @@ pub struct SubWeapon {
     pub flag: u16,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Equipment {
     pub content: items::Equipment,
     pub price: Option<u16>,
     pub flag: u16,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Rom {
     pub content: items::Rom,
     pub price: Option<u16>,
     pub flag: u16,
 }
 
+#[derive(Clone, Debug)]
 pub enum ChestItem {
+    /// -1 is used only for "open from the fronts"
+    None(i32),
     Equipment(Equipment),
     Rom(Rom),
+}
+
+impl ChestItem {
+    pub fn flag(&self) -> i32 {
+        match self {
+            ChestItem::Equipment(item) => item.flag as i32,
+            ChestItem::Rom(item) => item.flag as i32,
+            ChestItem::None(flag) => *flag,
+        }
+    }
 }
 
 #[derive(Clone)]
@@ -77,12 +90,13 @@ impl Item {
                 Self::SubWeapon(item.to_sub_weapon())
             }
             dataset::item::ItemSource::Chest(src_idx) => {
-                let Some(item) = script.chests().nth(*src_idx) else {
+                let Some(obj) = script.chests().nth(*src_idx) else {
                     bail!("invalid chest index: {}", src_idx)
                 };
-                match item.to_chest_item().unwrap() {
-                    ChestItem::Equipment(content) => Self::Equipment(content),
-                    ChestItem::Rom(content) => Self::Rom(content),
+                match obj.item() {
+                    ChestItem::Equipment(content) => Self::Equipment(content.clone()),
+                    ChestItem::Rom(content) => Self::Rom(content.clone()),
+                    ChestItem::None(_) => unreachable!(),
                 }
             }
             dataset::item::ItemSource::Seal(src_idx) => {

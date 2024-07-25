@@ -9,9 +9,9 @@ use crate::{
 use anyhow::{anyhow, Result};
 
 use super::{
-    item::Item,
-    items::{Equipment, SubWeapon},
-    object::{ChestContent, Object, Start, UnknownObject},
+    item::{self, ChestItem, Item},
+    items::{self, SubWeapon},
+    object::{Object, Start, UnknownObject},
     objectfactory::{to_object_for_shutter, to_object_for_special_chest, to_objects_for_chest},
     script::{Script, World},
 };
@@ -78,8 +78,12 @@ fn new_objs(
         Object::Chest(chest_obj) => {
             // Skip the empty and Sweet Clothing
             if matches!(
-                chest_obj.content(),
-                None | Some(ChestContent::Equipment(Equipment::SweetClothing))
+                chest_obj.item(),
+                ChestItem::None(_)
+                    | ChestItem::Equipment(item::Equipment {
+                        content: items::Equipment::SweetClothing,
+                        ..
+                    })
             ) {
                 return Ok(vec![obj.clone()]);
             }
@@ -93,11 +97,11 @@ fn new_objs(
             // twinStatue
             if chest_obj.open_flag() == 420 {
                 let item = &shuffled.chests[indices.chest_idx - 1].item;
-                let item = &Item::from_dataset(item, script)?;
+                let item = Item::from_dataset(item, script)?;
                 return Ok(to_objects_for_chest(chest_obj, item));
             }
             let item = &shuffled.chests[indices.chest_idx].item;
-            let item = &Item::from_dataset(item, script)?;
+            let item = Item::from_dataset(item, script)?;
             indices.chest_idx += 1;
             return Ok(to_objects_for_chest(chest_obj, item));
         }
@@ -111,7 +115,7 @@ fn new_objs(
             }
             // Ankh Jewel
             let item = &shuffled.sub_weapons[indices.sub_weapon_spot_idx].item;
-            let item = &Item::from_dataset(item, script)?;
+            let item = Item::from_dataset(item, script)?;
             indices.sub_weapon_spot_idx += 1;
             if sub_weapon_obj.content() == SubWeapon::AnkhJewel {
                 // Gate of Guidance
@@ -144,13 +148,13 @@ fn new_objs(
                 return Ok(vec![obj.clone()]);
             }
             let item = &shuffled.seals[indices.seal_chest_idx].item;
-            let item = &Item::from_dataset(item, script)?;
+            let item = Item::from_dataset(item, script)?;
             indices.seal_chest_idx += 1;
             return Ok(vec![to_object_for_special_chest(obj, item)]);
         }
         Object::MainWeapon(_) => {
             let item = &shuffled.main_weapons[indices.main_weapon_spot_idx].item;
-            let item = &Item::from_dataset(item, script)?;
+            let item = Item::from_dataset(item, script)?;
             indices.main_weapon_spot_idx += 1;
             let open_flag = get_next_shutter_check_flag(next_objs)?
                 .ok_or(anyhow!("next_shutter_check_flag not found"))?;

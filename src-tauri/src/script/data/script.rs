@@ -9,10 +9,11 @@ use crate::{
 
 use super::{
     add_starting_items::add_starting_items,
+    item::{self, ChestItem},
     items,
     object::{
-        ChestContent, ChestObject, MainWeaponObject, Object, SealObject, ShopObject,
-        SubWeaponObject, UnknownObject,
+        ChestObject, MainWeaponObject, Object, SealObject, ShopObject, SubWeaponObject,
+        UnknownObject,
     },
     scripteditor::{replace_items, replace_shops},
 };
@@ -97,12 +98,15 @@ impl Script {
                 };
                 Some(x)
             })
-            .filter(|item| match item.content() {
-                None => false,
-                Some(ChestContent::Rom(_)) => true,
-                Some(ChestContent::Equipment(equipment)) => {
-                    equipment != &items::Equipment::SweetClothing
-                }
+            .filter(|chest_obj| {
+                !matches!(
+                    chest_obj.item(),
+                    ChestItem::None(_)
+                        | ChestItem::Equipment(item::Equipment {
+                            content: items::Equipment::SweetClothing,
+                            ..
+                        })
+                )
             })
     }
 

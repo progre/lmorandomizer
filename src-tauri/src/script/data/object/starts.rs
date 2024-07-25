@@ -6,14 +6,14 @@ pub fn starts_that_hide_when_startup_and_taken(
     old_obj: &ChestObject,
     item_flag: u16,
 ) -> Result<Vec<Start>> {
-    let old_item_flag = old_obj.set_flag();
+    let old_item_flag = old_obj.item().flag();
     Ok([
         Start {
             flag: 99999,
             run_when: true,
         },
         Start {
-            flag: u32::try_from(old_obj.open_flag())?,
+            flag: old_obj.open_flag() as u32,
             run_when: true,
         },
         Start {

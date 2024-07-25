@@ -28,7 +28,7 @@ pub enum SubWeapon {
     Ammunition,
 }
 
-#[derive(Clone, Copy, PartialEq, num_derive::FromPrimitive)]
+#[derive(Clone, Copy, Debug, PartialEq, num_derive::FromPrimitive)]
 #[repr(u8)]
 pub enum Equipment {
     /// 0 MSX
@@ -155,7 +155,7 @@ pub enum Equipment {
     GameMaster = 100,
 }
 
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Rom(pub u8);
 
 #[derive(Clone, Copy, num_derive::FromPrimitive)]
