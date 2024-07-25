@@ -75,19 +75,15 @@ fn hidden_sub_weapon(old_obj: &ChestObject, item: &SubWeapon) -> SubWeaponObject
     SubWeaponObject::new(old_obj.x(), old_obj.y(), op1, op2, op3, -1, starts).unwrap()
 }
 
-fn seal(old_obj: &Object, item: &Seal) -> SealObject {
-    let op1 = item.content as i32;
-    let op2 = item.flag as i32;
+fn seal(old_obj: &Object, item: Seal) -> SealObject {
     let old_set_flag = old_obj.set_flag().unwrap();
     let starts = starts_as_is(old_obj.starts(), old_set_flag, item.flag);
-    SealObject::new(old_obj.x(), old_obj.y(), op1, op2, -1, -1, starts).unwrap()
+    SealObject::new(old_obj.x(), old_obj.y(), item, starts)
 }
 
-fn hidden_seal(old_obj: &ChestObject, item: &Seal) -> SealObject {
-    let op1 = item.content as i32;
-    let op2 = item.flag as i32;
+fn hidden_seal(old_obj: &ChestObject, item: Seal) -> SealObject {
     let starts = starts_that_hide_when_startup_and_taken(old_obj, item.flag).unwrap();
-    SealObject::new(old_obj.x(), old_obj.y(), op1, op2, -1, -1, starts).unwrap()
+    SealObject::new(old_obj.x(), old_obj.y(), item, starts)
 }
 
 fn main_weapon(old_obj: &Object, item: &MainWeapon) -> MainWeaponObject {
@@ -111,7 +107,7 @@ pub fn to_object_for_shutter(old_obj: &Object, open_flag: u16, item: Item) -> Ob
         Item::SubWeapon(item) => Object::SubWeapon(sub_weapon(old_obj, &item)),
         Item::Equipment(item) => Object::Chest(hidden_equipment_chest(old_obj, item, open_flag)),
         Item::Rom(item) => Object::Chest(hidden_rom_chest(old_obj, item, open_flag)),
-        Item::Seal(item) => Object::Seal(seal(old_obj, &item)),
+        Item::Seal(item) => Object::Seal(seal(old_obj, item)),
     }
 }
 
@@ -123,7 +119,7 @@ pub fn to_object_for_special_chest(old_obj: &Object, item: Item) -> Object {
             Object::Chest(equipment_chest_from_ankh_jewel_or_seal(old_obj, item))
         }
         Item::Rom(item) => Object::Chest(rom_chset_from_ankh_jewel_or_seal(old_obj, item)),
-        Item::Seal(item) => Object::Seal(seal(old_obj, &item)),
+        Item::Seal(item) => Object::Seal(seal(old_obj, item)),
     }
 }
 
@@ -145,7 +141,7 @@ pub fn to_objects_for_chest(old_obj: &ChestObject, item: Item) -> Vec<Object> {
         ],
         Item::Seal(item) => vec![
             Object::Chest(empty_chest(old_obj, item.flag)),
-            Object::Seal(hidden_seal(old_obj, &item)),
+            Object::Seal(hidden_seal(old_obj, item)),
         ],
     }
 }

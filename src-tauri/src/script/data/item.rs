@@ -100,10 +100,10 @@ impl Item {
                 }
             }
             dataset::item::ItemSource::Seal(src_idx) => {
-                let Some(item) = script.seals().nth(*src_idx) else {
+                let Some(obj) = script.seals().nth(*src_idx) else {
                     bail!("invalid seal index: {}", src_idx)
                 };
-                Self::Seal(item.to_seal())
+                Self::Seal(obj.seal().clone())
             }
             dataset::item::ItemSource::Shop(shop_idx, item_idx) => {
                 let Some(shop) = script

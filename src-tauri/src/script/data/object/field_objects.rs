@@ -1,9 +1,6 @@
-use anyhow::{anyhow, bail, Result};
-use num_traits::FromPrimitive;
-
 use super::{
     super::item::{ChestItem, Seal},
-    items, Start,
+    Start,
 };
 
 #[derive(Clone)]
@@ -59,32 +56,13 @@ impl ChestObject {
 pub struct SealObject {
     x: i32,
     y: i32,
-    content: items::Seal,
-    set_flag: u16,
+    seal: Seal,
     starts: Vec<Start>,
 }
 
 impl SealObject {
-    pub fn new(
-        x: i32,
-        y: i32,
-        content: i32,
-        set_flag: i32,
-        op3: i32,
-        op4: i32,
-        starts: Vec<Start>,
-    ) -> Result<Self> {
-        if op3 != -1 || op4 != -1 {
-            bail!("invalid parameters: op3={}, op4={}", op3, op4);
-        }
-        Ok(Self {
-            x,
-            y,
-            content: items::Seal::from_i32(content)
-                .ok_or_else(|| anyhow!("invalid parameter: content={}", content))?,
-            set_flag: u16::try_from(set_flag)?,
-            starts,
-        })
+    pub fn new(x: i32, y: i32, seal: Seal, starts: Vec<Start>) -> Self {
+        Self { x, y, seal, starts }
     }
 
     pub fn x(&self) -> i32 {
@@ -93,30 +71,11 @@ impl SealObject {
     pub fn y(&self) -> i32 {
         self.y
     }
-    pub fn op1(&self) -> i32 {
-        self.content as i32
-    }
-    pub fn set_flag(&self) -> u16 {
-        self.set_flag
-    }
-    pub fn op2(&self) -> i32 {
-        self.set_flag as i32
-    }
-    pub const fn op3() -> i32 {
-        -1
-    }
-    pub const fn op4() -> i32 {
-        -1
+    pub fn seal(&self) -> &Seal {
+        &self.seal
     }
     pub fn starts(&self) -> &[Start] {
         &self.starts
-    }
-
-    pub fn to_seal(&self) -> Seal {
-        Seal {
-            content: self.content,
-            flag: self.set_flag,
-        }
     }
 }
 
