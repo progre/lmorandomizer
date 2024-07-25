@@ -226,7 +226,7 @@ fn parse_object(object: ElementRef) -> Result<Object> {
                 let start_attrs = parse_attrs(&x.value().attrs)?;
                 Ok(Start {
                     flag: u32::try_from(start_attrs[0])?,
-                    run_when_unset: start_attrs[1] != 0,
+                    run_when: start_attrs[1] != 0,
                 })
             })
             .collect::<Result<_>>()?,
@@ -249,7 +249,7 @@ fn stringify_object_params(
             output,
             "<START {},{}>",
             start.flag,
-            if start.run_when_unset { 1 } else { 0 }
+            if start.run_when { 1 } else { 0 }
         )
         .unwrap();
         output

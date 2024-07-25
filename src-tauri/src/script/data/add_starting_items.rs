@@ -38,7 +38,7 @@ pub fn add_starting_items(
                 op4: -1,
                 starts: vec![Start {
                     flag: unused_save_flag_no,
-                    run_when_unset: false,
+                    run_when: false,
                 }],
             }),
             Object::Unknown(UnknownObject {
@@ -51,7 +51,7 @@ pub fn add_starting_items(
                 op4: -1,
                 starts: vec![Start {
                     flag: unused_save_flag_no,
-                    run_when_unset: false,
+                    run_when: false,
                 }],
             }),
         ]

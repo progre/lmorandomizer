@@ -178,7 +178,7 @@ fn new_objs(
             Ok(vec![Object::Unknown(UnknownObject {
                 starts: vec![Start {
                     flag: 891,
-                    run_when_unset: unknown_obj.starts[0].run_when_unset,
+                    run_when: unknown_obj.starts[0].run_when,
                 }],
                 ..unknown_obj.clone()
             })])

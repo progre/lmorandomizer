@@ -15,7 +15,7 @@ pub use weapon_objects::{MainWeaponObject, SubWeaponObject};
 pub struct Start {
     /// max 99999
     pub flag: u32,
-    pub run_when_unset: bool,
+    pub run_when: bool,
 }
 
 #[derive(Clone)]

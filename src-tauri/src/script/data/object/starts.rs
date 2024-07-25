@@ -10,15 +10,15 @@ pub fn starts_that_hide_when_startup_and_taken(
     Ok([
         Start {
             flag: 99999,
-            run_when_unset: true,
+            run_when: true,
         },
         Start {
             flag: u32::try_from(old_obj.open_flag())?,
-            run_when_unset: true,
+            run_when: true,
         },
         Start {
             flag: flag as u32,
-            run_when_unset: false,
+            run_when: false,
         },
     ]
     .into_iter()
@@ -37,11 +37,11 @@ pub fn starts_that_hide_when_startup(old_obj: &Object, start_flag: u16) -> Resul
     Ok([
         Start {
             flag: 99999,
-            run_when_unset: true,
+            run_when: true,
         },
         Start {
             flag: start_flag as u32,
-            run_when_unset: true,
+            run_when: true,
         },
     ]
     .into_iter()
@@ -60,7 +60,7 @@ pub fn starts_as_is(old_starts: &[Start], old_set_flag: u16, flag: u16) -> Vec<S
     if old_starts.iter().any(|x| x.flag == old_set_flag as u32) {
         vec.push(Start {
             flag: flag as u32,
-            run_when_unset: false, // TODO: bug? 元の run_when_unset を維持すべきの筈
+            run_when: false, // TODO: bug? 元の run_when を維持すべきの筈
         });
     }
     vec
