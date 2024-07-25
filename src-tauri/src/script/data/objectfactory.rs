@@ -58,21 +58,15 @@ fn empty_chest(old_obj: &ChestObject, set_flag: u16) -> ChestObject {
     ChestObject::new(old_obj.x(), old_obj.y(), open_flag, item, -1, starts)
 }
 
-fn sub_weapon(old_obj: &Object, item: &SubWeapon) -> SubWeaponObject {
-    let op1 = item.content as i32;
-    let op2 = item.amount as i32;
-    let op3 = item.flag as i32;
+fn sub_weapon(old_obj: &Object, item: SubWeapon) -> SubWeaponObject {
     let old_set_flag = old_obj.set_flag().unwrap();
     let starts = starts_as_is(old_obj.starts(), old_set_flag, item.flag);
-    SubWeaponObject::new(old_obj.x(), old_obj.y(), op1, op2, op3, -1, starts).unwrap()
+    SubWeaponObject::new(old_obj.x(), old_obj.y(), item, starts)
 }
 
-fn hidden_sub_weapon(old_obj: &ChestObject, item: &SubWeapon) -> SubWeaponObject {
-    let op1 = item.content as i32;
-    let op2 = item.amount as i32;
-    let op3 = item.flag as i32;
+fn hidden_sub_weapon(old_obj: &ChestObject, item: SubWeapon) -> SubWeaponObject {
     let starts = starts_that_hide_when_startup_and_taken(old_obj, item.flag).unwrap();
-    SubWeaponObject::new(old_obj.x(), old_obj.y(), op1, op2, op3, -1, starts).unwrap()
+    SubWeaponObject::new(old_obj.x(), old_obj.y(), item, starts)
 }
 
 fn seal(old_obj: &Object, item: Seal) -> SealObject {
@@ -86,25 +80,21 @@ fn hidden_seal(old_obj: &ChestObject, item: Seal) -> SealObject {
     SealObject::new(old_obj.x(), old_obj.y(), item, starts)
 }
 
-fn main_weapon(old_obj: &Object, item: &MainWeapon) -> MainWeaponObject {
-    let op1 = item.content as i32;
-    let op2 = item.flag as i32;
+fn main_weapon(old_obj: &Object, item: MainWeapon) -> MainWeaponObject {
     let old_set_flag = old_obj.set_flag().unwrap();
     let starts = starts_as_is(old_obj.starts(), old_set_flag, item.flag);
-    MainWeaponObject::new(old_obj.x(), old_obj.y(), op1, op2, -1, -1, starts).unwrap()
+    MainWeaponObject::new(old_obj.x(), old_obj.y(), item, starts)
 }
 
-fn hidden_main_weapon(old_obj: &ChestObject, item: &MainWeapon) -> MainWeaponObject {
-    let op1 = item.content as i32;
-    let op2 = item.flag as i32;
+fn hidden_main_weapon(old_obj: &ChestObject, item: MainWeapon) -> MainWeaponObject {
     let starts = starts_that_hide_when_startup_and_taken(old_obj, item.flag).unwrap();
-    MainWeaponObject::new(old_obj.x(), old_obj.y(), op1, op2, -1, -1, starts).unwrap()
+    MainWeaponObject::new(old_obj.x(), old_obj.y(), item, starts)
 }
 
 pub fn to_object_for_shutter(old_obj: &Object, open_flag: u16, item: Item) -> Object {
     match item {
-        Item::MainWeapon(item) => Object::MainWeapon(main_weapon(old_obj, &item)),
-        Item::SubWeapon(item) => Object::SubWeapon(sub_weapon(old_obj, &item)),
+        Item::MainWeapon(item) => Object::MainWeapon(main_weapon(old_obj, item)),
+        Item::SubWeapon(item) => Object::SubWeapon(sub_weapon(old_obj, item)),
         Item::Equipment(item) => Object::Chest(hidden_equipment_chest(old_obj, item, open_flag)),
         Item::Rom(item) => Object::Chest(hidden_rom_chest(old_obj, item, open_flag)),
         Item::Seal(item) => Object::Seal(seal(old_obj, item)),
@@ -113,8 +103,8 @@ pub fn to_object_for_shutter(old_obj: &Object, open_flag: u16, item: Item) -> Ob
 
 pub fn to_object_for_special_chest(old_obj: &Object, item: Item) -> Object {
     match item {
-        Item::MainWeapon(item) => Object::MainWeapon(main_weapon(old_obj, &item)),
-        Item::SubWeapon(item) => Object::SubWeapon(sub_weapon(old_obj, &item)),
+        Item::MainWeapon(item) => Object::MainWeapon(main_weapon(old_obj, item)),
+        Item::SubWeapon(item) => Object::SubWeapon(sub_weapon(old_obj, item)),
         Item::Equipment(item) => {
             Object::Chest(equipment_chest_from_ankh_jewel_or_seal(old_obj, item))
         }
@@ -127,11 +117,11 @@ pub fn to_objects_for_chest(old_obj: &ChestObject, item: Item) -> Vec<Object> {
     match item {
         Item::MainWeapon(item) => vec![
             Object::Chest(empty_chest(old_obj, item.flag)),
-            Object::MainWeapon(hidden_main_weapon(old_obj, &item)),
+            Object::MainWeapon(hidden_main_weapon(old_obj, item)),
         ],
         Item::SubWeapon(item) => vec![
             Object::Chest(empty_chest(old_obj, item.flag)),
-            Object::SubWeapon(hidden_sub_weapon(old_obj, &item)),
+            Object::SubWeapon(hidden_sub_weapon(old_obj, item)),
         ],
         Item::Equipment(item) => vec![
             Object::Chest(equipment_chest(old_obj, item)), //

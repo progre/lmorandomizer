@@ -2,7 +2,7 @@ use anyhow::{bail, Result};
 
 use crate::dataset;
 
-use super::{items, script::Script, shop_items_data::ShopItem};
+use super::{items, object::Shop, script::Script, shop_items_data::ShopItem};
 
 #[derive(Clone)]
 pub struct MainWeapon {
@@ -81,13 +81,13 @@ impl Item {
                 let Some(item) = script.main_weapons().nth(*src_idx) else {
                     bail!("invalid main weapon index: {}", src_idx)
                 };
-                Self::MainWeapon(item.to_main_weapon())
+                Self::MainWeapon(item.main_weapon().clone())
             }
             dataset::item::ItemSource::SubWeapon(src_idx) => {
                 let Some(item) = script.sub_weapons().nth(*src_idx) else {
                     bail!("invalid sub weapon index: {}", src_idx)
                 };
-                Self::SubWeapon(item.to_sub_weapon())
+                Self::SubWeapon(item.sub_weapon().clone())
             }
             dataset::item::ItemSource::Chest(src_idx) => {
                 let Some(obj) = script.chests().nth(*src_idx) else {
@@ -108,7 +108,7 @@ impl Item {
             dataset::item::ItemSource::Shop(shop_idx, item_idx) => {
                 let Some(shop) = script
                     .shops()
-                    .filter_map(|x| x.to_shop(&script.talks).transpose())
+                    .filter_map(|x| Shop::try_from_shop_object(x, &script.talks).transpose())
                     .collect::<Result<Vec<_>>>()?
                     .into_iter()
                     .nth(*shop_idx)

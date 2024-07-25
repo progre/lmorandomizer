@@ -9,7 +9,7 @@ use num_traits::FromPrimitive;
 use crate::script::data::item;
 
 use super::{
-    item::{ChestItem, Seal},
+    item::{ChestItem, MainWeapon, Seal, SubWeapon},
     items, shop_items_data,
 };
 
@@ -54,6 +54,28 @@ fn create_chest_object(
     Ok(ChestObject::new(x, y, open_flag, item, op4, starts))
 }
 
+fn create_sub_weapon_object(
+    x: i32,
+    y: i32,
+    op1: i32,
+    op2: i32,
+    op3: i32,
+    op4: i32,
+    starts: Vec<Start>,
+) -> Result<SubWeaponObject> {
+    if op4 != -1 {
+        bail!("invalid parameter: op4={}", op4);
+    }
+    let sub_weapon = SubWeapon {
+        content: items::SubWeapon::from_i32(op1)
+            .ok_or_else(|| anyhow!("invalid parameter: op1={}", op1))?,
+        amount: u8::try_from(op2)?,
+        price: None,
+        flag: u16::try_from(op3)?,
+    };
+    Ok(SubWeaponObject::new(x, y, sub_weapon, starts))
+}
+
 fn create_seal_object(
     x: i32,
     y: i32,
@@ -72,6 +94,26 @@ fn create_seal_object(
         flag: u16::try_from(op2)?,
     };
     Ok(SealObject::new(x, y, seal, starts))
+}
+
+fn create_main_weapon_object(
+    x: i32,
+    y: i32,
+    op1: i32,
+    op2: i32,
+    op3: i32,
+    op4: i32,
+    starts: Vec<Start>,
+) -> Result<MainWeaponObject> {
+    if op3 != -1 || op4 != -1 {
+        bail!("invalid parameters: op3={}, op4={}", op3, op4);
+    }
+    let main_weapon = MainWeapon {
+        content: items::MainWeapon::from_i32(op1)
+            .ok_or_else(|| anyhow!("invalid parameter: op1={}", op1))?,
+        flag: u16::try_from(op2)?,
+    };
+    Ok(MainWeaponObject::new(x, y, main_weapon, starts))
 }
 
 #[derive(Clone)]
@@ -98,10 +140,10 @@ impl Object {
     ) -> Result<Object> {
         Ok(match number {
             1 => Object::Chest(create_chest_object(x, y, op1, op2, op3, op4, starts)?),
-            13 => Object::SubWeapon(SubWeaponObject::new(x, y, op1, op2, op3, op4, starts)?),
+            13 => Object::SubWeapon(create_sub_weapon_object(x, y, op1, op2, op3, op4, starts)?),
             14 => Object::Shop(ShopObject::new(x, y, op1, op2, op3, op4, starts)?),
             71 => Object::Seal(create_seal_object(x, y, op1, op2, op3, op4, starts)?),
-            77 => Object::MainWeapon(MainWeaponObject::new(x, y, op1, op2, op3, op4, starts)?),
+            77 => Object::MainWeapon(create_main_weapon_object(x, y, op1, op2, op3, op4, starts)?),
             _ => Object::Unknown(UnknownObject {
                 number,
                 x,
@@ -148,10 +190,10 @@ impl Object {
     pub fn op1(&self) -> i32 {
         match self {
             Self::Chest(obj) => obj.open_flag() as i32,
-            Self::SubWeapon(obj) => obj.op1(),
+            Self::SubWeapon(obj) => obj.sub_weapon().content as i32,
             Self::Shop(obj) => obj.form(),
             Self::Seal(obj) => obj.seal().content as i32,
-            Self::MainWeapon(obj) => obj.op1(),
+            Self::MainWeapon(obj) => obj.main_weapon().content as i32,
             Self::Unknown(obj) => obj.op1,
         }
     }
@@ -162,30 +204,30 @@ impl Object {
                 ChestItem::Rom(item) => item.content.0 as i32 + 100,
                 ChestItem::None(_) => -1,
             },
-            Self::SubWeapon(obj) => obj.op2(),
+            Self::SubWeapon(obj) => obj.sub_weapon().amount as i32,
             Self::Shop(obj) => obj.music(),
             Self::Seal(obj) => obj.seal().flag as i32,
-            Self::MainWeapon(obj) => obj.op2(),
+            Self::MainWeapon(obj) => obj.main_weapon().flag as i32,
             Self::Unknown(obj) => obj.op2,
         }
     }
     pub fn op3(&self) -> i32 {
         match self {
             Self::Chest(obj) => obj.item().flag(),
-            Self::SubWeapon(obj) => obj.op3(),
+            Self::SubWeapon(obj) => obj.sub_weapon().flag as i32,
             Self::Shop(obj) => obj.op3(),
             Self::Seal(_) => -1,
-            Self::MainWeapon(_) => MainWeaponObject::op3(),
+            Self::MainWeapon(_) => -1,
             Self::Unknown(obj) => obj.op3,
         }
     }
     pub fn op4(&self) -> i32 {
         match self {
             Self::Chest(obj) => obj.op4(),
-            Self::SubWeapon(_) => SubWeaponObject::op4(),
+            Self::SubWeapon(_) => -1,
             Self::Shop(obj) => obj.op4(),
             Self::Seal(_) => -1,
-            Self::MainWeapon(_) => MainWeaponObject::op4(),
+            Self::MainWeapon(_) => -1,
             Self::Unknown(obj) => obj.op4,
         }
     }
@@ -203,9 +245,9 @@ impl Object {
     pub fn set_flag(&self) -> Result<u16> {
         Ok(match self {
             Self::Chest(obj) => u16::try_from(obj.item().flag())?,
-            Self::SubWeapon(obj) => obj.set_flag(),
+            Self::SubWeapon(obj) => obj.sub_weapon().flag,
             Self::Seal(obj) => obj.seal().flag,
-            Self::MainWeapon(obj) => obj.set_flag(),
+            Self::MainWeapon(obj) => obj.main_weapon().flag,
             Self::Shop(_) => bail!("shop has no item flag"),
             Self::Unknown(UnknownObject { number, .. }) => bail!("invalid number: {}", number),
         })

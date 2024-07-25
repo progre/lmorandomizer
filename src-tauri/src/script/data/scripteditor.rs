@@ -117,9 +117,9 @@ fn new_objs(
             let item = &shuffled.sub_weapons[indices.sub_weapon_spot_idx].item;
             let item = Item::from_dataset(item, script)?;
             indices.sub_weapon_spot_idx += 1;
-            if sub_weapon_obj.content() == SubWeapon::AnkhJewel {
+            if sub_weapon_obj.sub_weapon().content == SubWeapon::AnkhJewel {
                 // Gate of Guidance
-                if sub_weapon_obj.set_flag() == 743 {
+                if sub_weapon_obj.sub_weapon().flag == 743 {
                     let wall_check_flag = get_next_wall_check_flag(next_objs)
                         .ok_or(anyhow!("wall_check_flag not found"))?;
                     let open_flag = u16::try_from(wall_check_flag)?;
@@ -127,7 +127,7 @@ fn new_objs(
                 }
                 return Ok(vec![to_object_for_special_chest(obj, item)]);
             }
-            let open_flag = if sub_weapon_obj.content() == SubWeapon::Pistol {
+            let open_flag = if sub_weapon_obj.sub_weapon().content == SubWeapon::Pistol {
                 get_next_breakable_wall_check_flag(next_objs)?
             } else {
                 get_next_shutter_check_flag(next_objs)?

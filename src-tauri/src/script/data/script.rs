@@ -12,7 +12,7 @@ use super::{
     item::{self, ChestItem},
     items,
     object::{
-        ChestObject, MainWeaponObject, Object, SealObject, ShopObject, SubWeaponObject,
+        ChestObject, MainWeaponObject, Object, SealObject, Shop, ShopObject, SubWeaponObject,
         UnknownObject,
     },
     scripteditor::{replace_items, replace_shops},
@@ -131,7 +131,7 @@ impl Script {
     pub fn replace_items(&mut self, script: &Script, shuffled: &Storage) -> Result<()> {
         let shops: Vec<_> = self
             .shops()
-            .filter_map(|x| x.to_shop(&self.talks).transpose())
+            .filter_map(|x| Shop::try_from_shop_object(x, &self.talks).transpose())
             .collect::<Result<_>>()?;
         replace_items(&mut self.worlds, script, shuffled)?;
         replace_shops(&mut self.talks, script, &shops, &shuffled.shops)?;

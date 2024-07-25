@@ -11,13 +11,25 @@ pub struct Shop {
     pub items: (ShopItem, ShopItem, ShopItem),
 }
 
+impl Shop {
+    pub fn try_from_shop_object(obj: &ShopObject, talks: &[String]) -> Result<Option<Self>> {
+        if obj.form >= 100 {
+            return Ok(None);
+        }
+        Ok(Some(Shop {
+            talk_number: obj.op4 as u16,
+            items: shop_items_data::parse(&talks[obj.op4 as usize])?,
+        }))
+    }
+}
+
 #[derive(Clone)]
 pub struct ShopObject {
     x: i32,
     y: i32,
     form: i32,
     music: i32,
-    talk_number: u16,
+    op3: u16,
     op4: i32,
     starts: Vec<Start>,
 }
@@ -28,7 +40,7 @@ impl ShopObject {
         y: i32,
         form: i32,
         music: i32,
-        talk_number: i32,
+        op3: i32,
         op4: i32,
         starts: Vec<Start>,
     ) -> Result<Self> {
@@ -40,7 +52,7 @@ impl ShopObject {
             y,
             form,
             music,
-            talk_number: u16::try_from(talk_number)?,
+            op3: u16::try_from(op3)?,
             op4,
             starts,
         })
@@ -59,22 +71,12 @@ impl ShopObject {
         self.music
     }
     pub fn op3(&self) -> i32 {
-        self.talk_number as i32
+        self.op3 as i32
     }
     pub fn op4(&self) -> i32 {
         self.op4
     }
     pub fn starts(&self) -> &[Start] {
         &self.starts
-    }
-
-    pub fn to_shop(&self, talks: &[String]) -> Result<Option<Shop>> {
-        if self.form >= 100 {
-            return Ok(None);
-        }
-        Ok(Some(Shop {
-            talk_number: self.op4 as u16,
-            items: shop_items_data::parse(&talks[self.op4 as usize])?,
-        }))
     }
 }
