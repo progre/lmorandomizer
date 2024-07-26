@@ -1,4 +1,4 @@
-use std::{any::type_name, fmt};
+use std::fmt;
 
 use crate::script::data::items::Rom;
 
@@ -25,6 +25,12 @@ pub enum FieldId {
     TwinLabyrinthsRight,
     DimensionalCorridor,
     TrueShrineOfTheMother,
+}
+
+impl fmt::Display for FieldId {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{:?}", self)
+    }
 }
 
 #[derive(Clone, Debug)]
@@ -107,11 +113,8 @@ impl SpotParams {
         }
     }
 
-    fn fmt<T>(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let field_id = &self.field_id;
-        let type_name = type_name::<T>().split("::").last().unwrap();
-        let name = self.name.get();
-        write!(f, "{:?}_{}{}({})", field_id, type_name, self.src_idx, name)
+    fn fmt(&self, f: &mut fmt::Formatter<'_>, type_name: &str) -> fmt::Result {
+        write!(f, "{}_{}({})", self.field_id, type_name, self.name.get())
     }
 }
 
@@ -141,7 +144,7 @@ impl MainWeaponSpot {
 
 impl fmt::Display for MainWeaponSpot {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        self.0.fmt::<Self>(f)
+        self.0.fmt(f, "MainWeaponSpot")
     }
 }
 
@@ -171,7 +174,7 @@ impl SubWeaponSpot {
 
 impl fmt::Display for SubWeaponSpot {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        self.0.fmt::<Self>(f)
+        self.0.fmt(f, "SubWeaponSpot")
     }
 }
 
@@ -201,7 +204,7 @@ impl ChestSpot {
 
 impl fmt::Display for ChestSpot {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        self.0.fmt::<Self>(f)
+        self.0.fmt(f, "Chest")
     }
 }
 
@@ -231,7 +234,7 @@ impl SealSpot {
 
 impl fmt::Display for SealSpot {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        self.0.fmt::<Self>(f)
+        self.0.fmt(f, "SealSpot")
     }
 }
 
@@ -274,7 +277,7 @@ impl ShopSpot {
 
 impl fmt::Display for ShopSpot {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        self.0.fmt::<Self>(f)
+        self.0.fmt(f, "Shop")
     }
 }
 
@@ -317,8 +320,6 @@ impl RomSpot {
 
 impl fmt::Display for RomSpot {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let type_name = type_name::<Self>().split("::").last().unwrap();
-        let name = self.name().get();
-        write!(f, "{:?}_{}({})", self.field_id(), type_name, name)
+        write!(f, "{:?}_RomSpot({})", self.field_id(), self.name().get())
     }
 }
