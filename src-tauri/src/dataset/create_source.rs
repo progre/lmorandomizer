@@ -3,14 +3,17 @@ use std::collections::HashMap;
 use anyhow::Result;
 use log::trace;
 
-use crate::dataset::{
-    game_structure::GameStructureFiles,
-    item::{Item, StrategyFlag},
-    spot::{
-        AllRequirements, AnyOfAllRequirements, ChestSpot, FieldId, MainWeaponSpot, RequirementFlag,
-        SealSpot, ShopSpot, SpotName, SubWeaponSpot,
+use crate::{
+    dataset::{
+        game_structure::GameStructureFiles,
+        item::{Item, StrategyFlag},
+        spot::{
+            AllRequirements, AnyOfAllRequirements, ChestSpot, FieldId, MainWeaponSpot,
+            RequirementFlag, RomSpot, SealSpot, ShopSpot, SpotName, SubWeaponSpot,
+        },
+        storage::{Chest, Event, MainWeapon, Rom, Seal, Shop, Storage, SubWeapon},
     },
-    storage::{Chest, Event, MainWeapon, Seal, Shop, Storage, SubWeapon},
+    script::data::items,
 };
 
 fn to_any_of_all_requirements(requirements: Vec<String>) -> Option<AnyOfAllRequirements> {
@@ -88,6 +91,7 @@ pub fn create_source(game_structure_files: GameStructureFiles) -> Result<Storage
     let mut chests = Vec::new();
     let mut seals = Vec::new();
     let mut shops = Vec::new();
+    let mut roms = Vec::new();
     for (field_id, field_data) in game_structure_files.fields {
         for item in field_data.main_weapons {
             main_weapons.push((field_id, item));
@@ -103,6 +107,18 @@ pub fn create_source(game_structure_files: GameStructureFiles) -> Result<Storage
         }
         for item in field_data.shops {
             shops.push((field_id, item));
+        }
+        for (key, value) in field_data.roms {
+            let name = StrategyFlag::new(key);
+            let rom = items::Rom::try_from_camel_case(name.get()).unwrap();
+            roms.push(Rom {
+                spot: RomSpot::new(
+                    field_id,
+                    SpotName::new(name.get().to_owned()),
+                    to_any_of_all_requirements(value),
+                ),
+                item: Item::rom(name, rom),
+            });
         }
     }
 
@@ -132,7 +148,15 @@ pub fn create_source(game_structure_files: GameStructureFiles) -> Result<Storage
     trace!("create_source parse: {:?}", start.elapsed());
 
     let start = std::time::Instant::now();
-    let storage = Storage::new(main_weapons, sub_weapons, chests, seals, shops, events)?;
+    let storage = Storage::new(
+        main_weapons,
+        sub_weapons,
+        chests,
+        seals,
+        shops,
+        roms,
+        events,
+    )?;
     trace!("Storage::new: {:?}", start.elapsed());
 
     Ok(storage)

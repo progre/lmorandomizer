@@ -28,6 +28,7 @@ serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 serde_yaml = "0.9.34"
 sha3 = "0.10.8"
+strum = { version = "0.26.3", features = ["derive"] }
 tauri = { version = "2.0.0-beta", features = [] }
 tauri-plugin-log = "2.0.0-beta.6"
 tauri-plugin-shell = "2.0.0-beta"

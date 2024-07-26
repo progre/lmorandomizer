@@ -1,6 +1,6 @@
 use anyhow::{bail, Result};
 
-use crate::dataset;
+use crate::dataset::{self, item::ItemSource};
 
 use super::{items, object::Shop, script::Script, shop_items_data::ShopItem};
 
@@ -77,19 +77,19 @@ impl Item {
 
     pub fn from_dataset(item: &dataset::item::Item, script: &Script) -> Result<Self> {
         Ok(match &item.src {
-            dataset::item::ItemSource::MainWeapon(src_idx) => {
+            ItemSource::MainWeapon(src_idx) => {
                 let Some(item) = script.main_weapons().nth(*src_idx) else {
                     bail!("invalid main weapon index: {}", src_idx)
                 };
                 Self::MainWeapon(item.main_weapon().clone())
             }
-            dataset::item::ItemSource::SubWeapon(src_idx) => {
+            ItemSource::SubWeapon(src_idx) => {
                 let Some(item) = script.sub_weapons().nth(*src_idx) else {
                     bail!("invalid sub weapon index: {}", src_idx)
                 };
                 Self::SubWeapon(item.sub_weapon().clone())
             }
-            dataset::item::ItemSource::Chest(src_idx) => {
+            ItemSource::Chest(src_idx) => {
                 let Some(obj) = script.chests().nth(*src_idx) else {
                     bail!("invalid chest index: {}", src_idx)
                 };
@@ -99,13 +99,13 @@ impl Item {
                     ChestItem::None(_) => unreachable!(),
                 }
             }
-            dataset::item::ItemSource::Seal(src_idx) => {
+            ItemSource::Seal(src_idx) => {
                 let Some(obj) = script.seals().nth(*src_idx) else {
                     bail!("invalid seal index: {}", src_idx)
                 };
                 Self::Seal(obj.seal().clone())
             }
-            dataset::item::ItemSource::Shop(shop_idx, item_idx) => {
+            ItemSource::Shop(shop_idx, item_idx) => {
                 let Some(shop) = script
                     .shops()
                     .filter_map(|x| Shop::try_from_shop_object(x, &script.talks).transpose())
@@ -131,10 +131,16 @@ impl Item {
                         Self::Equipment(item.item)
                     }
                     ShopItem::Rom(item) => {
-                        Self::initial_assert(item.item.content.0 as i8, item.item.flag, false);
+                        Self::initial_assert(item.item.content as i8, item.item.flag, false);
                         Self::Rom(item.item)
                     }
                 }
+            }
+            ItemSource::Rom(rom) => {
+                let Some(rom) = script.roms().find(|x| x.rom().content == *rom) else {
+                    bail!("invalid rom: {}", rom)
+                };
+                Self::Rom(rom.rom().clone())
             }
         })
     }

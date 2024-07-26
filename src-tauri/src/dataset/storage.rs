@@ -3,7 +3,9 @@ use anyhow::Result;
 use super::{
     assertions::ware_missing_requirements,
     item::{Item, StrategyFlag},
-    spot::{AnyOfAllRequirements, ChestSpot, MainWeaponSpot, SealSpot, ShopSpot, SubWeaponSpot},
+    spot::{
+        AnyOfAllRequirements, ChestSpot, MainWeaponSpot, RomSpot, SealSpot, ShopSpot, SubWeaponSpot,
+    },
 };
 
 #[derive(Default)]
@@ -52,6 +54,12 @@ impl Shop {
     }
 }
 
+#[derive(Clone)]
+pub struct Rom {
+    pub spot: RomSpot,
+    pub item: Item,
+}
+
 pub struct MainWeaponRef<'a> {
     pub spot: &'a MainWeaponSpot,
     pub item: &'a Item,
@@ -90,6 +98,7 @@ pub struct Storage {
     pub chests: Vec<Chest>,
     pub seals: Vec<Seal>,
     pub shops: Vec<Shop>,
+    pub roms: Vec<Rom>,
     pub events: Vec<Event>,
 }
 
@@ -100,6 +109,7 @@ impl Storage {
         chests: Vec<Chest>,
         seals: Vec<Seal>,
         shops: Vec<Shop>,
+        roms: Vec<Rom>,
         events: Vec<Event>,
     ) -> Result<Self> {
         let zelf = Self {
@@ -108,6 +118,7 @@ impl Storage {
             chests,
             seals,
             shops,
+            roms,
             events,
         };
         if cfg!(debug_assertions) {

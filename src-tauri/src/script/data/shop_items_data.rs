@@ -93,7 +93,8 @@ impl ShopItem {
             }
             // NOTE: 占いセンセーション(72) count is not as specified. It has 1 in it, not 0.
             2 => {
-                let content = items::Rom(number);
+                let content = items::Rom::from_u8(number)
+                    .ok_or_else(|| anyhow!("Invalid rom number: {}", number))?;
                 let item = item::Rom {
                     content,
                     price: Some(price),
@@ -125,7 +126,7 @@ impl ShopItem {
         match self {
             Self::SubWeapon(x) => x.item.content as u8,
             Self::Equipment(x) => x.item.content as u8,
-            Self::Rom(x) => x.item.content.0,
+            Self::Rom(x) => x.item.content as u8,
         }
     }
     pub fn price(&self) -> u16 {

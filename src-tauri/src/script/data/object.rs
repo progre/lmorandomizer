@@ -43,7 +43,8 @@ fn create_chest_object(
             flag: u16::try_from(op3)?,
         }),
         _ => ChestItem::Rom(item::Rom {
-            content: items::Rom(u8::try_from(op2 - 100)?),
+            content: items::Rom::from_i32(op2 - 100)
+                .ok_or_else(|| anyhow!("invalid parameter: op2={}", op2))?,
             price: None,
             flag: u16::try_from(op3)?,
         }),
@@ -89,7 +90,8 @@ fn create_rom_object(
         bail!("invalid parameters: op3={}, op4={}", op3, op4);
     }
     let rom = Rom {
-        content: items::Rom(u8::try_from(op1)?),
+        content: items::Rom::from_i32(op1)
+            .ok_or_else(|| anyhow!("invalid parameter: op1={}", op1))?,
         price: None,
         flag: u16::try_from(op2)?,
     };
@@ -217,7 +219,7 @@ impl Object {
             Self::Chest(obj) => obj.open_flag() as i32,
             Self::SubWeapon(obj) => obj.sub_weapon().content as i32,
             Self::Shop(obj) => obj.form(),
-            Self::Rom(obj) => obj.rom().content.0 as i32,
+            Self::Rom(obj) => obj.rom().content as i32,
             Self::Seal(obj) => obj.seal().content as i32,
             Self::MainWeapon(obj) => obj.main_weapon().content as i32,
             Self::Unknown(obj) => obj.op1,
@@ -227,7 +229,7 @@ impl Object {
         match self {
             Self::Chest(obj) => match obj.item() {
                 ChestItem::Equipment(item) => item.content as i32,
-                ChestItem::Rom(item) => item.content.0 as i32 + 100,
+                ChestItem::Rom(item) => item.content as i32 + 100,
                 ChestItem::None(_) => -1,
             },
             Self::SubWeapon(obj) => obj.sub_weapon().amount as i32,

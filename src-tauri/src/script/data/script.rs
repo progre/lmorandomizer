@@ -12,8 +12,8 @@ use super::{
     item::{self, ChestItem},
     items,
     object::{
-        ChestObject, MainWeaponObject, Object, SealObject, Shop, ShopObject, SubWeaponObject,
-        UnknownObject,
+        ChestObject, MainWeaponObject, Object, RomObject, SealObject, Shop, ShopObject,
+        SubWeaponObject, UnknownObject,
     },
     scripteditor::{replace_items, replace_shops},
 };
@@ -122,6 +122,15 @@ impl Script {
     pub fn shops(&self) -> impl Iterator<Item = &ShopObject> {
         self.view_objects().filter_map(|x| {
             let Object::Shop(x) = x else {
+                return None;
+            };
+            Some(x)
+        })
+    }
+
+    pub fn roms(&self) -> impl Iterator<Item = &RomObject> {
+        self.view_objects().filter_map(|x| {
+            let Object::Rom(x) = x else {
                 return None;
             };
             Some(x)

@@ -41,6 +41,8 @@ pub struct FieldYaml {
     pub seals: Vec<HashMap<String, Vec<String>>>,
     #[serde(default)]
     pub shops: Vec<HashMap<String, Vec<String>>>,
+    #[serde(default)]
+    pub roms: HashMap<String, Vec<String>>,
 }
 
 impl FieldYaml {

@@ -275,3 +275,42 @@ impl fmt::Display for ShopSpot {
         self.0.fmt::<Self>(f)
     }
 }
+
+#[derive(Clone)]
+pub struct RomSpot {
+    field_id: FieldId,
+    name: SpotName,
+    requirements: Option<AnyOfAllRequirements>,
+}
+
+impl RomSpot {
+    pub fn new(
+        field_id: FieldId,
+        name: SpotName,
+        requirements: Option<AnyOfAllRequirements>,
+    ) -> Self {
+        Self {
+            field_id,
+            name,
+            requirements,
+        }
+    }
+
+    pub fn field_id(&self) -> FieldId {
+        self.field_id
+    }
+    pub fn name(&self) -> &SpotName {
+        &self.name
+    }
+    pub fn requirements(&self) -> Option<&AnyOfAllRequirements> {
+        self.requirements.as_ref()
+    }
+}
+
+impl fmt::Display for RomSpot {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let type_name = type_name::<Self>().split("::").last().unwrap();
+        let name = self.name().get();
+        write!(f, "{:?}_{}({})", self.field_id(), type_name, name)
+    }
+}

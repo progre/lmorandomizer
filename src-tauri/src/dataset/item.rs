@@ -1,3 +1,5 @@
+use crate::script::data::items;
+
 use super::spot::{RequirementFlag, SpotName, SpotRef};
 
 #[derive(Clone, Debug, Hash, Eq, Ord, PartialEq, PartialOrd)]
@@ -59,6 +61,7 @@ pub enum ItemSource {
     Chest(usize),
     Seal(usize),
     Shop(usize, usize),
+    Rom(items::Rom),
 }
 
 #[derive(Clone)]
@@ -88,6 +91,12 @@ impl Item {
         let src = ItemSource::Shop(shop_idx, item_idx);
         Self { src, name }
     }
+    pub fn rom(name: StrategyFlag, rom: items::Rom) -> Self {
+        Self {
+            src: ItemSource::Rom(rom),
+            name,
+        }
+    }
 
     // chests -> equipments / rom
     // chests <- subWeapon / subWeaponAmmo / equipments / rom / sign
@@ -96,7 +105,7 @@ impl Item {
     pub fn can_display_in_shop(&self) -> bool {
         match &self.src {
             ItemSource::MainWeapon(_) | ItemSource::Seal(_) => false,
-            ItemSource::Shop(..) => true,
+            ItemSource::Shop(..) | ItemSource::Rom(_) => true,
             ItemSource::SubWeapon(_) => self.name.get() == "pistol",
             ItemSource::Chest(_) => {
                 !self.name.is_map()
