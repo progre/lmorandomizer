@@ -24,27 +24,35 @@ fn spot_idx(spot: &Spot) -> usize {
         }
 }
 
-pub struct Checkpoint<TSpot, TItem> {
-    pub spot: TSpot,
+pub struct Checkpoint {
+    pub spot: Spot,
     pub idx: usize,
-    pub item: TItem,
+    pub item: Item,
 }
 
-impl<'a> Checkpoint<SpotRef<'a>, &'a Item> {
-    pub fn into_owned(self) -> Checkpoint<Spot, Item> {
+pub struct CheckpointRef<'a> {
+    pub spot: SpotRef<'a>,
+    pub idx: usize,
+    pub item: &'a Item,
+}
+
+impl CheckpointRef<'_> {
+    pub fn to_owned(&self) -> Checkpoint {
         Checkpoint {
-            spot: self.spot.into(),
+            spot: self.spot.to_owned(),
             idx: self.idx,
             item: self.item.to_owned(),
         }
     }
 }
 
-pub struct Sphere<TSpot, TItem>(pub Vec<Checkpoint<TSpot, TItem>>);
+pub struct Sphere(pub Vec<Checkpoint>);
+
+pub struct SphereRef<'a>(pub Vec<CheckpointRef<'a>>);
 
 pub struct SpoilerLog {
-    progression: Vec<Sphere<Spot, Item>>,
-    maps: Vec<Checkpoint<Spot, Item>>,
+    progression: Vec<Sphere>,
+    maps: Vec<Checkpoint>,
 }
 
 impl fmt::Display for SpoilerLog {
@@ -86,29 +94,29 @@ impl fmt::Display for SpoilerLog {
 }
 
 pub struct SpoilerLogRef<'a> {
-    pub progression: Vec<Sphere<SpotRef<'a>, &'a Item>>,
-    pub maps: Vec<Checkpoint<SpotRef<'a>, &'a Item>>,
+    pub progression: Vec<SphereRef<'a>>,
+    pub maps: Vec<CheckpointRef<'a>>,
 }
 
 impl SpoilerLogRef<'_> {
-    pub fn into_owned(self) -> SpoilerLog {
+    pub fn to_owned(&self) -> SpoilerLog {
         SpoilerLog {
             progression: self
                 .progression
-                .into_iter()
+                .iter()
                 .map(|sphere| {
                     sphere
                         .0
-                        .into_iter()
-                        .map(|checkpoint| checkpoint.into_owned())
+                        .iter()
+                        .map(|checkpoint| checkpoint.to_owned())
                         .collect()
                 })
                 .map(Sphere)
                 .collect(),
             maps: self
                 .maps
-                .into_iter()
-                .map(|checkpoint| checkpoint.into_owned())
+                .iter()
+                .map(|checkpoint| checkpoint.to_owned())
                 .collect(),
         }
     }

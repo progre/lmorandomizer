@@ -62,18 +62,6 @@ impl fmt::Display for Spot {
     }
 }
 
-impl From<SpotRef<'_>> for Spot {
-    fn from(spot_ref: SpotRef) -> Self {
-        match spot_ref {
-            SpotRef::MainWeapon(x) => Spot::MainWeapon((*x).clone()),
-            SpotRef::SubWeapon(x) => Spot::SubWeapon((*x).clone()),
-            SpotRef::Chest(x) => Spot::Chest((*x).clone()),
-            SpotRef::Seal(x) => Spot::Seal((*x).clone()),
-            SpotRef::Shop(x) => Spot::Shop((*x).clone()),
-        }
-    }
-}
-
 #[derive(Clone, Copy)]
 pub enum SpotRef<'a> {
     MainWeapon(&'a MainWeaponSpot),
@@ -86,32 +74,30 @@ pub enum SpotRef<'a> {
 impl SpotRef<'_> {
     pub fn field_id(&self) -> FieldId {
         match self {
-            SpotRef::MainWeapon(x) => x.field_id(),
-            SpotRef::SubWeapon(x) => x.field_id(),
-            SpotRef::Chest(x) => x.field_id(),
-            SpotRef::Seal(x) => x.field_id(),
-            SpotRef::Shop(x) => x.field_id(),
+            Self::MainWeapon(x) => x.field_id(),
+            Self::SubWeapon(x) => x.field_id(),
+            Self::Chest(x) => x.field_id(),
+            Self::Seal(x) => x.field_id(),
+            Self::Shop(x) => x.field_id(),
         }
     }
     pub fn requirements(&self) -> Option<&AnyOfAllRequirements> {
         match self {
-            SpotRef::MainWeapon(x) => x.requirements(),
-            SpotRef::SubWeapon(x) => x.requirements(),
-            SpotRef::Chest(x) => x.requirements(),
-            SpotRef::Seal(x) => x.requirements(),
-            SpotRef::Shop(x) => x.requirements(),
+            Self::MainWeapon(x) => x.requirements(),
+            Self::SubWeapon(x) => x.requirements(),
+            Self::Chest(x) => x.requirements(),
+            Self::Seal(x) => x.requirements(),
+            Self::Shop(x) => x.requirements(),
         }
     }
-}
 
-impl<'a> From<&'a Spot> for SpotRef<'a> {
-    fn from(spot: &'a Spot) -> Self {
-        match spot {
-            Spot::MainWeapon(spot) => Self::MainWeapon(spot),
-            Spot::SubWeapon(spot) => Self::SubWeapon(spot),
-            Spot::Chest(spot) => Self::Chest(spot),
-            Spot::Seal(spot) => Self::Seal(spot),
-            Spot::Shop(spot) => Self::Shop(spot),
+    pub fn to_owned(self) -> Spot {
+        match self {
+            Self::MainWeapon(x) => Spot::MainWeapon((*x).to_owned()),
+            Self::SubWeapon(x) => Spot::SubWeapon((*x).to_owned()),
+            Self::Chest(x) => Spot::Chest((*x).to_owned()),
+            Self::Seal(x) => Spot::Seal((*x).to_owned()),
+            Self::Shop(x) => Spot::Shop((*x).to_owned()),
         }
     }
 }

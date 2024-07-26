@@ -9,17 +9,15 @@ use rand::{seq::SliceRandom, Rng};
 use rand_seeder::Seeder;
 use rand_xoshiro::Xoshiro256PlusPlus;
 
-use crate::{
-    dataset::{
-        item::{Item, StrategyFlag},
-        spot::{FieldId, SpotRef},
-    },
-    randomizer::sphere::sphere,
+use crate::dataset::{
+    item::{Item, StrategyFlag},
+    spot::{FieldId, SpotRef},
 };
 
 use super::{
     items_spots::{Items, Spots},
-    spoiler_log::{Checkpoint, SpoilerLogRef},
+    sphere::sphere,
+    spoiler_log::{CheckpointRef, SpoilerLogRef},
 };
 
 pub fn make_rng<H: Hash>(seed: H) -> Xoshiro256PlusPlus {
@@ -41,7 +39,7 @@ fn maps<'a>(
     rng: &mut impl Rng,
     maps: &BTreeMap<FieldId, &'a Item>,
     spots: &mut Spots<'a>,
-) -> Vec<Checkpoint<SpotRef<'a>, &'a Item>> {
+) -> Vec<CheckpointRef<'a>> {
     let mut hash_map: BTreeMap<FieldId, Vec<SpotRef<'a>>> = Default::default();
     for spot in &spots.field_item_spots {
         hash_map.entry(spot.field_id()).or_default().push(*spot);
@@ -49,11 +47,7 @@ fn maps<'a>(
     maps.iter()
         .map(|(field_id, item)| {
             let spot = *hash_map[field_id].choose(rng).unwrap();
-            Checkpoint {
-                spot,
-                idx: 0,
-                item: *item,
-            }
+            CheckpointRef { spot, idx: 0, item }
         })
         .inspect(|checkpoint| {
             let idx = spots

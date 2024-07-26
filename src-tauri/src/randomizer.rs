@@ -71,5 +71,5 @@ pub fn randomize(
     let dat = build_script_dat(&script);
     trace!("Built script.dat in {:?}", start.elapsed());
 
-    Ok((dat, spoiler_log.into_owned()))
+    Ok((dat, spoiler_log.to_owned()))
 }

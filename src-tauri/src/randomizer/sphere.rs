@@ -3,14 +3,14 @@ use std::{collections::HashSet, ops::Deref};
 use rand::Rng;
 
 use crate::dataset::{
-    item::{Item, StrategyFlag},
+    item::StrategyFlag,
     spot::{AnyOfAllRequirements, ShopSpot, SpotRef},
 };
 
 use super::{
     items_pool::{ItemsPool, ShuffledItems},
     items_spots::Spots,
-    spoiler_log::{Checkpoint, Sphere},
+    spoiler_log::{CheckpointRef, SphereRef},
 };
 
 #[derive(Clone)]
@@ -80,12 +80,12 @@ fn place_items<'a>(
     consumable_items_pool: &mut ShuffledItems<'a>,
     reachables: Spots<'a>,
     strategy_flags: &mut HashSet<StrategyFlag>,
-) -> Sphere<SpotRef<'a>, &'a Item> {
+) -> SphereRef<'a> {
     let mut sphere: Vec<_> = Default::default();
     reachables.field_item_spots.into_iter().for_each(|spot| {
         let item = field_items.pop().unwrap();
         strategy_flags.insert(item.name.clone());
-        sphere.push(Checkpoint { spot, idx: 0, item });
+        sphere.push(CheckpointRef { spot, idx: 0, item });
     });
     reachables.shops.into_iter().for_each(|shop| {
         let item = if shop.name.is_consumable() {
@@ -94,13 +94,13 @@ fn place_items<'a>(
             shop_items.pop().unwrap()
         };
         strategy_flags.insert(item.name.clone());
-        sphere.push(Checkpoint {
+        sphere.push(CheckpointRef {
             spot: SpotRef::Shop(shop.spot),
             idx: shop.idx,
             item,
         });
     });
-    Sphere(sphere)
+    SphereRef(sphere)
 }
 
 pub fn sphere<'a>(
@@ -108,7 +108,7 @@ pub fn sphere<'a>(
     items_pool: &mut ItemsPool<'a>,
     remaining_spots: &mut Spots<'a>,
     strategy_flags: &mut HashSet<StrategyFlag>,
-) -> Option<Sphere<SpotRef<'a>, &'a Item>> {
+) -> Option<SphereRef<'a>> {
     debug_assert_eq!(
         items_pool.priority_items.as_ref().map_or(0, |x| x.len())
             + items_pool.field_items.len()
