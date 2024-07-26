@@ -1,6 +1,6 @@
 chests:
   - crystalSkull:
-      - event:reachedFrontOfShrineOfTheMother, lifeSeal, event:mulanaTalisman
+      - event:reachedFrontOfShrineOfTheMother, event:mulanaTalisman, lifeSeal
   - sacredOrb:shrineOfTheMother:
       - event:reachedFrontOfShrineOfTheMother, originSeal, birthSeal, lifeSeal, deathSeal
   - diary:

@@ -6,7 +6,7 @@ subWeapons:
 chests:
   - contra:
       - event:reachedLiarOfGraveyardOfTheGiants
-      - event:reachedFrontOfTempleOfMoonlight, katana, keySword, knife, event:subWeaponWallForward
+      - event:reachedFrontOfTempleOfMoonlight, event:subWeaponWallForward, katana, keySword, knife
   - map:graveyardOfTheGiants:
       - event:reachedFrontOfGraveyardOfTheGiants, feather
       - event:reachedFrontOfGraveyardOfTheGiants, boots

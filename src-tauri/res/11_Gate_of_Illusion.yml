@@ -2,11 +2,11 @@ chests:
   - keyOfEternity:
       - event:reachedElevatorOfGateOfIllusion, event:miniDoll, event:escapeShu # need mini doll and a way to get out from Shu area
   - protectiveClothes:
-      - event:reachedElevatorOfGateOfIllusion, katana, divinerSensation, qBert, msx2 # need msx2 for diviner sensation
+      - event:reachedElevatorOfGateOfIllusion, katana, msx2, qBert, divinerSensation # need msx2 for diviner sensation
   - map:gateOfIllusion:
       - event:reachedFrontOfGateOfIllusion
   - cogOfTheSoul:
-      - event:reachedBackDoorOfGateOfIllusion, event:reachedElevatorOfGateOfIllusion, lampOfTime, event:escapeShu # need to kill Shu to open chest
+      - event:reachedBackDoorOfGateOfIllusion, event:reachedElevatorOfGateOfIllusion, event:escapeShu, lampOfTime # need to kill Shu to open chest
 shops:
   - f1Spirit, f1Spirit3d, weights:
       - event:reachedElevatorOfGateOfIllusion

@@ -1,6 +1,6 @@
 mainWeapons:
   - knife:
-      - shuriken
+      - shuriken, shurikenAmmo
       - pistol, ammunition # pistol can reach
       - bomb, bombAmmo # bombs can reach
 subWeapons:

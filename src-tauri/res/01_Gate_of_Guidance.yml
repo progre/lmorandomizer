@@ -6,7 +6,7 @@ chests:
       - event:pepper
   - sacredOrb:gateOfGuidance:
   - crucifix:
-      - flareGun, birthSeal
+      - flareGun, flareGunAmmo, birthSeal
   - map:gateOfGuidance:
   - gameMaster2:
       - event:reachedGrailOfGateOfIllusion, event:defeatedAmphisbaena, bronzeMirror

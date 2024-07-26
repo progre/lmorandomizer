@@ -1,6 +1,6 @@
 subWeapons:
   - pistol:
-      - event:reachedBackDoorOfSurface, bomb # TODO: bombAmmo も必要
+      - event:reachedBackDoorOfSurface, bomb, bombAmmo
 chests:
   - feather:
       - serpentStaff, gauntlet
@@ -12,7 +12,7 @@ chests:
       - serpentStaff, knife
       - serpentStaff, axe
       - serpentStaff, katana
-      - serpentStaff, castlevania, mahjongWizard, msx2 # need msx2 to equip rom combos
+      - serpentStaff, msx2, castlevania, mahjongWizard # need msx2 to equip rom combos
   - shellHorn:
   # skip birthSeal
   - sacredOrb:surface:
