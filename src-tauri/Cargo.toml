@@ -6,6 +6,10 @@ authors = ["you"]
 edition = "2021"
 
 [[bin]]
+name = "lmorandomizer"
+path = "src/main.rs"
+
+[[bin]]
 name = "lmocodec"
 path = "src/codec.rs"
 
