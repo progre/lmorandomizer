@@ -54,11 +54,17 @@ impl From<SpotName> for StrategyFlag {
     }
 }
 
+#[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd)]
+pub enum ChestItem {
+    Equipment(items::Equipment),
+    Rom(items::Rom),
+}
+
 #[derive(Clone, Debug)]
 pub enum ItemSource {
     MainWeapon(items::MainWeapon),
     SubWeapon((FieldId, items::SubWeapon)),
-    Chest(usize),
+    Chest((FieldId, ChestItem)),
     Seal(items::Seal),
     Shop(usize, usize),
     Rom(items::Rom),
@@ -79,8 +85,8 @@ impl Item {
         let src = ItemSource::SubWeapon((field_id, sub_weapon));
         Self { src, name }
     }
-    pub fn chest_item(src_idx: usize, name: StrategyFlag) -> Self {
-        let src = ItemSource::Chest(src_idx);
+    pub fn chest_item(name: StrategyFlag, field_id: FieldId, item: ChestItem) -> Self {
+        let src = ItemSource::Chest((field_id, item));
         Self { src, name }
     }
     pub fn seal(name: StrategyFlag, seal: items::Seal) -> Self {

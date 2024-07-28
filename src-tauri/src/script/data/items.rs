@@ -40,7 +40,15 @@ pub enum SubWeapon {
     Ammunition,
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, num_derive::FromPrimitive)]
+impl fmt::Display for SubWeapon {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{:?}", self)
+    }
+}
+
+#[derive(
+    Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd, num_derive::FromPrimitive, strum::EnumString,
+)]
 #[repr(u8)]
 pub enum Equipment {
     /// 0 MSX
@@ -165,7 +173,7 @@ pub enum Equipment {
     SweetClothing,
 }
 
-impl fmt::Display for SubWeapon {
+impl fmt::Display for Equipment {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{:?}", self)
     }

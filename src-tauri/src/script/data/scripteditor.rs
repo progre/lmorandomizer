@@ -1,15 +1,16 @@
 use crate::{
     dataset::{
+        self,
         spot::FieldId,
-        storage::{Shop, Storage, StorageIndices},
-        NIGHT_SURFACE_CHEST_COUNT, WARE_NO_MISE_COUNT,
+        storage::{Shop, Storage},
+        WARE_NO_MISE_COUNT,
     },
     script::data::shop_items_data::{self, ShopItem},
 };
 use anyhow::{anyhow, bail, Result};
 
 use super::{
-    item::{self, ChestItem, Item},
+    item::{ChestItem, Equipment, Item, Rom},
     items::{self, SubWeapon},
     object::{Object, Start, UnknownObject},
     objectfactory::{
@@ -126,37 +127,29 @@ fn new_objs(
     next_objs: &[Object],
     script: &Script,
     shuffled: &Storage,
-    indices: &mut StorageIndices,
 ) -> Result<Vec<Object>> {
     match obj {
         Object::Chest(chest_obj) => {
-            // Skip the empty and Sweet Clothing
-            if matches!(
-                chest_obj.item(),
+            let chest_item = match chest_obj.item() {
+                // Skip the empty or Sweet Clothing
                 ChestItem::None(_)
-                    | ChestItem::Equipment(item::Equipment {
-                        content: items::Equipment::SweetClothing,
-                        ..
-                    })
-            ) {
-                return Ok(vec![obj.clone()]);
-            }
-            // TODO: nightSurface
-            if indices.chest_idx >= shuffled.chests.len() {
-                let sum = shuffled.chests.len() + NIGHT_SURFACE_CHEST_COUNT;
-                debug_assert!(indices.chest_idx < sum);
-                indices.chest_idx += 1;
-                return Ok(vec![obj.clone()]);
-            }
-            // twinStatue
-            if chest_obj.open_flag() == 420 {
-                let item = &shuffled.chests[indices.chest_idx - 1].item;
-                let item = Item::from_dataset(item, script)?;
-                return Ok(to_objects_for_chest(chest_obj, item));
-            }
-            let item = &shuffled.chests[indices.chest_idx].item;
-            let item = Item::from_dataset(item, script)?;
-            indices.chest_idx += 1;
+                | ChestItem::Equipment(Equipment {
+                    content: items::Equipment::SweetClothing,
+                    ..
+                }) => {
+                    return Ok(vec![obj.clone()]);
+                }
+                ChestItem::Equipment(Equipment { content, .. }) => {
+                    dataset::item::ChestItem::Equipment(*content)
+                }
+                ChestItem::Rom(Rom { content, .. }) => dataset::item::ChestItem::Rom(*content),
+            };
+            let field_id = to_field_id(field_number)
+                .ok_or_else(|| anyhow!("field_id not found: {}", field_number))?;
+            let Some(chest) = shuffled.chests.get(&(field_id, chest_item)) else {
+                bail!("chest not found: {:?}", chest_obj.item())
+            };
+            let item = Item::from_dataset(&chest.item, script)?;
             Ok(to_objects_for_chest(chest_obj, item))
         }
         Object::SubWeapon(sub_weapon_obj) => {
@@ -259,8 +252,6 @@ fn new_objs(
 }
 
 pub fn replace_items(worlds: &mut [World], script: &Script, shuffled: &Storage) -> Result<()> {
-    let mut indices = StorageIndices::default();
-
     for world in worlds {
         for field in &mut world.fields {
             let field_number = field.number();
@@ -273,7 +264,6 @@ pub fn replace_items(worlds: &mut [World], script: &Script, shuffled: &Storage) 
                         &map.objects[i + 1..],
                         script,
                         shuffled,
-                        &mut indices,
                     )?);
                 }
                 map.objects = objects;

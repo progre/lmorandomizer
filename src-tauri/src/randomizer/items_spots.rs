@@ -25,7 +25,7 @@ impl<'a> Items<'a> {
     pub fn new(source: &'a Storage) -> Self {
         let (maps, chests) = source
             .chests
-            .iter()
+            .values()
             .partition::<Vec<_>, _>(|x| x.item.name.is_map());
         let maps: BTreeMap<FieldId, &Item> = maps
             .into_iter()
@@ -147,7 +147,7 @@ impl<'a> Spots<'a> {
                         .values()
                         .map(|x| SpotRef::SubWeapon(&x.spot)),
                 )
-                .chain(source.chests.iter().map(|x| SpotRef::Chest(&x.spot)))
+                .chain(source.chests.values().map(|x| SpotRef::Chest(&x.spot)))
                 .chain(source.seals.values().map(|x| SpotRef::Seal(&x.spot)))
                 .chain(source.roms.values().map(|x| SpotRef::Rom(&x.spot)))
                 .collect(),

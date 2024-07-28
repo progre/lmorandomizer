@@ -121,15 +121,41 @@ impl Item {
                 };
                 Self::SubWeapon(item.sub_weapon().clone())
             }
-            ItemSource::Chest(src_idx) => {
-                let Some(obj) = script.chests().nth(*src_idx) else {
-                    bail!("invalid chest index: {}", src_idx)
+            ItemSource::Chest((field_id, dataset::item::ChestItem::Equipment(equipment))) => {
+                let Some(item) = script
+                    .field(to_field_number(*field_id))
+                    .unwrap()
+                    .chests()
+                    .filter_map(|x| {
+                        if let ChestItem::Equipment(x) = x.item() {
+                            Some(x)
+                        } else {
+                            None
+                        }
+                    })
+                    .find(|x| x.content == *equipment)
+                else {
+                    bail!("equipment not found: {} {}", field_id, equipment)
                 };
-                match obj.item() {
-                    ChestItem::Equipment(content) => Self::Equipment(content.clone()),
-                    ChestItem::Rom(content) => Self::Rom(content.clone()),
-                    ChestItem::None(_) => unreachable!(),
-                }
+                Self::Equipment(item.clone())
+            }
+            ItemSource::Chest((field_id, dataset::item::ChestItem::Rom(rom))) => {
+                let Some(item) = script
+                    .field(to_field_number(*field_id))
+                    .unwrap()
+                    .chests()
+                    .filter_map(|x| {
+                        if let ChestItem::Rom(x) = x.item() {
+                            Some(x)
+                        } else {
+                            None
+                        }
+                    })
+                    .find(|x| x.content == *rom)
+                else {
+                    bail!("rom not found: {} {}", field_id, rom)
+                };
+                Self::Rom(item.clone())
             }
             ItemSource::Seal(seal) => {
                 let Some(obj) = script.seals().find(|x| x.seal().content == *seal) else {

@@ -2,16 +2,14 @@ subWeapons:
   ankhJewel:springInTheSky:
     - scalesphere
 chests:
-  - sacredOrb:springInTheSky:
-      - birthSeal # life seal is from the remake
-  - glove:
-      - event:floodedSpringInTheSky
-  - map:springInTheSky:
-      - event:basicSet
-  - scalesphere:
-      - event:SpringElevator, originSeal # new event allows more varied options for getting up
-  # skip originSeal
-  # skip ankhJewel
+  sacredOrb:springInTheSky:
+    - birthSeal # life seal is from the remake
+  glove:
+    - event:floodedSpringInTheSky
+  map:springInTheSky:
+    - event:basicSet
+  scalesphere:
+    - event:SpringElevator, originSeal # new event allows more varied options for getting up
 seals:
   originSeal:
     - event:SpringElevator, helmet

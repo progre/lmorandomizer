@@ -2,11 +2,11 @@ mainWeapons:
   keySword:
     - keyOfEternity
 chests:
-  - map:endlessCorridor:
-      - event:basicSet
-  - twinStatue:
-      - keyOfEternity, feather
-      - keyOfEternity, grappleClaw
+  map:endlessCorridor:
+    - event:basicSet
+  twinStatue:
+    - keyOfEternity, feather
+    - keyOfEternity, grappleClaw
 shops:
   - bombAmmo, toukenAmmo, weights:
       - lifeSeal

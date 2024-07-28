@@ -4,14 +4,14 @@ subWeapons:
   bomb:
     - event:reachedBackDoorOfGraveyardOfTheGiants
 chests:
-  - contra:
-      - event:reachedLiarOfGraveyardOfTheGiants
-      - event:reachedFrontOfTempleOfMoonlight, event:subWeaponWallForward, katana, keySword, knife
-  - map:graveyardOfTheGiants:
-      - event:reachedFrontOfGraveyardOfTheGiants, feather
-      - event:reachedFrontOfGraveyardOfTheGiants, boots
-  - gauntlet:
-      - event:reachedFrontOfGraveyardOfTheGiants, birthSeal, grappleClaw
+  contra:
+    - event:reachedLiarOfGraveyardOfTheGiants
+    - event:reachedFrontOfTempleOfMoonlight, event:subWeaponWallForward, katana, keySword, knife
+  map:graveyardOfTheGiants:
+    - event:reachedFrontOfGraveyardOfTheGiants, feather
+    - event:reachedFrontOfGraveyardOfTheGiants, boots
+  gauntlet:
+    - event:reachedFrontOfGraveyardOfTheGiants, birthSeal, grappleClaw
 shops:
   - spearAmmo, fakeSilverShield, weights:
       - event:reachedLiarOfGraveyardOfTheGiants # need to reach Liar shop not just front door

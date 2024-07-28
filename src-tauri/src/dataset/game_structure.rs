@@ -32,23 +32,23 @@ impl GameStructureFiles {
 #[serde(rename_all = "camelCase")]
 pub struct FieldYaml {
     #[serde(default)]
-    pub main_weapons: HashMap<String, Vec<String>>,
+    pub main_weapons: BTreeMap<String, Vec<String>>,
     #[serde(default)]
     pub sub_weapons: BTreeMap<String, Vec<String>>,
     #[serde(default)]
-    pub chests: Vec<HashMap<String, Vec<String>>>,
+    pub chests: BTreeMap<String, Vec<String>>,
     #[serde(default)]
-    pub seals: HashMap<String, Vec<String>>,
+    pub seals: BTreeMap<String, Vec<String>>,
     #[serde(default)]
     pub shops: Vec<HashMap<String, Vec<String>>>,
     #[serde(default)]
-    pub roms: HashMap<String, Vec<String>>,
+    pub roms: BTreeMap<String, Vec<String>>,
 }
 
 impl FieldYaml {
     fn new(raw_str: &str) -> Result<Self> {
         let zelf: Self = serde_yaml::from_str(raw_str)?;
-        if zelf.chests.iter().chain(&zelf.shops).any(|x| x.len() != 1) {
+        if zelf.shops.iter().any(|x| x.len() != 1) {
             bail!("invalid data format");
         }
         Ok(zelf)

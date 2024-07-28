@@ -2,7 +2,6 @@ subWeapons:
   ankhJewel:twinLabyrinths:
     - event:releasedTwins
 chests:
-  # skip fake ankhJewel
 shops:
   - scriptures, bombAmmo, spearAmmo:
       - event:releasedTwins, feather

@@ -43,6 +43,15 @@ impl Field {
         self.attrs.0
     }
 
+    pub fn chests(&self) -> impl Iterator<Item = &ChestObject> {
+        self.maps.iter().flat_map(|x| &x.objects).filter_map(|x| {
+            let Object::Chest(x) = x else {
+                return None;
+            };
+            Some(x)
+        })
+    }
+
     pub fn sub_weapons(&self) -> impl Iterator<Item = &SubWeaponObject> {
         self.maps.iter().flat_map(|x| &x.objects).filter_map(|x| {
             let Object::SubWeapon(x) = x else {

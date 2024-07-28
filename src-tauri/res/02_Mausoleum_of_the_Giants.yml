@@ -4,11 +4,10 @@ subWeapons:
   ankhJewel:mausoleumOfTheGiants:
     - event:basicSet
 chests:
-  - map:mausoleumOfTheGiants:
-      - event:basicSet
-  # skip ankhJewel
-  - sacredOrb:mausoleumOfTheGiants:
-      - event:basicSet
+  map:mausoleumOfTheGiants:
+    - event:basicSet
+  sacredOrb:mausoleumOfTheGiants:
+    - event:basicSet
 shops:
   - toukenAmmo, sealOfElGiza, weights:
       - event:basicSet

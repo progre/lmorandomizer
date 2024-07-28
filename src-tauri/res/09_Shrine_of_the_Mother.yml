@@ -1,13 +1,12 @@
 chests:
-  - crystalSkull:
-      - event:reachedFrontOfShrineOfTheMother, event:mulanaTalisman, lifeSeal
-  - sacredOrb:shrineOfTheMother:
-      - event:reachedFrontOfShrineOfTheMother, originSeal, birthSeal, lifeSeal, deathSeal
-  - diary:
-      - event:reachedFrontOfShrineOfTheMother, talisman, lifeSeal, lampOfTime, feather # need feather
-  - map:shrineOfTheMother:
-      - event:reachedMapSpotOfShrineOfTheMother
-  # skip deathSeal
+  crystalSkull:
+    - event:reachedFrontOfShrineOfTheMother, event:mulanaTalisman, lifeSeal
+  sacredOrb:shrineOfTheMother:
+    - event:reachedFrontOfShrineOfTheMother, originSeal, birthSeal, lifeSeal, deathSeal
+  diary:
+    - event:reachedFrontOfShrineOfTheMother, talisman, lifeSeal, lampOfTime, feather # need feather
+  map:shrineOfTheMother:
+    - event:reachedMapSpotOfShrineOfTheMother
 seals:
   deathSeal:
     - event:reachedDeathSealSpot

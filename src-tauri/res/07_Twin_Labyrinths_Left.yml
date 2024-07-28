@@ -2,12 +2,12 @@ mainWeapons:
   katana:
     - event:releasedTwins, flareGun, flareGunAmmo, knife
 chests:
-  - ring:
-      - event:releasedTwins
-  - map:twinLabyrinths:
-      - event:releasedTwins
-  - sacredOrb:twinLabyrinths:
-      - event:releasedTwins
+  ring:
+    - event:releasedTwins
+  map:twinLabyrinths:
+    - event:releasedTwins
+  sacredOrb:twinLabyrinths:
+    - event:releasedTwins
 shops:
   - helmet, bombAmmo, fakeHandScanner:
       - event:basicSet

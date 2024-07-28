@@ -10,7 +10,7 @@ use vec1::Vec1;
 use crate::{
     dataset::{
         game_structure::GameStructureFiles,
-        item::{Item, StrategyFlag},
+        item::{ChestItem, Item, StrategyFlag},
         spot::{
             AllRequirements, AnyOfAllRequirements, ChestSpot, FieldId, MainWeaponSpot,
             RequirementFlag, RomSpot, SealSpot, ShopSpot, SpotName, SubWeaponSpot,
@@ -35,21 +35,6 @@ fn to_any_of_all_requirements(requirements: Vec<String>) -> Result<Option<AnyOfA
         .collect::<Result<Vec<_>>>()?
         .try_into()?;
     Ok(Some(AnyOfAllRequirements(requirements)))
-}
-
-fn parse_game_structure<T>(
-    list: Vec<(FieldId, HashMap<String, Vec<String>>)>,
-    create: impl Fn(FieldId, usize, SpotName, Option<AnyOfAllRequirements>) -> T,
-) -> Result<Vec<T>> {
-    list.into_iter()
-        .enumerate()
-        .map(|(src_idx, (field_id, spot))| {
-            let (name, requirements) = spot.into_iter().next().unwrap();
-            let name = SpotName::new(name);
-            let requirements = to_any_of_all_requirements(requirements)?;
-            Ok(create(field_id, src_idx, name, requirements))
-        })
-        .collect::<Result<_>>()
 }
 
 fn parse_shop_requirements(
@@ -102,7 +87,7 @@ pub fn create_source(game_structure_files: GameStructureFiles) -> Result<Storage
 
     let mut main_weapons = BTreeMap::new();
     let mut sub_weapons = BTreeMap::new();
-    let mut chests = Vec::new();
+    let mut chests = BTreeMap::new();
     let mut seals = BTreeMap::new();
     let mut shops = Vec::new();
     let mut roms = BTreeMap::new();
@@ -127,8 +112,17 @@ pub fn create_source(game_structure_files: GameStructureFiles) -> Result<Storage
             }
             sub_weapons.insert((field_id, sub_weapon), SubWeapon { spot, item });
         }
-        for item in field_data.chests {
-            chests.push((field_id, item));
+        for (key, value) in field_data.chests {
+            let pascal_case = to_pascal_case(&key);
+            let pascal_case = pascal_case.split(":").next().unwrap();
+            let content = items::Equipment::from_str(pascal_case)
+                .map(ChestItem::Equipment)
+                .or_else(|_| items::Rom::from_str(pascal_case).map(ChestItem::Rom))?;
+            let name = SpotName::new(key.clone());
+            let any_of_all_requirements = to_any_of_all_requirements(value)?;
+            let spot = ChestSpot::new(field_id, content, name, any_of_all_requirements);
+            let item = Item::chest_item(StrategyFlag::new(key), field_id, content);
+            chests.insert((field_id, content), Chest { spot, item });
         }
         for (key, value) in field_data.seals {
             let seal = items::Seal::from_str(&to_pascal_case(&key.replace("Seal", "")))?;
@@ -162,10 +156,6 @@ pub fn create_source(game_structure_files: GameStructureFiles) -> Result<Storage
         }
     }
 
-    let chests = parse_game_structure(chests, |field_id, src_idx, name, requirements| Chest {
-        spot: ChestSpot::new(field_id, src_idx, name.clone(), requirements),
-        item: Item::chest_item(src_idx, name.into()),
-    })?;
     let shops = parse_shop_requirements(shops)?;
     let events = parse_event_requirements(game_structure_files.events.0)?;
     trace!("create_source parse: {:?}", start.elapsed());

@@ -5,12 +5,12 @@ subWeapons:
   flareGun:
     - glove # super boring puzzle without gloves
 chests:
-  - map:infernoCavern:
-      - event:basicSet
-  - grappleClaw:
-      - iceCape
-      - glove, sacredOrb:3 # TODO: test
-      - sacredOrb:5 # tested
+  map:infernoCavern:
+    - event:basicSet
+  grappleClaw:
+    - iceCape
+    - glove, sacredOrb:3 # TODO: test
+    - sacredOrb:5 # tested
 shops:
   - mahjongWizard, spearAmmo, toukenAmmo:
       - event:basicSet
