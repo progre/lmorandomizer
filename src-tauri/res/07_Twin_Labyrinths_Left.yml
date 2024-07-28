@@ -9,10 +9,10 @@ chests:
   sacredOrb:twinLabyrinths:
     - event:releasedTwins
 shops:
-  - helmet, bombAmmo, fakeHandScanner:
-      - event:basicSet
-  - lampOfTime, shurikenAmmo, toukenAmmo:
-      - event:releasedTwins, feather, boots # need feather and boots. puzzle is unsolvable so bombs not needed
+  helmet, bombAmmo, fakeHandScanner:
+    - event:basicSet
+  lampOfTime, shurikenAmmo, toukenAmmo:
+    - event:releasedTwins, feather, boots # need feather and boots. puzzle is unsolvable so bombs not needed
 roms:
   circusCharlie:
     - event:releasedTwins

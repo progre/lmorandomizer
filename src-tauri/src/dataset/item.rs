@@ -1,6 +1,6 @@
 use crate::script::data::items;
 
-use super::spot::{FieldId, RequirementFlag, SpotName, SpotRef};
+use super::spot::{ChestItem, FieldId, RequirementFlag, ShopItem, SpotName, SpotRef};
 
 #[derive(Clone, Debug, Hash, Eq, Ord, PartialEq, PartialOrd)]
 pub struct StrategyFlag(pub String);
@@ -54,19 +54,13 @@ impl From<SpotName> for StrategyFlag {
     }
 }
 
-#[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd)]
-pub enum ChestItem {
-    Equipment(items::Equipment),
-    Rom(items::Rom),
-}
-
 #[derive(Clone, Debug)]
 pub enum ItemSource {
     MainWeapon(items::MainWeapon),
     SubWeapon((FieldId, items::SubWeapon)),
     Chest((FieldId, ChestItem)),
     Seal(items::Seal),
-    Shop(usize, usize),
+    Shop((ShopItem, ShopItem, ShopItem), usize),
     Rom(items::Rom),
 }
 
@@ -77,27 +71,31 @@ pub struct Item {
 }
 
 impl Item {
-    pub fn main_weapon(name: StrategyFlag, main_weapon: items::MainWeapon) -> Self {
+    pub fn main_weapon(main_weapon: items::MainWeapon, name: StrategyFlag) -> Self {
         let src = ItemSource::MainWeapon(main_weapon);
         Self { src, name }
     }
-    pub fn sub_weapon(name: StrategyFlag, field_id: FieldId, sub_weapon: items::SubWeapon) -> Self {
+    pub fn sub_weapon(field_id: FieldId, sub_weapon: items::SubWeapon, name: StrategyFlag) -> Self {
         let src = ItemSource::SubWeapon((field_id, sub_weapon));
         Self { src, name }
     }
-    pub fn chest_item(name: StrategyFlag, field_id: FieldId, item: ChestItem) -> Self {
+    pub fn chest_item(field_id: FieldId, item: ChestItem, name: StrategyFlag) -> Self {
         let src = ItemSource::Chest((field_id, item));
         Self { src, name }
     }
-    pub fn seal(name: StrategyFlag, seal: items::Seal) -> Self {
+    pub fn seal(seal: items::Seal, name: StrategyFlag) -> Self {
         let src = ItemSource::Seal(seal);
         Self { src, name }
     }
-    pub fn shop_item(shop_idx: usize, item_idx: usize, name: StrategyFlag) -> Self {
-        let src = ItemSource::Shop(shop_idx, item_idx);
+    pub fn shop_item(
+        items: (ShopItem, ShopItem, ShopItem),
+        item_idx: usize,
+        name: StrategyFlag,
+    ) -> Self {
+        let src = ItemSource::Shop(items, item_idx);
         Self { src, name }
     }
-    pub fn rom(name: StrategyFlag, rom: items::Rom) -> Self {
+    pub fn rom(rom: items::Rom, name: StrategyFlag) -> Self {
         let src = ItemSource::Rom(rom);
         Self { src, name }
     }

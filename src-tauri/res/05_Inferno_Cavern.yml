@@ -12,8 +12,8 @@ chests:
     - glove, sacredOrb:3 # TODO: test
     - sacredOrb:5 # tested
 shops:
-  - mahjongWizard, spearAmmo, toukenAmmo:
-      - event:basicSet
+  mahjongWizard, spearAmmo, toukenAmmo:
+    - event:basicSet
 roms:
   antarcticAdventure:
     - event:basicSet

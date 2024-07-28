@@ -9,8 +9,8 @@ seals:
   lifeSeal:
     - event:lightedUpChamberOfExtinction, birthSeal, axe # need axe to open wall
 shops:
-  - spearAmmo, flareGunAmmo, bombAmmo:
-      - event:reachedPalenque
+  spearAmmo, flareGunAmmo, bombAmmo:
+    - event:reachedPalenque
 roms:
   timePilot:
     - event:lightedUpChamberOfExtinction

@@ -2,10 +2,7 @@ use std::fmt;
 
 use vec1::Vec1;
 
-use crate::{
-    dataset::item::ChestItem,
-    script::data::items::{MainWeapon, Rom, Seal, SubWeapon},
-};
+use crate::script::data::items::{self, MainWeapon, Rom, Seal, SubWeapon};
 
 use super::super::item::StrategyFlag;
 
@@ -38,7 +35,7 @@ impl fmt::Display for FieldId {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct SpotName(String);
 
 impl SpotName {
@@ -96,42 +93,14 @@ pub struct AllRequirements(pub Vec1<RequirementFlag>);
 pub struct AnyOfAllRequirements(pub Vec1<AllRequirements>);
 
 #[derive(Clone, Debug)]
-struct SpotParams {
-    field_id: FieldId,
-    src_idx: usize,
-    name: SpotName,
-    requirements: Option<AnyOfAllRequirements>,
-}
-
-impl SpotParams {
-    fn new(
-        field_id: FieldId,
-        src_idx: usize,
-        name: SpotName,
-        requirements: Option<AnyOfAllRequirements>,
-    ) -> Self {
-        Self {
-            field_id,
-            src_idx,
-            name,
-            requirements,
-        }
-    }
-
-    fn fmt(&self, f: &mut fmt::Formatter<'_>, type_name: &str) -> fmt::Result {
-        write!(f, "{}_{}({})", self.field_id, type_name, self.name.get())
-    }
-}
-
-#[derive(Clone, Debug)]
-struct SpotParams2<T> {
+struct SpotParams<T> {
     field_id: FieldId,
     content: T,
     name: SpotName,
     requirements: Option<AnyOfAllRequirements>,
 }
 
-impl<T> SpotParams2<T> {
+impl<T> SpotParams<T> {
     fn new(
         field_id: FieldId,
         content: T,
@@ -152,7 +121,7 @@ impl<T> SpotParams2<T> {
 }
 
 #[derive(Clone, Debug)]
-pub struct MainWeaponSpot(SpotParams2<MainWeapon>);
+pub struct MainWeaponSpot(SpotParams<MainWeapon>);
 
 impl MainWeaponSpot {
     pub fn new(
@@ -161,7 +130,7 @@ impl MainWeaponSpot {
         name: SpotName,
         requirements: Option<AnyOfAllRequirements>,
     ) -> Self {
-        Self(SpotParams2::new(field_id, content, name, requirements))
+        Self(SpotParams::new(field_id, content, name, requirements))
     }
 
     pub fn field_id(&self) -> FieldId {
@@ -182,7 +151,7 @@ impl fmt::Display for MainWeaponSpot {
 }
 
 #[derive(Clone, Debug)]
-pub struct SubWeaponSpot(SpotParams2<SubWeapon>);
+pub struct SubWeaponSpot(SpotParams<SubWeapon>);
 
 impl SubWeaponSpot {
     pub fn new(
@@ -191,7 +160,7 @@ impl SubWeaponSpot {
         name: SpotName,
         requirements: Option<AnyOfAllRequirements>,
     ) -> Self {
-        Self(SpotParams2::new(field_id, content, name, requirements))
+        Self(SpotParams::new(field_id, content, name, requirements))
     }
 
     pub fn field_id(&self) -> FieldId {
@@ -211,8 +180,14 @@ impl fmt::Display for SubWeaponSpot {
     }
 }
 
+#[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd)]
+pub enum ChestItem {
+    Equipment(items::Equipment),
+    Rom(items::Rom),
+}
+
 #[derive(Clone, Debug)]
-pub struct ChestSpot(SpotParams2<ChestItem>);
+pub struct ChestSpot(SpotParams<ChestItem>);
 
 impl ChestSpot {
     pub fn new(
@@ -221,7 +196,7 @@ impl ChestSpot {
         name: SpotName,
         requirements: Option<AnyOfAllRequirements>,
     ) -> Self {
-        Self(SpotParams2::new(field_id, content, name, requirements))
+        Self(SpotParams::new(field_id, content, name, requirements))
     }
 
     pub fn field_id(&self) -> FieldId {
@@ -242,7 +217,7 @@ impl fmt::Display for ChestSpot {
 }
 
 #[derive(Clone, Debug)]
-pub struct SealSpot(SpotParams2<Seal>);
+pub struct SealSpot(SpotParams<Seal>);
 
 impl SealSpot {
     pub fn new(
@@ -251,7 +226,7 @@ impl SealSpot {
         name: SpotName,
         requirements: Option<AnyOfAllRequirements>,
     ) -> Self {
-        Self(SpotParams2::new(field_id, content, name, requirements))
+        Self(SpotParams::new(field_id, content, name, requirements))
     }
 
     pub fn field_id(&self) -> FieldId {
@@ -271,28 +246,35 @@ impl fmt::Display for SealSpot {
     }
 }
 
+#[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd)]
+pub enum ShopItem {
+    Equipment(items::Equipment),
+    Rom(items::Rom),
+    SubWeapon(items::SubWeapon),
+}
+
 #[derive(Clone, Debug)]
-pub struct ShopSpot(SpotParams);
+pub struct ShopSpot(SpotParams<(ShopItem, ShopItem, ShopItem)>);
 
 impl ShopSpot {
     pub fn new(
         field_id: FieldId,
-        src_idx: usize,
-        name: SpotName,
+        content: (ShopItem, ShopItem, ShopItem),
+        spot_name: SpotName,
         requirements: Option<AnyOfAllRequirements>,
     ) -> Self {
         if cfg!(debug_assertions) {
-            let names: Vec<_> = name.0.split(',').map(|x| x.trim()).collect();
+            let names: Vec<_> = spot_name.0.split(',').map(|x| x.trim()).collect();
             debug_assert_eq!(names.len(), 3);
         }
-        Self(SpotParams::new(field_id, src_idx, name, requirements))
+        Self(SpotParams::new(field_id, content, spot_name, requirements))
     }
 
     pub fn field_id(&self) -> FieldId {
         self.0.field_id
     }
-    pub fn src_idx(&self) -> usize {
-        self.0.src_idx
+    pub fn items(&self) -> (ShopItem, ShopItem, ShopItem) {
+        self.0.content
     }
     pub fn requirements(&self) -> Option<&AnyOfAllRequirements> {
         self.0.requirements.as_ref()

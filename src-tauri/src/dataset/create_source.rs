@@ -1,5 +1,5 @@
 use std::{
-    collections::{BTreeMap, HashMap},
+    collections::{BTreeMap, BTreeSet, HashMap},
     str::FromStr,
 };
 
@@ -10,10 +10,10 @@ use vec1::Vec1;
 use crate::{
     dataset::{
         game_structure::GameStructureFiles,
-        item::{ChestItem, Item, StrategyFlag},
+        item::{Item, StrategyFlag},
         spot::{
-            AllRequirements, AnyOfAllRequirements, ChestSpot, FieldId, MainWeaponSpot,
-            RequirementFlag, RomSpot, SealSpot, ShopSpot, SpotName, SubWeaponSpot,
+            AllRequirements, AnyOfAllRequirements, ChestItem, ChestSpot, MainWeaponSpot,
+            RequirementFlag, RomSpot, SealSpot, ShopItem, ShopSpot, SpotName, SubWeaponSpot,
         },
         storage::{Chest, Event, MainWeapon, Rom, Seal, Shop, Storage, SubWeapon},
     },
@@ -35,30 +35,6 @@ fn to_any_of_all_requirements(requirements: Vec<String>) -> Result<Option<AnyOfA
         .collect::<Result<Vec<_>>>()?
         .try_into()?;
     Ok(Some(AnyOfAllRequirements(requirements)))
-}
-
-fn parse_shop_requirements(
-    items: Vec<(FieldId, HashMap<String, Vec<String>>)>,
-) -> Result<Vec<Shop>> {
-    items
-        .into_iter()
-        .enumerate()
-        .map(|(src_idx, (field_id, shop))| {
-            let (names, requirements) = shop.into_iter().next().unwrap();
-            let name = SpotName::new(names);
-            let requirements = to_any_of_all_requirements(requirements)?;
-            let spot = ShopSpot::new(field_id, src_idx, name.clone(), requirements);
-            let flags = spot.to_strategy_flags();
-            Ok(Shop {
-                spot,
-                items: (
-                    Item::shop_item(src_idx, 0, flags.0),
-                    Item::shop_item(src_idx, 1, flags.1),
-                    Item::shop_item(src_idx, 2, flags.2),
-                ),
-            })
-        })
-        .collect()
 }
 
 fn parse_event_requirements(items: Vec<HashMap<String, Vec<String>>>) -> Result<Vec<Event>> {
@@ -90,6 +66,7 @@ pub fn create_source(game_structure_files: GameStructureFiles) -> Result<Storage
     let mut chests = BTreeMap::new();
     let mut seals = BTreeMap::new();
     let mut shops = Vec::new();
+    let mut shop_set = BTreeSet::new();
     let mut roms = BTreeMap::new();
     for (field_id, field_data) in game_structure_files.fields {
         for (key, value) in field_data.main_weapons {
@@ -97,7 +74,7 @@ pub fn create_source(game_structure_files: GameStructureFiles) -> Result<Storage
             let name = SpotName::new(key.clone());
             let any_of_all_requirements = to_any_of_all_requirements(value)?;
             let spot = MainWeaponSpot::new(field_id, main_weapon, name, any_of_all_requirements);
-            let item = Item::main_weapon(StrategyFlag::new(key), main_weapon);
+            let item = Item::main_weapon(main_weapon, StrategyFlag::new(key));
             main_weapons.insert(main_weapon, MainWeapon { spot, item });
         }
         for (key, value) in field_data.sub_weapons {
@@ -106,7 +83,7 @@ pub fn create_source(game_structure_files: GameStructureFiles) -> Result<Storage
             let name = SpotName::new(key.clone());
             let any_of_all_requirements = to_any_of_all_requirements(value)?;
             let spot = SubWeaponSpot::new(field_id, sub_weapon, name, any_of_all_requirements);
-            let item = Item::sub_weapon(StrategyFlag::new(key), field_id, sub_weapon);
+            let item = Item::sub_weapon(field_id, sub_weapon, StrategyFlag::new(key));
             if sub_weapons.contains_key(&(field_id, sub_weapon)) {
                 bail!("duplicate sub weapon: {} {}", field_id, sub_weapon);
             }
@@ -121,7 +98,7 @@ pub fn create_source(game_structure_files: GameStructureFiles) -> Result<Storage
             let name = SpotName::new(key.clone());
             let any_of_all_requirements = to_any_of_all_requirements(value)?;
             let spot = ChestSpot::new(field_id, content, name, any_of_all_requirements);
-            let item = Item::chest_item(StrategyFlag::new(key), field_id, content);
+            let item = Item::chest_item(field_id, content, StrategyFlag::new(key));
             chests.insert((field_id, content), Chest { spot, item });
         }
         for (key, value) in field_data.seals {
@@ -129,11 +106,51 @@ pub fn create_source(game_structure_files: GameStructureFiles) -> Result<Storage
             let name = SpotName::new(key.clone());
             let any_of_all_requirements = to_any_of_all_requirements(value)?;
             let spot = SealSpot::new(field_id, seal, name, any_of_all_requirements);
-            let item = Item::seal(StrategyFlag::new(key), seal);
+            let item = Item::seal(seal, StrategyFlag::new(key));
             seals.insert(seal, Seal { spot, item });
         }
-        for item in field_data.shops {
-            shops.push((field_id, item));
+        for (key, value) in field_data.shops {
+            let items: Vec<_> = key
+                .split(',')
+                .map(|x| {
+                    let pascal_case = to_pascal_case(x.trim());
+                    let pascal_case = pascal_case
+                        .split(":")
+                        .next()
+                        .unwrap()
+                        .split("Ammo")
+                        .next()
+                        .unwrap();
+                    items::SubWeapon::from_str(pascal_case)
+                        .map(ShopItem::SubWeapon)
+                        .or_else(|_| {
+                            items::Equipment::from_str(pascal_case).map(ShopItem::Equipment)
+                        })
+                        .or_else(|_| items::Rom::from_str(pascal_case).map(ShopItem::Rom))
+                })
+                .collect::<Result<_, _>>()?;
+            let name = SpotName::new(key);
+            let any_of_all_requirements = to_any_of_all_requirements(value)?;
+            let mut items = items.into_iter();
+            let items = (
+                items.next().unwrap(),
+                items.next().unwrap(),
+                items.next().unwrap(),
+            );
+            let spot = ShopSpot::new(field_id, items, name.clone(), any_of_all_requirements);
+            let flags = spot.to_strategy_flags();
+            shops.push(Shop {
+                spot,
+                items: (
+                    Item::shop_item(items, 0, flags.0),
+                    Item::shop_item(items, 1, flags.1),
+                    Item::shop_item(items, 2, flags.2),
+                ),
+            });
+            if shop_set.contains(&items) {
+                bail!("duplicate shop: {:?}", items);
+            }
+            shop_set.insert(items);
         }
         for (key, value) in field_data.roms {
             let rom = items::Rom::from_str(&to_pascal_case(&key))?;
@@ -151,12 +168,11 @@ pub fn create_source(game_structure_files: GameStructureFiles) -> Result<Storage
                     AnyOfAllRequirements(Vec1::new(AllRequirements(Vec1::new(hand_scanner))))
                 });
             let spot = RomSpot::new(field_id, rom, name, any_of_all_requirements);
-            let item = Item::rom(StrategyFlag::new(key), rom);
+            let item = Item::rom(rom, StrategyFlag::new(key));
             roms.insert(rom, Rom { spot, item });
         }
     }
 
-    let shops = parse_shop_requirements(shops)?;
     let events = parse_event_requirements(game_structure_files.events.0)?;
     trace!("create_source parse: {:?}", start.elapsed());
 

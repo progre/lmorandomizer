@@ -1,8 +1,8 @@
 use std::fmt;
 
 use crate::dataset::{
-    item::{ChestItem, Item, StrategyFlag},
-    spot::{FieldId, SpotRef},
+    item::{Item, StrategyFlag},
+    spot::{ChestItem, FieldId, SpotRef},
     storage::{
         Chest, ChestRef, MainWeapon, MainWeaponRef, Rom, RomRef, Seal, SealRef, Shop, ShopRef,
         SubWeapon, SubWeaponRef,
@@ -149,7 +149,7 @@ impl fmt::Display for SpoilerLog {
                         (x.spot.field_id(), 3, number)
                     }
                     Checkpoint::Seal(x) => (x.spot.field_id(), 4, x.spot.seal() as usize),
-                    Checkpoint::Shop(x) => (x.spot.field_id(), 5, x.spot.src_idx()),
+                    Checkpoint::Shop(x) => (x.spot.field_id(), 5, 0),
                     Checkpoint::Rom(x) => (x.spot.field_id(), 6, 0),
                     Checkpoint::Event(_) => return 10000000,
                 };

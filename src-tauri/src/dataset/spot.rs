@@ -1,8 +1,8 @@
 mod internal;
 
 pub use internal::{
-    AllRequirements, AnyOfAllRequirements, ChestSpot, FieldId, MainWeaponSpot, RequirementFlag,
-    RomSpot, SealSpot, ShopSpot, SpotName, SubWeaponSpot,
+    AllRequirements, AnyOfAllRequirements, ChestItem, ChestSpot, FieldId, MainWeaponSpot,
+    RequirementFlag, RomSpot, SealSpot, ShopItem, ShopSpot, SpotName, SubWeaponSpot,
 };
 
 #[derive(Clone, Copy)]

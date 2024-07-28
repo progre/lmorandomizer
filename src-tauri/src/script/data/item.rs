@@ -1,6 +1,10 @@
 use anyhow::{bail, Result};
 
-use crate::dataset::{self, item::ItemSource, spot::FieldId};
+use crate::dataset::{
+    self,
+    item::ItemSource,
+    spot::{self, FieldId},
+};
 
 use super::{items, object::Shop, script::Script, shop_items_data::ShopItem};
 
@@ -121,7 +125,7 @@ impl Item {
                 };
                 Self::SubWeapon(item.sub_weapon().clone())
             }
-            ItemSource::Chest((field_id, dataset::item::ChestItem::Equipment(equipment))) => {
+            ItemSource::Chest((field_id, spot::ChestItem::Equipment(equipment))) => {
                 let Some(item) = script
                     .field(to_field_number(*field_id))
                     .unwrap()
@@ -139,7 +143,7 @@ impl Item {
                 };
                 Self::Equipment(item.clone())
             }
-            ItemSource::Chest((field_id, dataset::item::ChestItem::Rom(rom))) => {
+            ItemSource::Chest((field_id, spot::ChestItem::Rom(rom))) => {
                 let Some(item) = script
                     .field(to_field_number(*field_id))
                     .unwrap()
@@ -163,15 +167,21 @@ impl Item {
                 };
                 Self::Seal(obj.seal().clone())
             }
-            ItemSource::Shop(shop_idx, item_idx) => {
+            ItemSource::Shop(items, item_idx) => {
                 let Some(shop) = script
                     .shops()
                     .filter_map(|x| Shop::try_from_shop_object(x, &script.talks).transpose())
                     .collect::<Result<Vec<_>>>()?
                     .into_iter()
-                    .nth(*shop_idx)
+                    .find(|x| {
+                        [&x.items.0, &x.items.1, &x.items.2].map(|x| match x {
+                            ShopItem::SubWeapon(x) => spot::ShopItem::SubWeapon(x.item.content),
+                            ShopItem::Equipment(x) => spot::ShopItem::Equipment(x.item.content),
+                            ShopItem::Rom(x) => spot::ShopItem::Rom(x.item.content),
+                        }) == [items.0, items.1, items.2]
+                    })
                 else {
-                    bail!("invalid shop index: {}", shop_idx)
+                    bail!("invalid shop: {:?}", items)
                 };
                 let item = match *item_idx {
                     0 => shop.items.0,

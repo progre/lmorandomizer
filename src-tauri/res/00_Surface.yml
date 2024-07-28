@@ -23,9 +23,9 @@ seals:
     - originSeal, scalesphere
     - originSeal, holyGrail
 shops:
-  - gameMaster, glyphReader, ruinsRAM8k:
-  - handScanner, ammunition, buckler:
-  - msx2, waterproofCase, shurikenAmmo:
+  gameMaster, glyphReader, ruinsRam8K:
+  handScanner, ammunition, buckler:
+  msx2, waterproofCase, shurikenAmmo:
 roms:
   konamiPinball:
   metalGear:

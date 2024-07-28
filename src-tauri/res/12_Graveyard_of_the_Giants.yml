@@ -13,8 +13,8 @@ chests:
   gauntlet:
     - event:reachedFrontOfGraveyardOfTheGiants, birthSeal, grappleClaw
 shops:
-  - spearAmmo, fakeSilverShield, weights:
-      - event:reachedLiarOfGraveyardOfTheGiants # need to reach Liar shop not just front door
+  spearAmmo, fakeSilverShield, weights:
+    - event:reachedLiarOfGraveyardOfTheGiants # need to reach Liar shop not just front door
 roms:
   skyJaguar:
     - event:reachedFrontOfGraveyardOfTheGiants

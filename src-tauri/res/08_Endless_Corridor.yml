@@ -8,8 +8,8 @@ chests:
     - keyOfEternity, feather
     - keyOfEternity, grappleClaw
 shops:
-  - bombAmmo, toukenAmmo, weights:
-      - lifeSeal
+  bombAmmo, toukenAmmo, weights:
+    - lifeSeal
 roms:
   videoHustler:
     - event:basicSet

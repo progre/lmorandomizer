@@ -11,9 +11,9 @@ chests:
   sacredOrb:towerOfRuin:
     - event:reachedFrontOfTowerOfRuin
 shops:
-  - knightmare, bombAmmo, flareGunAmmo:
-      - event:reachedFrontOfTowerOfRuin, katana, feather
-      - event:reachedFrontOfTowerOfRuin, katana, boots, grappleClaw # can reach with boots and grapple claw
+  knightmare, bombAmmo, flareGunAmmo:
+    - event:reachedFrontOfTowerOfRuin, katana, feather
+    - event:reachedFrontOfTowerOfRuin, katana, boots, grappleClaw # can reach with boots and grapple claw
 roms:
   ruinsRam16K:
     - event:reachedGrailOfGateOfIllusion, event:miniDoll

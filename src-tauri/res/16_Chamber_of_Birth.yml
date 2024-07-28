@@ -12,8 +12,8 @@ chests:
   pochetteKey:
     - event:reachedLowerOfChamberOfBirth, bomb, bombAmmo, cogOfTheSoul
 shops:
-  - ammunition, ankhJewel:chamberOfBirth, weights:
-      - event:reachedLowerOfChamberOfBirth, cogOfTheSoul
+  ammunition, ankhJewel:chamberOfBirth, weights:
+    - event:reachedLowerOfChamberOfBirth, cogOfTheSoul
 roms:
   gr3:
     - event:reachedLowerOfChamberOfBirth

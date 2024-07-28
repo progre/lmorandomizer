@@ -9,8 +9,8 @@ chests:
   sacredOrb:mausoleumOfTheGiants:
     - event:basicSet
 shops:
-  - toukenAmmo, sealOfElGiza, weights:
-      - event:basicSet
+  toukenAmmo, sealOfElGiza, weights:
+    - event:basicSet
 roms:
   frogger:
   hyperOlympic2:

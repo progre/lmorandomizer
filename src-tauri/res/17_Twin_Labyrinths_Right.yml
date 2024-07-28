@@ -3,10 +3,10 @@ subWeapons:
     - event:releasedTwins
 chests:
 shops:
-  - scriptures, bombAmmo, spearAmmo:
-      - event:releasedTwins, feather
-  - dragonBone, spearAmmo, flareGunAmmo:
-      - fakeHandScanner
+  scriptures, bombAmmo, spearAmmo:
+    - event:releasedTwins, feather
+  dragonBone, spearAmmo, flareGunAmmo:
+    - fakeHandScanner
 roms:
   hyperSports2:
     - event:releasedTwins

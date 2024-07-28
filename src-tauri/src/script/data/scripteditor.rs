@@ -1,49 +1,63 @@
-use crate::{
-    dataset::{
-        self,
-        spot::FieldId,
-        storage::{Shop, Storage},
-        WARE_NO_MISE_COUNT,
-    },
-    script::data::shop_items_data::{self, ShopItem},
-};
 use anyhow::{anyhow, bail, Result};
+
+use crate::dataset::{
+    spot::{self, FieldId},
+    storage::{self, Storage},
+    WARE_NO_MISE_COUNT,
+};
 
 use super::{
     item::{ChestItem, Equipment, Item, Rom},
     items::{self, SubWeapon},
-    object::{Object, Start, UnknownObject},
+    object::{Object, Shop, Start, UnknownObject},
     objectfactory::{
         to_object_for_shutter, to_object_for_special_chest, to_objects_for_chest,
         to_objects_for_hand_scanner,
     },
     script::{Script, World},
+    shop_items_data::{self, ShopItem},
 };
+
+fn to_dataset_shop(
+    script_shop_items: &(ShopItem, ShopItem, ShopItem),
+) -> (spot::ShopItem, spot::ShopItem, spot::ShopItem) {
+    let items = [
+        &script_shop_items.0,
+        &script_shop_items.1,
+        &script_shop_items.2,
+    ]
+    .map(|y| match y {
+        ShopItem::Equipment(script) => spot::ShopItem::Equipment(script.item.content),
+        ShopItem::Rom(script) => spot::ShopItem::Rom(script.item.content),
+        ShopItem::SubWeapon(script) => spot::ShopItem::SubWeapon(script.item.content),
+    });
+    (items[0], items[1], items[2])
+}
 
 pub fn replace_shops(
     talks: &mut [String],
     script: &Script,
-    script_shop: &[super::object::Shop],
-    shops: &[Shop],
+    script_shops: &[Shop],
+    dataset_shops: &[storage::Shop],
 ) -> Result<()> {
-    assert_eq!(script_shop.len(), shops.len() + WARE_NO_MISE_COUNT);
-    for (i, shop_str) in talks.iter_mut().enumerate() {
-        let talk_number = u16::try_from(i)?;
-        let Some(idx) = script_shop
+    assert_eq!(script_shops.len(), dataset_shops.len() + WARE_NO_MISE_COUNT);
+    for dataset_shop in dataset_shops {
+        let Some(script_shop) = script_shops
             .iter()
-            .position(|x| x.talk_number == talk_number)
+            .find(|script_shop| to_dataset_shop(&script_shop.items) == dataset_shop.spot.items())
         else {
-            continue;
+            bail!("shop not found: {:?}", dataset_shop.spot.items())
         };
-        let Some(new_shop) = shops.get(idx) else {
-            continue;
+        let Some(talk) = talks.get_mut(script_shop.talk_number as usize) else {
+            bail!("script broken: talk_number={}", script_shop.talk_number)
         };
-        let old = shop_items_data::parse(shop_str)?;
+        let old = shop_items_data::parse(talk)?;
         let mut replaced = [old.0, old.1, old.2]
             .into_iter()
             .enumerate()
             .map(|(j, old_item)| {
-                let new_item = [&new_shop.items.0, &new_shop.items.1, &new_shop.items.2][j];
+                let items = &dataset_shop.items;
+                let new_item = [&items.0, &items.1, &items.2][j];
                 let is_consumable = new_item.name.is_consumable();
                 let new_item = Item::from_dataset(new_item, script)?;
                 let price = if is_consumable {
@@ -55,7 +69,7 @@ pub fn replace_shops(
             })
             .collect::<Result<Vec<_>>>()?
             .into_iter();
-        *shop_str = shop_items_data::stringify((
+        *talk = shop_items_data::stringify((
             replaced.next().unwrap(),
             replaced.next().unwrap(),
             replaced.next().unwrap(),
@@ -140,9 +154,9 @@ fn new_objs(
                     return Ok(vec![obj.clone()]);
                 }
                 ChestItem::Equipment(Equipment { content, .. }) => {
-                    dataset::item::ChestItem::Equipment(*content)
+                    spot::ChestItem::Equipment(*content)
                 }
-                ChestItem::Rom(Rom { content, .. }) => dataset::item::ChestItem::Rom(*content),
+                ChestItem::Rom(Rom { content, .. }) => spot::ChestItem::Rom(*content),
             };
             let field_id = to_field_id(field_number)
                 .ok_or_else(|| anyhow!("field_id not found: {}", field_number))?;

@@ -60,11 +60,16 @@ fn create_shuffled_storage(source: &Storage, spoiler_log: &SpoilerLogRef) -> Sto
                 let content = seal.spot.seal();
                 storage.seals.get_mut(&content).unwrap().item = seal.item.clone();
             }
-            CheckpointRef::Shop(checkpoint) => {
-                let items = &mut storage.shops[checkpoint.spot.src_idx()].items;
-                items.0 = checkpoint.items.0.clone();
-                items.1 = checkpoint.items.1.clone();
-                items.2 = checkpoint.items.2.clone();
+            CheckpointRef::Shop(shop) => {
+                let items = &mut storage
+                    .shops
+                    .iter_mut()
+                    .find(|x| x.spot.items() == shop.spot.items())
+                    .unwrap()
+                    .items;
+                items.0 = shop.items.0.clone();
+                items.1 = shop.items.1.clone();
+                items.2 = shop.items.2.clone();
             }
             CheckpointRef::Rom(rom) => {
                 let content = rom.spot.rom();
@@ -175,12 +180,12 @@ mod tests {
 
         let shuffled_str = format!("{:?}", shuffled);
         let shuffled_hash = hex::encode(sha3::Sha3_512::digest(shuffled_str));
-        const EXPECTED_SHUFFLED_HASH: &str = "c2bfdd27902e62e252a2028c54fe95a7e4e43b419d18155f4ca069d888799d12c1c45f2f8ba10ce42167b6bf3947b7524e5cd7e2b8bd820862b97ceec9e76164";
+        const EXPECTED_SHUFFLED_HASH: &str = "dc47f7bd3c4f29381138a84f1c93ec3082658a7615d84e43f793264981d013b842f61aa86f307e0a7ddcb8a9f96dfde160c3b0f8bba9cf11236d5154a0fa91a0";
         assert_eq!(shuffled_hash, EXPECTED_SHUFFLED_HASH);
 
         let spoiler_log_str = format!("{:?}", spoiler_log.to_owned());
         let spoiler_log_hash = hex::encode(sha3::Sha3_512::digest(spoiler_log_str));
-        const EXPECTED_SPOILER_LOG_HASH: &str = "f614db8089ccc0a6c13e58e8fd81200a6cae7ffc30b1a5732a4ea89cef2e21144586190e377218d21ed76d9992b9069be438612181a09c7f6cc60c77069c4ee3";
+        const EXPECTED_SPOILER_LOG_HASH: &str = "2786534e24dddc7e1d699107ac0d35044187bc3fb8f5a485a067c7cf9cc8b835ef6307e2e0c4905448aa853862d95a732f6b57f857d1dedafca4ad05def2e1bf";
         assert_eq!(spoiler_log_hash, EXPECTED_SPOILER_LOG_HASH);
 
         Ok(())

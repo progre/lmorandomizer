@@ -17,8 +17,8 @@ chests:
     - event:reachedFrontOfTempleOfMoonlight, feather
     - event:reachedFrontOfTempleOfMoonlight, grappleClaw
 shops:
-  - bracelet, shurikenAmmo, ammunition:
-      - event:reachedFrontOfTempleOfMoonlight, event:surviveAnubis, bomb, bombAmmo # survive anubis
+  bracelet, shurikenAmmo, ammunition:
+    - event:reachedFrontOfTempleOfMoonlight, event:surviveAnubis, bomb, bombAmmo # survive anubis
 roms:
   twinbee:
     - event:reachedFrontOfTempleOfMoonlight

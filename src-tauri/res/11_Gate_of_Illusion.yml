@@ -8,8 +8,8 @@ chests:
   cogOfTheSoul:
     - event:reachedBackDoorOfGateOfIllusion, event:reachedElevatorOfGateOfIllusion, event:escapeShu, lampOfTime # need to kill Shu to open chest
 shops:
-  - f1Spirit, f1Spirit3d, weights:
-      - event:reachedElevatorOfGateOfIllusion
+  f1Spirit, f1Spirit3D, weights:
+    - event:reachedElevatorOfGateOfIllusion
 roms:
   monkeyAcademy:
     - event:reachedElevatorOfGateOfIllusion

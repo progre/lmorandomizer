@@ -19,15 +19,15 @@ chests:
   sacredOrb:templeOfTheSun:
     - event:basicSet
 shops:
-  - toukenAmmo, spearAmmo, flareGunAmmo:
-      - shuriken, shurikenAmmo
-      - pistol, ammunition # pistol can reach
-      - bomb, bombAmmo # bombs can reach
-      - feather
-  - heatproofCase, divinerSensation, weights:
-      - event:basicSet
-  - ammunition, bombAmmo, shurikenAmmo:
-      - deathSeal, feather # need feather
+  toukenAmmo, spearAmmo, flareGunAmmo:
+    - shuriken, shurikenAmmo
+    - pistol, ammunition # pistol can reach
+    - bomb, bombAmmo # bombs can reach
+    - feather
+  heatproofCase, divinerSensation, weights:
+    - event:basicSet
+  ammunition, bombAmmo, shurikenAmmo:
+    - deathSeal, feather # need feather
 roms:
   superCobra:
     - event:basicSet

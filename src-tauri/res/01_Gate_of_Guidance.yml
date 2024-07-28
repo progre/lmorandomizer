@@ -12,8 +12,8 @@ chests:
     - event:reachedGrailOfGateOfIllusion, event:defeatedAmphisbaena, bronzeMirror
   holyGrail:
 shops:
-  - shurikenAmmo, finder, weights:
-      - originSeal
+  shurikenAmmo, finder, weights:
+    - originSeal
 roms:
   athleticLand:
   mahjongDojo:

@@ -6,10 +6,10 @@ use crate::script::data::items;
 
 use super::{
     assertions::ware_missing_requirements,
-    item::{ChestItem, Item, StrategyFlag},
+    item::{Item, StrategyFlag},
     spot::{
-        AnyOfAllRequirements, ChestSpot, FieldId, MainWeaponSpot, RomSpot, SealSpot, ShopSpot,
-        SubWeaponSpot,
+        AnyOfAllRequirements, ChestItem, ChestSpot, FieldId, MainWeaponSpot, RomSpot, SealSpot,
+        ShopSpot, SubWeaponSpot,
     },
 };
 

@@ -40,18 +40,14 @@ pub struct FieldYaml {
     #[serde(default)]
     pub seals: BTreeMap<String, Vec<String>>,
     #[serde(default)]
-    pub shops: Vec<HashMap<String, Vec<String>>>,
+    pub shops: BTreeMap<String, Vec<String>>,
     #[serde(default)]
     pub roms: BTreeMap<String, Vec<String>>,
 }
 
 impl FieldYaml {
-    fn new(raw_str: &str) -> Result<Self> {
-        let zelf: Self = serde_yaml::from_str(raw_str)?;
-        if zelf.shops.iter().any(|x| x.len() != 1) {
-            bail!("invalid data format");
-        }
-        Ok(zelf)
+    fn new(raw_str: &str) -> serde_yaml::Result<Self> {
+        serde_yaml::from_str(raw_str)
     }
 }
 
