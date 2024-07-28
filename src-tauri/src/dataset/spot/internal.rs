@@ -1,5 +1,7 @@
 use std::fmt;
 
+use vec1::Vec1;
+
 use crate::script::data::items::Rom;
 
 use super::super::item::StrategyFlag;
@@ -85,10 +87,10 @@ impl PartialEq<StrategyFlag> for RequirementFlag {
 }
 
 #[derive(Clone, Debug, PartialEq)]
-pub struct AllRequirements(pub Vec<RequirementFlag>);
+pub struct AllRequirements(pub Vec1<RequirementFlag>);
 
 #[derive(Clone, Debug, PartialEq)]
-pub struct AnyOfAllRequirements(pub Vec<AllRequirements>);
+pub struct AnyOfAllRequirements(pub Vec1<AllRequirements>);
 
 #[derive(Clone, Debug)]
 struct SpotParams {

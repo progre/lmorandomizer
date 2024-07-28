@@ -1784,6 +1784,7 @@ dependencies = [
  "tauri-plugin-shell",
  "tauri-plugin-store",
  "tokio",
+ "vec1",
 ]
 
 [[package]]
@@ -4235,6 +4236,12 @@ name = "value-bag"
 version = "1.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5a84c137d37ab0142f0f2ddfe332651fdbf252e7b7dbb4e67b6c1f1b2e925101"
+
+[[package]]
+name = "vec1"
+version = "1.12.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "eab68b56840f69efb0fefbe3ab6661499217ffdc58e2eef7c3f6f69835386322"
 
 [[package]]
 name = "version-compare"

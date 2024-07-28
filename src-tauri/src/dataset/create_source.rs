@@ -2,6 +2,7 @@ use std::collections::{BTreeMap, HashMap};
 
 use anyhow::Result;
 use log::trace;
+use vec1::Vec1;
 
 use crate::{
     dataset::{
@@ -16,69 +17,71 @@ use crate::{
     script::data::items,
 };
 
-fn to_any_of_all_requirements(requirements: Vec<String>) -> Option<AnyOfAllRequirements> {
+fn to_any_of_all_requirements(requirements: Vec<String>) -> Result<Option<AnyOfAllRequirements>> {
     if requirements.is_empty() {
-        None
-    } else {
-        let requirements = requirements
-            .into_iter()
-            .map(|y| {
-                y.split(',')
-                    .map(|z| RequirementFlag::new(z.trim().to_owned()))
-                    .collect()
-            })
-            .map(AllRequirements)
-            .collect();
-        Some(AnyOfAllRequirements(requirements))
+        return Ok(None);
     }
+    let requirements = requirements
+        .into_iter()
+        .map(|y| {
+            y.split(',')
+                .map(|z| RequirementFlag::new(z.trim().to_owned()))
+                .collect::<Vec<_>>()
+        })
+        .map(|x| Ok(AllRequirements(x.try_into()?)))
+        .collect::<Result<Vec<_>>>()?
+        .try_into()?;
+    Ok(Some(AnyOfAllRequirements(requirements)))
 }
 
 fn parse_game_structure<T>(
     list: Vec<(FieldId, HashMap<String, Vec<String>>)>,
     create: impl Fn(FieldId, usize, SpotName, Option<AnyOfAllRequirements>) -> T,
-) -> Vec<T> {
+) -> Result<Vec<T>> {
     list.into_iter()
         .enumerate()
         .map(|(src_idx, (field_id, spot))| {
             let (name, requirements) = spot.into_iter().next().unwrap();
             let name = SpotName::new(name);
-            let requirements = to_any_of_all_requirements(requirements);
-            create(field_id, src_idx, name, requirements)
+            let requirements = to_any_of_all_requirements(requirements)?;
+            Ok(create(field_id, src_idx, name, requirements))
         })
-        .collect()
+        .collect::<Result<_>>()
 }
 
-fn parse_shop_requirements(items: Vec<(FieldId, HashMap<String, Vec<String>>)>) -> Vec<Shop> {
+fn parse_shop_requirements(
+    items: Vec<(FieldId, HashMap<String, Vec<String>>)>,
+) -> Result<Vec<Shop>> {
     items
         .into_iter()
         .enumerate()
         .map(|(src_idx, (field_id, shop))| {
             let (names, requirements) = shop.into_iter().next().unwrap();
             let name = SpotName::new(names);
-            let requirements = to_any_of_all_requirements(requirements);
+            let requirements = to_any_of_all_requirements(requirements)?;
             let spot = ShopSpot::new(field_id, src_idx, name.clone(), requirements);
             let flags = spot.to_strategy_flags();
-            Shop {
+            Ok(Shop {
                 spot,
                 items: (
                     Item::shop_item(src_idx, 0, flags.0),
                     Item::shop_item(src_idx, 1, flags.1),
                     Item::shop_item(src_idx, 2, flags.2),
                 ),
-            }
+            })
         })
         .collect()
 }
 
-fn parse_event_requirements(items: Vec<HashMap<String, Vec<String>>>) -> Vec<Event> {
+fn parse_event_requirements(items: Vec<HashMap<String, Vec<String>>>) -> Result<Vec<Event>> {
     items
         .into_iter()
         .map(|x| {
             let (name, requirements) = x.into_iter().next().unwrap();
-            Event {
+            Ok(Event {
                 name: StrategyFlag(name),
-                requirements: to_any_of_all_requirements(requirements).unwrap(),
-            }
+                requirements: to_any_of_all_requirements(requirements)?.unwrap(),
+            })
         })
         .collect()
 }
@@ -109,27 +112,27 @@ pub fn create_source(game_structure_files: GameStructureFiles) -> Result<Storage
             shops.push((field_id, item));
         }
         for (key, value) in field_data.roms {
-            let mut any_of_all_requirements = to_any_of_all_requirements(value)
-                .unwrap_or_else(|| AnyOfAllRequirements(vec![AllRequirements(vec![])]));
-            for all_requirements in &mut any_of_all_requirements.0 {
-                all_requirements
-                    .0
-                    .push(RequirementFlag::new("handScanner".into()));
-            }
-            let name = StrategyFlag::new(key);
-            let rom = items::Rom::try_from_camel_case(name.get()).unwrap();
-            roms.insert(
+            let any_of_all_requirements = to_any_of_all_requirements(value)?
+                .map(|mut any_of_all_requirements| {
+                    for all_requirements in &mut any_of_all_requirements.0 {
+                        let hand_scanner = RequirementFlag::new("handScanner".into());
+                        all_requirements.0.push(hand_scanner);
+                    }
+                    any_of_all_requirements
+                })
+                .unwrap_or_else(|| {
+                    let hand_scanner = RequirementFlag::new("handScanner".into());
+                    AnyOfAllRequirements(Vec1::new(AllRequirements(Vec1::new(hand_scanner))))
+                });
+            let rom = items::Rom::try_from_camel_case(&key).unwrap();
+            let spot = RomSpot::new(
+                field_id,
                 rom,
-                Rom {
-                    spot: RomSpot::new(
-                        field_id,
-                        rom,
-                        SpotName::new(name.get().to_owned()),
-                        any_of_all_requirements,
-                    ),
-                    item: Item::rom(name, rom),
-                },
+                SpotName::new(key.clone()),
+                any_of_all_requirements,
             );
+            let item = Item::rom(StrategyFlag::new(key), rom);
+            roms.insert(rom, Rom { spot, item });
         }
     }
 
@@ -139,23 +142,24 @@ pub fn create_source(game_structure_files: GameStructureFiles) -> Result<Storage
                 spot: MainWeaponSpot::new(field_id, src_idx, name.clone(), requirements),
                 item: Item::main_weapon(src_idx, name.into()),
             }
-        });
-    let sub_weapons = parse_game_structure(sub_weapons, |field_id, src_idx, name, requirements| {
-        SubWeapon {
-            spot: SubWeaponSpot::new(field_id, src_idx, name.clone(), requirements),
-            item: Item::sub_weapon(src_idx, name.into()),
-        }
-    });
+        })?;
+    let sub_weapons =
+        parse_game_structure(sub_weapons, |field_id, src_idx, name, requirements| {
+            SubWeapon {
+                spot: SubWeaponSpot::new(field_id, src_idx, name.clone(), requirements),
+                item: Item::sub_weapon(src_idx, name.into()),
+            }
+        })?;
     let chests = parse_game_structure(chests, |field_id, src_idx, name, requirements| Chest {
         spot: ChestSpot::new(field_id, src_idx, name.clone(), requirements),
         item: Item::chest_item(src_idx, name.into()),
-    });
+    })?;
     let seals = parse_game_structure(seals, |field_id, src_idx, name, requirements| Seal {
         spot: SealSpot::new(field_id, src_idx, name.clone(), requirements),
         item: Item::seal(src_idx, name.into()),
-    });
-    let shops = parse_shop_requirements(shops);
-    let events = parse_event_requirements(game_structure_files.events.0);
+    })?;
+    let shops = parse_shop_requirements(shops)?;
+    let events = parse_event_requirements(game_structure_files.events.0)?;
     trace!("create_source parse: {:?}", start.elapsed());
 
     let start = std::time::Instant::now();
