@@ -1,5 +1,5 @@
 use std::{
-    collections::{BTreeMap, BTreeSet, HashMap},
+    collections::{BTreeMap, BTreeSet},
     str::FromStr,
 };
 
@@ -37,11 +37,10 @@ fn to_any_of_all_requirements(requirements: Vec<String>) -> Result<Option<AnyOfA
     Ok(Some(AnyOfAllRequirements(requirements)))
 }
 
-fn parse_event_requirements(items: Vec<HashMap<String, Vec<String>>>) -> Result<Vec<Event>> {
+fn parse_event_requirements(items: BTreeMap<String, Vec<String>>) -> Result<Vec<Event>> {
     items
         .into_iter()
-        .map(|x| {
-            let (name, requirements) = x.into_iter().next().unwrap();
+        .map(|(name, requirements)| {
             Ok(Event {
                 name: StrategyFlag(name),
                 requirements: to_any_of_all_requirements(requirements)?.unwrap(),

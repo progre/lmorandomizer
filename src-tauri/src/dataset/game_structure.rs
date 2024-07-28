@@ -1,6 +1,6 @@
-use std::collections::{BTreeMap, HashMap};
+use std::collections::BTreeMap;
 
-use anyhow::{bail, Result};
+use anyhow::Result;
 use num_traits::FromPrimitive;
 
 use super::spot::FieldId;
@@ -52,22 +52,10 @@ impl FieldYaml {
 }
 
 #[derive(serde::Deserialize)]
-pub struct EventsYaml(pub Vec<HashMap<String, Vec<String>>>);
+pub struct EventsYaml(pub BTreeMap<String, Vec<String>>);
 
 impl EventsYaml {
-    fn new(raw_str: &str) -> Result<Self> {
-        let zelf: Self = serde_yaml::from_str(raw_str)?;
-        if zelf.0.iter().any(|x| x.len() != 1) {
-            bail!("invalid data format");
-        }
-        if zelf
-            .0
-            .iter()
-            .flat_map(|x| x.values())
-            .any(|requirements| requirements.is_empty())
-        {
-            bail!("invalid data format");
-        }
-        Ok(zelf)
+    fn new(raw_str: &str) -> serde_yaml::Result<Self> {
+        serde_yaml::from_str(raw_str)
     }
 }
