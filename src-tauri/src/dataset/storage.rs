@@ -14,7 +14,6 @@ use super::{
 
 #[derive(Default)]
 pub struct StorageIndices {
-    pub main_weapon_spot_idx: usize,
     pub sub_weapon_spot_idx: usize,
     pub chest_idx: usize,
 }
@@ -101,7 +100,7 @@ pub struct Event {
 
 #[derive(Clone, Debug)]
 pub struct Storage {
-    pub main_weapons: Vec<MainWeapon>,
+    pub main_weapons: BTreeMap<items::MainWeapon, MainWeapon>,
     pub sub_weapons: Vec<SubWeapon>,
     pub chests: Vec<Chest>,
     pub seals: BTreeMap<items::Seal, Seal>,
@@ -112,7 +111,7 @@ pub struct Storage {
 
 impl Storage {
     pub fn new(
-        main_weapons: Vec<MainWeapon>,
+        main_weapons: BTreeMap<items::MainWeapon, MainWeapon>,
         sub_weapons: Vec<SubWeapon>,
         chests: Vec<Chest>,
         seals: BTreeMap<items::Seal, Seal>,
@@ -137,7 +136,7 @@ impl Storage {
 
     pub fn all_items(&self) -> impl Iterator<Item = &Item> {
         self.main_weapons
-            .iter()
+            .values()
             .map(|x| &x.item)
             .chain(self.sub_weapons.iter().map(|x| &x.item))
             .chain(self.chests.iter().map(|x| &x.item))

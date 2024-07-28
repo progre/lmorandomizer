@@ -1,6 +1,6 @@
 mainWeapons:
-  - chainWhip:
-      - birthSeal, grappleClaw
+  chainWhip:
+    - birthSeal, grappleClaw
 subWeapons:
   - flareGun:
       - glove # super boring puzzle without gloves

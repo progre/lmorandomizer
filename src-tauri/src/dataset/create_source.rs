@@ -100,15 +100,20 @@ fn to_pascal_case(camel_case: &str) -> String {
 pub fn create_source(game_structure_files: GameStructureFiles) -> Result<Storage> {
     let start = std::time::Instant::now();
 
-    let mut main_weapons = Vec::new();
+    let mut main_weapons = BTreeMap::new();
     let mut sub_weapons = Vec::new();
     let mut chests = Vec::new();
     let mut seals = BTreeMap::new();
     let mut shops = Vec::new();
     let mut roms = BTreeMap::new();
     for (field_id, field_data) in game_structure_files.fields {
-        for item in field_data.main_weapons {
-            main_weapons.push((field_id, item));
+        for (key, value) in field_data.main_weapons {
+            let main_weapon = items::MainWeapon::from_str(&to_pascal_case(&key))?;
+            let name = SpotName::new(key.clone());
+            let any_of_all_requirements = to_any_of_all_requirements(value)?;
+            let spot = MainWeaponSpot::new(field_id, main_weapon, name, any_of_all_requirements);
+            let item = Item::main_weapon(StrategyFlag::new(key), main_weapon);
+            main_weapons.insert(main_weapon, MainWeapon { spot, item });
         }
         for item in field_data.sub_weapons {
             sub_weapons.push((field_id, item));
@@ -117,14 +122,10 @@ pub fn create_source(game_structure_files: GameStructureFiles) -> Result<Storage
             chests.push((field_id, item));
         }
         for (key, value) in field_data.seals {
+            let seal = items::Seal::from_str(&to_pascal_case(&key.replace("Seal", "")))?;
+            let name = SpotName::new(key.clone());
             let any_of_all_requirements = to_any_of_all_requirements(value)?;
-            let seal = items::Seal::from_str(&to_pascal_case(&key.replace("Seal", ""))).unwrap();
-            let spot = SealSpot::new(
-                field_id,
-                seal,
-                SpotName::new(key.clone()),
-                any_of_all_requirements,
-            );
+            let spot = SealSpot::new(field_id, seal, name, any_of_all_requirements);
             let item = Item::seal(StrategyFlag::new(key), seal);
             seals.insert(seal, Seal { spot, item });
         }
@@ -132,6 +133,8 @@ pub fn create_source(game_structure_files: GameStructureFiles) -> Result<Storage
             shops.push((field_id, item));
         }
         for (key, value) in field_data.roms {
+            let rom = items::Rom::from_str(&to_pascal_case(&key))?;
+            let name = SpotName::new(key.clone());
             let any_of_all_requirements = to_any_of_all_requirements(value)?
                 .map(|mut any_of_all_requirements| {
                     for all_requirements in &mut any_of_all_requirements.0 {
@@ -144,25 +147,12 @@ pub fn create_source(game_structure_files: GameStructureFiles) -> Result<Storage
                     let hand_scanner = RequirementFlag::new("handScanner".into());
                     AnyOfAllRequirements(Vec1::new(AllRequirements(Vec1::new(hand_scanner))))
                 });
-            let rom = items::Rom::from_str(&to_pascal_case(&key))?;
-            let spot = RomSpot::new(
-                field_id,
-                rom,
-                SpotName::new(key.clone()),
-                any_of_all_requirements,
-            );
+            let spot = RomSpot::new(field_id, rom, name, any_of_all_requirements);
             let item = Item::rom(StrategyFlag::new(key), rom);
             roms.insert(rom, Rom { spot, item });
         }
     }
 
-    let main_weapons =
-        parse_game_structure(main_weapons, |field_id, src_idx, name, requirements| {
-            MainWeapon {
-                spot: MainWeaponSpot::new(field_id, src_idx, name.clone(), requirements),
-                item: Item::main_weapon(src_idx, name.into()),
-            }
-        })?;
     let sub_weapons =
         parse_game_structure(sub_weapons, |field_id, src_idx, name, requirements| {
             SubWeapon {

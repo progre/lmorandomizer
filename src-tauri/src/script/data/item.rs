@@ -77,9 +77,12 @@ impl Item {
 
     pub fn from_dataset(item: &dataset::item::Item, script: &Script) -> Result<Self> {
         Ok(match &item.src {
-            ItemSource::MainWeapon(src_idx) => {
-                let Some(item) = script.main_weapons().nth(*src_idx) else {
-                    bail!("invalid main weapon index: {}", src_idx)
+            ItemSource::MainWeapon(main_weapon) => {
+                let Some(item) = script
+                    .main_weapons()
+                    .find(|x| x.main_weapon().content == *main_weapon)
+                else {
+                    bail!("invalid main weapon: {}", main_weapon)
                 };
                 Self::MainWeapon(item.main_weapon().clone())
             }

@@ -1,6 +1,6 @@
 mainWeapons:
-  - keySword:
-      - keyOfEternity
+  keySword:
+    - keyOfEternity
 chests:
   - map:endlessCorridor:
       - event:basicSet

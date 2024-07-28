@@ -176,10 +176,15 @@ fn new_objs(
             let item = Item::from_dataset(&seal.item, script)?;
             Ok(vec![to_object_for_special_chest(obj, item)])
         }
-        Object::MainWeapon(_) => {
-            let item = &shuffled.main_weapons[indices.main_weapon_spot_idx].item;
-            let item = Item::from_dataset(item, script)?;
-            indices.main_weapon_spot_idx += 1;
+        Object::MainWeapon(main_weapon_obj) => {
+            let Some(main_weapon) = &shuffled
+                .main_weapons
+                .get(&main_weapon_obj.main_weapon().content)
+            else {
+                let content = main_weapon_obj.main_weapon().content;
+                bail!("main_weapon not found: {}", content)
+            };
+            let item = Item::from_dataset(&main_weapon.item, script)?;
             let open_flag = get_next_shutter_check_flag(next_objs)?
                 .ok_or(anyhow!("next_shutter_check_flag not found"))?;
             Ok(vec![to_object_for_shutter(obj, open_flag, item)])

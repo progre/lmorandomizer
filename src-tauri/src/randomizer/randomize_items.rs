@@ -44,8 +44,9 @@ fn create_shuffled_storage(source: &Storage, spoiler_log: &SpoilerLogRef) -> Sto
         .chain(&spoiler_log.maps)
     {
         match checkpoint {
-            CheckpointRef::MainWeapon(checkpoint) => {
-                storage.main_weapons[checkpoint.spot.src_idx()].item = checkpoint.item.clone();
+            CheckpointRef::MainWeapon(main_weapon) => {
+                let content = main_weapon.spot.main_weapon();
+                storage.main_weapons.get_mut(&content).unwrap().item = main_weapon.item.clone();
             }
             CheckpointRef::SubWeapon(checkpoint) => {
                 storage.sub_weapons[checkpoint.spot.src_idx()].item = checkpoint.item.clone();
@@ -53,9 +54,9 @@ fn create_shuffled_storage(source: &Storage, spoiler_log: &SpoilerLogRef) -> Sto
             CheckpointRef::Chest(checkpoint) => {
                 storage.chests[checkpoint.spot.src_idx()].item = checkpoint.item.clone();
             }
-            CheckpointRef::Seal(checkpoint) => {
-                storage.seals.get_mut(&checkpoint.spot.seal()).unwrap().item =
-                    checkpoint.item.clone();
+            CheckpointRef::Seal(seal) => {
+                let content = seal.spot.seal();
+                storage.seals.get_mut(&content).unwrap().item = seal.item.clone();
             }
             CheckpointRef::Shop(checkpoint) => {
                 let items = &mut storage.shops[checkpoint.spot.src_idx()].items;
@@ -63,9 +64,9 @@ fn create_shuffled_storage(source: &Storage, spoiler_log: &SpoilerLogRef) -> Sto
                 items.1 = checkpoint.items.1.clone();
                 items.2 = checkpoint.items.2.clone();
             }
-            CheckpointRef::Rom(checkpoint) => {
-                storage.roms.get_mut(&checkpoint.spot.rom()).unwrap().item =
-                    checkpoint.item.clone();
+            CheckpointRef::Rom(rom) => {
+                let content = rom.spot.rom();
+                storage.roms.get_mut(&content).unwrap().item = rom.item.clone();
             }
             CheckpointRef::Event(_) => {}
         }
@@ -128,7 +129,7 @@ fn assert_unique(storage: &Storage) {
 
     storage
         .main_weapons
-        .iter()
+        .values()
         .map(|x| ("weapon", &x.item))
         .chain(storage.sub_weapons.iter().map(|x| ("weapon", &x.item)))
         .chain(storage.chests.iter().map(|x| ("chest", &x.item)))
@@ -172,12 +173,12 @@ mod tests {
 
         let shuffled_str = format!("{:?}", shuffled);
         let shuffled_hash = hex::encode(sha3::Sha3_512::digest(shuffled_str));
-        const EXPECTED_SHUFFLED_HASH: &str = "ba38a645d194aa12a8ee75417a73963e7f4133fe6ca83e295a139c2ed24969598ddeb49788c1dd6fc832889a77c8dd5ac74a83cbc666640982afea6d0fede41a";
+        const EXPECTED_SHUFFLED_HASH: &str = "8741f303719150fa27100783624ecdd422c3e98f0eeb4a9e5fb1d1081ccab4388d1ad526b226aa46fd00fcc25c36e1dcaeb2fc14a2bbd49288ad8bba4f80aa2f";
         assert_eq!(shuffled_hash, EXPECTED_SHUFFLED_HASH);
 
         let spoiler_log_str = format!("{:?}", spoiler_log.to_owned());
         let spoiler_log_hash = hex::encode(sha3::Sha3_512::digest(spoiler_log_str));
-        const EXPECTED_SPOILER_LOG_HASH: &str = "07dc5179edaa39a129d6a4657f9a01e3609ccddbc6d601fe6512b375d914ffc3da5bdc2d6c92644b758e696fcb2da337519a56375358624dbceecad769979add";
+        const EXPECTED_SPOILER_LOG_HASH: &str = "52153a95c298e95819e29a52d41fb73db1fff60c82cd46b78f38c78858478398d175bd478d9b7dfa903f25a8ae498a04a44586f1245d752834d7ce81c8025e2c";
         assert_eq!(spoiler_log_hash, EXPECTED_SPOILER_LOG_HASH);
 
         Ok(())

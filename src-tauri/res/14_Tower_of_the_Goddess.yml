@@ -1,6 +1,6 @@
 mainWeapons:
-  - mace:
-      - event:reachedTowerOfTheGoddess
+  mace:
+    - event:reachedTowerOfTheGoddess
 chests:
   - a1Spirit:
       - event:reachedTowerOfTheGoddess, planeModel, pistol, ammunition

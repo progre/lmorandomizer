@@ -1,6 +1,8 @@
 use std::fmt;
 
-#[derive(Clone, Copy, num_derive::FromPrimitive)]
+#[derive(
+    Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd, num_derive::FromPrimitive, strum::EnumString,
+)]
 #[repr(u8)]
 pub enum MainWeapon {
     Whip,
@@ -10,6 +12,12 @@ pub enum MainWeapon {
     KeySword,
     Axe,
     Katana,
+}
+
+impl fmt::Display for MainWeapon {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{:?}", self)
+    }
 }
 
 #[derive(Clone, Copy, PartialEq, num_derive::FromPrimitive)]

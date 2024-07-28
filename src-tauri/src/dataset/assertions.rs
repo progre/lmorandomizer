@@ -29,7 +29,7 @@ pub fn ware_missing_requirements(storage: &Storage) -> anyhow::Result<()> {
     let mut set = HashSet::new();
     let iter = storage
         .main_weapons
-        .iter()
+        .values()
         .map(|x| x.spot.requirements())
         .chain(storage.sub_weapons.iter().map(|x| x.spot.requirements()))
         .chain(storage.chests.iter().map(|x| x.spot.requirements()))

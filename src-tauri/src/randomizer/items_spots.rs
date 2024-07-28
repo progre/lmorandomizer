@@ -34,7 +34,7 @@ impl<'a> Items<'a> {
 
         let items = source
             .main_weapons
-            .iter()
+            .values()
             .map(|x| &x.item)
             .chain(source.sub_weapons.iter().map(|x| &x.item))
             .chain(chests.iter().map(|x| &x.item))
@@ -139,7 +139,7 @@ impl<'a> Spots<'a> {
         Self {
             field_item_spots: source
                 .main_weapons
-                .iter()
+                .values()
                 .map(|x| SpotRef::MainWeapon(&x.spot))
                 .chain(
                     source

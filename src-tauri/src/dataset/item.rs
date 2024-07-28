@@ -56,7 +56,7 @@ impl From<SpotName> for StrategyFlag {
 
 #[derive(Clone, Debug)]
 pub enum ItemSource {
-    MainWeapon(usize),
+    MainWeapon(items::MainWeapon),
     SubWeapon(usize),
     Chest(usize),
     Seal(items::Seal),
@@ -71,8 +71,8 @@ pub struct Item {
 }
 
 impl Item {
-    pub fn main_weapon(src_idx: usize, name: StrategyFlag) -> Self {
-        let src = ItemSource::MainWeapon(src_idx);
+    pub fn main_weapon(name: StrategyFlag, main_weapon: items::MainWeapon) -> Self {
+        let src = ItemSource::MainWeapon(main_weapon);
         Self { src, name }
     }
     pub fn sub_weapon(src_idx: usize, name: StrategyFlag) -> Self {

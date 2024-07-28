@@ -1,8 +1,8 @@
 mainWeapons:
-  - knife:
-      - shuriken, shurikenAmmo
-      - pistol, ammunition # pistol can reach
-      - bomb, bombAmmo # bombs can reach
+  knife:
+    - shuriken, shurikenAmmo
+    - pistol, ammunition # pistol can reach
+    - bomb, bombAmmo # bombs can reach
 subWeapons:
   - ankhJewel:templeOfTheSun:
       - event:basicSet

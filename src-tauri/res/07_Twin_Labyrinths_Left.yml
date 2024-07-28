@@ -1,6 +1,6 @@
 mainWeapons:
-  - katana:
-      - event:releasedTwins, flareGun, flareGunAmmo, knife
+  katana:
+    - event:releasedTwins, flareGun, flareGunAmmo, knife
 subWeapons:
   - ankhJewel:twinLabyrinths:
       - event:releasedTwins

@@ -1,6 +1,6 @@
 mainWeapons:
-  - axe:
-      - event:reachedFrontOfTempleOfMoonlight, shuriken, shurikenAmmo, knife, boots
+  axe:
+    - event:reachedFrontOfTempleOfMoonlight, shuriken, shurikenAmmo, knife, boots
 chests:
   - bookOfTheDead:
       - event:reachedFrontOfTempleOfMoonlight, event:surviveAnubis, birthSeal, feather # need a way out and survive anubis

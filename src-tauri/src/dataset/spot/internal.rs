@@ -2,7 +2,7 @@ use std::fmt;
 
 use vec1::Vec1;
 
-use crate::script::data::items::{Rom, Seal};
+use crate::script::data::items::{MainWeapon, Rom, Seal};
 
 use super::super::item::StrategyFlag;
 
@@ -121,23 +121,51 @@ impl SpotParams {
 }
 
 #[derive(Clone, Debug)]
-pub struct MainWeaponSpot(SpotParams);
+struct SpotParams2<T> {
+    field_id: FieldId,
+    content: T,
+    name: SpotName,
+    requirements: Option<AnyOfAllRequirements>,
+}
+
+impl<T> SpotParams2<T> {
+    fn new(
+        field_id: FieldId,
+        content: T,
+        name: SpotName,
+        requirements: Option<AnyOfAllRequirements>,
+    ) -> Self {
+        Self {
+            field_id,
+            content,
+            name,
+            requirements,
+        }
+    }
+
+    fn fmt(&self, f: &mut fmt::Formatter<'_>, type_name: &str) -> fmt::Result {
+        write!(f, "{}_{}({})", self.field_id, type_name, self.name.get())
+    }
+}
+
+#[derive(Clone, Debug)]
+pub struct MainWeaponSpot(SpotParams2<MainWeapon>);
 
 impl MainWeaponSpot {
     pub fn new(
         field_id: FieldId,
-        src_idx: usize,
+        content: MainWeapon,
         name: SpotName,
         requirements: Option<AnyOfAllRequirements>,
     ) -> Self {
-        Self(SpotParams::new(field_id, src_idx, name, requirements))
+        Self(SpotParams2::new(field_id, content, name, requirements))
     }
 
     pub fn field_id(&self) -> FieldId {
         self.0.field_id
     }
-    pub fn src_idx(&self) -> usize {
-        self.0.src_idx
+    pub fn main_weapon(&self) -> MainWeapon {
+        self.0.content
     }
     pub fn requirements(&self) -> Option<&AnyOfAllRequirements> {
         self.0.requirements.as_ref()
@@ -211,43 +239,32 @@ impl fmt::Display for ChestSpot {
 }
 
 #[derive(Clone, Debug)]
-pub struct SealSpot {
-    field_id: FieldId,
-    seal: Seal,
-    name: SpotName,
-    requirements: Option<AnyOfAllRequirements>,
-}
+pub struct SealSpot(SpotParams2<Seal>);
 
 impl SealSpot {
     pub fn new(
         field_id: FieldId,
-        seal: Seal,
+        content: Seal,
         name: SpotName,
         requirements: Option<AnyOfAllRequirements>,
     ) -> Self {
-        Self {
-            field_id,
-            seal,
-            name,
-            requirements,
-        }
+        Self(SpotParams2::new(field_id, content, name, requirements))
     }
 
     pub fn field_id(&self) -> FieldId {
-        self.field_id
+        self.0.field_id
     }
     pub fn seal(&self) -> Seal {
-        self.seal
+        self.0.content
     }
     pub fn requirements(&self) -> Option<&AnyOfAllRequirements> {
-        self.requirements.as_ref()
+        self.0.requirements.as_ref()
     }
 }
 
 impl fmt::Display for SealSpot {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let type_name = "SealSpot";
-        write!(f, "{}_{}({})", self.field_id, type_name, self.name.get())
+        self.0.fmt(f, "SealSpot")
     }
 }
 

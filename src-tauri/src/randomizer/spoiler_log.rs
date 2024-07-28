@@ -135,7 +135,9 @@ impl fmt::Display for SpoilerLog {
             let mut checkpoints: Vec<_> = sphere.0.iter().collect();
             checkpoints.sort_by_key(|checkpoint| {
                 let (field, type_num, src_idx) = match checkpoint {
-                    Checkpoint::MainWeapon(x) => (x.spot.field_id(), 1, x.spot.src_idx()),
+                    Checkpoint::MainWeapon(x) => {
+                        (x.spot.field_id(), 1, x.spot.main_weapon() as usize)
+                    }
                     Checkpoint::SubWeapon(x) => (x.spot.field_id(), 2, x.spot.src_idx()),
                     Checkpoint::Chest(x) => (x.spot.field_id(), 3, x.spot.src_idx()),
                     Checkpoint::Seal(x) => (x.spot.field_id(), 4, x.spot.seal() as usize),
