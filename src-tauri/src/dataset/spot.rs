@@ -33,7 +33,7 @@ impl SpotRef<'_> {
             Self::Chest(x) => x.requirements(),
             Self::Seal(x) => x.requirements(),
             Self::Shop(x) => x.requirements(),
-            Self::Rom(x) => x.requirements(),
+            Self::Rom(x) => Some(x.requirements()),
         }
     }
 }

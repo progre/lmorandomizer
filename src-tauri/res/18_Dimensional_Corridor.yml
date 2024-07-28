@@ -11,3 +11,10 @@ chests:
   # skip ankhJewel
   - map:dimensionalCorridor:
       - event:reachedDimensionalCorridor
+roms:
+  gradius2:
+    - event:reachedDimensionalCorridor
+  kingsValleyDisk:
+    - event:reachedDimensionalCorridor
+  gradius2Beta:
+    - event:reachedDimensionalCorridor

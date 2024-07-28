@@ -16,3 +16,12 @@ shops:
       - event:basicSet
   - lampOfTime, shurikenAmmo, toukenAmmo:
       - event:releasedTwins, feather, boots # need feather and boots. puzzle is unsolvable so bombs not needed
+roms:
+  circusCharlie:
+    - event:releasedTwins
+  comicBakery:
+    - event:releasedTwins
+  penguinAdventure:
+    - event:releasedTwins, flareGun, flareGunAmmo, bomb, bombAmmo
+  gameCollection4:
+    - event:releasedTwins

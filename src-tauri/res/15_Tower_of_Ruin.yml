@@ -14,3 +14,12 @@ shops:
   - knightmare, bombAmmo, flareGunAmmo:
       - event:reachedFrontOfTowerOfRuin, katana, feather
       - event:reachedFrontOfTowerOfRuin, katana, boots, grappleClaw # can reach with boots and grapple claw
+roms:
+  ruinsRam16K:
+    - event:reachedGrailOfGateOfIllusion, event:miniDoll
+  hyperSports3:
+    - event:reachedFrontOfTowerOfRuin, iceCape
+  shinSynthesizer:
+    - event:reachedFrontOfTowerOfRuin, spear, spearAmmo
+  badlands:
+    - event:reachedBackDoorOfTowerOfRuin, keySword

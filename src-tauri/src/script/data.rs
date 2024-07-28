@@ -1,4 +1,5 @@
 mod add_starting_items;
+mod consts;
 mod item;
 pub mod items;
 pub mod object;

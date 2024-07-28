@@ -6,7 +6,7 @@ chests:
       - event:reachedUpperOfChamberOfBirth, cogOfTheSoul
   - womanStatue:
       - event:reachedUpperOfChamberOfBirth, feather
-      - event:reachedUpperOfChamberOfBirth, holyGrail
+      - event:reachedUpperOfChamberOfBirth, holyGrail # TODO: probably glitch pattern
   - map:chamberOfBirth:
       - event:reachedLowerOfChamberOfBirth
   - pochetteKey:
@@ -14,3 +14,12 @@ chests:
 shops:
   - ammunition, ankhJewel:chamberOfBirth, weights:
       - event:reachedLowerOfChamberOfBirth, cogOfTheSoul
+roms:
+  gr3:
+    - event:reachedLowerOfChamberOfBirth
+  konamiSoccer:
+    - event:reachedLowerOfChamberOfBirth
+  kingKong2:
+    - event:reachedLowerOfChamberOfBirth
+  heavenAndEarth:
+    - event:reachedLowerOfChamberOfBirth

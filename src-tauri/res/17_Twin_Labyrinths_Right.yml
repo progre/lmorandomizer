@@ -5,3 +5,13 @@ shops:
       - event:releasedTwins, feather
   - dragonBone, spearAmmo, flareGunAmmo:
       - fakeHandScanner
+roms:
+  hyperSports2:
+    - event:releasedTwins
+  konamiPingPong:
+    - event:releasedTwins
+  ganbareGoemon:
+    - event:releasedTwins, feather
+  usas:
+    - event:releasedTwins
+  pennantRace:

@@ -29,3 +29,10 @@ shops:
       - event:basicSet
   - ammunition, bombAmmo, shurikenAmmo:
       - deathSeal, feather # need feather
+roms:
+  superCobra:
+    - event:basicSet
+  yieArKungFu:
+    - event:basicSet
+  kingsValley:
+    - bomb, bombAmmo

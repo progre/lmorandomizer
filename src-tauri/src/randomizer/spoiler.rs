@@ -31,6 +31,7 @@ fn ptr_eq<'a>(a: SpotRef<'a>, b: &CheckpointRef<'a>) -> bool {
         (SpotRef::Chest(a), CheckpointRef::Chest(b)) => ptr::eq(a, b.spot),
         (SpotRef::Seal(a), CheckpointRef::Seal(b)) => ptr::eq(a, b.spot),
         (SpotRef::Shop(a), CheckpointRef::Shop(b)) => ptr::eq(a, b.spot),
+        (SpotRef::Rom(a), CheckpointRef::Rom(b)) => ptr::eq(a, b.spot),
         _ => false,
     }
 }

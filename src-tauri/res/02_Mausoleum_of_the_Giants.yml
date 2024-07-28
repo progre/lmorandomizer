@@ -12,3 +12,8 @@ chests:
 shops:
   - toukenAmmo, sealOfElGiza, weights:
       - event:basicSet
+roms:
+  frogger:
+  hyperOlympic2:
+  magicalTree:
+  gameCollection3:

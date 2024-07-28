@@ -6,13 +6,16 @@ use crate::{
     },
     script::data::shop_items_data::{self, ShopItem},
 };
-use anyhow::{anyhow, Result};
+use anyhow::{anyhow, bail, Result};
 
 use super::{
     item::{self, ChestItem, Item},
     items::{self, SubWeapon},
     object::{Object, Start, UnknownObject},
-    objectfactory::{to_object_for_shutter, to_object_for_special_chest, to_objects_for_chest},
+    objectfactory::{
+        to_object_for_shutter, to_object_for_special_chest, to_objects_for_chest,
+        to_objects_for_hand_scanner,
+    },
     script::{Script, World},
 };
 
@@ -65,6 +68,30 @@ fn fix_trap_of_mausoleum_of_the_giants(
     prev_sub_weapon_shutter_item: &Item,
 ) {
     obj.op1 = prev_sub_weapon_shutter_item.flag() as i32;
+}
+
+fn replace_all_flags(starts: &[Start], script: &Script, shuffled: &Storage) -> Result<Vec<Start>> {
+    starts
+        .iter()
+        .map(|start| {
+            let Some(old_rom) = script.roms().find(|x| x.rom().flag as u32 == start.flag) else {
+                return Ok(start.clone());
+            };
+            let Some(new_rom) = shuffled
+                .roms
+                .values()
+                .find(|new_rom| new_rom.spot.rom() == old_rom.rom().content)
+            else {
+                log::warn!("unsupported rom: {}", old_rom.rom().content);
+                return Ok(start.clone());
+            };
+            let item = Item::from_dataset(&new_rom.item, script)?;
+            Ok(Start {
+                flag: item.flag() as u32,
+                run_when: start.run_when,
+            })
+        })
+        .collect()
 }
 
 fn new_objs(
@@ -136,7 +163,13 @@ fn new_objs(
             Ok(vec![to_object_for_shutter(obj, open_flag, item)])
         }
         Object::Shop(_) => Ok(vec![obj.clone()]),
-        Object::Rom(_) => Ok(vec![obj.clone()]),
+        Object::Rom(obj) => {
+            let Some(rom) = shuffled.roms.get(&obj.rom().content) else {
+                bail!("rom not found: {}", obj.rom().content)
+            };
+            let item = Item::from_dataset(&rom.item, script)?;
+            Ok(to_objects_for_hand_scanner(obj, item))
+        }
         Object::Seal(_) => {
             // TODO: trueShrineOfTheMother
             // TODO: nightSurface
@@ -163,8 +196,8 @@ fn new_objs(
         }
         Object::Unknown(unknown_obj) => {
             match unknown_obj.number {
-                // Chests | Sub weapons | Shop | Seal chests | Main weapons
-                1 | 13 | 14 | 71 | 77 => unreachable!(),
+                // Chests | Sub weapons | Shops | Roms | Seals | Main weapons
+                1 | 13 | 14 | 32 | 71 | 77 => unreachable!(),
                 // Trap object for the Ankh Jewel Treasure Chest in Mausoleum of the Giants.
                 // It is made to work correctly when acquiring items.
                 140 if unknown_obj.x == 49152 && unknown_obj.y == 16384 => {
@@ -187,7 +220,16 @@ fn new_objs(
                         ..unknown_obj.clone()
                     })])
                 }
-                _ => Ok(vec![obj.clone()]),
+                _ => Ok(vec![Object::Unknown(UnknownObject {
+                    number: obj.number(),
+                    x: obj.x(),
+                    y: obj.y(),
+                    op1: obj.op1(),
+                    op2: obj.op2(),
+                    op3: obj.op3(),
+                    op4: obj.op4(),
+                    starts: replace_all_flags(obj.starts(), script, shuffled)?,
+                })]),
             }
         }
     }

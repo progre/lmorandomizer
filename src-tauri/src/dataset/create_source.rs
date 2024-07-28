@@ -109,6 +109,13 @@ pub fn create_source(game_structure_files: GameStructureFiles) -> Result<Storage
             shops.push((field_id, item));
         }
         for (key, value) in field_data.roms {
+            let mut any_of_all_requirements = to_any_of_all_requirements(value)
+                .unwrap_or_else(|| AnyOfAllRequirements(vec![AllRequirements(vec![])]));
+            for all_requirements in &mut any_of_all_requirements.0 {
+                all_requirements
+                    .0
+                    .push(RequirementFlag::new("handScanner".into()));
+            }
             let name = StrategyFlag::new(key);
             let rom = items::Rom::try_from_camel_case(name.get()).unwrap();
             roms.insert(
@@ -118,7 +125,7 @@ pub fn create_source(game_structure_files: GameStructureFiles) -> Result<Storage
                         field_id,
                         rom,
                         SpotName::new(name.get().to_owned()),
-                        to_any_of_all_requirements(value),
+                        any_of_all_requirements,
                     ),
                     item: Item::rom(name, rom),
                 },

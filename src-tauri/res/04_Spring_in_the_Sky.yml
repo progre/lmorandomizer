@@ -19,4 +19,15 @@ shops:
   - weights, shurikenAmmo, toukenAmmo:
       - event:SpringElevator, originSeal # more varied ways to reach
   - shellHorn, finder, castlevania:
-      - event:SpringElevator, originSeal, divinerSensation, event:qBert, msx2 # need msx2
+      - event:SpringElevator, originSeal, divinerSensation, qBert, msx2 # need msx2
+roms:
+  hyperSports1:
+    - event:SpringElevator, helmet
+  cabbagePatchKids:
+    - scalesphere
+  shalom:
+    - bomb, bombAmmo, scalesphere
+  quarth:
+    - scalesphere
+  gameCollection1: # not yet tested with initial status
+    - event:basicSet

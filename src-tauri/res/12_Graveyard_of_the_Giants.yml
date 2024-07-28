@@ -15,3 +15,10 @@ chests:
 shops:
   - spearAmmo, fakeSilverShield, weights:
       - event:reachedLiarOfGraveyardOfTheGiants # need to reach Liar shop not just front door
+roms:
+  skyJaguar:
+    - event:reachedFrontOfGraveyardOfTheGiants
+  mopiRanger:
+    - event:reachedBackDoorOfGraveyardOfTheGiants
+  spaceManbow:
+    - event:reachedBackDoorOfGraveyardOfTheGiants, bomb, bombAmmo

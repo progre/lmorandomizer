@@ -283,7 +283,7 @@ pub struct RomSpot {
     field_id: FieldId,
     rom: Rom,
     name: SpotName,
-    requirements: Option<AnyOfAllRequirements>,
+    requirements: AnyOfAllRequirements,
 }
 
 impl RomSpot {
@@ -291,7 +291,7 @@ impl RomSpot {
         field_id: FieldId,
         rom: Rom,
         name: SpotName,
-        requirements: Option<AnyOfAllRequirements>,
+        requirements: AnyOfAllRequirements,
     ) -> Self {
         Self {
             field_id,
@@ -310,8 +310,8 @@ impl RomSpot {
     pub fn name(&self) -> &SpotName {
         &self.name
     }
-    pub fn requirements(&self) -> Option<&AnyOfAllRequirements> {
-        self.requirements.as_ref()
+    pub fn requirements(&self) -> &AnyOfAllRequirements {
+        &self.requirements
     }
 }
 

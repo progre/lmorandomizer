@@ -14,3 +14,14 @@ chests:
 shops:
   - mahjongWizard, spearAmmo, toukenAmmo:
       - event:basicSet
+roms:
+  antarcticAdventure:
+    - event:basicSet
+  hyperOlympic3:
+    - event:basicSet
+  goonies:
+    - event:reachedBackDoorOfSurface
+  firebird:
+    - event:basicSet
+  gameCollection2:
+    - event:basicSet

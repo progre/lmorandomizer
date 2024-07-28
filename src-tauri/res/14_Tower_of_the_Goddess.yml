@@ -12,3 +12,8 @@ chests:
       - event:reachedTowerOfTheGoddess # do not need feather
   - eyeOfTruth:
       - event:reachedLowerOfChamberOfBirth # need to reach entrance to lower birth to place weights
+roms:
+  unreleasedRom:
+    - event:reachedBackDoorOfGateOfIllusion, msx2, qBert, divinerSensation
+  pippols:
+    - event:reachedLowerOfChamberOfBirth

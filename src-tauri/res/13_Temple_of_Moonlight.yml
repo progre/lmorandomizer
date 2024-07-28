@@ -23,3 +23,10 @@ chests:
 shops:
   - bracelet, shurikenAmmo, ammunition:
       - event:reachedFrontOfTempleOfMoonlight, bomb, bombAmmo, event:surviveAnubis # survive anubis
+roms:
+  twinbee:
+    - event:reachedFrontOfTempleOfMoonlight
+  parodius:
+    - flareGun, flareGunAmmo, event:escapeFromTempleOfMoonlight
+  pennantRace2:
+    - event:reachedGrailOfTempleOfMoonlight, holyGrail

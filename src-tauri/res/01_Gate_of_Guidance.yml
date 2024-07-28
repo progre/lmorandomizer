@@ -14,3 +14,9 @@ chests:
 shops:
   - shurikenAmmo, finder, weights:
       - originSeal
+roms:
+  athleticLand:
+  mahjongDojo:
+  hyperRally:
+  konamiTennis:
+  gameCollectionEx:

@@ -2,8 +2,6 @@
 - event:basicSet:
     - handScanner, shellHorn, holyGrail, gameMaster, glyphReader
 # TODO: unsupported events
-- event:qBert:
-    - event:reachedFrontOfGateOfIllusion, handScanner
 - event:miniDoll:
     - event:reachedFrontOfGateOfIllusion, event:reachedGrailOfGateOfIllusion, handScanner, glyphReader
 - event:pepper:
@@ -23,10 +21,15 @@
 - event:defeatedAmphisbaena:
     - ankhJewel:gateOfGuidance
 
+- event:defeatedSakit:
+    - ankhJewel:mausoleumOfTheGiants
+
 - event:floodedTempleOfTheSun:
     - scalesphere
     - knife, sacredOrb:6 # tested
     # test how many Sacred Orbs it takes without knife
+- event:defeatedEllmac:
+    - ankhJewel:templeOfTheSun
 
 - event:SpringElevator:
     - sacredOrb:2, helmet, holyGrail
@@ -46,24 +49,28 @@
 
 - event:reachedPalenque: # this is to reach palenque, not fight him
     - event:defeatedViy, feather
-    - divinerSensation, event:qBert, msx2, feather, bronzeMirror
+    - divinerSensation, qBert, msx2, feather, bronzeMirror
 - event:defeatedPalenque: # added sub weapon and sacred orb requirements
     - event:reachedPalenque, event:reachedUpperOfChamberOfBirth, event:lightedUpChamberOfExtinction, pochetteKey, ankhJewel:chamberOfBirth, sacredOrb:4, event:subWeaponWallForward
 
 - event:releasedTwins:
-    - ankhJewel:templeOfTheSun, twinStatue
+    - event:defeatedEllmac, twinStatue
 - event:defeatedBaphomet:
     - event:releasedTwins, flareGun, ankhJewel:twinLabyrinths, sacredOrb:4 # with just flares, fight is insanely hard without some health
 
+- event:reachedMapSpotOfShrineOfTheMother:
+    - dragonBone, event:releasedTwins
+- event:reachedDeathSealSpot:
+    - keyOfEternity, dragonBone, bomb, bombAmmo, ocarina, flareGun # need to talk to sage in Moonlight
 - event:reachedFrontOfShrineOfTheMother:
-    - keyOfEternity, handScanner, glyphReader, feather, spear, glove, dragonBone # boots not necessary
+    - dragonBone, keyOfEternity, handScanner, glyphReader, feather, spear, glove # boots not necessary
 
 - event:reachedFrontOfGateOfIllusion:
     - event:reachedGrailOfTempleOfMoonlight
 - event:reachedElevatorOfGateOfIllusion:
     - event:anchor, knife # event anchor already includes getting to Illusion
 - event:reachedGrailOfGateOfIllusion:
-    - event:reachedElevatorOfGateOfIllusion, sacredOrb:1 # need health to survive water
+    - event:reachedElevatorOfGateOfIllusion, sacredOrb:1 # need health to survive water TODO: 水中に入るのは聖杯石碑前ではなくエレベーター前
     - event:reachedElevatorOfGateOfIllusion, scalesphere
     # - event:reachedBackDoorOfGateOfIllusion # circular reference
 - event:reachedBackDoorOfGateOfIllusion:
@@ -74,7 +81,7 @@
     - holyGrail
 
 - event:reachedFrontOfGraveyardOfTheGiants:
-    - bronzeMirror, ankhJewel:mausoleumOfTheGiants
+    - bronzeMirror, event:defeatedSakit
     # - event:reachedBackDoorOfGraveyardOfTheGiants, bomb, bombAmmo # circular reference
 - event:reachedBackDoorOfGraveyardOfTheGiants:
     - event:reachedTowerOfTheGoddess, feather, grappleClaw, boots, planeModel # need boots to climb tower
@@ -87,15 +94,15 @@
     - bookOfTheDead
     - sacredOrb:4
 - event:reachedFrontOfTempleOfMoonlight:
-    - ankhJewel:templeOfTheSun, bronzeMirror
+    - event:defeatedEllmac, bronzeMirror
 - event:reachedGrailOfTempleOfMoonlight:
     - event:reachedFrontOfTempleOfMoonlight, shuriken, shurikenAmmo
     - flareGun, grappleClaw, event:escapeFromTempleOfMoonlight
     - flareGun, feather, event:escapeFromTempleOfMoonlight
 - event:escapeFromTempleOfMoonlight:
     - holyGrail
-    # - event:anchor, knife, bronzeMirror, ankhJewel:gateOfGuidance # circular reference
-    - bronzeMirror, ankhJewel:mausoleumOfTheGiants
+    # - event:anchor, knife, bronzeMirror, event:defeatedAmphisbaena # circular reference
+    - bronzeMirror, event:defeatedSakit
 
 - event:reachedTowerOfTheGoddess:
     - event:defeatedViy # defeatedViy already includes bronze mirror
@@ -120,3 +127,6 @@
     - event:releasedTwins, crystalSkull, boots, grappleClaw, bronzeMirror # can get in with boots and grapple claw
 - event:defeatedTiamat:
     - event:reachedDimensionalCorridor, ankhJewel:dimensionalCorridor, keySword, sacredOrb:4 # added health requirement
+
+- event:reachedTrueShrineOfTheMother:
+    - event:reachedMapSpotOfShrineOfTheMother, event:reachedDeathSealSpot, event:reachedFrontOfShrineOfTheMother, event:defeatedAmphisbaena, event:defeatedSakit, event:defeatedEllmac, event:defeatedBahamut, event:defeatedViy, event:defeatedPalenque, event:defeatedBaphomet, event:defeatedTiamat

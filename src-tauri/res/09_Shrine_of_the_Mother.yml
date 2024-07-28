@@ -6,8 +6,15 @@ chests:
   - diary:
       - event:reachedFrontOfShrineOfTheMother, talisman, lifeSeal, lampOfTime, feather # need feather
   - map:shrineOfTheMother:
-      - event:releasedTwins, dragonBone
+      - event:reachedMapSpotOfShrineOfTheMother
   # skip deathSeal
 seals:
   - deathSeal:
-      - keyOfEternity, dragonBone, bomb, bombAmmo, ocarina, flareGun # need to talk to sage in Moonlight
+      - event:reachedDeathSealSpot
+roms:
+  konamiBaseball:
+    - event:reachedFrontOfShrineOfTheMother
+  breakShot:
+    - event:reachedFrontOfShrineOfTheMother
+  snatcher:
+    - event:reachedFrontOfShrineOfTheMother, holyGrail
