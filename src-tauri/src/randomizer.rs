@@ -12,7 +12,9 @@ pub use spoiler_log::SpoilerLog;
 
 use crate::{
     dataset::{
-        create_source::create_source, game_structure::GameStructureFiles, storage::Storage,
+        create_source::create_source,
+        game_structure::{GameStructure, GameStructureFiles},
+        storage::Storage,
         NIGHT_SURFACE_CHEST_COUNT, NIGHT_SURFACE_SEAL_COUNT, NIGHT_SURFACE_SUB_WEAPON_COUNT,
         TRUE_SHRINE_OF_THE_MOTHER_SEAL_COUNT, WARE_NO_MISE_COUNT,
     },
@@ -60,7 +62,8 @@ pub fn randomize(
     let mut script = read_script_dat(script_dat)?;
     trace!("Read script.dat in {:?}", start.elapsed());
 
-    let source = create_source(game_structure_files)?;
+    let game_structure = GameStructure::new(game_structure_files)?;
+    let source = create_source(&game_structure)?;
 
     if cfg!(debug_assertions) {
         let start = std::time::Instant::now();

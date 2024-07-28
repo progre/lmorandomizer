@@ -95,22 +95,22 @@ pub struct AnyOfAllRequirements(pub Vec1<AllRequirements>);
 #[derive(Clone, Debug)]
 struct SpotParams<T> {
     field_id: FieldId,
-    content: T,
     name: SpotName,
+    content: T,
     requirements: Option<AnyOfAllRequirements>,
 }
 
 impl<T> SpotParams<T> {
     fn new(
         field_id: FieldId,
-        content: T,
         name: SpotName,
+        content: T,
         requirements: Option<AnyOfAllRequirements>,
     ) -> Self {
         Self {
             field_id,
-            content,
             name,
+            content,
             requirements,
         }
     }
@@ -126,15 +126,18 @@ pub struct MainWeaponSpot(SpotParams<MainWeapon>);
 impl MainWeaponSpot {
     pub fn new(
         field_id: FieldId,
-        content: MainWeapon,
         name: SpotName,
+        content: MainWeapon,
         requirements: Option<AnyOfAllRequirements>,
     ) -> Self {
-        Self(SpotParams::new(field_id, content, name, requirements))
+        Self(SpotParams::new(field_id, name, content, requirements))
     }
 
     pub fn field_id(&self) -> FieldId {
         self.0.field_id
+    }
+    pub fn name(&self) -> &SpotName {
+        &self.0.name
     }
     pub fn main_weapon(&self) -> MainWeapon {
         self.0.content
@@ -156,15 +159,18 @@ pub struct SubWeaponSpot(SpotParams<SubWeapon>);
 impl SubWeaponSpot {
     pub fn new(
         field_id: FieldId,
-        content: SubWeapon,
         name: SpotName,
+        content: SubWeapon,
         requirements: Option<AnyOfAllRequirements>,
     ) -> Self {
-        Self(SpotParams::new(field_id, content, name, requirements))
+        Self(SpotParams::new(field_id, name, content, requirements))
     }
 
     pub fn field_id(&self) -> FieldId {
         self.0.field_id
+    }
+    pub fn name(&self) -> &SpotName {
+        &self.0.name
     }
     pub fn sub_weapon(&self) -> SubWeapon {
         self.0.content
@@ -192,15 +198,18 @@ pub struct ChestSpot(SpotParams<ChestItem>);
 impl ChestSpot {
     pub fn new(
         field_id: FieldId,
-        content: ChestItem,
         name: SpotName,
+        content: ChestItem,
         requirements: Option<AnyOfAllRequirements>,
     ) -> Self {
-        Self(SpotParams::new(field_id, content, name, requirements))
+        Self(SpotParams::new(field_id, name, content, requirements))
     }
 
     pub fn field_id(&self) -> FieldId {
         self.0.field_id
+    }
+    pub fn name(&self) -> &SpotName {
+        &self.0.name
     }
     pub fn item(&self) -> ChestItem {
         self.0.content
@@ -222,15 +231,18 @@ pub struct SealSpot(SpotParams<Seal>);
 impl SealSpot {
     pub fn new(
         field_id: FieldId,
-        content: Seal,
         name: SpotName,
+        content: Seal,
         requirements: Option<AnyOfAllRequirements>,
     ) -> Self {
-        Self(SpotParams::new(field_id, content, name, requirements))
+        Self(SpotParams::new(field_id, name, content, requirements))
     }
 
     pub fn field_id(&self) -> FieldId {
         self.0.field_id
+    }
+    pub fn name(&self) -> &SpotName {
+        &self.0.name
     }
     pub fn seal(&self) -> Seal {
         self.0.content
@@ -243,6 +255,49 @@ impl SealSpot {
 impl fmt::Display for SealSpot {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         self.0.fmt(f, "SealSpot")
+    }
+}
+
+#[derive(Clone, Debug)]
+pub struct RomSpot {
+    field_id: FieldId,
+    name: SpotName,
+    rom: Rom,
+    requirements: AnyOfAllRequirements,
+}
+
+impl RomSpot {
+    pub fn new(
+        field_id: FieldId,
+        name: SpotName,
+        content: Rom,
+        requirements: AnyOfAllRequirements,
+    ) -> Self {
+        Self {
+            field_id,
+            name,
+            rom: content,
+            requirements,
+        }
+    }
+
+    pub fn field_id(&self) -> FieldId {
+        self.field_id
+    }
+    pub fn name(&self) -> &SpotName {
+        &self.name
+    }
+    pub fn rom(&self) -> Rom {
+        self.rom
+    }
+    pub fn requirements(&self) -> &AnyOfAllRequirements {
+        &self.requirements
+    }
+}
+
+impl fmt::Display for RomSpot {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{:?}_RomSpot({})", self.field_id(), self.name().get())
     }
 }
 
@@ -259,19 +314,22 @@ pub struct ShopSpot(SpotParams<(ShopItem, ShopItem, ShopItem)>);
 impl ShopSpot {
     pub fn new(
         field_id: FieldId,
+        name: SpotName,
         content: (ShopItem, ShopItem, ShopItem),
-        spot_name: SpotName,
         requirements: Option<AnyOfAllRequirements>,
     ) -> Self {
         if cfg!(debug_assertions) {
-            let names: Vec<_> = spot_name.0.split(',').map(|x| x.trim()).collect();
+            let names: Vec<_> = name.0.split(',').map(|x| x.trim()).collect();
             debug_assert_eq!(names.len(), 3);
         }
-        Self(SpotParams::new(field_id, content, spot_name, requirements))
+        Self(SpotParams::new(field_id, name, content, requirements))
     }
 
     pub fn field_id(&self) -> FieldId {
         self.0.field_id
+    }
+    pub fn name(&self) -> &SpotName {
+        &self.0.name
     }
     pub fn items(&self) -> (ShopItem, ShopItem, ShopItem) {
         self.0.content
@@ -293,48 +351,5 @@ impl ShopSpot {
 impl fmt::Display for ShopSpot {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         self.0.fmt(f, "Shop")
-    }
-}
-
-#[derive(Clone, Debug)]
-pub struct RomSpot {
-    field_id: FieldId,
-    rom: Rom,
-    name: SpotName,
-    requirements: AnyOfAllRequirements,
-}
-
-impl RomSpot {
-    pub fn new(
-        field_id: FieldId,
-        rom: Rom,
-        name: SpotName,
-        requirements: AnyOfAllRequirements,
-    ) -> Self {
-        Self {
-            field_id,
-            rom,
-            name,
-            requirements,
-        }
-    }
-
-    pub fn field_id(&self) -> FieldId {
-        self.field_id
-    }
-    pub fn rom(&self) -> Rom {
-        self.rom
-    }
-    pub fn name(&self) -> &SpotName {
-        &self.name
-    }
-    pub fn requirements(&self) -> &AnyOfAllRequirements {
-        &self.requirements
-    }
-}
-
-impl fmt::Display for RomSpot {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{:?}_RomSpot({})", self.field_id(), self.name().get())
     }
 }

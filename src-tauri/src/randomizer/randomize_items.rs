@@ -168,24 +168,28 @@ fn assert_unique(storage: &Storage) {
 mod tests {
     use sha3::Digest;
 
-    use crate::{app::read_game_structure_files_debug, dataset::create_source::create_source};
+    use crate::{
+        app::read_game_structure_files_debug,
+        dataset::{create_source::create_source, game_structure::GameStructure},
+    };
 
     use super::*;
 
     #[tokio::test]
     async fn test_shuffle() -> Result<()> {
         let game_structure_files = read_game_structure_files_debug().await?;
-        let source = create_source(game_structure_files)?;
+        let game_structure = GameStructure::new(game_structure_files)?;
+        let source = create_source(&game_structure)?;
         let (shuffled, spoiler_log) = shuffle("test", &source);
 
         let shuffled_str = format!("{:?}", shuffled);
         let shuffled_hash = hex::encode(sha3::Sha3_512::digest(shuffled_str));
-        const EXPECTED_SHUFFLED_HASH: &str = "4e3d61950d8ca12c6fe7826bea979d286aa76526cf9ca2eb9a1875bf5562c385f05acd041189c867c0b80ca7ea23fc5dad7aca2042deb1ce07c97c3335e8e060";
+        const EXPECTED_SHUFFLED_HASH: &str = "7f134e71b4f370d59b32fa9c6733c435ef3d34596dc0fe4a7dc61d58ee30893d2e8e31a1919c88f5957cee6717ea5230fc2f6e27a12690be8dbd62b5baa10b58";
         assert_eq!(shuffled_hash, EXPECTED_SHUFFLED_HASH);
 
         let spoiler_log_str = format!("{:?}", spoiler_log.to_owned());
         let spoiler_log_hash = hex::encode(sha3::Sha3_512::digest(spoiler_log_str));
-        const EXPECTED_SPOILER_LOG_HASH: &str = "3128eac4f51393b7d61e7597ecea6efdd1873080cfb87ac95fdab38a63630b72131964c91e1404184df2c1d18fcc5225d34b5e7b039e8fd2c40ce076573bfa7b";
+        const EXPECTED_SPOILER_LOG_HASH: &str = "2761597698460cfc9a057a90d082b8e81611e45f9ed40bcbe418efac921984422ae8911944f696436c98a38331483b3d500f74c118da883b571deeaae80e56dd";
         assert_eq!(spoiler_log_hash, EXPECTED_SPOILER_LOG_HASH);
 
         Ok(())
