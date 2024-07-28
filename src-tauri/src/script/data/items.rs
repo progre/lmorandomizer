@@ -1,6 +1,4 @@
-use std::{fmt, str::FromStr};
-
-use strum::ParseError;
+use std::fmt;
 
 #[derive(Clone, Copy, num_derive::FromPrimitive)]
 #[repr(u8)]
@@ -335,28 +333,25 @@ pub enum Rom {
     A1Spirit,
 }
 
-impl Rom {
-    pub fn try_from_camel_case(camel_case: &str) -> Result<Self, ParseError> {
-        let pascal_case_name: String = camel_case[0..1]
-            .to_uppercase()
-            .chars()
-            .chain(camel_case[1..].chars())
-            .collect();
-        Rom::from_str(&pascal_case_name)
-    }
-}
-
 impl fmt::Display for Rom {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{:?}", self)
     }
 }
 
-#[derive(Clone, Copy, num_derive::FromPrimitive)]
+#[derive(
+    Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd, num_derive::FromPrimitive, strum::EnumString,
+)]
 #[repr(u8)]
 pub enum Seal {
     Origin,
     Birth,
     Life,
     Death,
+}
+
+impl fmt::Display for Seal {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{:?}", self)
+    }
 }

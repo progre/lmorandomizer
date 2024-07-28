@@ -38,7 +38,7 @@ pub struct FieldYaml {
     #[serde(default)]
     pub chests: Vec<HashMap<String, Vec<String>>>,
     #[serde(default)]
-    pub seals: Vec<HashMap<String, Vec<String>>>,
+    pub seals: HashMap<String, Vec<String>>,
     #[serde(default)]
     pub shops: Vec<HashMap<String, Vec<String>>>,
     #[serde(default)]
@@ -53,7 +53,6 @@ impl FieldYaml {
             .iter()
             .chain(&zelf.sub_weapons)
             .chain(&zelf.chests)
-            .chain(&zelf.seals)
             .chain(&zelf.shops)
             .any(|x| x.len() != 1)
         {

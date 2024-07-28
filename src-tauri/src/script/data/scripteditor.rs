@@ -1,8 +1,7 @@
 use crate::{
     dataset::{
         storage::{Shop, Storage, StorageIndices},
-        NIGHT_SURFACE_CHEST_COUNT, NIGHT_SURFACE_SEAL_COUNT, NIGHT_SURFACE_SUB_WEAPON_COUNT,
-        TRUE_SHRINE_OF_THE_MOTHER_SEAL_COUNT, WARE_NO_MISE_COUNT,
+        NIGHT_SURFACE_CHEST_COUNT, NIGHT_SURFACE_SUB_WEAPON_COUNT, WARE_NO_MISE_COUNT,
     },
     script::data::shop_items_data::{self, ShopItem},
 };
@@ -170,20 +169,11 @@ fn new_objs(
             let item = Item::from_dataset(&rom.item, script)?;
             Ok(to_objects_for_hand_scanner(obj, item))
         }
-        Object::Seal(_) => {
-            // TODO: trueShrineOfTheMother
-            // TODO: nightSurface
-            if indices.seal_chest_idx >= shuffled.seals.len() {
-                let sum = shuffled.seals.len()
-                    + TRUE_SHRINE_OF_THE_MOTHER_SEAL_COUNT
-                    + NIGHT_SURFACE_SEAL_COUNT;
-                debug_assert!(indices.seal_chest_idx < sum);
-                indices.seal_chest_idx += 1;
-                return Ok(vec![obj.clone()]);
-            }
-            let item = &shuffled.seals[indices.seal_chest_idx].item;
-            let item = Item::from_dataset(item, script)?;
-            indices.seal_chest_idx += 1;
+        Object::Seal(seal_obj) => {
+            let Some(seal) = shuffled.seals.get(&seal_obj.seal().content) else {
+                bail!("seal not found: {}", seal_obj.seal().content)
+            };
+            let item = Item::from_dataset(&seal.item, script)?;
             Ok(vec![to_object_for_special_chest(obj, item)])
         }
         Object::MainWeapon(_) => {

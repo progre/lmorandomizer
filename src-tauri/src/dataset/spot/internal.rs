@@ -2,7 +2,7 @@ use std::fmt;
 
 use vec1::Vec1;
 
-use crate::script::data::items::Rom;
+use crate::script::data::items::{Rom, Seal};
 
 use super::super::item::StrategyFlag;
 
@@ -211,32 +211,43 @@ impl fmt::Display for ChestSpot {
 }
 
 #[derive(Clone, Debug)]
-pub struct SealSpot(SpotParams);
+pub struct SealSpot {
+    field_id: FieldId,
+    seal: Seal,
+    name: SpotName,
+    requirements: Option<AnyOfAllRequirements>,
+}
 
 impl SealSpot {
     pub fn new(
         field_id: FieldId,
-        src_idx: usize,
+        seal: Seal,
         name: SpotName,
         requirements: Option<AnyOfAllRequirements>,
     ) -> Self {
-        Self(SpotParams::new(field_id, src_idx, name, requirements))
+        Self {
+            field_id,
+            seal,
+            name,
+            requirements,
+        }
     }
 
     pub fn field_id(&self) -> FieldId {
-        self.0.field_id
+        self.field_id
     }
-    pub fn src_idx(&self) -> usize {
-        self.0.src_idx
+    pub fn seal(&self) -> Seal {
+        self.seal
     }
     pub fn requirements(&self) -> Option<&AnyOfAllRequirements> {
-        self.0.requirements.as_ref()
+        self.requirements.as_ref()
     }
 }
 
 impl fmt::Display for SealSpot {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        self.0.fmt(f, "SealSpot")
+        let type_name = "SealSpot";
+        write!(f, "{}_{}({})", self.field_id, type_name, self.name.get())
     }
 }
 

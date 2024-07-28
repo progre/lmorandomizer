@@ -17,7 +17,6 @@ pub struct StorageIndices {
     pub main_weapon_spot_idx: usize,
     pub sub_weapon_spot_idx: usize,
     pub chest_idx: usize,
-    pub seal_chest_idx: usize,
 }
 
 #[derive(Clone, Debug)]
@@ -105,7 +104,7 @@ pub struct Storage {
     pub main_weapons: Vec<MainWeapon>,
     pub sub_weapons: Vec<SubWeapon>,
     pub chests: Vec<Chest>,
-    pub seals: Vec<Seal>,
+    pub seals: BTreeMap<items::Seal, Seal>,
     pub shops: Vec<Shop>,
     pub roms: BTreeMap<items::Rom, Rom>,
     pub events: Vec<Event>,
@@ -116,7 +115,7 @@ impl Storage {
         main_weapons: Vec<MainWeapon>,
         sub_weapons: Vec<SubWeapon>,
         chests: Vec<Chest>,
-        seals: Vec<Seal>,
+        seals: BTreeMap<items::Seal, Seal>,
         shops: Vec<Shop>,
         roms: BTreeMap<items::Rom, Rom>,
         events: Vec<Event>,
@@ -142,7 +141,7 @@ impl Storage {
             .map(|x| &x.item)
             .chain(self.sub_weapons.iter().map(|x| &x.item))
             .chain(self.chests.iter().map(|x| &x.item))
-            .chain(self.seals.iter().map(|x| &x.item))
+            .chain(self.seals.values().map(|x| &x.item))
             .chain(
                 self.shops
                     .iter()

@@ -1,5 +1,3 @@
-seals:
-  # skip deathSeal
 roms:
   sdSnatcher:
     - event:reachedTrueShrineOfTheMother, feather

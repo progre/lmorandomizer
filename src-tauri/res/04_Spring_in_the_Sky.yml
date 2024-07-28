@@ -13,8 +13,8 @@ chests:
   # skip originSeal
   # skip ankhJewel
 seals:
-  - originSeal:
-      - event:SpringElevator, helmet
+  originSeal:
+    - event:SpringElevator, helmet
 shops:
   - weights, shurikenAmmo, toukenAmmo:
       - event:SpringElevator, originSeal # more varied ways to reach

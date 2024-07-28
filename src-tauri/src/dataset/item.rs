@@ -59,7 +59,7 @@ pub enum ItemSource {
     MainWeapon(usize),
     SubWeapon(usize),
     Chest(usize),
-    Seal(usize),
+    Seal(items::Seal),
     Shop(usize, usize),
     Rom(items::Rom),
 }
@@ -83,8 +83,8 @@ impl Item {
         let src = ItemSource::Chest(src_idx);
         Self { src, name }
     }
-    pub fn seal(src_idx: usize, name: StrategyFlag) -> Self {
-        let src = ItemSource::Seal(src_idx);
+    pub fn seal(name: StrategyFlag, seal: items::Seal) -> Self {
+        let src = ItemSource::Seal(seal);
         Self { src, name }
     }
     pub fn shop_item(shop_idx: usize, item_idx: usize, name: StrategyFlag) -> Self {
@@ -92,10 +92,8 @@ impl Item {
         Self { src, name }
     }
     pub fn rom(name: StrategyFlag, rom: items::Rom) -> Self {
-        Self {
-            src: ItemSource::Rom(rom),
-            name,
-        }
+        let src = ItemSource::Rom(rom);
+        Self { src, name }
     }
 
     // chests -> equipments / rom

@@ -9,8 +9,8 @@ chests:
       - event:reachedMapSpotOfShrineOfTheMother
   # skip deathSeal
 seals:
-  - deathSeal:
-      - event:reachedDeathSealSpot
+  deathSeal:
+    - event:reachedDeathSealSpot
 roms:
   konamiBaseball:
     - event:reachedFrontOfShrineOfTheMother

@@ -138,7 +138,7 @@ impl fmt::Display for SpoilerLog {
                     Checkpoint::MainWeapon(x) => (x.spot.field_id(), 1, x.spot.src_idx()),
                     Checkpoint::SubWeapon(x) => (x.spot.field_id(), 2, x.spot.src_idx()),
                     Checkpoint::Chest(x) => (x.spot.field_id(), 3, x.spot.src_idx()),
-                    Checkpoint::Seal(x) => (x.spot.field_id(), 4, x.spot.src_idx()),
+                    Checkpoint::Seal(x) => (x.spot.field_id(), 4, x.spot.seal() as usize),
                     Checkpoint::Shop(x) => (x.spot.field_id(), 5, x.spot.src_idx()),
                     Checkpoint::Rom(x) => (x.spot.field_id(), 6, 0),
                     Checkpoint::Event(_) => return 10000000,

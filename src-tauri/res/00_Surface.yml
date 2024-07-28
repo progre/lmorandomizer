@@ -19,10 +19,10 @@ chests:
       - scalesphere
       - sacredOrb:3 # TODO: いくつあれば足りるのか？
 seals:
-  - birthSeal:
-      - originSeal, sacredOrb:2 # need a way out
-      - originSeal, scalesphere
-      - originSeal, holyGrail
+  birthSeal:
+    - originSeal, sacredOrb:2 # need a way out
+    - originSeal, scalesphere
+    - originSeal, holyGrail
 shops:
   - gameMaster, glyphReader, ruinsRAM8k:
   - handScanner, ammunition, buckler:

@@ -33,7 +33,7 @@ pub fn ware_missing_requirements(storage: &Storage) -> anyhow::Result<()> {
         .map(|x| x.spot.requirements())
         .chain(storage.sub_weapons.iter().map(|x| x.spot.requirements()))
         .chain(storage.chests.iter().map(|x| x.spot.requirements()))
-        .chain(storage.seals.iter().map(|x| x.spot.requirements()))
+        .chain(storage.seals.values().map(|x| x.spot.requirements()))
         .chain(storage.shops.iter().map(|x| x.spot.requirements()))
         .chain(storage.events.iter().map(|x| Some(&x.requirements)));
     append(&mut set, iter);

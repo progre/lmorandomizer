@@ -1,4 +1,7 @@
-use std::collections::{BTreeMap, HashMap};
+use std::{
+    collections::{BTreeMap, HashMap},
+    str::FromStr,
+};
 
 use anyhow::Result;
 use log::trace;
@@ -86,13 +89,21 @@ fn parse_event_requirements(items: Vec<HashMap<String, Vec<String>>>) -> Result<
         .collect()
 }
 
+fn to_pascal_case(camel_case: &str) -> String {
+    camel_case[0..1]
+        .to_uppercase()
+        .chars()
+        .chain(camel_case[1..].chars())
+        .collect()
+}
+
 pub fn create_source(game_structure_files: GameStructureFiles) -> Result<Storage> {
     let start = std::time::Instant::now();
 
     let mut main_weapons = Vec::new();
     let mut sub_weapons = Vec::new();
     let mut chests = Vec::new();
-    let mut seals = Vec::new();
+    let mut seals = BTreeMap::new();
     let mut shops = Vec::new();
     let mut roms = BTreeMap::new();
     for (field_id, field_data) in game_structure_files.fields {
@@ -105,8 +116,17 @@ pub fn create_source(game_structure_files: GameStructureFiles) -> Result<Storage
         for item in field_data.chests {
             chests.push((field_id, item));
         }
-        for item in field_data.seals {
-            seals.push((field_id, item));
+        for (key, value) in field_data.seals {
+            let any_of_all_requirements = to_any_of_all_requirements(value)?;
+            let seal = items::Seal::from_str(&to_pascal_case(&key.replace("Seal", ""))).unwrap();
+            let spot = SealSpot::new(
+                field_id,
+                seal,
+                SpotName::new(key.clone()),
+                any_of_all_requirements,
+            );
+            let item = Item::seal(StrategyFlag::new(key), seal);
+            seals.insert(seal, Seal { spot, item });
         }
         for item in field_data.shops {
             shops.push((field_id, item));
@@ -124,7 +144,7 @@ pub fn create_source(game_structure_files: GameStructureFiles) -> Result<Storage
                     let hand_scanner = RequirementFlag::new("handScanner".into());
                     AnyOfAllRequirements(Vec1::new(AllRequirements(Vec1::new(hand_scanner))))
                 });
-            let rom = items::Rom::try_from_camel_case(&key).unwrap();
+            let rom = items::Rom::from_str(&to_pascal_case(&key))?;
             let spot = RomSpot::new(
                 field_id,
                 rom,
@@ -153,10 +173,6 @@ pub fn create_source(game_structure_files: GameStructureFiles) -> Result<Storage
     let chests = parse_game_structure(chests, |field_id, src_idx, name, requirements| Chest {
         spot: ChestSpot::new(field_id, src_idx, name.clone(), requirements),
         item: Item::chest_item(src_idx, name.into()),
-    })?;
-    let seals = parse_game_structure(seals, |field_id, src_idx, name, requirements| Seal {
-        spot: SealSpot::new(field_id, src_idx, name.clone(), requirements),
-        item: Item::seal(src_idx, name.into()),
     })?;
     let shops = parse_shop_requirements(shops)?;
     let events = parse_event_requirements(game_structure_files.events.0)?;

@@ -99,9 +99,9 @@ impl Item {
                     ChestItem::None(_) => unreachable!(),
                 }
             }
-            ItemSource::Seal(src_idx) => {
-                let Some(obj) = script.seals().nth(*src_idx) else {
-                    bail!("invalid seal index: {}", src_idx)
+            ItemSource::Seal(seal) => {
+                let Some(obj) = script.seals().find(|x| x.seal().content == *seal) else {
+                    bail!("invalid seal: {}", seal)
                 };
                 Self::Seal(obj.seal().clone())
             }

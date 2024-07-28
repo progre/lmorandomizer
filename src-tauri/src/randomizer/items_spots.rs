@@ -38,7 +38,7 @@ impl<'a> Items<'a> {
             .map(|x| &x.item)
             .chain(source.sub_weapons.iter().map(|x| &x.item))
             .chain(chests.iter().map(|x| &x.item))
-            .chain(source.seals.iter().map(|x| &x.item))
+            .chain(source.seals.values().map(|x| &x.item))
             .chain(
                 source
                     .shops
@@ -148,7 +148,7 @@ impl<'a> Spots<'a> {
                         .map(|x| SpotRef::SubWeapon(&x.spot)),
                 )
                 .chain(source.chests.iter().map(|x| SpotRef::Chest(&x.spot)))
-                .chain(source.seals.iter().map(|x| SpotRef::Seal(&x.spot)))
+                .chain(source.seals.values().map(|x| SpotRef::Seal(&x.spot)))
                 .chain(source.roms.values().map(|x| SpotRef::Rom(&x.spot)))
                 .collect(),
             shops: source
