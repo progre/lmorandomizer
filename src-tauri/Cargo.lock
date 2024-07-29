@@ -1772,6 +1772,7 @@ dependencies = [
  "rand 0.8.5",
  "rand_seeder",
  "rand_xoshiro",
+ "regex",
  "scraper",
  "serde",
  "serde_json",
