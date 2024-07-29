@@ -7,3 +7,4 @@ mod objectfactory;
 pub mod script;
 mod scripteditor;
 pub mod shop_items_data;
+mod talks_editor;
