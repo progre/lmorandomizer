@@ -70,8 +70,21 @@ pub struct World {
 }
 
 #[derive(Clone)]
+pub struct Talk(String);
+
+impl Talk {
+    pub fn new(txt: String) -> Self {
+        Self(txt)
+    }
+
+    pub fn as_str(&self) -> &str {
+        &self.0
+    }
+}
+
+#[derive(Clone)]
 pub struct Script {
-    pub talks: Vec<String>,
+    pub talks: Vec<Talk>,
     pub worlds: Vec<World>,
 }
 

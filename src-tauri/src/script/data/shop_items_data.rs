@@ -9,10 +9,11 @@ use crate::{
 use super::{
     item::{self, Equipment, Item, Rom, SubWeapon},
     items,
+    script::Talk,
 };
 
-pub fn parse(text: &str) -> Result<(ShopItem, ShopItem, ShopItem)> {
-    debug_assert_eq!(text.chars().count(), 7 * 3);
+pub fn parse(text: &Talk) -> Result<(ShopItem, ShopItem, ShopItem)> {
+    debug_assert_eq!(text.as_str().chars().count(), 7 * 3);
     let data = text_to_byte_code(text);
     debug_assert_eq!(data.len(), 7 * 3);
     let mut iter = (0..3)
@@ -25,12 +26,12 @@ pub fn parse(text: &str) -> Result<(ShopItem, ShopItem, ShopItem)> {
     ))
 }
 
-pub fn stringify(items: (ShopItem, ShopItem, ShopItem)) -> Result<String> {
+pub fn stringify(items: (ShopItem, ShopItem, ShopItem)) -> Result<Talk> {
     let data: Vec<_> = [items.0, items.1, items.2]
         .iter()
         .flat_map(|x| x.to_bytes())
         .collect();
-    Ok(byte_code_to_text(&data))
+    Ok(Talk::new(byte_code_to_text(&data)))
 }
 
 #[derive(Clone)]

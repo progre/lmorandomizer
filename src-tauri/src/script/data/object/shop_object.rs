@@ -2,7 +2,7 @@ use anyhow::{bail, Result};
 
 const U16_MAX: i32 = u16::MAX as i32;
 
-use crate::script::data::shop_items_data::ShopItem;
+use crate::script::data::{script::Talk, shop_items_data::ShopItem};
 
 use super::{shop_items_data, Start};
 
@@ -12,7 +12,7 @@ pub struct Shop {
 }
 
 impl Shop {
-    pub fn try_from_shop_object(obj: &ShopObject, talks: &[String]) -> Result<Option<Self>> {
+    pub fn try_from_shop_object(obj: &ShopObject, talks: &[Talk]) -> Result<Option<Self>> {
         if obj.form >= 100 {
             return Ok(None);
         }

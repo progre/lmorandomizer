@@ -6,11 +6,11 @@ use scraper::{node::Attributes, ElementRef, Html};
 use crate::script::data::{
     items::SubWeapon,
     object::{Object, Start, UnknownObject},
-    script::{Field, Map, World},
+    script::{Field, Map, Talk, World},
     shop_items_data,
 };
 
-pub fn parse_script_txt(text: &str) -> Result<(Vec<String>, Vec<World>)> {
+pub fn parse_script_txt(text: &str) -> Result<(Vec<Talk>, Vec<World>)> {
     let parser = Html::parse_fragment(text);
     let root = parser.root_element().child_elements().collect::<Vec<_>>();
     // NOTE: scraper converts all tag names to lowercase
@@ -18,10 +18,12 @@ pub fn parse_script_txt(text: &str) -> Result<(Vec<String>, Vec<World>)> {
         .iter()
         .filter(|x| x.value().name() == "talk")
         .map(|x| {
-            x.text()
+            let talk = x
+                .text()
                 .collect::<String>()
                 .trim_start_matches('\n')
-                .to_owned()
+                .to_owned();
+            Talk::new(talk)
         })
         .collect();
     if cfg!(debug_assertions) {
@@ -286,10 +288,10 @@ fn stringify_unknown_object(object: &UnknownObject) -> String {
     )
 }
 
-pub fn stringify_script_txt(talks: &[String], worlds: &[World]) -> String {
+pub fn stringify_script_txt(talks: &[Talk], worlds: &[World]) -> String {
     [
         talks.iter().fold(String::new(), |mut output, x| {
-            write!(output, "<TALK>\n{x}</TALK>\n").unwrap();
+            write!(output, "<TALK>\n{}</TALK>\n", x.as_str()).unwrap();
             output
         }),
         worlds

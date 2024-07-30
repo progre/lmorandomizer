@@ -12,7 +12,7 @@ use crate::dataset::{
 use super::{
     item::Item,
     object::Shop,
-    script::Script,
+    script::{Script, Talk},
     shop_items_data::{self, ShopItem},
 };
 
@@ -56,11 +56,11 @@ fn to_name_talk_number(item: spot::ShopItem) -> usize {
 }
 
 fn replace_shop_item_talk(
-    talks: &[String],
+    talks: &[Talk],
     talk_number: usize,
     old: spot::ShopItem,
     new: spot::ShopItem,
-) -> Result<String> {
+) -> Result<Talk> {
     let old_item_name_talk_number = to_name_talk_number(old);
     let Some(old_item_name) = talks.get(old_item_name_talk_number).cloned() else {
         bail!("script broken: talk_number={}", old_item_name_talk_number)
@@ -101,22 +101,24 @@ fn replace_shop_item_talk(
     let normalized_talk =
         &ITEM_NAME_NORMALIZE_MAP
             .iter()
-            .fold(talk.to_owned(), |name, &(from, to)| {
+            .fold(talk.as_str().to_owned(), |name, &(from, to)| {
                 Regex::new(from)
                     .unwrap()
                     .replace(name.as_ref(), to)
                     .to_string()
             });
-    let result = Regex::new(&format!("(?i){old_item_name}"))
+    let result = Regex::new(&format!("(?i){}", old_item_name.as_str()))
         .unwrap()
-        .replace(normalized_talk, &new_item_name);
+        .replace(normalized_talk, new_item_name.as_str());
     if &result == normalized_talk {
         warn!(
             "failed to replace shop item name: talk={}, old={}, new={}",
-            talk, old_item_name, new_item_name,
+            talk.as_str(),
+            old_item_name.as_str(),
+            new_item_name.as_str(),
         );
     }
-    Ok(hide_overflow(&result))
+    Ok(Talk::new(hide_overflow(&result)))
 }
 
 fn to_dataset_shop_item_from_item(item: Option<&Item>) -> Option<spot::ShopItem> {
@@ -161,7 +163,7 @@ fn replace_items(
 }
 
 fn create_shop_item_talks(
-    talks: &[String],
+    talks: &[Talk],
     base_talk_number: u16,
     old: (spot::ShopItem, spot::ShopItem, spot::ShopItem),
     new: (
@@ -169,7 +171,7 @@ fn create_shop_item_talks(
         Option<spot::ShopItem>,
         Option<spot::ShopItem>,
     ),
-) -> Result<Vec<(usize, String)>> {
+) -> Result<Vec<(usize, Talk)>> {
     [(1, old.0, new.0), (2, old.1, new.1), (3, old.2, new.2)]
         .into_iter()
         .flat_map(|(idx, old, new)| new.map(|new| (idx, old, new)))
@@ -183,7 +185,7 @@ fn create_shop_item_talks(
 }
 
 pub fn replace_shops(
-    talks: &mut [String],
+    talks: &mut [Talk],
     script: &Script,
     script_shops: &[Shop],
     dataset_shops: &[storage::Shop],
