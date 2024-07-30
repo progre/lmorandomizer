@@ -1,7 +1,8 @@
 use crate::{
     dataset::{
+        spot::FieldId,
         storage::{Shop, Storage, StorageIndices},
-        NIGHT_SURFACE_CHEST_COUNT, NIGHT_SURFACE_SUB_WEAPON_COUNT, WARE_NO_MISE_COUNT,
+        NIGHT_SURFACE_CHEST_COUNT, WARE_NO_MISE_COUNT,
     },
     script::data::shop_items_data::{self, ShopItem},
 };
@@ -93,8 +94,35 @@ fn replace_all_flags(starts: &[Start], script: &Script, shuffled: &Storage) -> R
         .collect()
 }
 
+fn to_field_id(field_number: u8) -> Option<FieldId> {
+    match field_number {
+        0 => Some(FieldId::GateOfGuidance),
+        1 => Some(FieldId::Surface),
+        2 => Some(FieldId::MausoleumOfTheGiants),
+        3 => Some(FieldId::TempleOfTheSun),
+        4 => Some(FieldId::SpringInTheSky),
+        5 => Some(FieldId::InfernoCavern),
+        6 => Some(FieldId::ChamberOfExtinction),
+        7 => Some(FieldId::EndlessCorridor),
+        8 => Some(FieldId::ShrineOfTheMother),
+        9 => Some(FieldId::TwinLabyrinthsLeft),
+        10 => Some(FieldId::TwinLabyrinthsRight),
+        11 => Some(FieldId::GateOfIllusion),
+        12 => Some(FieldId::GraveyardOfTheGiants),
+        13 => Some(FieldId::TowerOfTheGoddess),
+        14 => Some(FieldId::TempleOfMoonlight),
+        15 => Some(FieldId::TowerOfRuin),
+        16 => Some(FieldId::ChamberOfBirth),
+        17 => Some(FieldId::DimensionalCorridor),
+        19 => Some(FieldId::TrueShrineOfTheMother),
+        28 => Some(FieldId::Surface),
+        _ => None,
+    }
+}
+
 fn new_objs(
     obj: &Object,
+    field_number: u8,
     next_objs: &[Object],
     script: &Script,
     shuffled: &Storage,
@@ -132,17 +160,15 @@ fn new_objs(
             Ok(to_objects_for_chest(chest_obj, item))
         }
         Object::SubWeapon(sub_weapon_obj) => {
-            // TODO: nightSurface
-            if indices.sub_weapon_spot_idx >= shuffled.sub_weapons.len() {
-                let sum = shuffled.sub_weapons.len() + NIGHT_SURFACE_SUB_WEAPON_COUNT;
-                debug_assert!(indices.sub_weapon_spot_idx < sum);
-                indices.sub_weapon_spot_idx += 1;
-                return Ok(vec![obj.clone()]);
-            }
-            // Ankh Jewel
-            let item = &shuffled.sub_weapons[indices.sub_weapon_spot_idx].item;
-            let item = Item::from_dataset(item, script)?;
-            indices.sub_weapon_spot_idx += 1;
+            let field_id = to_field_id(field_number)
+                .ok_or_else(|| anyhow!("field_id not found: {}", field_number))?;
+            let key = (field_id, sub_weapon_obj.sub_weapon().content);
+            let Some(sub_weapon) = shuffled.sub_weapons.get(&key) else {
+                let content = sub_weapon_obj.sub_weapon().content;
+                bail!("sub_weapon not found: {}", content)
+            };
+            let item = Item::from_dataset(&sub_weapon.item, script)?;
+
             if sub_weapon_obj.sub_weapon().content == SubWeapon::AnkhJewel {
                 // Gate of Guidance
                 if sub_weapon_obj.sub_weapon().flag == 743 {
@@ -196,11 +222,13 @@ fn new_objs(
                 // Trap object for the Ankh Jewel Treasure Chest in Mausoleum of the Giants.
                 // It is made to work correctly when acquiring items.
                 140 if unknown_obj.x == 49152 && unknown_obj.y == 16384 => {
+                    let key = (to_field_id(field_number).unwrap(), SubWeapon::AnkhJewel);
+                    let Some(sub_weapon) = shuffled.sub_weapons.get(&key) else {
+                        bail!("sub_weapon not found")
+                    };
                     let mut obj = unknown_obj.clone();
                     let prev_sub_weapon_shutter_item =
-                        &shuffled.sub_weapons[indices.sub_weapon_spot_idx - 1].item;
-                    let prev_sub_weapon_shutter_item =
-                        &Item::from_dataset(prev_sub_weapon_shutter_item, script)?;
+                        &Item::from_dataset(&sub_weapon.item, script)?;
                     fix_trap_of_mausoleum_of_the_giants(&mut obj, prev_sub_weapon_shutter_item);
                     Ok(vec![Object::Unknown(obj)])
                 }
@@ -235,11 +263,13 @@ pub fn replace_items(worlds: &mut [World], script: &Script, shuffled: &Storage) 
 
     for world in worlds {
         for field in &mut world.fields {
+            let field_number = field.number();
             for map in &mut field.maps {
                 let mut objects = Vec::new();
                 for i in 0..map.objects.len() {
                     objects.append(&mut new_objs(
                         &map.objects[i],
+                        field_number,
                         &map.objects[i + 1..],
                         script,
                         shuffled,

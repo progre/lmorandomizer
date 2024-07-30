@@ -17,7 +17,7 @@ use crate::{
         TRUE_SHRINE_OF_THE_MOTHER_SEAL_COUNT, WARE_NO_MISE_COUNT,
     },
     script::{
-        data::{items::Equipment, object::Shop, script::Script},
+        data::{items::Rom, object::Shop, script::Script},
         file::scriptconverter::{build_script_dat, read_script_dat},
     },
 };
@@ -71,7 +71,19 @@ pub fn randomize(
     let start = std::time::Instant::now();
     let spoiler_log = randomize_items(&mut script, &source, &options.seed)?;
     if options.easy_mode {
-        script.add_starting_items(&[Equipment::GameMaster], &[]);
+        script.add_starting_items(
+            &[
+                // crate::script::data::items::Equipment::Boots,
+                // crate::script::data::items::Equipment::Feather,
+                // crate::script::data::items::Equipment::Glove,
+                // crate::script::data::items::Equipment::SacredOrb,
+                // crate::script::data::items::Equipment::SacredOrb,
+            ],
+            &[Rom::GameMaster],
+            &[
+                // crate::script::data::items::SubWeapon::Pistol
+            ],
+        );
     }
     trace!("Randomized items in {:?}", start.elapsed());
 

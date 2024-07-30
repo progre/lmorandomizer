@@ -38,6 +38,21 @@ pub struct Field {
     pub maps: Vec<Map>,
 }
 
+impl Field {
+    pub fn number(&self) -> u8 {
+        self.attrs.0
+    }
+
+    pub fn sub_weapons(&self) -> impl Iterator<Item = &SubWeaponObject> {
+        self.maps.iter().flat_map(|x| &x.objects).filter_map(|x| {
+            let Object::SubWeapon(x) = x else {
+                return None;
+            };
+            Some(x)
+        })
+    }
+}
+
 #[derive(Clone)]
 pub struct World {
     pub number: u8,
@@ -60,6 +75,13 @@ impl Script {
 
     pub fn stringify(&self) -> String {
         stringify_script_txt(&self.talks, &self.worlds)
+    }
+
+    pub fn field(&self, number: u8) -> Option<&Field> {
+        self.worlds
+            .iter()
+            .flat_map(|x| &x.fields)
+            .find(|x| x.number() == number)
     }
 
     pub fn main_weapons(&self) -> impl Iterator<Item = &MainWeaponObject> {
@@ -150,9 +172,15 @@ impl Script {
     pub fn add_starting_items(
         &mut self,
         equipment_list: &[items::Equipment],
+        rom_list: &[items::Rom],
         sub_weapon_list: &[items::SubWeapon],
     ) {
-        self.worlds = add_starting_items(take(&mut self.worlds), equipment_list, sub_weapon_list);
+        self.worlds = add_starting_items(
+            take(&mut self.worlds),
+            equipment_list,
+            rom_list,
+            sub_weapon_list,
+        );
     }
 
     fn view_objects(&self) -> impl Iterator<Item = &Object> {

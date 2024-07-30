@@ -1,8 +1,8 @@
 subWeapons:
-  - ankhJewel:towerOfRuin:
-      - event:reachedFrontOfTowerOfRuin
-  - spear:
-      - event:reachedFrontOfTowerOfRuin
+  ankhJewel:towerOfRuin:
+    - event:reachedFrontOfTowerOfRuin
+  spear:
+    - event:reachedFrontOfTowerOfRuin
 chests:
   - djedPillar:
       - event:reachedBackDoorOfTowerOfRuin, event:mulanaTalisman, ocarina # need to talk to sage in spring. need mulana talisman to get item

@@ -1,6 +1,6 @@
 use anyhow::{bail, Result};
 
-use crate::dataset::{self, item::ItemSource};
+use crate::dataset::{self, item::ItemSource, spot::FieldId};
 
 use super::{items, object::Shop, script::Script, shop_items_data::ShopItem};
 
@@ -56,6 +56,30 @@ pub struct Seal {
     pub flag: u16,
 }
 
+fn to_field_number(field_id: FieldId) -> u8 {
+    match field_id {
+        FieldId::Surface => 1,
+        FieldId::GateOfGuidance => 0,
+        FieldId::MausoleumOfTheGiants => 2,
+        FieldId::TempleOfTheSun => 3,
+        FieldId::SpringInTheSky => 4,
+        FieldId::InfernoCavern => 5,
+        FieldId::ChamberOfExtinction => 6,
+        FieldId::TwinLabyrinthsLeft => 9,
+        FieldId::EndlessCorridor => 7,
+        FieldId::ShrineOfTheMother => 8,
+        FieldId::GateOfIllusion => 11,
+        FieldId::GraveyardOfTheGiants => 12,
+        FieldId::TempleOfMoonlight => 14,
+        FieldId::TowerOfTheGoddess => 13,
+        FieldId::TowerOfRuin => 15,
+        FieldId::ChamberOfBirth => 16,
+        FieldId::TwinLabyrinthsRight => 10,
+        FieldId::DimensionalCorridor => 17,
+        FieldId::TrueShrineOfTheMother => 19,
+    }
+}
+
 pub enum Item {
     MainWeapon(MainWeapon),
     SubWeapon(SubWeapon),
@@ -86,9 +110,14 @@ impl Item {
                 };
                 Self::MainWeapon(item.main_weapon().clone())
             }
-            ItemSource::SubWeapon(src_idx) => {
-                let Some(item) = script.sub_weapons().nth(*src_idx) else {
-                    bail!("invalid sub weapon index: {}", src_idx)
+            ItemSource::SubWeapon((field_id, sub_weapon)) => {
+                let Some(item) = script
+                    .field(to_field_number(*field_id))
+                    .unwrap()
+                    .sub_weapons()
+                    .find(|x| x.sub_weapon().content == *sub_weapon)
+                else {
+                    bail!("sub weapon not found: {} {}", field_id, sub_weapon)
                 };
                 Self::SubWeapon(item.sub_weapon().clone())
             }

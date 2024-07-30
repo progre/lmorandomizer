@@ -1,6 +1,6 @@
 subWeapons:
-  - pistol:
-      - event:reachedBackDoorOfSurface, bomb, bombAmmo
+  pistol:
+    - event:reachedBackDoorOfSurface, bomb, bombAmmo
 chests:
   - feather:
       - serpentStaff, gauntlet

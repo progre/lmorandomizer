@@ -1,6 +1,6 @@
 use crate::script::data::items;
 
-use super::spot::{RequirementFlag, SpotName, SpotRef};
+use super::spot::{FieldId, RequirementFlag, SpotName, SpotRef};
 
 #[derive(Clone, Debug, Hash, Eq, Ord, PartialEq, PartialOrd)]
 pub struct StrategyFlag(pub String);
@@ -57,7 +57,7 @@ impl From<SpotName> for StrategyFlag {
 #[derive(Clone, Debug)]
 pub enum ItemSource {
     MainWeapon(items::MainWeapon),
-    SubWeapon(usize),
+    SubWeapon((FieldId, items::SubWeapon)),
     Chest(usize),
     Seal(items::Seal),
     Shop(usize, usize),
@@ -75,8 +75,8 @@ impl Item {
         let src = ItemSource::MainWeapon(main_weapon);
         Self { src, name }
     }
-    pub fn sub_weapon(src_idx: usize, name: StrategyFlag) -> Self {
-        let src = ItemSource::SubWeapon(src_idx);
+    pub fn sub_weapon(name: StrategyFlag, field_id: FieldId, sub_weapon: items::SubWeapon) -> Self {
+        let src = ItemSource::SubWeapon((field_id, sub_weapon));
         Self { src, name }
     }
     pub fn chest_item(src_idx: usize, name: StrategyFlag) -> Self {

@@ -8,13 +8,13 @@ use super::{
     assertions::ware_missing_requirements,
     item::{Item, StrategyFlag},
     spot::{
-        AnyOfAllRequirements, ChestSpot, MainWeaponSpot, RomSpot, SealSpot, ShopSpot, SubWeaponSpot,
+        AnyOfAllRequirements, ChestSpot, FieldId, MainWeaponSpot, RomSpot, SealSpot, ShopSpot,
+        SubWeaponSpot,
     },
 };
 
 #[derive(Default)]
 pub struct StorageIndices {
-    pub sub_weapon_spot_idx: usize,
     pub chest_idx: usize,
 }
 
@@ -101,7 +101,7 @@ pub struct Event {
 #[derive(Clone, Debug)]
 pub struct Storage {
     pub main_weapons: BTreeMap<items::MainWeapon, MainWeapon>,
-    pub sub_weapons: Vec<SubWeapon>,
+    pub sub_weapons: BTreeMap<(FieldId, items::SubWeapon), SubWeapon>,
     pub chests: Vec<Chest>,
     pub seals: BTreeMap<items::Seal, Seal>,
     pub shops: Vec<Shop>,
@@ -112,7 +112,7 @@ pub struct Storage {
 impl Storage {
     pub fn new(
         main_weapons: BTreeMap<items::MainWeapon, MainWeapon>,
-        sub_weapons: Vec<SubWeapon>,
+        sub_weapons: BTreeMap<(FieldId, items::SubWeapon), SubWeapon>,
         chests: Vec<Chest>,
         seals: BTreeMap<items::Seal, Seal>,
         shops: Vec<Shop>,
@@ -138,7 +138,7 @@ impl Storage {
         self.main_weapons
             .values()
             .map(|x| &x.item)
-            .chain(self.sub_weapons.iter().map(|x| &x.item))
+            .chain(self.sub_weapons.values().map(|x| &x.item))
             .chain(self.chests.iter().map(|x| &x.item))
             .chain(self.seals.values().map(|x| &x.item))
             .chain(

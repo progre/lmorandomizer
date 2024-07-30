@@ -34,7 +34,7 @@ pub struct FieldYaml {
     #[serde(default)]
     pub main_weapons: HashMap<String, Vec<String>>,
     #[serde(default)]
-    pub sub_weapons: Vec<HashMap<String, Vec<String>>>,
+    pub sub_weapons: BTreeMap<String, Vec<String>>,
     #[serde(default)]
     pub chests: Vec<HashMap<String, Vec<String>>>,
     #[serde(default)]
@@ -48,13 +48,7 @@ pub struct FieldYaml {
 impl FieldYaml {
     fn new(raw_str: &str) -> Result<Self> {
         let zelf: Self = serde_yaml::from_str(raw_str)?;
-        if zelf
-            .sub_weapons
-            .iter()
-            .chain(&zelf.chests)
-            .chain(&zelf.shops)
-            .any(|x| x.len() != 1)
-        {
+        if zelf.chests.iter().chain(&zelf.shops).any(|x| x.len() != 1) {
             bail!("invalid data format");
         }
         Ok(zelf)

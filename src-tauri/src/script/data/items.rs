@@ -20,7 +20,9 @@ impl fmt::Display for MainWeapon {
     }
 }
 
-#[derive(Clone, Copy, PartialEq, num_derive::FromPrimitive)]
+#[derive(
+    Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd, num_derive::FromPrimitive, strum::EnumString,
+)]
 #[repr(u8)]
 pub enum SubWeapon {
     Shuriken = 0,
@@ -161,8 +163,12 @@ pub enum Equipment {
     DeathSeal,
     /// 59 あぶねぇ水着
     SweetClothing,
-    /// 100 10倍カードリッジ
-    GameMaster = 100,
+}
+
+impl fmt::Display for SubWeapon {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{:?}", self)
+    }
 }
 
 #[derive(

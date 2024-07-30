@@ -4,8 +4,8 @@ mainWeapons:
     - pistol, ammunition # pistol can reach
     - bomb, bombAmmo # bombs can reach
 subWeapons:
-  - ankhJewel:templeOfTheSun:
-      - event:basicSet
+  ankhJewel:templeOfTheSun:
+    - event:basicSet
 chests:
   - bronzeMirror:
       - ankhJewel:templeOfTheSun, handScanner, glyphReader

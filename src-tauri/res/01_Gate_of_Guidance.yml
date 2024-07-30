@@ -1,6 +1,6 @@
 subWeapons:
-  - shuriken:
-  - ankhJewel:gateOfGuidance:
+  shuriken:
+  ankhJewel:gateOfGuidance:
 chests:
   - treasures:
       - event:pepper

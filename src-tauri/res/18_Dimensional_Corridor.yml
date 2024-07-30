@@ -1,8 +1,8 @@
 subWeapons:
-  - angelShield:
-      - event:reachedDimensionalCorridor, sacredOrb:2 # should have some health to beat bosses
-  - ankhJewel:dimensionalCorridor:
-      - event:reachedDimensionalCorridor
+  angelShield:
+    - event:reachedDimensionalCorridor, sacredOrb:2 # should have some health to beat bosses
+  ankhJewel:dimensionalCorridor:
+    - event:reachedDimensionalCorridor
 chests:
   - magatamaJewel:
       - event:defeatedTiamat, event:mulanaTalisman # need mulana talisman to get item

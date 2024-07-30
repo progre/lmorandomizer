@@ -36,7 +36,7 @@ impl<'a> Items<'a> {
             .main_weapons
             .values()
             .map(|x| &x.item)
-            .chain(source.sub_weapons.iter().map(|x| &x.item))
+            .chain(source.sub_weapons.values().map(|x| &x.item))
             .chain(chests.iter().map(|x| &x.item))
             .chain(source.seals.values().map(|x| &x.item))
             .chain(
@@ -144,7 +144,7 @@ impl<'a> Spots<'a> {
                 .chain(
                     source
                         .sub_weapons
-                        .iter()
+                        .values()
                         .map(|x| SpotRef::SubWeapon(&x.spot)),
                 )
                 .chain(source.chests.iter().map(|x| SpotRef::Chest(&x.spot)))

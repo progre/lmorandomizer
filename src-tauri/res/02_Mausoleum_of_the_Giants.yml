@@ -1,8 +1,8 @@
 subWeapons:
-  - touken:
-      - event:basicSet
-  - ankhJewel:mausoleumOfTheGiants:
-      - event:basicSet
+  touken:
+    - event:basicSet
+  ankhJewel:mausoleumOfTheGiants:
+    - event:basicSet
 chests:
   - map:mausoleumOfTheGiants:
       - event:basicSet

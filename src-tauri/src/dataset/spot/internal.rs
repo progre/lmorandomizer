@@ -2,7 +2,7 @@ use std::fmt;
 
 use vec1::Vec1;
 
-use crate::script::data::items::{MainWeapon, Rom, Seal};
+use crate::script::data::items::{MainWeapon, Rom, Seal, SubWeapon};
 
 use super::super::item::StrategyFlag;
 
@@ -179,23 +179,23 @@ impl fmt::Display for MainWeaponSpot {
 }
 
 #[derive(Clone, Debug)]
-pub struct SubWeaponSpot(SpotParams);
+pub struct SubWeaponSpot(SpotParams2<SubWeapon>);
 
 impl SubWeaponSpot {
     pub fn new(
         field_id: FieldId,
-        src_idx: usize,
+        content: SubWeapon,
         name: SpotName,
         requirements: Option<AnyOfAllRequirements>,
     ) -> Self {
-        Self(SpotParams::new(field_id, src_idx, name, requirements))
+        Self(SpotParams2::new(field_id, content, name, requirements))
     }
 
     pub fn field_id(&self) -> FieldId {
         self.0.field_id
     }
-    pub fn src_idx(&self) -> usize {
-        self.0.src_idx
+    pub fn sub_weapon(&self) -> SubWeapon {
+        self.0.content
     }
     pub fn requirements(&self) -> Option<&AnyOfAllRequirements> {
         self.0.requirements.as_ref()

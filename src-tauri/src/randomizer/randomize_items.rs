@@ -48,8 +48,9 @@ fn create_shuffled_storage(source: &Storage, spoiler_log: &SpoilerLogRef) -> Sto
                 let content = main_weapon.spot.main_weapon();
                 storage.main_weapons.get_mut(&content).unwrap().item = main_weapon.item.clone();
             }
-            CheckpointRef::SubWeapon(checkpoint) => {
-                storage.sub_weapons[checkpoint.spot.src_idx()].item = checkpoint.item.clone();
+            CheckpointRef::SubWeapon(sub_weapon) => {
+                let key = (sub_weapon.spot.field_id(), sub_weapon.spot.sub_weapon());
+                storage.sub_weapons.get_mut(&key).unwrap().item = sub_weapon.item.clone();
             }
             CheckpointRef::Chest(checkpoint) => {
                 storage.chests[checkpoint.spot.src_idx()].item = checkpoint.item.clone();
@@ -131,7 +132,7 @@ fn assert_unique(storage: &Storage) {
         .main_weapons
         .values()
         .map(|x| ("weapon", &x.item))
-        .chain(storage.sub_weapons.iter().map(|x| ("weapon", &x.item)))
+        .chain(storage.sub_weapons.values().map(|x| ("weapon", &x.item)))
         .chain(storage.chests.iter().map(|x| ("chest", &x.item)))
         .chain(storage.seals.values().map(|x| ("seal", &x.item)))
         .chain(
@@ -173,12 +174,12 @@ mod tests {
 
         let shuffled_str = format!("{:?}", shuffled);
         let shuffled_hash = hex::encode(sha3::Sha3_512::digest(shuffled_str));
-        const EXPECTED_SHUFFLED_HASH: &str = "8741f303719150fa27100783624ecdd422c3e98f0eeb4a9e5fb1d1081ccab4388d1ad526b226aa46fd00fcc25c36e1dcaeb2fc14a2bbd49288ad8bba4f80aa2f";
+        const EXPECTED_SHUFFLED_HASH: &str = "ada1d774e8a4bcb82f65327cd257069e16d76a9fae5065c1414ef4d7869db2ad3dae06fada040280da70356a2109fb71ccf9732e3cd1da36317ad9e00d05fb4d";
         assert_eq!(shuffled_hash, EXPECTED_SHUFFLED_HASH);
 
         let spoiler_log_str = format!("{:?}", spoiler_log.to_owned());
         let spoiler_log_hash = hex::encode(sha3::Sha3_512::digest(spoiler_log_str));
-        const EXPECTED_SPOILER_LOG_HASH: &str = "52153a95c298e95819e29a52d41fb73db1fff60c82cd46b78f38c78858478398d175bd478d9b7dfa903f25a8ae498a04a44586f1245d752834d7ce81c8025e2c";
+        const EXPECTED_SPOILER_LOG_HASH: &str = "27451559f9f5dd5999b1a4f1e6b002d2d0b7d5aaca46de127145f6cd885c340115f198b4984f56dab9ae8721daf5ab89e126fbeb11958cde358c7a53103668c4";
         assert_eq!(spoiler_log_hash, EXPECTED_SPOILER_LOG_HASH);
 
         Ok(())

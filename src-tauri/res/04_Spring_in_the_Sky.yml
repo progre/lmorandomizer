@@ -1,6 +1,6 @@
 subWeapons:
-  - ankhJewel:springInTheSky:
-      - scalesphere
+  ankhJewel:springInTheSky:
+    - scalesphere
 chests:
   - sacredOrb:springInTheSky:
       - birthSeal # life seal is from the remake

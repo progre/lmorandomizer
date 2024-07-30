@@ -1,8 +1,8 @@
 subWeapons:
-  - silverShield:
-      - event:reachedLiarOfGraveyardOfTheGiants, katana
-  - bomb:
-      - event:reachedBackDoorOfGraveyardOfTheGiants
+  silverShield:
+    - event:reachedLiarOfGraveyardOfTheGiants, katana
+  bomb:
+    - event:reachedBackDoorOfGraveyardOfTheGiants
 chests:
   - contra:
       - event:reachedLiarOfGraveyardOfTheGiants

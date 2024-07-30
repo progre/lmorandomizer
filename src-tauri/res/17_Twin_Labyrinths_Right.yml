@@ -1,3 +1,6 @@
+subWeapons:
+  ankhJewel:twinLabyrinths:
+    - event:releasedTwins
 chests:
   # skip fake ankhJewel
 shops:

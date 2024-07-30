@@ -3,7 +3,7 @@ use std::{
     str::FromStr,
 };
 
-use anyhow::Result;
+use anyhow::{bail, Result};
 use log::trace;
 use vec1::Vec1;
 
@@ -101,7 +101,7 @@ pub fn create_source(game_structure_files: GameStructureFiles) -> Result<Storage
     let start = std::time::Instant::now();
 
     let mut main_weapons = BTreeMap::new();
-    let mut sub_weapons = Vec::new();
+    let mut sub_weapons = BTreeMap::new();
     let mut chests = Vec::new();
     let mut seals = BTreeMap::new();
     let mut shops = Vec::new();
@@ -115,8 +115,17 @@ pub fn create_source(game_structure_files: GameStructureFiles) -> Result<Storage
             let item = Item::main_weapon(StrategyFlag::new(key), main_weapon);
             main_weapons.insert(main_weapon, MainWeapon { spot, item });
         }
-        for item in field_data.sub_weapons {
-            sub_weapons.push((field_id, item));
+        for (key, value) in field_data.sub_weapons {
+            let sub_weapon =
+                items::SubWeapon::from_str(to_pascal_case(&key).split(":").next().unwrap())?;
+            let name = SpotName::new(key.clone());
+            let any_of_all_requirements = to_any_of_all_requirements(value)?;
+            let spot = SubWeaponSpot::new(field_id, sub_weapon, name, any_of_all_requirements);
+            let item = Item::sub_weapon(StrategyFlag::new(key), field_id, sub_weapon);
+            if sub_weapons.contains_key(&(field_id, sub_weapon)) {
+                bail!("duplicate sub weapon: {} {}", field_id, sub_weapon);
+            }
+            sub_weapons.insert((field_id, sub_weapon), SubWeapon { spot, item });
         }
         for item in field_data.chests {
             chests.push((field_id, item));
@@ -153,13 +162,6 @@ pub fn create_source(game_structure_files: GameStructureFiles) -> Result<Storage
         }
     }
 
-    let sub_weapons =
-        parse_game_structure(sub_weapons, |field_id, src_idx, name, requirements| {
-            SubWeapon {
-                spot: SubWeaponSpot::new(field_id, src_idx, name.clone(), requirements),
-                item: Item::sub_weapon(src_idx, name.into()),
-            }
-        })?;
     let chests = parse_game_structure(chests, |field_id, src_idx, name, requirements| Chest {
         spot: ChestSpot::new(field_id, src_idx, name.clone(), requirements),
         item: Item::chest_item(src_idx, name.into()),

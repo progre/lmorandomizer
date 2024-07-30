@@ -2,8 +2,8 @@ mainWeapons:
   chainWhip:
     - birthSeal, grappleClaw
 subWeapons:
-  - flareGun:
-      - glove # super boring puzzle without gloves
+  flareGun:
+    - glove # super boring puzzle without gloves
 chests:
   - map:infernoCavern:
       - event:basicSet
