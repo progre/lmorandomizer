@@ -30,7 +30,7 @@ pub fn parse_script_txt(text: &str) -> Result<(Vec<Talk>, Vec<World>)> {
         let first_shop = shop_items_data::parse(&talks[252])?;
         debug_assert_eq!(first_shop.0.number(), SubWeapon::HandScanner as u8);
         debug_assert_eq!(first_shop.0.price(), 20);
-        debug_assert_eq!(first_shop.0.flag(), 65279);
+        debug_assert_eq!(first_shop.0.flag(), 696);
         debug_assert_eq!(first_shop.1.number(), SubWeapon::Ammunition as u8);
         debug_assert_eq!(first_shop.1.price(), 500);
         debug_assert_eq!(first_shop.1.flag(), 65279);

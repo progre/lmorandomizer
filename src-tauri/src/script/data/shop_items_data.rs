@@ -84,12 +84,16 @@ impl ShopItem {
         let shop_item_type = data[0] - 1;
         let number = data[1] - 1;
         let price = (((data[2] - 1) as u16) << 8) + data[3] as u16;
-        let flag = (((data[5] - 1) as u16) << 8) + data[6] as u16; // 254 * 256 + 255 is no set flag
+        let mut flag = (((data[5] - 1) as u16) << 8) + data[6] as u16; // 254 * 256 + 255 is no set flag
         match shop_item_type {
             0 => {
+                let content = items::SubWeapon::from_u8(number)
+                    .ok_or_else(|| anyhow!("Invalid subweapon number: {}", number))?;
+                if content == items::SubWeapon::HandScanner && flag == 65279 {
+                    flag = 696;
+                }
                 let item = item::SubWeapon {
-                    content: items::SubWeapon::from_u8(number)
-                        .ok_or_else(|| anyhow!("Invalid subweapon number: {}", number))?,
+                    content,
                     amount: data[4] - 1,
                     price: Some(price),
                     flag,
