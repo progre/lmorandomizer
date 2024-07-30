@@ -2,6 +2,7 @@ use std::{collections::BTreeMap, str::FromStr};
 
 use anyhow::Result;
 use num_traits::FromPrimitive;
+use strum::ParseError;
 use vec1::Vec1;
 
 use crate::{
@@ -183,7 +184,11 @@ impl GameStructure {
                 let items: Vec<_> = key
                     .split(',')
                     .map(|x| {
-                        let pascal_case = to_pascal_case(x.trim());
+                        let name = x.trim();
+                        if name == "_" {
+                            return Ok(None);
+                        }
+                        let pascal_case = to_pascal_case(name);
                         let pascal_case = pascal_case
                             .split(":")
                             .next()
@@ -191,12 +196,13 @@ impl GameStructure {
                             .split("Ammo")
                             .next()
                             .unwrap();
-                        SubWeapon::from_str(pascal_case)
+                        let item = SubWeapon::from_str(pascal_case)
                             .map(ShopItem::SubWeapon)
                             .or_else(|_| Equipment::from_str(pascal_case).map(ShopItem::Equipment))
-                            .or_else(|_| Rom::from_str(pascal_case).map(ShopItem::Rom))
+                            .or_else(|_| Rom::from_str(pascal_case).map(ShopItem::Rom))?;
+                        Ok(Some(item))
                     })
-                    .collect::<Result<_, _>>()?;
+                    .collect::<Result<_, ParseError>>()?;
                 let name = SpotName::new(key);
                 let any_of_all_requirements = to_any_of_all_requirements(value)?;
                 let mut items = items.into_iter();

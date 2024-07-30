@@ -16,7 +16,7 @@ seals:
 shops:
   weights, shurikenAmmo, toukenAmmo:
     - event:SpringElevator, originSeal # more varied ways to reach
-  shellHorn, finder, castlevania:
+  _, finder, castlevania: # The ShellHorn here isn't shuffled.
     - event:SpringElevator, originSeal, msx2, qBert, divinerSensation # need msx2
 roms:
   hyperSports1:

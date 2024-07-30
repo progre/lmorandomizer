@@ -174,11 +174,8 @@ impl Item {
                     .collect::<Result<Vec<_>>>()?
                     .into_iter()
                     .find(|x| {
-                        [&x.items.0, &x.items.1, &x.items.2].map(|x| match x {
-                            ShopItem::SubWeapon(x) => spot::ShopItem::SubWeapon(x.item.content),
-                            ShopItem::Equipment(x) => spot::ShopItem::Equipment(x.item.content),
-                            ShopItem::Rom(x) => spot::ShopItem::Rom(x.item.content),
-                        }) == [items.0, items.1, items.2]
+                        let old = ShopItem::to_spot_shop_items(&x.items);
+                        spot::ShopItem::matches_items(old, *items)
                     })
                 else {
                     bail!("invalid shop: {:?}", items)

@@ -308,14 +308,29 @@ pub enum ShopItem {
     SubWeapon(items::SubWeapon),
 }
 
+impl ShopItem {
+    pub fn matches_items(
+        left: (Self, Self, Self),
+        right: (Option<Self>, Option<Self>, Option<Self>),
+    ) -> bool {
+        left.0.matches(right.0.as_ref())
+            && left.1.matches(right.1.as_ref())
+            && left.2.matches(right.2.as_ref())
+    }
+
+    pub fn matches(&self, right: Option<&Self>) -> bool {
+        right.map_or(true, |x| self == x)
+    }
+}
+
 #[derive(Clone, Debug)]
-pub struct ShopSpot(SpotParams<(ShopItem, ShopItem, ShopItem)>);
+pub struct ShopSpot(SpotParams<(Option<ShopItem>, Option<ShopItem>, Option<ShopItem>)>);
 
 impl ShopSpot {
     pub fn new(
         field_id: FieldId,
         name: SpotName,
-        content: (ShopItem, ShopItem, ShopItem),
+        content: (Option<ShopItem>, Option<ShopItem>, Option<ShopItem>),
         requirements: Option<AnyOfAllRequirements>,
     ) -> Self {
         if cfg!(debug_assertions) {
@@ -331,7 +346,7 @@ impl ShopSpot {
     pub fn name(&self) -> &SpotName {
         &self.0.name
     }
-    pub fn items(&self) -> (ShopItem, ShopItem, ShopItem) {
+    pub fn items(&self) -> (Option<ShopItem>, Option<ShopItem>, Option<ShopItem>) {
         self.0.content
     }
     pub fn requirements(&self) -> Option<&AnyOfAllRequirements> {

@@ -60,7 +60,10 @@ pub enum ItemSource {
     SubWeapon((FieldId, items::SubWeapon)),
     Chest((FieldId, ChestItem)),
     Seal(items::Seal),
-    Shop((ShopItem, ShopItem, ShopItem), usize),
+    Shop(
+        (Option<ShopItem>, Option<ShopItem>, Option<ShopItem>),
+        usize,
+    ),
     Rom(items::Rom),
 }
 
@@ -88,7 +91,7 @@ impl Item {
         Self { src, name }
     }
     pub fn shop_item(
-        items: (ShopItem, ShopItem, ShopItem),
+        items: (Option<ShopItem>, Option<ShopItem>, Option<ShopItem>),
         item_idx: usize,
         name: StrategyFlag,
     ) -> Self {

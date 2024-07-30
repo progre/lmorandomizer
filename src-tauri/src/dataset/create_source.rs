@@ -8,6 +8,8 @@ use crate::dataset::{
     storage::{Chest, MainWeapon, Rom, Seal, Shop, Storage, SubWeapon},
 };
 
+use super::item::StrategyFlag;
+
 pub fn create_source(game_structure: &GameStructure) -> Result<Storage> {
     let mut main_weapons = BTreeMap::new();
     for spot in game_structure.main_weapon_shutters.iter().cloned() {
@@ -50,11 +52,20 @@ pub fn create_source(game_structure: &GameStructure) -> Result<Storage> {
             bail!("duplicate shop: {:?}", spot.items());
         }
         shop_set.insert(spot.items());
-        let flags = spot.to_strategy_flags();
+        let mut names = spot
+            .name()
+            .get()
+            .split(',')
+            .map(|name| {
+                let name = name.trim();
+                (name != "_").then(|| StrategyFlag::new(name.into()))
+            })
+            .enumerate()
+            .map(|(idx, name)| name.map(|name| Item::shop_item(spot.items(), idx, name)));
         let items = (
-            Item::shop_item(spot.items(), 0, flags.0),
-            Item::shop_item(spot.items(), 1, flags.1),
-            Item::shop_item(spot.items(), 2, flags.2),
+            names.next().unwrap(),
+            names.next().unwrap(),
+            names.next().unwrap(),
         );
         shops.push(Shop { spot, items });
     }

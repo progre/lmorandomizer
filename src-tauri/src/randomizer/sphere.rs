@@ -101,23 +101,23 @@ fn place_items<'a>(
                 .push(shop);
             map
         });
-    for mut shops in shops.into_values() {
-        shops.sort_by_key(|x| x.idx);
-        let spot = shops[0].spot;
-        let items: Vec<_> = shops
-            .into_iter()
-            .map(|shop| {
+    for shops in shops.into_values() {
+        let mut items = (0..=2).map(|idx| {
+            shops.iter().find(|x| x.idx == idx).map(|shop| {
                 if shop.name.is_consumable() {
                     consumable_items_pool.pop().unwrap()
                 } else {
                     shop_items.pop().unwrap()
                 }
             })
-            .collect();
-        sphere.push(CheckpointRef::Shop(ShopRef {
-            spot,
-            items: (items[0], items[1], items[2]),
-        }));
+        });
+        let items = (
+            items.next().unwrap(),
+            items.next().unwrap(),
+            items.next().unwrap(),
+        );
+        let spot = shops[0].spot;
+        sphere.push(CheckpointRef::Shop(ShopRef { spot, items }));
     }
     SphereRef(sphere)
 }
@@ -138,9 +138,15 @@ fn append_flags<'a>(strategy_flags: &mut HashSet<&'a StrategyFlag>, sphere: &Sph
                 strategy_flags.insert(&checkpoint.item.name);
             }
             CheckpointRef::Shop(checkpoint) => {
-                strategy_flags.insert(&checkpoint.items.0.name);
-                strategy_flags.insert(&checkpoint.items.1.name);
-                strategy_flags.insert(&checkpoint.items.2.name);
+                if let Some(item) = &checkpoint.items.0 {
+                    strategy_flags.insert(&item.name);
+                }
+                if let Some(item) = &checkpoint.items.1 {
+                    strategy_flags.insert(&item.name);
+                }
+                if let Some(item) = &checkpoint.items.2 {
+                    strategy_flags.insert(&item.name);
+                }
             }
             CheckpointRef::Rom(checkpoint) => {
                 strategy_flags.insert(&checkpoint.item.name);

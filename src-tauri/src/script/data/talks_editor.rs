@@ -3,6 +3,7 @@ use log::warn;
 use regex::Regex;
 
 use crate::dataset::{
+    self,
     spot::{self},
     storage::{self},
     WARE_NO_MISE_COUNT,
@@ -118,32 +119,14 @@ fn replace_shop_item_talk(
     Ok(hide_overflow(&result))
 }
 
-fn to_dataset_shop_items_from_shop_items(
-    script_shop_items: &(ShopItem, ShopItem, ShopItem),
-) -> (spot::ShopItem, spot::ShopItem, spot::ShopItem) {
-    let items = [
-        &script_shop_items.0,
-        &script_shop_items.1,
-        &script_shop_items.2,
-    ]
-    .map(|y| match y {
-        ShopItem::Equipment(script) => spot::ShopItem::Equipment(script.item.content),
-        ShopItem::Rom(script) => spot::ShopItem::Rom(script.item.content),
-        ShopItem::SubWeapon(script) => spot::ShopItem::SubWeapon(script.item.content),
-    });
-    (items[0], items[1], items[2])
-}
-
-fn to_dataset_shop_items_from_items(
-    items: &(Item, Item, Item),
-) -> (spot::ShopItem, spot::ShopItem, spot::ShopItem) {
-    let items = [&items.0, &items.1, &items.2].map(|y| match y {
-        Item::Equipment(dataset) => spot::ShopItem::Equipment(dataset.content),
-        Item::Rom(dataset) => spot::ShopItem::Rom(dataset.content),
-        Item::SubWeapon(dataset) => spot::ShopItem::SubWeapon(dataset.content),
-        Item::Seal(_) | Item::MainWeapon(_) => unreachable!(),
-    });
-    (items[0], items[1], items[2])
+fn to_dataset_shop_item_from_item(item: Option<&Item>) -> Option<spot::ShopItem> {
+    match item {
+        None => None,
+        Some(Item::Equipment(dataset)) => Some(spot::ShopItem::Equipment(dataset.content)),
+        Some(Item::Rom(dataset)) => Some(spot::ShopItem::Rom(dataset.content)),
+        Some(Item::SubWeapon(dataset)) => Some(spot::ShopItem::SubWeapon(dataset.content)),
+        Some(Item::Seal(_)) | Some(Item::MainWeapon(_)) => unreachable!(),
+    }
 }
 
 fn is_consumable(item: &Item) -> bool {
@@ -155,11 +138,14 @@ fn is_consumable(item: &Item) -> bool {
 
 fn replace_items(
     old: (ShopItem, ShopItem, ShopItem),
-    new: (Item, Item, Item),
+    new: (Option<Item>, Option<Item>, Option<Item>),
 ) -> (ShopItem, ShopItem, ShopItem) {
-    let mut items = [(&old.0, new.0), (&old.1, new.1), (&old.2, new.2)]
+    let mut items = [(old.0, new.0), (old.1, new.1), (old.2, new.2)]
         .into_iter()
         .map(|(old_item, new_item)| {
+            let Some(new_item) = new_item else {
+                return old_item;
+            };
             let price = if is_consumable(&new_item) {
                 new_item.price().unwrap()
             } else {
@@ -178,10 +164,15 @@ fn create_shop_item_talks(
     talks: &[String],
     base_talk_number: u16,
     old: (spot::ShopItem, spot::ShopItem, spot::ShopItem),
-    new: (spot::ShopItem, spot::ShopItem, spot::ShopItem),
+    new: (
+        Option<spot::ShopItem>,
+        Option<spot::ShopItem>,
+        Option<spot::ShopItem>,
+    ),
 ) -> Result<Vec<(usize, String)>> {
     [(1, old.0, new.0), (2, old.1, new.1), (3, old.2, new.2)]
         .into_iter()
+        .flat_map(|(idx, old, new)| new.map(|new| (idx, old, new)))
         .filter(|(_, old, new)| old != new)
         .map(|(idx, old, new)| {
             let talk_number = base_talk_number as usize + idx;
@@ -199,15 +190,25 @@ pub fn replace_shops(
 ) -> Result<()> {
     assert_eq!(script_shops.len(), dataset_shops.len() + WARE_NO_MISE_COUNT);
     for dataset_shop in dataset_shops {
+        let create_item = |item: &Option<dataset::item::Item>| {
+            item.as_ref()
+                .map(|x| Item::from_dataset(x, script))
+                .transpose()
+        };
         let new_items = (
-            Item::from_dataset(&dataset_shop.items.0, script)?,
-            Item::from_dataset(&dataset_shop.items.1, script)?,
-            Item::from_dataset(&dataset_shop.items.2, script)?,
+            create_item(&dataset_shop.items.0)?,
+            create_item(&dataset_shop.items.1)?,
+            create_item(&dataset_shop.items.2)?,
         );
-        let new_dataset_shop_items = to_dataset_shop_items_from_items(&new_items);
+        let new_dataset_shop_items = (
+            to_dataset_shop_item_from_item(new_items.0.as_ref()),
+            to_dataset_shop_item_from_item(new_items.1.as_ref()),
+            to_dataset_shop_item_from_item(new_items.2.as_ref()),
+        );
 
         let Some(script_shop) = script_shops.iter().find(|script_shop| {
-            to_dataset_shop_items_from_shop_items(&script_shop.items) == dataset_shop.spot.items()
+            let old = ShopItem::to_spot_shop_items(&script_shop.items);
+            spot::ShopItem::matches_items(old, dataset_shop.spot.items())
         }) else {
             bail!("shop not found: {:?}", dataset_shop.spot.items())
         };
@@ -221,7 +222,7 @@ pub fn replace_shops(
         let new = new_items;
         let new_shop_talk = shop_items_data::stringify(replace_items(old, new))?;
 
-        let old = to_dataset_shop_items_from_shop_items(&script_shop.items);
+        let old = ShopItem::to_spot_shop_items(&script_shop.items);
         let new = new_dataset_shop_items;
         let new_shop_item_talks = create_shop_item_talks(talks, script_shop.talk_number, old, new)?;
 

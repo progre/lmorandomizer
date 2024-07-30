@@ -1,7 +1,10 @@
 use anyhow::{anyhow, bail, Result};
 use num_traits::FromPrimitive;
 
-use crate::script::file::dat::{byte_code_to_text, text_to_byte_code};
+use crate::{
+    dataset::spot,
+    script::file::dat::{byte_code_to_text, text_to_byte_code},
+};
 
 use super::{
     item::{self, Equipment, Item, Rom, SubWeapon},
@@ -56,6 +59,16 @@ pub enum ShopItem {
 }
 
 impl ShopItem {
+    pub fn to_spot_shop_items(
+        selfs: &(ShopItem, ShopItem, ShopItem),
+    ) -> (spot::ShopItem, spot::ShopItem, spot::ShopItem) {
+        (
+            selfs.0.to_spot_shop_item(),
+            selfs.1.to_spot_shop_item(),
+            selfs.2.to_spot_shop_item(),
+        )
+    }
+
     pub fn from_item(item: Item, price: u16) -> Self {
         match item {
             Item::MainWeapon(_) => unreachable!(),
@@ -106,6 +119,13 @@ impl ShopItem {
         }
     }
 
+    pub fn to_spot_shop_item(&self) -> spot::ShopItem {
+        match self {
+            ShopItem::Equipment(script) => spot::ShopItem::Equipment(script.item.content),
+            ShopItem::Rom(script) => spot::ShopItem::Rom(script.item.content),
+            ShopItem::SubWeapon(script) => spot::ShopItem::SubWeapon(script.item.content),
+        }
+    }
     fn to_bytes(&self) -> [u8; 7] {
         [
             match self {

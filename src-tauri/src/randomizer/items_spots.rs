@@ -43,7 +43,8 @@ impl<'a> Items<'a> {
                 source
                     .shops
                     .iter()
-                    .flat_map(|x| [&x.items.0, &x.items.1, &x.items.2]),
+                    .flat_map(|x| [&x.items.0, &x.items.1, &x.items.2])
+                    .filter_map(|x| x.as_ref()),
             )
             .chain(source.roms.values().map(|x| &x.item));
         let (priority_items, remaining_items) = items.partition::<Vec<_>, _>(|item| {
@@ -81,7 +82,13 @@ impl<'a> Items<'a> {
                 + source
                     .shops
                     .iter()
-                    .map(|shop| shop.count_general_items())
+                    .map(|shop| {
+                        let count = |item: &Option<Item>| {
+                            item.as_ref()
+                                .map_or(0, |x| !x.name.is_consumable() as usize)
+                        };
+                        count(&shop.items.0) + count(&shop.items.1) + count(&shop.items.2)
+                    })
                     .sum::<usize>()
                 + source.roms.len(),
         );
@@ -158,10 +165,12 @@ impl<'a> Spots<'a> {
                     [&shop.items.0, &shop.items.1, &shop.items.2]
                         .into_iter()
                         .enumerate()
-                        .map(|(idx, item)| ShopItemDisplay {
-                            spot: &shop.spot,
-                            idx,
-                            name: &item.name,
+                        .filter_map(|(idx, item)| {
+                            item.as_ref().map(|item| ShopItemDisplay {
+                                spot: &shop.spot,
+                                idx,
+                                name: &item.name,
+                            })
                         })
                 })
                 .collect(),
