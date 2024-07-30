@@ -168,11 +168,18 @@ pub fn to_objects_for_chest(old_obj: &ChestObject, item: Item) -> Vec<Object> {
     }
 }
 
-fn memo(old_obj: &RomObject, set_flag: u16) -> UnknownObject {
+fn memo(old_obj: &RomObject, set_flag: u16, done_flag: u16) -> UnknownObject {
     let shadow_event = Start {
         flag: 99999,
         run_when: true,
     };
+    debug_assert!(!old_obj.starts().iter().any(|start| {
+        start
+            == &Start {
+                flag: old_obj.rom().flag as u32,
+                run_when: true,
+            }
+    }));
     let starts: Vec<_> = [shadow_event]
         .into_iter()
         .chain(
@@ -180,17 +187,13 @@ fn memo(old_obj: &RomObject, set_flag: u16) -> UnknownObject {
                 .starts()
                 .iter()
                 .filter(|start| start.flag != 99999)
-                .map(|x| {
-                    if x.flag == old_obj.rom().flag as u32 {
-                        Start {
-                            flag: set_flag as u32,
-                            run_when: x.run_when,
-                        }
-                    } else {
-                        x.clone()
-                    }
-                }),
+                .filter(|start| start.flag != old_obj.rom().flag as u32)
+                .cloned(),
         )
+        .chain([Start {
+            flag: done_flag as u32,
+            run_when: false,
+        }])
         .collect();
     if starts.len() > 4 {
         warn!(
@@ -217,7 +220,7 @@ pub fn to_objects_for_hand_scanner(old_obj: &RomObject, item: Item) -> Vec<Objec
     }
 
     let open_flag = MEMO_FLAG_BASE_NO + old_obj.rom().content as u16;
-    let memo = memo(old_obj, open_flag);
+    let memo = memo(old_obj, open_flag, item.flag());
     let x = old_obj.x();
     // Raise it by half a square,
     // because the location of the ROMs is half a square lower than the normal items.

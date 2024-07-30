@@ -17,7 +17,7 @@ pub use field_objects::{ChestObject, RomObject, SealObject, UnknownObject};
 pub use shop_object::{Shop, ShopObject};
 pub use weapon_objects::{MainWeaponObject, SubWeaponObject};
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq)]
 pub struct Start {
     /// max 99999
     pub flag: u32,
