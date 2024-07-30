@@ -41,13 +41,28 @@ fn maps<'a>(
     maps: &BTreeMap<FieldId, &'a Item>,
     spots: &mut Spots<'a>,
 ) -> Vec<CheckpointRef<'a>> {
-    let mut hash_map: BTreeMap<FieldId, Vec<SpotRef<'a>>> = Default::default();
+    let mut spot_hash_map: BTreeMap<FieldId, Vec<SpotRef<'a>>> = Default::default();
+    let mut twin_labrynths_spots = Vec::new();
     for spot in &spots.field_item_spots {
-        hash_map.entry(spot.field_id()).or_default().push(*spot);
+        if matches!(
+            spot.field_id(),
+            FieldId::TwinLabyrinthsLeft | FieldId::TwinLabyrinthsRight
+        ) {
+            twin_labrynths_spots.push(*spot);
+            continue;
+        }
+        spot_hash_map
+            .entry(spot.field_id())
+            .or_default()
+            .push(*spot);
     }
     maps.iter()
         .map(|(field_id, item)| {
-            CheckpointRef::from_field_spot_item(*hash_map[field_id].choose(rng).unwrap(), item)
+            if *field_id == FieldId::TwinLabyrinthsLeft {
+                let spot = *twin_labrynths_spots.choose(rng).unwrap();
+                return CheckpointRef::from_field_spot_item(spot, item);
+            }
+            CheckpointRef::from_field_spot_item(*spot_hash_map[field_id].choose(rng).unwrap(), item)
         })
         .inspect(|checkpoint| {
             let idx = spots
