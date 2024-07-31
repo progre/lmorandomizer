@@ -5,7 +5,7 @@ use crate::script::enums;
 
 use super::{
     item::{Equipment, Item, Rom, SubWeapon},
-    script::Talk,
+    talk::Talk,
 };
 
 pub fn parse(talk: &Talk) -> Result<(ShopItem, ShopItem, ShopItem)> {

@@ -2,7 +2,7 @@ use anyhow::{bail, Result};
 
 const U16_MAX: i32 = u16::MAX as i32;
 
-use crate::script::data::{script::Talk, shop_items_data::ShopItem};
+use crate::script::data::{shop_items_data::ShopItem, talk::Talk};
 
 use super::{shop_items_data, Start};
 

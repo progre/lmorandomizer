@@ -5,13 +5,16 @@ use regex::Regex;
 use crate::{
     dataset::WARE_NO_MISE_COUNT,
     randomizer::{self, storage},
-    script::data::{
-        item::Item,
-        object::Shop,
-        script::{Script, Talk},
-        shop_items_data::{self, ShopItem},
+    script::{
+        data::{
+            item::Item,
+            object::Shop,
+            script::Script,
+            shop_items_data::{self, ShopItem},
+            talk::Talk,
+        },
+        enums,
     },
-    script::enums,
 };
 
 fn hide_overflow(kana: &str) -> String {

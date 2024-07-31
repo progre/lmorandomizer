@@ -6,8 +6,9 @@ use scraper::{node::Attributes, ElementRef, Html};
 use crate::script::{
     data::{
         object::{Object, Start, UnknownObject},
-        script::{Field, Map, Talk, World},
+        script::{Field, Map, World},
         shop_items_data,
+        talk::Talk,
     },
     enums::SubWeapon,
 };
