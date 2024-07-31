@@ -8,7 +8,7 @@ use crate::{
     script::{
         data::{
             item::Item,
-            object::Shop,
+            object::ItemShop,
             script::Script,
             shop_items_data::{self, ShopItem},
             talk::Talk,
@@ -183,7 +183,7 @@ fn create_shop_item_talks(
 pub fn replace_shops(
     talks: &mut [Talk],
     script: &Script,
-    script_shops: &[Shop],
+    script_shops: &[ItemShop],
     dataset_shops: &[storage::Shop],
 ) -> Result<()> {
     assert_eq!(script_shops.len(), dataset_shops.len() + WARE_NO_MISE_COUNT);
@@ -203,28 +203,29 @@ pub fn replace_shops(
         ];
 
         let Some(script_shop) = script_shops.iter().find(|script_shop| {
-            let old = ShopItem::to_spot_shop_items(&script_shop.items);
+            let old = ShopItem::to_spot_shop_items(script_shop.items());
             let items = dataset_shop.spot.items();
             enums::ShopItem::matches_items(old, items)
         }) else {
             bail!("shop not found: {:?}", dataset_shop.spot.items())
         };
+        let talk_number = script_shop.item_data_talk_number();
 
         let old = {
-            let Some(talk) = talks.get(script_shop.talk_number as usize) else {
-                bail!("script broken: talk_number={}", script_shop.talk_number)
+            let Some(talk) = talks.get(talk_number as usize) else {
+                bail!("script broken: talk_number={}", talk_number)
             };
             shop_items_data::parse(talk)?
         };
         let new = new_items;
         let new_shop_talk = shop_items_data::stringify(replace_items(old, new))?;
 
-        let old = ShopItem::to_spot_shop_items(&script_shop.items);
+        let old = ShopItem::to_spot_shop_items(script_shop.items());
         let new = new_dataset_shop_items;
-        let new_shop_item_talks = create_shop_item_talks(talks, script_shop.talk_number, old, new)?;
+        let new_shop_item_talks = create_shop_item_talks(talks, talk_number, old, new)?;
 
-        let Some(talk) = talks.get_mut(script_shop.talk_number as usize) else {
-            bail!("script broken: talk_number={}", script_shop.talk_number)
+        let Some(talk) = talks.get_mut(talk_number as usize) else {
+            bail!("script broken: talk_number={}", talk_number)
         };
         *talk = new_shop_talk;
         for (talk_number, new_talk) in new_shop_item_talks {

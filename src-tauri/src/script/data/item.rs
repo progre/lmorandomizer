@@ -5,7 +5,7 @@ use crate::{
     script::enums::{self, FieldNumber},
 };
 
-use super::{object::Shop, script::Script, shop_items_data::ShopItem};
+use super::{object::ItemShop, script::Script, shop_items_data::ShopItem};
 
 #[derive(Clone)]
 pub struct MainWeapon {
@@ -157,20 +157,20 @@ impl Item {
     fn shop(script: &Script, items: [Option<enums::ShopItem>; 3], item_idx: usize) -> Result<Self> {
         let Some(shop) = script
             .shops()
-            .filter_map(|x| Shop::try_from_shop_object(x, &script.talks).transpose())
+            .filter_map(|x| ItemShop::try_from_shop_object(x, &script.talks).transpose())
             .collect::<Result<Vec<_>>>()?
             .into_iter()
             .find(|x| {
-                let old = ShopItem::to_spot_shop_items(&x.items);
+                let old = ShopItem::to_spot_shop_items(x.items());
                 enums::ShopItem::matches_items(old, items)
             })
         else {
             bail!("invalid shop: {:?}", items)
         };
         let item = match item_idx {
-            0 => shop.items.0,
-            1 => shop.items.1,
-            2 => shop.items.2,
+            0 => shop.into_items().0,
+            1 => shop.into_items().1,
+            2 => shop.into_items().2,
             _ => bail!("invalid shop item index: {}", item_idx),
         };
         Ok(match item {

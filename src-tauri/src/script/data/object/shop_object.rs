@@ -2,24 +2,131 @@ use anyhow::{bail, Result};
 
 const U16_MAX: i32 = u16::MAX as i32;
 
-use crate::script::data::{shop_items_data::ShopItem, talk::Talk};
+use crate::script::data::{
+    shop_items_data::ShopItem,
+    talk::{read_u16, Talk},
+};
 
 use super::{shop_items_data, Start};
 
-pub struct Shop {
-    pub talk_number: u16,
-    pub items: (ShopItem, ShopItem, ShopItem),
+pub struct Storyteller {
+    talk_number: u16,
+    talk: Talk,
+}
+
+impl Storyteller {
+    fn new(obj: &ShopObject, talks: &[Talk]) -> Result<Self> {
+        let talk_number = obj.op3;
+        let Some(talk) = talks.get(talk_number as usize).cloned() else {
+            bail!("script broken: talk_number={}", talk_number)
+        };
+        Ok(Storyteller { talk_number, talk })
+    }
+
+    pub fn talk_number(&self) -> u16 {
+        self.talk_number
+    }
+    pub fn into_talk(self) -> Talk {
+        self.talk
+    }
+}
+
+pub struct ItemShop {
+    item_data_talk_number: u16,
+    items: (ShopItem, ShopItem, ShopItem),
+}
+
+impl ItemShop {
+    pub fn try_from_shop_object(obj: &ShopObject, talks: &[Talk]) -> Result<Option<Self>> {
+        let shop = Shop::try_from_shop_object(obj, talks)?;
+        match shop {
+            Shop::ItemShop(item_shop) => Ok(Some(item_shop)),
+            Shop::Storyteller(_) | Shop::Eldest(_) => Ok(None),
+        }
+    }
+
+    fn new(obj: &ShopObject, talks: &[Talk]) -> Result<Self> {
+        let Some(talk) = talks.get(obj.op4 as usize) else {
+            bail!("script broken: talk_number={}", obj.op4)
+        };
+        Ok(ItemShop {
+            item_data_talk_number: obj.op4 as u16,
+            items: shop_items_data::parse(talk)?,
+        })
+    }
+
+    pub fn item_data_talk_number(&self) -> u16 {
+        self.item_data_talk_number
+    }
+    pub fn items(&self) -> &(ShopItem, ShopItem, ShopItem) {
+        &self.items
+    }
+    pub fn into_items(self) -> (ShopItem, ShopItem, ShopItem) {
+        self.items
+    }
+}
+
+pub struct Eldest {
+    important_talk_numbers: Vec<u16>,
+    important_talks: Vec<Talk>,
+}
+
+impl Eldest {
+    pub fn new(obj: &ShopObject, talks: &[Talk]) -> Result<Self> {
+        let Some(table_header) = talks.get(obj.op3 as usize).cloned() else {
+            bail!("script broken: talk_number={}", obj.op3)
+        };
+        let bytes = table_header.as_bytes();
+        if bytes.len() < 3 {
+            bail!("invalid table header: {:?}", bytes);
+        }
+        let base_talk_number = read_u16(bytes[0], bytes[1]) as usize;
+        let len = bytes[2] as usize;
+        if talks.len() < base_talk_number + len {
+            bail!("invalid table header: {:?}", bytes);
+        }
+        let important_talk_numbers: Vec<_> = talks[base_talk_number..(base_talk_number + len)]
+            .iter()
+            .map(|x| {
+                let bytes = x.as_bytes();
+                read_u16(bytes[0], bytes[1])
+            })
+            .collect();
+        let important_talks = important_talk_numbers
+            .iter()
+            .map(|&x| talks[x as usize].clone())
+            .collect();
+        Ok(Eldest {
+            important_talk_numbers,
+            important_talks,
+        })
+    }
+
+    pub fn important_talk_numbers(&self) -> &[u16] {
+        &self.important_talk_numbers
+    }
+    pub fn into_important_talk_numbers(self) -> Vec<u16> {
+        self.important_talk_numbers
+    }
+    pub fn into_important_talks(self) -> Vec<Talk> {
+        self.important_talks
+    }
+}
+
+pub enum Shop {
+    Storyteller(Storyteller),
+    #[allow(clippy::enum_variant_names)]
+    ItemShop(ItemShop),
+    Eldest(Eldest),
 }
 
 impl Shop {
-    pub fn try_from_shop_object(obj: &ShopObject, talks: &[Talk]) -> Result<Option<Self>> {
-        if obj.form >= 100 {
-            return Ok(None);
-        }
-        Ok(Some(Shop {
-            talk_number: obj.op4 as u16,
-            items: shop_items_data::parse(&talks[obj.op4 as usize])?,
-        }))
+    pub fn try_from_shop_object(obj: &ShopObject, talks: &[Talk]) -> Result<Self> {
+        Ok(match obj.form {
+            0..=99 => Shop::ItemShop(ItemShop::new(obj, talks)?),
+            100..=199 => Shop::Storyteller(Storyteller::new(obj, talks)?),
+            _ => Shop::Eldest(Eldest::new(obj, talks)?),
+        })
     }
 }
 

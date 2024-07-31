@@ -2,6 +2,13 @@ use core::fmt;
 
 use crate::script::file::dat::{code_map, reverse_code_map};
 
+pub fn read_u16(datum1: u8, datum2: u8) -> u16 {
+    (datum1 - 1) as u16 * 0x100 + datum2 as u16
+}
+pub fn write_u16(flag: u16) -> (u8, u8) {
+    ((flag / 0x100) as u8 + 1, (flag % 0x100) as u8)
+}
+
 #[derive(Clone)]
 pub struct Talk(Vec<u8>);
 

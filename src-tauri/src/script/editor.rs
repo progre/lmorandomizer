@@ -10,7 +10,7 @@ use anyhow::Result;
 
 use crate::randomizer::storage::Storage;
 
-use super::data::{object::Shop, script::Script};
+use super::data::{object::ItemShop, script::Script};
 
 use {script_editor::replace_items, talks_editor::replace_shops};
 
@@ -20,7 +20,7 @@ pub fn apply_storage(script: &mut Script, shuffled: &Storage) -> Result<()> {
 
     let shops: Vec<_> = script
         .shops()
-        .filter_map(|x| Shop::try_from_shop_object(x, &script.talks).transpose())
+        .filter_map(|x| ItemShop::try_from_shop_object(x, &script.talks).transpose())
         .collect::<Result<_>>()?;
     let mut talks = script.talks.clone();
     replace_shops(&mut talks, script.deref(), &shops, &shuffled.shops)?;

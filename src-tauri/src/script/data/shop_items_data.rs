@@ -5,7 +5,7 @@ use crate::script::enums;
 
 use super::{
     item::{Equipment, Item, Rom, SubWeapon},
-    talk::Talk,
+    talk::{write_u16, Talk},
 };
 
 pub fn parse(talk: &Talk) -> Result<(ShopItem, ShopItem, ShopItem)> {
@@ -125,6 +125,8 @@ impl ShopItem {
         }
     }
     fn to_bytes(&self) -> [u8; 7] {
+        let price = write_u16(self.price());
+        let flag = write_u16(self.flag());
         [
             match self {
                 Self::SubWeapon(_) => 0,
@@ -132,11 +134,11 @@ impl ShopItem {
                 Self::Rom(_) => 2,
             } + 1,
             self.number() + 1,
-            ((self.price() >> 8) + 1) as u8,
-            (self.price() % 0x100) as u8,
+            price.0,
+            price.1,
             self.count().unwrap_or(0) + 1,
-            ((self.flag() >> 8) + 1) as u8,
-            (self.flag() % 0x100) as u8,
+            flag.0,
+            flag.1,
         ]
     }
 
