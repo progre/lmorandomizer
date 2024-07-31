@@ -100,24 +100,22 @@ fn replace_shop_item_talk(
     let normalized_talk =
         &ITEM_NAME_NORMALIZE_MAP
             .iter()
-            .fold(talk.as_str().to_owned(), |name, &(from, to)| {
+            .fold(talk.to_string().to_owned(), |name, &(from, to)| {
                 Regex::new(from)
                     .unwrap()
                     .replace(name.as_ref(), to)
                     .to_string()
             });
-    let result = Regex::new(&format!("(?i){}", old_item_name.as_str()))
+    let result = Regex::new(&format!("(?i){}", old_item_name))
         .unwrap()
-        .replace(normalized_talk, new_item_name.as_str());
+        .replace(normalized_talk, new_item_name.to_string());
     if &result == normalized_talk {
         warn!(
             "failed to replace shop item name: talk={}, old={}, new={}",
-            talk.as_str(),
-            old_item_name.as_str(),
-            new_item_name.as_str(),
+            talk, old_item_name, new_item_name,
         );
     }
-    Ok(Talk::new(hide_overflow(&result)))
+    Ok(Talk::from_text(&hide_overflow(&result)))
 }
 
 fn to_dataset_shop_item_from_item(item: Option<&Item>) -> Option<items::ShopItem> {

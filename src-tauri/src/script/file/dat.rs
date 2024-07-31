@@ -1,7 +1,5 @@
 use std::collections::HashMap;
 
-use crate::script::data::script::Talk;
-
 const KEY: u8 = 0b01100001;
 const CODE_MAP: &str = concat!(
     "␀␁␂␃␄␅␆␇␈␉\n␋␌␍␎␏",
@@ -22,11 +20,11 @@ const CODE_MAP: &str = concat!(
     "みむめもやゆよらりるれろわん我▼"
 );
 
-fn code_map() -> Vec<char> {
+pub fn code_map() -> Vec<char> {
     CODE_MAP.chars().collect()
 }
 
-fn reverse_code_map() -> HashMap<char, u8> {
+pub fn reverse_code_map() -> HashMap<char, u8> {
     code_map()
         .iter()
         .enumerate()
@@ -46,15 +44,4 @@ pub fn cipher_to_text(from: &[u8]) -> String {
 pub fn text_to_cipher(from: &str) -> Vec<u8> {
     let char_to_code = reverse_code_map();
     from.chars().map(|c| char_to_code[&c] ^ KEY).collect()
-}
-
-pub fn text_to_byte_code(text: &Talk) -> Vec<u8> {
-    let char_to_code = reverse_code_map();
-    text.as_str().chars().map(|c| char_to_code[&c]).collect()
-}
-
-pub fn byte_code_to_text(byte_code: &[u8]) -> String {
-    debug_assert_eq!(byte_code.len(), 7 * 3);
-    let code_map = code_map();
-    byte_code.iter().map(|&x| code_map[x as usize]).collect()
 }

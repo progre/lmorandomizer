@@ -1,10 +1,14 @@
+use core::fmt;
 use std::mem::take;
 
 use anyhow::Result;
 
 use crate::{
     randomizer::storage::Storage,
-    script::file::scripttxtparser::{parse_script_txt, stringify_script_txt},
+    script::file::{
+        dat::{code_map, reverse_code_map},
+        scripttxtparser::{parse_script_txt, stringify_script_txt},
+    },
 };
 
 use super::{
@@ -70,15 +74,30 @@ pub struct World {
 }
 
 #[derive(Clone)]
-pub struct Talk(String);
+pub struct Talk(Vec<u8>);
 
 impl Talk {
-    pub fn new(txt: String) -> Self {
-        Self(txt)
+    pub fn from_text(text: &str) -> Self {
+        let char_to_code = reverse_code_map();
+        Self(text.chars().map(|c| char_to_code[&c]).collect())
     }
 
-    pub fn as_str(&self) -> &str {
-        &self.0
+    pub fn from_bytes(data: Vec<u8>) -> Self {
+        debug_assert_eq!(data.len(), 7 * 3);
+        Self(data)
+    }
+
+    pub fn as_bytes(&self) -> &[u8] {
+        &self.0[..]
+    }
+}
+
+impl fmt::Display for Talk {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let code_map = code_map();
+        self.0
+            .iter()
+            .try_for_each(|&x| write!(f, "{}", code_map[x as usize]))
     }
 }
 

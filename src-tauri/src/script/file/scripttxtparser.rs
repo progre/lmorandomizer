@@ -23,7 +23,7 @@ pub fn parse_script_txt(text: &str) -> Result<(Vec<Talk>, Vec<World>)> {
                 .collect::<String>()
                 .trim_start_matches('\n')
                 .to_owned();
-            Talk::new(talk)
+            Talk::from_text(&talk)
         })
         .collect();
     if cfg!(debug_assertions) {
@@ -291,7 +291,7 @@ fn stringify_unknown_object(object: &UnknownObject) -> String {
 pub fn stringify_script_txt(talks: &[Talk], worlds: &[World]) -> String {
     [
         talks.iter().fold(String::new(), |mut output, x| {
-            write!(output, "<TALK>\n{}</TALK>\n", x.as_str()).unwrap();
+            write!(output, "<TALK>\n{x}</TALK>\n").unwrap();
             output
         }),
         worlds

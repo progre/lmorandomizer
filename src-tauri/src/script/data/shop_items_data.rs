@@ -1,17 +1,14 @@
 use anyhow::{anyhow, bail, Result};
 use num_traits::FromPrimitive;
 
-use crate::script::file::dat::{byte_code_to_text, text_to_byte_code};
-
 use super::{
     item::{self, Equipment, Item, Rom, SubWeapon},
     items,
     script::Talk,
 };
 
-pub fn parse(text: &Talk) -> Result<(ShopItem, ShopItem, ShopItem)> {
-    debug_assert_eq!(text.as_str().chars().count(), 7 * 3);
-    let data = text_to_byte_code(text);
+pub fn parse(talk: &Talk) -> Result<(ShopItem, ShopItem, ShopItem)> {
+    let data = talk.as_bytes();
     debug_assert_eq!(data.len(), 7 * 3);
     let mut iter = (0..3)
         .map(|i| i * 7)
@@ -28,7 +25,7 @@ pub fn stringify(items: (ShopItem, ShopItem, ShopItem)) -> Result<Talk> {
         .iter()
         .flat_map(|x| x.to_bytes())
         .collect();
-    Ok(Talk::new(byte_code_to_text(&data)))
+    Ok(Talk::from_bytes(data))
 }
 
 #[derive(Clone)]
