@@ -1,10 +1,7 @@
 use anyhow::{anyhow, bail, Result};
 use log::debug;
 
-use crate::{
-    dataset::spot::{self, FieldId},
-    randomizer::storage::Storage,
-};
+use crate::{dataset::spot::FieldId, randomizer::storage::Storage};
 
 use super::{
     item::{ChestItem, Equipment, Item, Rom},
@@ -93,9 +90,9 @@ fn new_objs(
                     return Ok(vec![obj.clone()]);
                 }
                 ChestItem::Equipment(Equipment { content, .. }) => {
-                    spot::ChestItem::Equipment(*content)
+                    items::ChestItem::Equipment(*content)
                 }
-                ChestItem::Rom(Rom { content, .. }) => spot::ChestItem::Rom(*content),
+                ChestItem::Rom(Rom { content, .. }) => items::ChestItem::Rom(*content),
             };
             let field_id = to_field_id(field_number)
                 .ok_or_else(|| anyhow!("field_id not found: {}", field_number))?;

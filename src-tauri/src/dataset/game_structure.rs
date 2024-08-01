@@ -6,8 +6,8 @@ use strum::ParseError;
 use vec1::Vec1;
 
 use crate::{
-    dataset::spot::{ChestItem, ShopItem, SpotName},
-    script::data::items::{Equipment, MainWeapon, Rom, Seal, SubWeapon},
+    dataset::spot::SpotName,
+    script::data::items::{ChestItem, Equipment, MainWeapon, Rom, Seal, ShopItem, SubWeapon},
 };
 
 use super::spot::{

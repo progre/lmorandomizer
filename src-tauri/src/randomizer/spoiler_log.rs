@@ -1,11 +1,14 @@
 use std::fmt;
 
-use crate::dataset::spot::{ChestItem, FieldId, SpotRef};
+use crate::{dataset::spot::FieldId, script::data::items::ChestItem};
 
-use super::storage::{
-    item::{Item, StrategyFlag},
-    Chest, ChestRef, MainWeapon, MainWeaponRef, Rom, RomRef, Seal, SealRef, Shop, ShopRef,
-    SubWeapon, SubWeaponRef,
+use super::{
+    spoiler::items_spots::SpotRef,
+    storage::{
+        item::{Item, StrategyFlag},
+        Chest, ChestRef, MainWeapon, MainWeaponRef, Rom, RomRef, Seal, SealRef, Shop, ShopRef,
+        SubWeapon, SubWeaponRef,
+    },
 };
 
 fn compare_key_for_spoiler_log(field_id: FieldId) -> u8 {

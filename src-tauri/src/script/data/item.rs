@@ -1,7 +1,7 @@
 use anyhow::{bail, Result};
 
 use crate::{
-    dataset::spot::{self, FieldId},
+    dataset::spot::FieldId,
     randomizer::{self, storage::item::ItemSource},
 };
 
@@ -124,7 +124,7 @@ impl Item {
                 };
                 Self::SubWeapon(item.sub_weapon().clone())
             }
-            ItemSource::Chest((field_id, spot::ChestItem::Equipment(equipment))) => {
+            ItemSource::Chest((field_id, items::ChestItem::Equipment(equipment))) => {
                 let Some(item) = script
                     .field(to_field_number(*field_id))
                     .unwrap()
@@ -142,7 +142,7 @@ impl Item {
                 };
                 Self::Equipment(item.clone())
             }
-            ItemSource::Chest((field_id, spot::ChestItem::Rom(rom))) => {
+            ItemSource::Chest((field_id, items::ChestItem::Rom(rom))) => {
                 let Some(item) = script
                     .field(to_field_number(*field_id))
                     .unwrap()
@@ -174,7 +174,7 @@ impl Item {
                     .into_iter()
                     .find(|x| {
                         let old = ShopItem::to_spot_shop_items(&x.items);
-                        spot::ShopItem::matches_items(old, *items)
+                        items::ShopItem::matches_items(old, *items)
                     })
                 else {
                     bail!("invalid shop: {:?}", items)

@@ -1,5 +1,6 @@
 use crate::{
-    dataset::spot::{ChestItem, FieldId, RequirementFlag, ShopItem, SpotName, SpotRef},
+    dataset::spot::{FieldId, RequirementFlag, SpotName},
+    randomizer::spoiler::items_spots::SpotRef,
     script::data::items,
 };
 
@@ -65,10 +66,14 @@ impl From<SpotName> for StrategyFlag {
 pub enum ItemSource {
     MainWeapon(items::MainWeapon),
     SubWeapon((FieldId, items::SubWeapon)),
-    Chest((FieldId, ChestItem)),
+    Chest((FieldId, items::ChestItem)),
     Seal(items::Seal),
     Shop(
-        (Option<ShopItem>, Option<ShopItem>, Option<ShopItem>),
+        (
+            Option<items::ShopItem>,
+            Option<items::ShopItem>,
+            Option<items::ShopItem>,
+        ),
         usize,
     ),
     Rom(items::Rom),
@@ -89,7 +94,7 @@ impl Item {
         let src = ItemSource::SubWeapon((field_id, sub_weapon));
         Self { src, name }
     }
-    pub fn chest_item(field_id: FieldId, item: ChestItem, name: StrategyFlag) -> Self {
+    pub fn chest_item(field_id: FieldId, item: items::ChestItem, name: StrategyFlag) -> Self {
         let src = ItemSource::Chest((field_id, item));
         Self { src, name }
     }
@@ -98,7 +103,11 @@ impl Item {
         Self { src, name }
     }
     pub fn shop_item(
-        items: (Option<ShopItem>, Option<ShopItem>, Option<ShopItem>),
+        items: (
+            Option<items::ShopItem>,
+            Option<items::ShopItem>,
+            Option<items::ShopItem>,
+        ),
         item_idx: usize,
         name: StrategyFlag,
     ) -> Self {

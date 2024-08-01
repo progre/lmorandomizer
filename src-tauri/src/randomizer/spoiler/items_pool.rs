@@ -2,9 +2,9 @@ use std::mem::take;
 
 use rand::{seq::SliceRandom, Rng};
 
-use crate::{dataset::spot::SpotRef, randomizer::storage::item::Item};
+use crate::randomizer::storage::item::Item;
 
-use super::items_spots::Spots;
+use super::items_spots::{SpotRef, Spots};
 
 fn move_items_to<'a>(
     mut dst: ShuffledItems<'a>,

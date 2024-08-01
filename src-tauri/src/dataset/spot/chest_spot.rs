@@ -1,17 +1,11 @@
 use std::fmt;
 
-use crate::script::data::items::{Equipment, Rom};
+use crate::script::data::items::ChestItem;
 
 use super::{
     params::{AnyOfAllRequirements, SpotName, SpotParams},
     FieldId,
 };
-
-#[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd)]
-pub enum ChestItem {
-    Equipment(Equipment),
-    Rom(Rom),
-}
 
 #[derive(Clone, Debug)]
 pub struct ChestSpot(SpotParams<ChestItem>);

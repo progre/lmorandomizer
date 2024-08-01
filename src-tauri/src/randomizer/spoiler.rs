@@ -9,12 +9,13 @@ use std::{
     sync::LazyLock,
 };
 
+use items_spots::SpotRef;
 use log::{info, trace};
 use rand::{seq::SliceRandom, Rng};
 use rand_seeder::Seeder;
 use rand_xoshiro::Xoshiro256PlusPlus;
 
-use crate::dataset::spot::{FieldId, SpotRef};
+use crate::dataset::spot::FieldId;
 
 use super::{
     spoiler_log::{CheckpointRef, SpoilerLogRef},

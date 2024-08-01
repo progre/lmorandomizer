@@ -8,8 +8,8 @@ use anyhow::Result;
 
 use crate::{
     dataset::spot::{
-        AnyOfAllRequirements, ChestItem, ChestSpot, FieldId, MainWeaponSpot, RomSpot, SealSpot,
-        ShopSpot, SubWeaponSpot,
+        AnyOfAllRequirements, ChestSpot, FieldId, MainWeaponSpot, RomSpot, SealSpot, ShopSpot,
+        SubWeaponSpot,
     },
     script::data::items,
 };
@@ -95,7 +95,7 @@ pub struct Event {
 pub struct Storage {
     pub main_weapons: BTreeMap<items::MainWeapon, MainWeapon>,
     pub sub_weapons: BTreeMap<(FieldId, items::SubWeapon), SubWeapon>,
-    pub chests: BTreeMap<(FieldId, ChestItem), Chest>,
+    pub chests: BTreeMap<(FieldId, items::ChestItem), Chest>,
     pub seals: BTreeMap<items::Seal, Seal>,
     pub shops: Vec<Shop>,
     pub roms: BTreeMap<items::Rom, Rom>,
@@ -106,7 +106,7 @@ impl Storage {
     pub fn new(
         main_weapons: BTreeMap<items::MainWeapon, MainWeapon>,
         sub_weapons: BTreeMap<(FieldId, items::SubWeapon), SubWeapon>,
-        chests: BTreeMap<(FieldId, ChestItem), Chest>,
+        chests: BTreeMap<(FieldId, items::ChestItem), Chest>,
         seals: BTreeMap<items::Seal, Seal>,
         shops: Vec<Shop>,
         roms: BTreeMap<items::Rom, Rom>,

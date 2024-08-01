@@ -3,15 +3,13 @@ use log::warn;
 use regex::Regex;
 
 use crate::{
-    dataset::{
-        spot::{self},
-        WARE_NO_MISE_COUNT,
-    },
+    dataset::WARE_NO_MISE_COUNT,
     randomizer::{self, storage},
 };
 
 use super::{
     item::Item,
+    items,
     object::Shop,
     script::{Script, Talk},
     shop_items_data::{self, ShopItem},
@@ -48,19 +46,19 @@ fn hide_overflow(kana: &str) -> String {
         .collect()
 }
 
-fn to_name_talk_number(item: spot::ShopItem) -> usize {
+fn to_name_talk_number(item: items::ShopItem) -> usize {
     match item {
-        spot::ShopItem::Rom(rom) => rom as usize,
-        spot::ShopItem::Equipment(equipment) => 500 + equipment as usize,
-        spot::ShopItem::SubWeapon(sub_weapon) => 645 + sub_weapon as usize,
+        items::ShopItem::Rom(rom) => rom as usize,
+        items::ShopItem::Equipment(equipment) => 500 + equipment as usize,
+        items::ShopItem::SubWeapon(sub_weapon) => 645 + sub_weapon as usize,
     }
 }
 
 fn replace_shop_item_talk(
     talks: &[Talk],
     talk_number: usize,
-    old: spot::ShopItem,
-    new: spot::ShopItem,
+    old: items::ShopItem,
+    new: items::ShopItem,
 ) -> Result<Talk> {
     let old_item_name_talk_number = to_name_talk_number(old);
     let Some(old_item_name) = talks.get(old_item_name_talk_number).cloned() else {
@@ -122,12 +120,12 @@ fn replace_shop_item_talk(
     Ok(Talk::new(hide_overflow(&result)))
 }
 
-fn to_dataset_shop_item_from_item(item: Option<&Item>) -> Option<spot::ShopItem> {
+fn to_dataset_shop_item_from_item(item: Option<&Item>) -> Option<items::ShopItem> {
     match item {
         None => None,
-        Some(Item::Equipment(dataset)) => Some(spot::ShopItem::Equipment(dataset.content)),
-        Some(Item::Rom(dataset)) => Some(spot::ShopItem::Rom(dataset.content)),
-        Some(Item::SubWeapon(dataset)) => Some(spot::ShopItem::SubWeapon(dataset.content)),
+        Some(Item::Equipment(dataset)) => Some(items::ShopItem::Equipment(dataset.content)),
+        Some(Item::Rom(dataset)) => Some(items::ShopItem::Rom(dataset.content)),
+        Some(Item::SubWeapon(dataset)) => Some(items::ShopItem::SubWeapon(dataset.content)),
         Some(Item::Seal(_)) | Some(Item::MainWeapon(_)) => unreachable!(),
     }
 }
@@ -166,11 +164,11 @@ fn replace_items(
 fn create_shop_item_talks(
     talks: &[Talk],
     base_talk_number: u16,
-    old: (spot::ShopItem, spot::ShopItem, spot::ShopItem),
+    old: (items::ShopItem, items::ShopItem, items::ShopItem),
     new: (
-        Option<spot::ShopItem>,
-        Option<spot::ShopItem>,
-        Option<spot::ShopItem>,
+        Option<items::ShopItem>,
+        Option<items::ShopItem>,
+        Option<items::ShopItem>,
     ),
 ) -> Result<Vec<(usize, Talk)>> {
     [(1, old.0, new.0), (2, old.1, new.1), (3, old.2, new.2)]
@@ -211,7 +209,7 @@ pub fn replace_shops(
 
         let Some(script_shop) = script_shops.iter().find(|script_shop| {
             let old = ShopItem::to_spot_shop_items(&script_shop.items);
-            spot::ShopItem::matches_items(old, dataset_shop.spot.items())
+            items::ShopItem::matches_items(old, dataset_shop.spot.items())
         }) else {
             bail!("shop not found: {:?}", dataset_shop.spot.items())
         };
