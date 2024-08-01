@@ -1,8 +1,19 @@
-mod internal;
+mod chest_spot;
+mod main_weapon_spot;
+mod params;
+mod rom_spot;
+mod seal_spot;
+mod shop_spot;
+mod sub_weapon_spot;
 
-pub use internal::{
-    AllRequirements, AnyOfAllRequirements, ChestItem, ChestSpot, FieldId, MainWeaponSpot,
-    RequirementFlag, RomSpot, SealSpot, ShopItem, ShopSpot, SpotName, SubWeaponSpot,
+pub use {
+    chest_spot::{ChestItem, ChestSpot},
+    main_weapon_spot::MainWeaponSpot,
+    params::{AllRequirements, AnyOfAllRequirements, FieldId, RequirementFlag, SpotName},
+    rom_spot::RomSpot,
+    seal_spot::SealSpot,
+    shop_spot::{ShopItem, ShopSpot},
+    sub_weapon_spot::SubWeaponSpot,
 };
 
 #[derive(Clone, Copy)]

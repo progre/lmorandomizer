@@ -15,7 +15,7 @@ use super::{
         ChestObject, MainWeaponObject, Object, RomObject, SealObject, Shop, ShopObject,
         SubWeaponObject, UnknownObject,
     },
-    scripteditor::replace_items,
+    script_editor::replace_items,
     talks_editor::replace_shops,
 };
 

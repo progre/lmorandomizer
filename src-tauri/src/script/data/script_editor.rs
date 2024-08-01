@@ -10,7 +10,7 @@ use super::{
     item::{ChestItem, Equipment, Item, Rom},
     items::{self, SubWeapon},
     object::{Object, Start, UnknownObject},
-    objectfactory::{
+    objects_factory::{
         to_object_for_shutter, to_object_for_special_chest, to_objects_for_chest,
         to_objects_for_hand_scanner,
     },
