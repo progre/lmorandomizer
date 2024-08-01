@@ -1,16 +1,16 @@
 use std::fmt::Write;
 
-use anyhow::{anyhow, Result};
+use anyhow::{anyhow, bail, Result};
 use scraper::{node::Attributes, ElementRef, Html};
 
 use crate::script::data::{
     items::SubWeapon,
-    object::{Object, Start},
-    script::{Field, Map, World},
+    object::{Object, Start, UnknownObject},
+    script::{Field, Map, Talk, World},
     shop_items_data,
 };
 
-pub fn parse_script_txt(text: &str) -> Result<(Vec<String>, Vec<World>)> {
+pub fn parse_script_txt(text: &str) -> Result<(Vec<Talk>, Vec<World>)> {
     let parser = Html::parse_fragment(text);
     let root = parser.root_element().child_elements().collect::<Vec<_>>();
     // NOTE: scraper converts all tag names to lowercase
@@ -18,23 +18,25 @@ pub fn parse_script_txt(text: &str) -> Result<(Vec<String>, Vec<World>)> {
         .iter()
         .filter(|x| x.value().name() == "talk")
         .map(|x| {
-            x.text()
+            let talk = x
+                .text()
                 .collect::<String>()
                 .trim_start_matches('\n')
-                .to_owned()
+                .to_owned();
+            Talk::new(talk)
         })
         .collect();
     if cfg!(debug_assertions) {
         let first_shop = shop_items_data::parse(&talks[252])?;
         debug_assert_eq!(first_shop.0.number(), SubWeapon::HandScanner as u8);
         debug_assert_eq!(first_shop.0.price(), 20);
-        debug_assert_eq!(first_shop.0.set_flag(), 65279);
+        debug_assert_eq!(first_shop.0.flag(), 696);
         debug_assert_eq!(first_shop.1.number(), SubWeapon::Ammunition as u8);
         debug_assert_eq!(first_shop.1.price(), 500);
-        debug_assert_eq!(first_shop.1.set_flag(), 65279);
+        debug_assert_eq!(first_shop.1.flag(), 65279);
         debug_assert_eq!(first_shop.2.number(), SubWeapon::Buckler as u8);
         debug_assert_eq!(first_shop.2.price(), 80);
-        debug_assert_eq!(first_shop.2.set_flag(), 697);
+        debug_assert_eq!(first_shop.2.flag(), 697);
     }
     let worlds: Vec<World> = root
         .iter()
@@ -86,7 +88,13 @@ pub fn parse_script_txt(text: &str) -> Result<(Vec<String>, Vec<World>)> {
                             objects: children
                                 .iter()
                                 .filter(|child| child.value().name() == "object")
-                                .map(|&child| parse_object(child))
+                                .map(|&child| {
+                                    let obj = parse_object(child)?;
+                                    let Object::Unknown(obj) = obj else {
+                                        bail!("Expected UnknownObject")
+                                    };
+                                    Ok(obj)
+                                })
                                 .collect::<Result<_>>()?,
                             maps: children
                                 .iter()
@@ -169,7 +177,7 @@ pub fn parse_script_txt(text: &str) -> Result<(Vec<String>, Vec<World>)> {
 
     debug_assert_eq!(talks.len(), 905);
     debug_assert_eq!(worlds[0].fields[0].objects[0].starts[0].flag, 99999);
-    debug_assert_eq!(worlds[0].fields[0].maps[0].objects[5].starts[0].flag, 58);
+    debug_assert_eq!(worlds[0].fields[0].maps[0].objects[5].starts()[0].flag, 58);
     Ok((talks, worlds))
 }
 
@@ -206,31 +214,84 @@ fn flat_children(root: ElementRef) -> Vec<ElementRef> {
 
 fn parse_object(object: ElementRef) -> Result<Object> {
     let attrs = parse_attrs(&object.value().attrs)?;
-    Ok(Object {
-        number: u16::try_from(attrs[0])?,
-        x: attrs[1],
-        y: attrs[2],
-        op1: attrs[3],
-        op2: attrs[4],
-        op3: attrs[5],
-        op4: attrs[6],
-        starts: flat_children(object)
+    Object::new(
+        u16::try_from(attrs[0])?,
+        attrs[1],
+        attrs[2],
+        attrs[3],
+        attrs[4],
+        attrs[5],
+        attrs[6],
+        flat_children(object)
             .iter()
             .map(|x| {
                 let start_attrs = parse_attrs(&x.value().attrs)?;
                 Ok(Start {
                     flag: u32::try_from(start_attrs[0])?,
-                    run_when_unset: start_attrs[1] != 0,
+                    run_when: start_attrs[1] != 0,
                 })
             })
             .collect::<Result<_>>()?,
-    })
+    )
 }
 
-pub fn stringify_script_txt(talks: &[String], worlds: &[World]) -> String {
+#[allow(clippy::too_many_arguments)]
+fn stringify_object_params(
+    number: u16,
+    x: i32,
+    y: i32,
+    op1: i32,
+    op2: i32,
+    op3: i32,
+    op4: i32,
+    starts: &[Start],
+) -> String {
+    let starts = starts.iter().fold(String::new(), |mut output, start| {
+        writeln!(
+            output,
+            "<START {},{}>",
+            start.flag,
+            if start.run_when { 1 } else { 0 }
+        )
+        .unwrap();
+        output
+    });
+    format!(
+        "<OBJECT {},{},{},{},{},{},{}>\n{}</OBJECT>\n",
+        number, x, y, op1, op2, op3, op4, starts,
+    )
+}
+
+fn stringify_object(object: &Object) -> String {
+    stringify_object_params(
+        object.number(),
+        object.x(),
+        object.y(),
+        object.op1(),
+        object.op2(),
+        object.op3(),
+        object.op4(),
+        object.starts(),
+    )
+}
+
+fn stringify_unknown_object(object: &UnknownObject) -> String {
+    stringify_object_params(
+        object.number,
+        object.x,
+        object.y,
+        object.op1,
+        object.op2,
+        object.op3,
+        object.op4,
+        &object.starts,
+    )
+}
+
+pub fn stringify_script_txt(talks: &[Talk], worlds: &[World]) -> String {
     [
         talks.iter().fold(String::new(), |mut output, x| {
-            write!(output, "<TALK>\n{x}</TALK>\n").unwrap();
+            write!(output, "<TALK>\n{}</TALK>\n", x.as_str()).unwrap();
             output
         }),
         worlds
@@ -275,7 +336,7 @@ pub fn stringify_script_txt(talks: &[String], worlds: &[World]) -> String {
                                 field
                                     .objects
                                     .iter()
-                                    .map(stringify_object)
+                                    .map(stringify_unknown_object)
                                     .collect::<String>(),
                                 field
                                     .maps
@@ -323,30 +384,4 @@ pub fn stringify_script_txt(talks: &[String], worlds: &[World]) -> String {
             .collect::<String>(),
     ]
     .join("")
-}
-
-fn stringify_object(object: &Object) -> String {
-    format!(
-        "<OBJECT {},{},{},{},{},{},{}>\n{}</OBJECT>\n",
-        object.number,
-        object.x,
-        object.y,
-        object.op1,
-        object.op2,
-        object.op3,
-        object.op4,
-        object
-            .starts
-            .iter()
-            .fold(String::new(), |mut output, start| {
-                writeln!(
-                    output,
-                    "<START {},{}>",
-                    start.flag,
-                    if start.run_when_unset { 1 } else { 0 }
-                )
-                .unwrap();
-                output
-            }),
-    )
 }

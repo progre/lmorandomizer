@@ -1,12 +1,24 @@
 mainWeapons:
-  - keySword:
-      - keyOfEternity
+  keySword:
+    - keyOfEternity
 chests:
-  - map:endlessCorridor:
-      - event:basicSet
-  - twinStatue:
-      - keyOfEternity, feather
-      - keyOfEternity, grappleClaw
+  map:endlessCorridor:
+    - event:basicSet
+  twinStatue:
+    - keyOfEternity, feather
+    - keyOfEternity, grappleClaw
+    - option:glitch, holyGrail # https://youtu.be/7_D0TQ7ZWk0?si=g1TK2_l7qHGtg2Dm&t=2368
 shops:
-  - bombAmmo, toukenAmmo, weights:
-      - lifeSeal
+  bombAmmo, toukenAmmo, weights:
+    - lifeSeal
+roms:
+  videoHustler:
+    - event:basicSet
+  konamiGolf:
+    - keyOfEternity
+  konamiBoxing:
+    - keyOfEternity, feather
+    - keyOfEternity, grappleClaw
+  yieArKungFu2:
+    - keyOfEternity, feather
+    - keyOfEternity, grappleClaw

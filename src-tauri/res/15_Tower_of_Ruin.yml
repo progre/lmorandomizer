@@ -1,16 +1,25 @@
 subWeapons:
-  - ankhJewel:towerOfRuin:
-      - event:reachedFrontOfTowerOfRuin
-  - spear:
-      - event:reachedFrontOfTowerOfRuin
+  ankhJewel:towerOfRuin:
+    - event:reachedFrontOfTowerOfRuin
+  spear:
+    - event:reachedFrontOfTowerOfRuin
 chests:
-  - djedPillar:
-      - event:reachedBackDoorOfTowerOfRuin, ocarina, event:mulanaTalisman # need to talk to sage in spring. need mulana talisman to get item
-  - map:towerOfRuin:
-      - event:reachedFrontOfTowerOfRuin
-  - sacredOrb:towerOfRuin:
-      - event:reachedFrontOfTowerOfRuin
+  djedPillar:
+    - event:reachedBackDoorOfTowerOfRuin, event:mulanaTalisman, ocarina # need to talk to sage in spring. need mulana talisman to get item
+  map:towerOfRuin:
+    - event:reachedFrontOfTowerOfRuin
+  sacredOrb:towerOfRuin:
+    - event:reachedFrontOfTowerOfRuin
 shops:
-  - knightmare, bombAmmo, flareGunAmmo:
-      - event:reachedFrontOfTowerOfRuin, katana, feather
-      - event:reachedFrontOfTowerOfRuin, katana, boots, grappleClaw # can reach with boots and grapple claw
+  knightmare, bombAmmo, flareGunAmmo:
+    - event:reachedFrontOfTowerOfRuin, katana, feather
+    - event:reachedFrontOfTowerOfRuin, katana, boots, grappleClaw # can reach with boots and grapple claw
+roms:
+  ruinsRam16K:
+    - event:reachedGrailOfGateOfIllusion, event:miniDoll
+  hyperSports3:
+    - event:reachedFrontOfTowerOfRuin, iceCape
+  shinSynthesizer:
+    - event:reachedFrontOfTowerOfRuin, spear, spearAmmo
+  badlands:
+    - event:reachedBackDoorOfTowerOfRuin, keySword

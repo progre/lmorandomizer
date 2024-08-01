@@ -1,13 +1,20 @@
 subWeapons:
-  - angelShield:
-      - event:reachedDimensionalCorridor, sacredOrb:2 # should have some health to beat bosses
-  - ankhJewel:dimensionalCorridor:
-      - event:reachedDimensionalCorridor
+  angelShield:
+    - event:reachedDimensionalCorridor, sacredOrb:2 # should have some health to beat bosses
+  ankhJewel:dimensionalCorridor:
+    - event:reachedDimensionalCorridor
 chests:
-  - magatamaJewel:
-      - event:defeatedTiamat, event:mulanaTalisman # need mulana talisman to get item
-  - sacredOrb:dimensionalCorridor:
-      - event:reachedDimensionalCorridor, feather, lampOfTime, sacredOrb:2 # do not need grapple claw. should have some health to beat bosses
-  # skip ankhJewel
-  - map:dimensionalCorridor:
-      - event:reachedDimensionalCorridor
+  magatamaJewel:
+    - event:defeatedTiamat, event:mulanaTalisman # need mulana talisman to get item
+    - option:glitch, event:defeatedTiamat, option:glitch, grappleClaw, bomb, bombAmmo # https://youtu.be/AtvFGL1-2x4
+  sacredOrb:dimensionalCorridor:
+    - event:reachedDimensionalCorridor, feather, lampOfTime, sacredOrb:2 # do not need grapple claw. should have some health to beat bosses
+  map:dimensionalCorridor:
+    - event:reachedDimensionalCorridor
+roms:
+  gradius2:
+    - event:reachedDimensionalCorridor
+  kingsValleyDisk:
+    - event:reachedDimensionalCorridor
+  gradius2Beta:
+    - event:reachedDimensionalCorridor

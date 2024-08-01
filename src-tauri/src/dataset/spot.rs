@@ -1,299 +1,39 @@
-use std::{any::type_name, collections::HashSet, fmt};
+mod internal;
 
-use super::item::StrategyFlag;
+pub use internal::{
+    AllRequirements, AnyOfAllRequirements, ChestItem, ChestSpot, FieldId, MainWeaponSpot,
+    RequirementFlag, RomSpot, SealSpot, ShopItem, ShopSpot, SpotName, SubWeaponSpot,
+};
 
-#[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd, num_derive::FromPrimitive)]
-pub enum FieldId {
-    Surface = 0,
-    GateOfGuidance,
-    MausoleumOfTheGiants,
-    TempleOfTheSun,
-    SpringInTheSky,
-    InfernoCavern,
-    ChamberOfExtinction,
-    TwinLabyrinthsLeft,
-    EndlessCorridor,
-    ShrineOfTheMother,
-    GateOfIllusion = 11,
-    GraveyardOfTheGiants,
-    TempleOfMoonlight,
-    TowerOfTheGoddess,
-    TowerOfRuin,
-    ChamberOfBirth,
-    TwinLabyrinthsRight,
-    DimensionalCorridor,
-    TrueShrineOfTheMother,
+#[derive(Clone, Copy)]
+pub enum SpotRef<'a> {
+    MainWeapon(&'a MainWeaponSpot),
+    SubWeapon(&'a SubWeaponSpot),
+    Chest(&'a ChestSpot),
+    Seal(&'a SealSpot),
+    Shop(&'a ShopSpot),
+    Rom(&'a RomSpot),
 }
 
-#[derive(Clone, Debug)]
-pub struct SpotName(String);
-
-impl SpotName {
-    pub fn new(name: String) -> Self {
-        Self(name)
-    }
-
-    pub fn get(&self) -> &str {
-        self.0.as_str()
-    }
-
-    pub fn into_inner(self) -> String {
-        self.0
-    }
-}
-
-#[derive(Clone, Debug, Hash, Eq, Ord, PartialEq, PartialOrd)]
-pub struct RequirementFlag(String);
-
-impl RequirementFlag {
-    pub fn new(requirement: String) -> Self {
-        debug_assert!(
-            !requirement.starts_with("sacredOrb:")
-                || requirement
-                    .split(':')
-                    .nth(1)
-                    .map_or(false, |x| x.parse::<u8>().is_ok())
-        );
-        Self(requirement)
-    }
-
-    pub fn is_sacred_orb(&self) -> bool {
-        self.0.starts_with("sacredOrb:")
-    }
-
-    pub fn sacred_orb_count(&self) -> u8 {
-        self.0.split(':').nth(1).unwrap().parse().unwrap()
-    }
-
-    pub fn get(&self) -> &str {
-        self.0.as_str()
-    }
-}
-
-impl PartialEq<StrategyFlag> for RequirementFlag {
-    fn eq(&self, other: &StrategyFlag) -> bool {
-        self.0 == other.0
-    }
-}
-
-#[derive(Clone, Debug, PartialEq)]
-pub struct AllRequirements(pub Vec<RequirementFlag>);
-
-#[derive(Clone, Debug, PartialEq)]
-pub struct AnyOfAllRequirements(pub Vec<AllRequirements>);
-
-#[derive(Clone, Debug)]
-pub struct MainWeapon {
-    pub field_id: FieldId,
-    pub src_idx: usize,
-    pub name: SpotName,
-    pub requirements: Option<AnyOfAllRequirements>,
-}
-
-#[derive(Clone, Debug)]
-pub struct SubWeapon {
-    pub field_id: FieldId,
-    pub src_idx: usize,
-    pub name: SpotName,
-    pub requirements: Option<AnyOfAllRequirements>,
-}
-
-#[derive(Clone, Debug)]
-pub struct Chest {
-    pub field_id: FieldId,
-    pub src_idx: usize,
-    pub name: SpotName,
-    pub requirements: Option<AnyOfAllRequirements>,
-}
-
-#[derive(Clone, Debug)]
-pub struct Seal {
-    pub field_id: FieldId,
-    pub src_idx: usize,
-    pub name: SpotName,
-    pub requirements: Option<AnyOfAllRequirements>,
-}
-
-#[derive(Clone, Debug)]
-pub struct Shop {
-    pub field_id: FieldId,
-    pub src_idx: usize,
-    pub name: SpotName,
-    pub requirements: Option<AnyOfAllRequirements>,
-}
-
-impl Shop {
-    pub fn new(
-        field_id: FieldId,
-        src_idx: usize,
-        name: SpotName,
-        requirements: Option<AnyOfAllRequirements>,
-    ) -> Self {
-        if cfg!(debug_assertions) {
-            let names: Vec<_> = name.0.split(',').map(|x| x.trim()).collect();
-            debug_assert_eq!(names.len(), 3);
-        }
-        Self {
-            field_id,
-            src_idx,
-            name,
-            requirements,
-        }
-    }
-
-    pub fn to_strategy_flags(&self) -> (StrategyFlag, StrategyFlag, StrategyFlag) {
-        let mut names = self.name.0.split(',').map(|x| x.trim());
-        (
-            StrategyFlag::new(names.next().unwrap().to_string()),
-            StrategyFlag::new(names.next().unwrap().to_string()),
-            StrategyFlag::new(names.next().unwrap().to_string()),
-        )
-    }
-}
-
-#[derive(Clone, Debug)]
-pub enum Spot {
-    MainWeapon(MainWeapon),
-    SubWeapon(SubWeapon),
-    Chest(Chest),
-    Seal(Seal),
-    Shop(Shop),
-}
-
-impl Spot {
-    pub fn main_weapon(
-        field_id: FieldId,
-        src_idx: usize,
-        name: SpotName,
-        reqs: Option<AnyOfAllRequirements>,
-    ) -> Self {
-        Self::MainWeapon(MainWeapon {
-            field_id,
-            src_idx,
-            name,
-            requirements: reqs,
-        })
-    }
-    pub fn sub_weapon(
-        field_id: FieldId,
-        src_idx: usize,
-        name: SpotName,
-        reqs: Option<AnyOfAllRequirements>,
-    ) -> Self {
-        Self::SubWeapon(SubWeapon {
-            field_id,
-            src_idx,
-            name,
-            requirements: reqs,
-        })
-    }
-    pub fn chest(
-        field_id: FieldId,
-        src_idx: usize,
-        name: SpotName,
-        reqs: Option<AnyOfAllRequirements>,
-    ) -> Self {
-        Self::Chest(Chest {
-            field_id,
-            src_idx,
-            name,
-            requirements: reqs,
-        })
-    }
-    pub fn seal(
-        field_id: FieldId,
-        src_idx: usize,
-        name: SpotName,
-        reqs: Option<AnyOfAllRequirements>,
-    ) -> Self {
-        Self::Seal(Seal {
-            field_id,
-            src_idx,
-            name,
-            requirements: reqs,
-        })
-    }
-    pub fn shop(shop: Shop) -> Self {
-        Self::Shop(shop)
-    }
-
+impl SpotRef<'_> {
     pub fn field_id(&self) -> FieldId {
         match self {
-            Self::MainWeapon(x) => x.field_id,
-            Self::SubWeapon(x) => x.field_id,
-            Self::Chest(x) => x.field_id,
-            Self::Seal(x) => x.field_id,
-            Self::Shop(x) => x.field_id,
+            Self::MainWeapon(x) => x.field_id(),
+            Self::SubWeapon(x) => x.field_id(),
+            Self::Chest(x) => x.field_id(),
+            Self::Seal(x) => x.field_id(),
+            Self::Shop(x) => x.field_id(),
+            Self::Rom(x) => x.field_id(),
         }
     }
-
     pub fn requirements(&self) -> Option<&AnyOfAllRequirements> {
         match self {
-            Self::MainWeapon(x) => x.requirements.as_ref(),
-            Self::SubWeapon(x) => x.requirements.as_ref(),
-            Self::Chest(x) => x.requirements.as_ref(),
-            Self::Seal(x) => x.requirements.as_ref(),
-            Self::Shop(x) => x.requirements.as_ref(),
+            Self::MainWeapon(x) => x.requirements(),
+            Self::SubWeapon(x) => x.requirements(),
+            Self::Chest(x) => x.requirements(),
+            Self::Seal(x) => x.requirements(),
+            Self::Shop(x) => x.requirements(),
+            Self::Rom(x) => Some(x.requirements()),
         }
-    }
-
-    pub fn requirements_mut(&mut self) -> &mut Option<AnyOfAllRequirements> {
-        match self {
-            Self::MainWeapon(x) => &mut x.requirements,
-            Self::SubWeapon(x) => &mut x.requirements,
-            Self::Chest(x) => &mut x.requirements,
-            Self::Seal(x) => &mut x.requirements,
-            Self::Shop(x) => &mut x.requirements,
-        }
-    }
-
-    pub fn is_reachable(
-        &self,
-        current_strategy_flags: &HashSet<&str>,
-        sacred_orb_count: u8,
-    ) -> bool {
-        let Some(any) = self.requirements() else {
-            return true;
-        };
-        any.0.iter().any(|all| {
-            all.0.iter().all(|x| {
-                x.is_sacred_orb() && x.sacred_orb_count() <= sacred_orb_count
-                    || current_strategy_flags.contains(x.get())
-            })
-        })
-    }
-}
-
-impl fmt::Display for Spot {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let full_type_name = match self {
-            Self::MainWeapon(_) => type_name::<MainWeapon>(),
-            Self::SubWeapon(_) => type_name::<SubWeapon>(),
-            Self::Chest(_) => type_name::<Chest>(),
-            Self::Seal(_) => type_name::<Seal>(),
-            Self::Shop(_) => type_name::<Shop>(),
-        };
-        let src_idx = match self {
-            Self::MainWeapon(x) => x.src_idx,
-            Self::SubWeapon(x) => x.src_idx,
-            Self::Chest(x) => x.src_idx,
-            Self::Seal(x) => x.src_idx,
-            Self::Shop(x) => x.src_idx,
-        };
-        let name = match self {
-            Self::MainWeapon(x) => &x.name,
-            Self::SubWeapon(x) => &x.name,
-            Self::Chest(x) => &x.name,
-            Self::Seal(x) => &x.name,
-            Self::Shop(x) => &x.name,
-        };
-        write!(
-            f,
-            "{:?}_{}{}({})",
-            self.field_id(),
-            full_type_name.split("::").last().unwrap(),
-            src_idx,
-            name.get()
-        )
     }
 }

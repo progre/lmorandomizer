@@ -4,8 +4,8 @@ use rand::Rng;
 
 use crate::dataset::{
     item::Item,
-    spot::{FieldId, Spot},
-    storage::Storage,
+    spot::{FieldId, SpotRef},
+    storage::{Event, Storage},
 };
 
 use super::{
@@ -24,8 +24,8 @@ pub struct Items<'a> {
 impl<'a> Items<'a> {
     pub fn new(source: &'a Storage) -> Self {
         let (maps, chests) = source
-            .chests()
-            .iter()
+            .chests
+            .values()
             .partition::<Vec<_>, _>(|x| x.item.name.is_map());
         let maps: BTreeMap<FieldId, &Item> = maps
             .into_iter()
@@ -33,24 +33,27 @@ impl<'a> Items<'a> {
             .collect();
 
         let items = source
-            .main_weapons()
-            .iter()
-            .chain(source.sub_weapons())
-            .chain(chests)
-            .chain(source.seals())
+            .main_weapons
+            .values()
             .map(|x| &x.item)
+            .chain(source.sub_weapons.values().map(|x| &x.item))
+            .chain(chests.iter().map(|x| &x.item))
+            .chain(source.seals.values().map(|x| &x.item))
             .chain(
                 source
-                    .shops()
+                    .shops
                     .iter()
-                    .flat_map(|x| [&x.items.0, &x.items.1, &x.items.2]),
-            );
+                    .flat_map(|x| [&x.items.0, &x.items.1, &x.items.2])
+                    .filter_map(|x| x.as_ref()),
+            )
+            .chain(source.roms.values().map(|x| &x.item));
         let (priority_items, remaining_items) = items.partition::<Vec<_>, _>(|item| {
             [
                 "handScanner",
                 "shellHorn",
                 "holyGrail",
                 "gameMaster",
+                "gameMaster2",
                 "glyphReader",
             ]
             .contains(&item.name.get())
@@ -72,32 +75,23 @@ impl<'a> Items<'a> {
             source.all_items().count(),
         );
         debug_assert_eq!(
-            priority_items.len()
-                + unsellable_items.len()
-                + sellable_items.len()
-                + consumable_items.len()
-                + maps.len(),
-            source.main_weapons().len()
-                + source.sub_weapons().len()
-                + source.chests().len()
-                + source.seals().len()
-                + source
-                    .shops()
-                    .iter()
-                    .map(|_| true as usize + true as usize + true as usize)
-                    .sum::<usize>(),
-        );
-        debug_assert_eq!(
             priority_items.len() + unsellable_items.len() + sellable_items.len() + maps.len(),
-            source.main_weapons().len()
-                + source.sub_weapons().len()
-                + source.chests().len()
-                + source.seals().len()
+            source.main_weapons.len()
+                + source.sub_weapons.len()
+                + source.chests.len()
+                + source.seals.len()
                 + source
-                    .shops()
+                    .shops
                     .iter()
-                    .map(|shop| shop.count_general_items())
-                    .sum::<usize>(),
+                    .map(|shop| {
+                        let count = |item: &Option<Item>| {
+                            item.as_ref()
+                                .map_or(0, |x| !x.name.is_consumable() as usize)
+                        };
+                        count(&shop.items.0) + count(&shop.items.1) + count(&shop.items.2)
+                    })
+                    .sum::<usize>()
+                + source.roms.len(),
         );
         debug_assert!(priority_items.iter().all(|item| item.can_display_in_shop()));
 
@@ -143,35 +137,45 @@ impl<'a> Items<'a> {
 
 #[derive(Clone)]
 pub struct Spots<'a> {
-    pub field_item_spots: Vec<&'a Spot>,
+    pub field_item_spots: Vec<SpotRef<'a>>,
     pub shops: Vec<ShopItemDisplay<'a>>,
+    pub events: Vec<&'a Event>,
 }
 
 impl<'a> Spots<'a> {
     pub fn new(source: &'a Storage) -> Self {
         Self {
             field_item_spots: source
-                .main_weapons()
-                .iter()
-                .chain(source.sub_weapons())
-                .chain(source.chests())
-                .chain(source.seals())
-                .map(|x| &x.spot)
+                .main_weapons
+                .values()
+                .map(|x| SpotRef::MainWeapon(&x.spot))
+                .chain(
+                    source
+                        .sub_weapons
+                        .values()
+                        .map(|x| SpotRef::SubWeapon(&x.spot)),
+                )
+                .chain(source.chests.values().map(|x| SpotRef::Chest(&x.spot)))
+                .chain(source.seals.values().map(|x| SpotRef::Seal(&x.spot)))
+                .chain(source.roms.values().map(|x| SpotRef::Rom(&x.spot)))
                 .collect(),
             shops: source
-                .shops()
+                .shops
                 .iter()
                 .flat_map(|shop| {
                     [&shop.items.0, &shop.items.1, &shop.items.2]
                         .into_iter()
                         .enumerate()
-                        .map(|(idx, item)| ShopItemDisplay {
-                            spot: &shop.spot,
-                            idx,
-                            name: &item.name,
+                        .filter_map(|(idx, item)| {
+                            item.as_ref().map(|item| ShopItemDisplay {
+                                spot: &shop.spot,
+                                idx,
+                                name: &item.name,
+                            })
                         })
                 })
                 .collect(),
+            events: source.events.iter().collect(),
         }
     }
 

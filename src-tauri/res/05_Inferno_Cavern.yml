@@ -1,16 +1,27 @@
 mainWeapons:
-  - chainWhip:
-      - birthSeal, grappleClaw
+  chainWhip:
+    - birthSeal, grappleClaw
 subWeapons:
-  - flareGun:
-      - glove # super boring puzzle without gloves
+  flareGun:
+    - glove # super boring puzzle without gloves
 chests:
-  - map:infernoCavern:
-      - event:basicSet
-  - grappleClaw:
-      - iceCape
-      - glove, sacredOrb:3 # TODO: test
-      - sacredOrb:5 # tested
+  map:infernoCavern:
+    - event:basicSet
+  grappleClaw:
+    - iceCape
+    - glove, sacredOrb:3 # TODO: test
+    - sacredOrb:5 # tested
 shops:
-  - mahjongWizard, spearAmmo, toukenAmmo:
-      - event:basicSet
+  mahjongWizard, spearAmmo, toukenAmmo:
+    - event:basicSet
+roms:
+  antarcticAdventure:
+    - event:basicSet
+  hyperOlympic3:
+    - event:basicSet
+  goonies:
+    - event:reachedBackDoorOfSurface
+  firebird:
+    - event:basicSet
+  gameCollection2:
+    - event:basicSet

@@ -20,7 +20,6 @@ tauri-build = { version = "2.0.0-beta", features = [] }
 [dependencies]
 anyhow = "1.0.86"
 futures = "0.3.30"
-getset = "0.1.2"
 hex = "0.4.3"
 log = "0.4.21"
 num-derive = "0.4.2"
@@ -28,13 +27,16 @@ num-traits = "0.2.19"
 rand = "0.8.5"
 rand_seeder = "0.2.3"
 rand_xoshiro = "0.6.0"
+regex = "1.10.5"
 scraper = "0.19.0"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 serde_yaml = "0.9.34"
 sha3 = "0.10.8"
+strum = { version = "0.26.3", features = ["derive"] }
 tauri = { version = "2.0.0-beta", features = [] }
 tauri-plugin-log = "2.0.0-beta.6"
 tauri-plugin-shell = "2.0.0-beta"
 tauri-plugin-store = "2.0.0-beta.8"
-tokio = { version = "1.38.0", features = ["fs"] }
+tokio = { version = "1.38.0", features = ["fs", "macros"] }
+vec1 = "1.12.1"

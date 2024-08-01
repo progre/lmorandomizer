@@ -1,4 +1,6 @@
-use super::spot::{RequirementFlag, Spot, SpotName};
+use crate::script::data::items;
+
+use super::spot::{ChestItem, FieldId, RequirementFlag, ShopItem, SpotName, SpotRef};
 
 #[derive(Clone, Debug, Hash, Eq, Ord, PartialEq, PartialOrd)]
 pub struct StrategyFlag(pub String);
@@ -54,11 +56,15 @@ impl From<SpotName> for StrategyFlag {
 
 #[derive(Clone, Debug)]
 pub enum ItemSource {
-    MainWeapon(usize),
-    SubWeapon(usize),
-    Chest(usize),
-    Seal(usize),
-    Shop(usize, usize),
+    MainWeapon(items::MainWeapon),
+    SubWeapon((FieldId, items::SubWeapon)),
+    Chest((FieldId, ChestItem)),
+    Seal(items::Seal),
+    Shop(
+        (Option<ShopItem>, Option<ShopItem>, Option<ShopItem>),
+        usize,
+    ),
+    Rom(items::Rom),
 }
 
 #[derive(Clone, Debug)]
@@ -68,24 +74,32 @@ pub struct Item {
 }
 
 impl Item {
-    pub fn main_weapon(src_idx: usize, name: StrategyFlag) -> Self {
-        let src = ItemSource::MainWeapon(src_idx);
+    pub fn main_weapon(main_weapon: items::MainWeapon, name: StrategyFlag) -> Self {
+        let src = ItemSource::MainWeapon(main_weapon);
         Self { src, name }
     }
-    pub fn sub_weapon(src_idx: usize, name: StrategyFlag) -> Self {
-        let src = ItemSource::SubWeapon(src_idx);
+    pub fn sub_weapon(field_id: FieldId, sub_weapon: items::SubWeapon, name: StrategyFlag) -> Self {
+        let src = ItemSource::SubWeapon((field_id, sub_weapon));
         Self { src, name }
     }
-    pub fn chest_item(src_idx: usize, name: StrategyFlag) -> Self {
-        let src = ItemSource::Chest(src_idx);
+    pub fn chest_item(field_id: FieldId, item: ChestItem, name: StrategyFlag) -> Self {
+        let src = ItemSource::Chest((field_id, item));
         Self { src, name }
     }
-    pub fn seal(src_idx: usize, name: StrategyFlag) -> Self {
-        let src = ItemSource::Seal(src_idx);
+    pub fn seal(seal: items::Seal, name: StrategyFlag) -> Self {
+        let src = ItemSource::Seal(seal);
         Self { src, name }
     }
-    pub fn shop_item(shop_idx: usize, item_idx: usize, name: StrategyFlag) -> Self {
-        let src = ItemSource::Shop(shop_idx, item_idx);
+    pub fn shop_item(
+        items: (Option<ShopItem>, Option<ShopItem>, Option<ShopItem>),
+        item_idx: usize,
+        name: StrategyFlag,
+    ) -> Self {
+        let src = ItemSource::Shop(items, item_idx);
+        Self { src, name }
+    }
+    pub fn rom(rom: items::Rom, name: StrategyFlag) -> Self {
+        let src = ItemSource::Rom(rom);
         Self { src, name }
     }
 
@@ -96,7 +110,7 @@ impl Item {
     pub fn can_display_in_shop(&self) -> bool {
         match &self.src {
             ItemSource::MainWeapon(_) | ItemSource::Seal(_) => false,
-            ItemSource::Shop(..) => true,
+            ItemSource::Shop(..) | ItemSource::Rom(_) => true,
             ItemSource::SubWeapon(_) => self.name.get() == "pistol",
             ItemSource::Chest(_) => {
                 !self.name.is_map()
@@ -110,7 +124,7 @@ impl Item {
     }
 
     /// 与えられたスポット一覧のいずれかから必要とされているか
-    pub fn is_required(&self, spots: &[&Spot]) -> bool {
+    pub fn is_required(&self, spots: &[&SpotRef]) -> bool {
         spots
             .iter()
             .flat_map(|spot| spot.requirements())

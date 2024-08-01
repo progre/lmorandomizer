@@ -3,7 +3,7 @@
 
 mod app;
 mod dataset;
-mod randomizer;
+pub mod randomizer;
 mod script;
 
 use log::LevelFilter;
@@ -28,6 +28,9 @@ fn main() {
             app::set_seed,
             app::set_install_directory,
             app::set_easy_mode,
+            app::set_shuffle_secret_roms,
+            app::set_need_glitches,
+            app::set_absolutely_shuffle,
             app::apply,
             app::restore,
         ])

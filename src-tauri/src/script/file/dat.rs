@@ -1,5 +1,7 @@
 use std::collections::HashMap;
 
+use crate::script::data::script::Talk;
+
 const KEY: u8 = 0b01100001;
 const CODE_MAP: &str = concat!(
     "␀␁␂␃␄␅␆␇␈␉\n␋␌␍␎␏",
@@ -46,9 +48,9 @@ pub fn text_to_cipher(from: &str) -> Vec<u8> {
     from.chars().map(|c| char_to_code[&c] ^ KEY).collect()
 }
 
-pub fn text_to_byte_code(text: &str) -> Vec<u8> {
+pub fn text_to_byte_code(text: &Talk) -> Vec<u8> {
     let char_to_code = reverse_code_map();
-    text.chars().map(|c| char_to_code[&c]).collect()
+    text.as_str().chars().map(|c| char_to_code[&c]).collect()
 }
 
 pub fn byte_code_to_text(byte_code: &[u8]) -> String {

@@ -1,2 +1,4 @@
-seals:
-  # skip deathSeal
+roms:
+  sdSnatcher:
+    - event:reachedTrueShrineOfTheMother, feather
+    - event:reachedTrueShrineOfTheMother, grappleClaw

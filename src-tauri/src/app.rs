@@ -1,8 +1,9 @@
+use anyhow::Result;
 use futures::future::join_all;
-use log::info;
+use log::{error, info};
 use num_traits::FromPrimitive;
 use serde_json::json;
-use std::path::PathBuf;
+use std::{collections::BTreeMap, path::PathBuf};
 use tauri::{path::BaseDirectory, AppHandle, Manager, State, Wry};
 use tauri_plugin_store::{with_store, Store, StoreCollection};
 use tokio::{
@@ -22,6 +23,9 @@ pub struct InitialData {
     seed: String,
     install_directory: String,
     easy_mode: bool,
+    shuffle_secret_roms: bool,
+    need_glitches: bool,
+    absolutely_shuffle: bool,
 }
 
 impl InitialData {
@@ -41,6 +45,18 @@ impl InitialData {
                 .get("easy_mode")
                 .and_then(|obj| obj.as_bool())
                 .unwrap_or(false),
+            shuffle_secret_roms: store
+                .get("shuffle_secret_roms")
+                .and_then(|obj| obj.as_bool())
+                .unwrap_or(true),
+            need_glitches: store
+                .get("need_glitches")
+                .and_then(|obj| obj.as_bool())
+                .unwrap_or(false),
+            absolutely_shuffle: store
+                .get("absolutely_shuffle")
+                .and_then(|obj| obj.as_bool())
+                .unwrap_or(false),
         }
     }
 
@@ -49,10 +65,19 @@ impl InitialData {
             seed,
             install_directory,
             easy_mode,
+            shuffle_secret_roms,
+            need_glitches,
+            absolutely_shuffle,
         } = &self;
         store.insert("seed".to_owned(), json!(seed))?;
         store.insert("install_directory".to_owned(), json!(install_directory))?;
         store.insert("easy_mode".to_owned(), json!(easy_mode))?;
+        store.insert(
+            "shuffle_secret_roms".to_owned(),
+            json!(*shuffle_secret_roms),
+        )?;
+        store.insert("need_glitches".to_owned(), json!(*need_glitches))?;
+        store.insert("absolutely_shuffle".to_owned(), json!(*absolutely_shuffle))?;
         Ok(())
     }
 }
@@ -110,6 +135,29 @@ pub fn set_easy_mode(app_handle: AppHandle, stores: State<StoreCollection<Wry>>,
     set_initial_data_value(app_handle, stores, |data| data.easy_mode = value);
 }
 
+#[tauri::command]
+pub fn set_shuffle_secret_roms(
+    app_handle: AppHandle,
+    stores: State<StoreCollection<Wry>>,
+    value: bool,
+) {
+    set_initial_data_value(app_handle, stores, |data| data.shuffle_secret_roms = value);
+}
+
+#[tauri::command]
+pub fn set_need_glitches(app_handle: AppHandle, stores: State<StoreCollection<Wry>>, value: bool) {
+    set_initial_data_value(app_handle, stores, |data| data.need_glitches = value);
+}
+
+#[tauri::command]
+pub fn set_absolutely_shuffle(
+    app_handle: AppHandle,
+    stores: State<StoreCollection<Wry>>,
+    value: bool,
+) {
+    set_initial_data_value(app_handle, stores, |data| data.absolutely_shuffle = value);
+}
+
 async fn read_file(path: &str) -> io::Result<Vec<u8>> {
     let mut file = File::open(path)
         .await
@@ -128,51 +176,67 @@ async fn write_file(path: &str, contents: &[u8]) -> io::Result<()> {
     Ok(())
 }
 
-async fn read_game_structure_files(handle: AppHandle) -> tauri::Result<GameStructureFiles> {
+async fn read_game_structure_files_internal(
+    resolve_path: impl Fn(&str) -> Result<PathBuf>,
+) -> anyhow::Result<GameStructureFiles> {
     let file_paths = [
-        (1, "res/01_Gate_of_Guidance.yml"),
-        (0, "res/00_Surface.yml"),
-        (2, "res/02_Mausoleum_of_the_Giants.yml"),
-        (3, "res/03_Temple_of_the_Sun.yml"),
-        (4, "res/04_Spring_in_the_Sky.yml"),
-        (5, "res/05_Inferno_Cavern.yml"),
-        (6, "res/06_Chamber_of_Extinction.yml"),
-        (8, "res/08_Endless_Corridor.yml"),
-        (9, "res/09_Shrine_of_the_Mother.yml"),
-        (7, "res/07_Twin_Labyrinths_Left.yml"),
-        (17, "res/17_Twin_Labyrinths_Right.yml"),
-        (11, "res/11_Gate_of_Illusion.yml"),
-        (12, "res/12_Graveyard_of_the_Giants.yml"),
-        (14, "res/14_Tower_of_the_Goddess.yml"),
-        (13, "res/13_Temple_of_Moonlight.yml"),
-        (15, "res/15_Tower_of_Ruin.yml"),
-        (16, "res/16_Chamber_of_Birth.yml"),
-        (18, "res/18_Dimensional_Corridor.yml"),
-        (19, "res/19_True_Shrine_of_the_Mother.yml"),
+        "res/00_Surface.yml",
+        "res/01_Gate_of_Guidance.yml",
+        "res/02_Mausoleum_of_the_Giants.yml",
+        "res/03_Temple_of_the_Sun.yml",
+        "res/04_Spring_in_the_Sky.yml",
+        "res/05_Inferno_Cavern.yml",
+        "res/06_Chamber_of_Extinction.yml",
+        "res/07_Twin_Labyrinths_Left.yml",
+        "res/08_Endless_Corridor.yml",
+        "res/09_Shrine_of_the_Mother.yml",
+        "res/11_Gate_of_Illusion.yml",
+        "res/12_Graveyard_of_the_Giants.yml",
+        "res/13_Temple_of_Moonlight.yml",
+        "res/14_Tower_of_the_Goddess.yml",
+        "res/15_Tower_of_Ruin.yml",
+        "res/16_Chamber_of_Birth.yml",
+        "res/17_Twin_Labyrinths_Right.yml",
+        "res/18_Dimensional_Corridor.yml",
+        "res/19_True_Shrine_of_the_Mother.yml",
     ];
+    #[allow(clippy::redundant_closure)]
     let futures: Vec<_> = file_paths
-        .map(|(_, path)| handle.path().resolve(path, BaseDirectory::Resource))
+        .map(|file_path| resolve_path(file_path))
         .into_iter()
-        .collect::<tauri::Result<Vec<_>>>()?
+        .collect::<Result<Vec<_>>>()?
         .into_iter()
         .map(read_to_string)
         .collect();
-    let fields: Vec<_> = join_all(futures)
+    let fields: BTreeMap<_, _> = join_all(futures)
         .await
         .into_iter()
         .collect::<io::Result<Vec<_>>>()?
         .into_iter()
         .zip(file_paths)
-        .map(|(contents, (field_id, _))| (FieldId::from_i32(field_id).unwrap(), contents))
+        .map(|(contents, file_path)| {
+            (
+                FieldId::from_u8(file_path[4..6].parse::<u8>().unwrap()).unwrap(),
+                contents,
+            )
+        })
         .collect();
-    let events = read_to_string(
-        handle
-            .path()
-            .resolve("res/events.yml", BaseDirectory::Resource)?,
-    )
-    .await?;
+    let events = read_to_string(resolve_path("res/events.yml")?).await?;
 
-    Ok(GameStructureFiles { fields, events })
+    GameStructureFiles::new(fields, events)
+}
+
+async fn read_game_structure_files(handle: AppHandle) -> Result<GameStructureFiles> {
+    let path = handle.path();
+    read_game_structure_files_internal(|file_path| {
+        Ok(path.resolve(file_path, BaseDirectory::Resource)?)
+    })
+    .await
+}
+
+#[allow(unused)]
+pub async fn read_game_structure_files_debug() -> Result<GameStructureFiles> {
+    read_game_structure_files_internal(|file_path| Ok(PathBuf::from(file_path))).await
 }
 
 #[tauri::command]
@@ -204,9 +268,10 @@ pub async fn apply(
         Err(err) => return format!("Failed to read game structure files: {}", err),
     };
 
-    let (randomized, spoiler_log) = match randomize(&working, &game_structure, &options) {
+    let (randomized, spoiler_log) = match randomize(&working, game_structure, &options) {
         Ok(randomized) => randomized,
         Err(e) => {
+            error!("{:?}", e);
             return format!("Randomization failed: {}", e);
         }
     };

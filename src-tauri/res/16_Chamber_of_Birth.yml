@@ -1,16 +1,25 @@
 chests:
-  - vessel:
-      - event:reachedUpperOfChamberOfBirth, silverShield
-      - event:reachedUpperOfChamberOfBirth, angelShield
-  - perfume:
-      - event:reachedUpperOfChamberOfBirth, cogOfTheSoul
-  - womanStatue:
-      - event:reachedUpperOfChamberOfBirth, feather
-      - event:reachedUpperOfChamberOfBirth, holyGrail
-  - map:chamberOfBirth:
-      - event:reachedLowerOfChamberOfBirth
-  - pochetteKey:
-      - event:reachedLowerOfChamberOfBirth, bomb, bombAmmo, cogOfTheSoul
+  vessel:
+    - event:reachedUpperOfChamberOfBirth, silverShield
+    - event:reachedUpperOfChamberOfBirth, angelShield
+  perfume:
+    - event:reachedUpperOfChamberOfBirth, cogOfTheSoul
+  womanStatue:
+    - event:reachedUpperOfChamberOfBirth, feather
+    - option:glitch, event:reachedUpperOfChamberOfBirth, holyGrail
+  map:chamberOfBirth:
+    - event:reachedLowerOfChamberOfBirth
+  pochetteKey:
+    - event:reachedLowerOfChamberOfBirth, bomb, bombAmmo, cogOfTheSoul
 shops:
-  - ammunition, ankhJewel:chamberOfBirth, weights:
-      - event:reachedLowerOfChamberOfBirth, cogOfTheSoul
+  ammunition, ankhJewel:chamberOfBirth, weights:
+    - event:reachedLowerOfChamberOfBirth, cogOfTheSoul
+roms:
+  gr3:
+    - event:reachedLowerOfChamberOfBirth
+  konamiSoccer:
+    - event:reachedLowerOfChamberOfBirth
+  kingKong2:
+    - event:reachedLowerOfChamberOfBirth
+  heavenAndEarth:
+    - event:reachedLowerOfChamberOfBirth

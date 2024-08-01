@@ -1,74 +1,139 @@
-use super::{item::Item, spot::Spot};
+use std::collections::BTreeMap;
+
+use anyhow::Result;
+
+use crate::script::data::items;
+
+use super::{
+    assertions::ware_missing_requirements,
+    item::{Item, StrategyFlag},
+    spot::{
+        AnyOfAllRequirements, ChestItem, ChestSpot, FieldId, MainWeaponSpot, RomSpot, SealSpot,
+        ShopSpot, SubWeaponSpot,
+    },
+};
 
 #[derive(Clone, Debug)]
-pub struct ItemSpot {
-    pub spot: Spot,
+pub struct MainWeapon {
+    pub spot: MainWeaponSpot,
+    pub item: Item,
+}
+
+#[derive(Clone, Debug)]
+pub struct SubWeapon {
+    pub spot: SubWeaponSpot,
+    pub item: Item,
+}
+
+#[derive(Clone, Debug)]
+pub struct Chest {
+    pub spot: ChestSpot,
+    pub item: Item,
+}
+
+#[derive(Clone, Debug)]
+pub struct Seal {
+    pub spot: SealSpot,
     pub item: Item,
 }
 
 #[derive(Clone, Debug)]
 pub struct Shop {
-    pub spot: Spot,
-    pub items: (Item, Item, Item),
-}
-impl Shop {
-    pub fn count_general_items(&self) -> usize {
-        !self.items.0.name.is_consumable() as usize
-            + !self.items.1.name.is_consumable() as usize
-            + !self.items.2.name.is_consumable() as usize
-    }
+    pub spot: ShopSpot,
+    pub items: (Option<Item>, Option<Item>, Option<Item>),
 }
 
-#[derive(Default)]
-pub struct StorageIndices {
-    pub main_weapon_spot_idx: usize,
-    pub sub_weapon_spot_idx: usize,
-    pub chest_idx: usize,
-    pub seal_chest_idx: usize,
+#[derive(Clone, Debug)]
+pub struct Rom {
+    pub spot: RomSpot,
+    pub item: Item,
 }
 
-#[derive(Clone, Debug, getset::Getters, getset::MutGetters)]
+pub struct MainWeaponRef<'a> {
+    pub spot: &'a MainWeaponSpot,
+    pub item: &'a Item,
+}
+
+pub struct SubWeaponRef<'a> {
+    pub spot: &'a SubWeaponSpot,
+    pub item: &'a Item,
+}
+
+pub struct ChestRef<'a> {
+    pub spot: &'a ChestSpot,
+    pub item: &'a Item,
+}
+
+pub struct SealRef<'a> {
+    pub spot: &'a SealSpot,
+    pub item: &'a Item,
+}
+
+pub struct ShopRef<'a> {
+    pub spot: &'a ShopSpot,
+    pub items: (Option<&'a Item>, Option<&'a Item>, Option<&'a Item>),
+}
+
+pub struct RomRef<'a> {
+    pub spot: &'a RomSpot,
+    pub item: &'a Item,
+}
+
+#[derive(Clone, Debug)]
+pub struct Event {
+    pub name: StrategyFlag,
+    pub requirements: AnyOfAllRequirements,
+}
+
+#[derive(Clone, Debug)]
 pub struct Storage {
-    #[getset(get = "pub", get_mut = "pub")]
-    main_weapons: Vec<ItemSpot>,
-    #[getset(get = "pub", get_mut = "pub")]
-    sub_weapons: Vec<ItemSpot>,
-    #[getset(get = "pub", get_mut = "pub")]
-    chests: Vec<ItemSpot>,
-    #[getset(get = "pub", get_mut = "pub")]
-    seals: Vec<ItemSpot>,
-    #[getset(get = "pub", get_mut = "pub")]
-    shops: Vec<Shop>,
+    pub main_weapons: BTreeMap<items::MainWeapon, MainWeapon>,
+    pub sub_weapons: BTreeMap<(FieldId, items::SubWeapon), SubWeapon>,
+    pub chests: BTreeMap<(FieldId, ChestItem), Chest>,
+    pub seals: BTreeMap<items::Seal, Seal>,
+    pub shops: Vec<Shop>,
+    pub roms: BTreeMap<items::Rom, Rom>,
+    pub events: Vec<Event>,
 }
 
 impl Storage {
     pub fn new(
-        main_weapons: Vec<ItemSpot>,
-        sub_weapons: Vec<ItemSpot>,
-        chests: Vec<ItemSpot>,
-        seals: Vec<ItemSpot>,
+        main_weapons: BTreeMap<items::MainWeapon, MainWeapon>,
+        sub_weapons: BTreeMap<(FieldId, items::SubWeapon), SubWeapon>,
+        chests: BTreeMap<(FieldId, ChestItem), Chest>,
+        seals: BTreeMap<items::Seal, Seal>,
         shops: Vec<Shop>,
-    ) -> Self {
-        Self {
+        roms: BTreeMap<items::Rom, Rom>,
+        events: Vec<Event>,
+    ) -> Result<Self> {
+        let zelf = Self {
             main_weapons,
             sub_weapons,
             chests,
             seals,
             shops,
+            roms,
+            events,
+        };
+        if cfg!(debug_assertions) {
+            ware_missing_requirements(&zelf)?;
         }
+        Ok(zelf)
     }
 
     pub fn all_items(&self) -> impl Iterator<Item = &Item> {
         self.main_weapons
-            .iter()
-            .chain(&self.sub_weapons)
-            .chain(&self.chests)
-            .chain(&self.seals)
+            .values()
             .map(|x| &x.item)
+            .chain(self.sub_weapons.values().map(|x| &x.item))
+            .chain(self.chests.values().map(|x| &x.item))
+            .chain(self.seals.values().map(|x| &x.item))
             .chain(
                 self.shops
                     .iter()
-                    .flat_map(|x| [&x.items.0, &x.items.1, &x.items.2]),
+                    .flat_map(|x| [&x.items.0, &x.items.1, &x.items.2])
+                    .filter_map(|x| x.as_ref()),
             )
+            .chain(self.roms.values().map(|x| &x.item))
     }
 }

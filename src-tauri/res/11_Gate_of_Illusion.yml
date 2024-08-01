@@ -1,12 +1,23 @@
 chests:
-  - keyOfEternity:
-      - event:reachedElevatorOfGateOfIllusion, event:miniDoll, event:escapeShu # need mini doll and a way to get out from Shu area
-  - protectiveClothes:
-      - event:reachedElevatorOfGateOfIllusion, katana, divinerSensation, event:qBert, msx2 # need msx2 for diviner sensation
-  - map:gateOfIllusion:
-      - event:reachedFrontOfGateOfIllusion
-  - cogOfTheSoul:
-      - event:reachedBackDoorOfGateOfIllusion, event:reachedElevatorOfGateOfIllusion, lampOfTime, event:escapeShu # need to kill Shu to open chest
+  keyOfEternity:
+    - event:reachedElevatorOfGateOfIllusion, event:miniDoll, event:escapeShu # need mini doll and a way to get out from Shu area
+    - option:glitch, event:reachedElevatorOfGateOfIllusion, spear, spearAmmo, holyGrail, sacredOrb:1, msx2, athleticLand, cabbagePatchKids # https://youtu.be/7_D0TQ7ZWk0?si=Cn2sTNOxnzGJOyMt&t=3223
+    - option:glitch, event:reachedElevatorOfGateOfIllusion, spear, spearAmmo, holyGrail, sacredOrb:2
+  protectiveClothes:
+    - event:reachedElevatorOfGateOfIllusion, katana, msx2, qBert, divinerSensation # need msx2 for diviner sensation
+  map:gateOfIllusion:
+    - event:reachedFrontOfGateOfIllusion
+  cogOfTheSoul:
+    - event:reachedBackDoorOfGateOfIllusion, event:reachedElevatorOfGateOfIllusion, event:escapeShu, lampOfTime # need to kill Shu to open chest
 shops:
-  - f1Spirit, f1Spirit3d, weights:
-      - event:reachedElevatorOfGateOfIllusion
+  f1Spirit, f1Spirit3D, weights:
+    - event:reachedElevatorOfGateOfIllusion
+roms:
+  monkeyAcademy:
+    - event:reachedElevatorOfGateOfIllusion
+  roadFighter:
+    - event:reachedGrailOfGateOfIllusion
+  qBert:
+    - event:reachedFrontOfGateOfIllusion
+  salamander:
+    - event:reachedFrontOfGateOfIllusion

@@ -1,14 +1,22 @@
 chests:
-  - sacredOrb:chamberOfExtinction:
-      - event:lightedUpChamberOfExtinction, feather # need a way out
-      - event:lightedUpChamberOfExtinction, originSeal # need a way out
-      - event:lightedUpChamberOfExtinction, holyGrail # need a way out
-  - map:chamberOfExtinction:
-      - event:lightedUpChamberOfExtinction
-  # skip lifeSeal
+  sacredOrb:chamberOfExtinction:
+    - event:lightedUpChamberOfExtinction, feather # need a way out
+    - event:lightedUpChamberOfExtinction, originSeal # need a way out
+    - event:lightedUpChamberOfExtinction, holyGrail # need a way out
+  map:chamberOfExtinction:
+    - event:lightedUpChamberOfExtinction
 seals:
-  - lifeSeal:
-      - event:lightedUpChamberOfExtinction, birthSeal, axe # need axe to open wall
+  lifeSeal:
+    - event:lightedUpChamberOfExtinction, birthSeal, axe # need axe to open wall
 shops:
-  - spearAmmo, flareGunAmmo, bombAmmo:
-      - event:reachedPalenque
+  spearAmmo, flareGunAmmo, bombAmmo:
+    - event:reachedPalenque
+roms:
+  timePilot:
+    - event:lightedUpChamberOfExtinction
+  hyperOlympic1:
+    - event:lightedUpChamberOfExtinction
+  mazeOfGalious:
+    - event:lightedUpChamberOfExtinction, msx2, qBert, divinerSensation
+  metalGear2:
+    - event:lightedUpChamberOfExtinction # not yet tested with initial status

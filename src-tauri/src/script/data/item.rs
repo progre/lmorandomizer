@@ -1,70 +1,92 @@
-use std::num::NonZero;
+use anyhow::{bail, Result};
 
-use anyhow::{anyhow, bail, Result};
-
-use crate::dataset;
-
-use super::{
-    items,
-    object::{ChestContent, Shop},
-    script::Script,
-    shop_items_data::ShopItem,
+use crate::dataset::{
+    self,
+    item::ItemSource,
+    spot::{self, FieldId},
 };
 
+use super::{items, object::Shop, script::Script, shop_items_data::ShopItem};
+
+#[derive(Clone)]
 pub struct MainWeapon {
     pub content: items::MainWeapon,
-    pub set_flag: u16,
+    pub flag: u16,
 }
 
 #[derive(Clone)]
-pub struct SubWeaponBody {
+pub struct SubWeapon {
     pub content: items::SubWeapon,
-    pub set_flag: u16,
-}
-
-#[derive(Clone)]
-pub struct SubWeaponAmmo {
-    pub content: items::SubWeapon,
-    pub amount: NonZero<u8>,
+    pub amount: u8,
     pub price: Option<u16>,
-    pub set_flag: u16,
+    pub flag: u16,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Equipment {
     pub content: items::Equipment,
     pub price: Option<u16>,
-    pub set_flag: u16,
+    pub flag: u16,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Rom {
     pub content: items::Rom,
     pub price: Option<u16>,
-    pub set_flag: u16,
+    pub flag: u16,
 }
 
+#[derive(Clone, Debug)]
+pub enum ChestItem {
+    /// -1 is used only for "open from the fronts"
+    None(i32),
+    Equipment(Equipment),
+    Rom(Rom),
+}
+
+impl ChestItem {
+    pub fn flag(&self) -> i32 {
+        match self {
+            ChestItem::Equipment(item) => item.flag as i32,
+            ChestItem::Rom(item) => item.flag as i32,
+            ChestItem::None(flag) => *flag,
+        }
+    }
+}
+
+#[derive(Clone)]
 pub struct Seal {
     pub content: items::Seal,
-    pub set_flag: u16,
+    pub flag: u16,
 }
 
-fn shop_item(shops: &[Shop], shop_idx: usize, item_idx: usize) -> Result<&ShopItem> {
-    let shop = shops
-        .get(shop_idx)
-        .ok_or_else(|| anyhow!("invalid shop index: {}", shop_idx))?;
-    Ok(match item_idx {
-        0 => &shop.items.0,
-        1 => &shop.items.1,
-        2 => &shop.items.2,
-        _ => bail!("invalid shop item index: {}", item_idx),
-    })
+fn to_field_number(field_id: FieldId) -> u8 {
+    match field_id {
+        FieldId::Surface => 1,
+        FieldId::GateOfGuidance => 0,
+        FieldId::MausoleumOfTheGiants => 2,
+        FieldId::TempleOfTheSun => 3,
+        FieldId::SpringInTheSky => 4,
+        FieldId::InfernoCavern => 5,
+        FieldId::ChamberOfExtinction => 6,
+        FieldId::TwinLabyrinthsLeft => 9,
+        FieldId::EndlessCorridor => 7,
+        FieldId::ShrineOfTheMother => 8,
+        FieldId::GateOfIllusion => 11,
+        FieldId::GraveyardOfTheGiants => 12,
+        FieldId::TempleOfMoonlight => 14,
+        FieldId::TowerOfTheGoddess => 13,
+        FieldId::TowerOfRuin => 15,
+        FieldId::ChamberOfBirth => 16,
+        FieldId::TwinLabyrinthsRight => 10,
+        FieldId::DimensionalCorridor => 17,
+        FieldId::TrueShrineOfTheMother => 19,
+    }
 }
 
 pub enum Item {
     MainWeapon(MainWeapon),
-    SubWeaponBody(SubWeaponBody),
-    SubWeaponAmmo(SubWeaponAmmo),
+    SubWeapon(SubWeapon),
     Equipment(Equipment),
     Rom(Rom),
     Seal(Seal),
@@ -72,124 +94,135 @@ pub enum Item {
 
 impl Item {
     #[inline]
-    fn initial_assert(number: i8, set_flag: u16, is_sub_weapon: bool) {
+    fn initial_assert(number: i8, flag: u16, is_sub_weapon: bool) {
         debug_assert!(
-            [494, 524].contains(&set_flag)
-                || (684..=883).contains(&set_flag)
-                || is_sub_weapon && set_flag == 65279,
-            "invalid value: {set_flag} ({number})"
+            [494, 524].contains(&flag)
+                || (684..=883).contains(&flag)
+                || is_sub_weapon && flag == 65279,
+            "invalid value: {flag} ({number})"
         );
     }
 
     pub fn from_dataset(item: &dataset::item::Item, script: &Script) -> Result<Self> {
-        match &item.src {
-            dataset::item::ItemSource::MainWeapon(src_idx) => {
-                let main_weapons = script.main_weapons()?;
-                let item = main_weapons
-                    .get(*src_idx)
-                    .ok_or_else(|| anyhow!("invalid main weapon index: {}", src_idx))?;
-                let content = item.content;
-                let set_flag = item.flag;
-                Self::initial_assert(content as i8, set_flag, false);
-                Ok(Self::MainWeapon(MainWeapon { content, set_flag }))
+        Ok(match &item.src {
+            ItemSource::MainWeapon(main_weapon) => {
+                let Some(item) = script
+                    .main_weapons()
+                    .find(|x| x.main_weapon().content == *main_weapon)
+                else {
+                    bail!("invalid main weapon: {}", main_weapon)
+                };
+                Self::MainWeapon(item.main_weapon().clone())
             }
-            dataset::item::ItemSource::SubWeapon(src_idx) => {
-                let sub_weapons = script.sub_weapons()?;
-                let item = sub_weapons
-                    .get(*src_idx)
-                    .ok_or_else(|| anyhow!("invalid sub weapon index: {}", src_idx))?;
-                let content = item.content;
-                let set_flag = item.flag;
-                Self::initial_assert(content as i8, set_flag, true);
-                if item.count == 0 {
-                    Ok(Self::SubWeaponBody(SubWeaponBody { content, set_flag }))
-                } else {
-                    Ok(Self::SubWeaponAmmo(SubWeaponAmmo {
-                        content,
-                        amount: NonZero::new(u8::try_from(item.count)?).ok_or_else(|| {
-                            anyhow!("invalid sub weapon ammo count: {}", item.count)
-                        })?,
-                        price: None,
-                        set_flag,
-                    }))
-                }
+            ItemSource::SubWeapon((field_id, sub_weapon)) => {
+                let Some(item) = script
+                    .field(to_field_number(*field_id))
+                    .unwrap()
+                    .sub_weapons()
+                    .find(|x| x.sub_weapon().content == *sub_weapon)
+                else {
+                    bail!("sub weapon not found: {} {}", field_id, sub_weapon)
+                };
+                Self::SubWeapon(item.sub_weapon().clone())
             }
-            dataset::item::ItemSource::Chest(src_idx) => {
-                let chests = script.chests()?;
-                let item = chests
-                    .get(*src_idx)
-                    .ok_or_else(|| anyhow!("invalid chest index: {}", src_idx))?;
-                match item.content {
-                    Some(ChestContent::Equipment(content)) => {
-                        let set_flag = u16::try_from(item.flag)?;
-                        Self::initial_assert(content as i8, set_flag, false);
-                        Ok(Self::Equipment(Equipment {
-                            content,
-                            price: None,
-                            set_flag,
-                        }))
-                    }
-                    Some(ChestContent::Rom(content)) => {
-                        let set_flag = u16::try_from(item.flag)?;
-                        Self::initial_assert(content.0 as i8, set_flag, false);
-                        Ok(Self::Rom(Rom {
-                            content,
-                            price: None,
-                            set_flag,
-                        }))
-                    }
-                    None => bail!("chest item type mismatch"),
-                }
+            ItemSource::Chest((field_id, spot::ChestItem::Equipment(equipment))) => {
+                let Some(item) = script
+                    .field(to_field_number(*field_id))
+                    .unwrap()
+                    .chests()
+                    .filter_map(|x| {
+                        if let ChestItem::Equipment(x) = x.item() {
+                            Some(x)
+                        } else {
+                            None
+                        }
+                    })
+                    .find(|x| x.content == *equipment)
+                else {
+                    bail!("equipment not found: {} {}", field_id, equipment)
+                };
+                Self::Equipment(item.clone())
             }
-            dataset::item::ItemSource::Seal(src_idx) => {
-                let seals = script.seals()?;
-                let item = seals
-                    .get(*src_idx)
-                    .ok_or_else(|| anyhow!("invalid seal index: {}", src_idx))?;
-                let content = item.content;
-                let set_flag = item.flag;
-                Self::initial_assert(content as i8, set_flag, false);
-                Ok(Self::Seal(Seal { content, set_flag }))
+            ItemSource::Chest((field_id, spot::ChestItem::Rom(rom))) => {
+                let Some(item) = script
+                    .field(to_field_number(*field_id))
+                    .unwrap()
+                    .chests()
+                    .filter_map(|x| {
+                        if let ChestItem::Rom(x) = x.item() {
+                            Some(x)
+                        } else {
+                            None
+                        }
+                    })
+                    .find(|x| x.content == *rom)
+                else {
+                    bail!("rom not found: {} {}", field_id, rom)
+                };
+                Self::Rom(item.clone())
             }
-            dataset::item::ItemSource::Shop(shop_idx, item_idx) => {
-                let shops = script.shops()?;
-                let item = shop_item(&shops, *shop_idx, *item_idx)?;
+            ItemSource::Seal(seal) => {
+                let Some(obj) = script.seals().find(|x| x.seal().content == *seal) else {
+                    bail!("invalid seal: {}", seal)
+                };
+                Self::Seal(obj.seal().clone())
+            }
+            ItemSource::Shop(items, item_idx) => {
+                let Some(shop) = script
+                    .shops()
+                    .filter_map(|x| Shop::try_from_shop_object(x, &script.talks).transpose())
+                    .collect::<Result<Vec<_>>>()?
+                    .into_iter()
+                    .find(|x| {
+                        let old = ShopItem::to_spot_shop_items(&x.items);
+                        spot::ShopItem::matches_items(old, *items)
+                    })
+                else {
+                    bail!("invalid shop: {:?}", items)
+                };
+                let item = match *item_idx {
+                    0 => shop.items.0,
+                    1 => shop.items.1,
+                    2 => shop.items.2,
+                    _ => bail!("invalid shop item index: {}", item_idx),
+                };
                 match item {
-                    ShopItem::SubWeaponBody(item) => {
-                        Self::initial_assert(item.item.content as i8, item.item.set_flag, true);
-                        Ok(Self::SubWeaponBody(item.item.clone()))
-                    }
-                    ShopItem::SubWeaponAmmo(item) => {
-                        Self::initial_assert(item.item.content as i8, item.item.set_flag, true);
-                        Ok(Self::SubWeaponAmmo(item.item.clone()))
+                    ShopItem::SubWeapon(item) => {
+                        Self::initial_assert(item.item.content as i8, item.item.flag, true);
+                        Self::SubWeapon(item.item)
                     }
                     ShopItem::Equipment(item) => {
-                        Self::initial_assert(item.item.content as i8, item.item.set_flag, false);
-                        Ok(Self::Equipment(item.item.clone()))
+                        Self::initial_assert(item.item.content as i8, item.item.flag, false);
+                        Self::Equipment(item.item)
                     }
                     ShopItem::Rom(item) => {
-                        Self::initial_assert(item.item.content.0 as i8, item.item.set_flag, false);
-                        Ok(Self::Rom(item.item.clone()))
+                        Self::initial_assert(item.item.content as i8, item.item.flag, false);
+                        Self::Rom(item.item)
                     }
                 }
             }
-        }
+            ItemSource::Rom(rom) => {
+                let Some(rom) = script.roms().find(|x| x.rom().content == *rom) else {
+                    bail!("invalid rom: {}", rom)
+                };
+                Self::Rom(rom.rom().clone())
+            }
+        })
     }
 
-    pub fn set_flag(&self) -> u16 {
+    pub fn flag(&self) -> u16 {
         match self {
-            Self::MainWeapon(item) => item.set_flag,
-            Self::SubWeaponBody(item) => item.set_flag,
-            Self::SubWeaponAmmo(item) => item.set_flag,
-            Self::Equipment(item) => item.set_flag,
-            Self::Rom(item) => item.set_flag,
-            Self::Seal(item) => item.set_flag,
+            Self::MainWeapon(item) => item.flag,
+            Self::SubWeapon(item) => item.flag,
+            Self::Equipment(item) => item.flag,
+            Self::Rom(item) => item.flag,
+            Self::Seal(item) => item.flag,
         }
     }
 
     pub fn price(&self) -> Option<u16> {
         match self {
-            Self::SubWeaponAmmo(item) => item.price,
+            Self::SubWeapon(item) => item.price,
             Self::Equipment(item) => item.price,
             Self::Rom(item) => item.price,
             _ => None,

@@ -1,57 +1,12 @@
 use std::collections::HashSet;
 
-use log::warn;
-
-use crate::dataset::spot::AllRequirements;
+use anyhow::bail;
 
 use super::{
+    item::StrategyFlag,
     spot::{AnyOfAllRequirements, RequirementFlag},
-    storage::{ItemSpot, Storage},
+    storage::Storage,
 };
-
-pub fn assert_chests(chests: &[ItemSpot]) {
-    debug_assert_eq!(
-        chests
-            .iter()
-            .find(|x| x.item.name.get() == "iceCape")
-            .unwrap()
-            .spot
-            .requirements(),
-        Some(&AnyOfAllRequirements(vec![
-            AllRequirements(vec![
-                RequirementFlag::new("ankhJewel:templeOfTheSun".into()),
-                RequirementFlag::new("bronzeMirror".into()),
-                RequirementFlag::new("shuriken".into()),
-                RequirementFlag::new("shurikenAmmo".into()),
-            ]),
-            AllRequirements(vec![
-                RequirementFlag::new("holyGrail".into()),
-                RequirementFlag::new("flareGun".into()),
-                RequirementFlag::new("grappleClaw".into()),
-            ]),
-            // tslint:disable-next-line:max-line-length
-            // vec!["anchor", "knife", "bronzeMirror", "ankhJewel:gateOfGuidance", "flareGun", "grappleClaw"],
-            AllRequirements(vec![
-                RequirementFlag::new("bronzeMirror".into()),
-                RequirementFlag::new("ankhJewel:mausoleumOfTheGiants".into()),
-                RequirementFlag::new("flareGun".into()),
-                RequirementFlag::new("grappleClaw".into()),
-            ]),
-            AllRequirements(vec![
-                RequirementFlag::new("holyGrail".into()),
-                RequirementFlag::new("flareGun".into()),
-                RequirementFlag::new("feather".into()),
-            ]),
-            // vec!["anchor", "knife", "bronzeMirror", "ankhJewel:gateOfGuidance", "flareGun", "feather"],
-            AllRequirements(vec![
-                RequirementFlag::new("bronzeMirror".into()),
-                RequirementFlag::new("ankhJewel:mausoleumOfTheGiants".into()),
-                RequirementFlag::new("flareGun".into()),
-                RequirementFlag::new("feather".into()),
-            ]),
-        ]))
-    );
-}
 
 fn append<'a>(
     set: &mut HashSet<RequirementFlag>,
@@ -66,32 +21,33 @@ fn append<'a>(
         });
 }
 
-pub fn ware_missing_requirements(storage: &Storage) {
-    let all_items: Vec<_> = storage.all_items().cloned().collect();
+pub fn ware_missing_requirements(storage: &Storage) -> anyhow::Result<()> {
+    let glitch = StrategyFlag::new("option:glitch".into());
+    let all_items: Vec<_> = storage
+        .all_items()
+        .map(|x| &x.name)
+        .chain(storage.events.iter().map(|y| &y.name))
+        .chain([&glitch])
+        .collect();
     let mut set = HashSet::new();
-    let main_weapon_requirements = storage.main_weapons().iter().map(|x| x.spot.requirements());
-    append(&mut set, main_weapon_requirements);
-    let sub_weapon_requirements = storage.sub_weapons().iter().map(|x| x.spot.requirements());
-    append(&mut set, sub_weapon_requirements);
-    append(
-        &mut set,
-        storage.chests().iter().map(|x| x.spot.requirements()),
-    );
-    append(
-        &mut set,
-        storage.seals().iter().map(|x| x.spot.requirements()),
-    );
-    append(
-        &mut set,
-        storage.shops().iter().map(|x| x.spot.requirements()),
-    );
+    let iter = storage
+        .main_weapons
+        .values()
+        .map(|x| x.spot.requirements())
+        .chain(storage.sub_weapons.values().map(|x| x.spot.requirements()))
+        .chain(storage.chests.values().map(|x| x.spot.requirements()))
+        .chain(storage.seals.values().map(|x| x.spot.requirements()))
+        .chain(storage.shops.iter().map(|x| x.spot.requirements()))
+        .chain(storage.events.iter().map(|x| Some(&x.requirements)));
+    append(&mut set, iter);
     let mut vec: Vec<_> = set
         .iter()
-        .filter(|&x| all_items.iter().all(|y| &y.name != x))
+        .filter(|&x| all_items.iter().all(|&name| name != x))
         .filter(|x| !x.is_sacred_orb())
         .collect();
     vec.sort();
-    for x in vec {
-        warn!("Missing item: {:?}", x);
+    if !vec.is_empty() {
+        bail!("Missing items: {:?}", vec);
     }
+    Ok(())
 }

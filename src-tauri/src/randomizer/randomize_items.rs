@@ -5,28 +5,28 @@ use log::{info, trace};
 use rand::Rng;
 
 use crate::{
-    dataset::{item::StrategyFlag, spot::Spot, storage::Storage},
+    dataset::{item::StrategyFlag, storage::Storage},
     script::data::script::Script,
 };
 
 use super::{
     items_spots::{Items, Spots},
     spoiler::{make_rng, spoiler},
-    spoiler_log::SpoilerLogRef,
+    spoiler_log::{CheckpointRef, SpoilerLogRef},
+    RandomizeOptions,
 };
 
 pub fn randomize_items<'a>(
     script: &mut Script,
     source: &'a Storage,
-    seed: &str,
+    options: &RandomizeOptions,
 ) -> Result<SpoilerLogRef<'a>> {
     let start = std::time::Instant::now();
     assert_unique(source);
     trace!("Assertion in {:?}", start.elapsed());
 
     let start = std::time::Instant::now();
-    let mut rng = make_rng(seed);
-    let (shuffled, spoiler_log) = shuffle(&mut rng, source);
+    let (shuffled, spoiler_log) = shuffle(source, options);
     trace!("Randomized items in {:?}", start.elapsed());
 
     let start = std::time::Instant::now();
@@ -42,32 +42,51 @@ fn create_shuffled_storage(source: &Storage, spoiler_log: &SpoilerLogRef) -> Sto
         .progression
         .iter()
         .flat_map(|sphere| &sphere.0)
-        .chain(spoiler_log.maps.iter())
+        .chain(&spoiler_log.maps)
     {
-        match &checkpoint.spot {
-            Spot::MainWeapon(spot) => {
-                storage.main_weapons_mut()[spot.src_idx].item = checkpoint.item.clone();
+        match checkpoint {
+            CheckpointRef::MainWeapon(main_weapon) => {
+                let content = main_weapon.spot.main_weapon();
+                storage.main_weapons.get_mut(&content).unwrap().item = main_weapon.item.clone();
             }
-            Spot::SubWeapon(spot) => {
-                storage.sub_weapons_mut()[spot.src_idx].item = checkpoint.item.clone();
+            CheckpointRef::SubWeapon(sub_weapon) => {
+                let key = (sub_weapon.spot.field_id(), sub_weapon.spot.sub_weapon());
+                storage.sub_weapons.get_mut(&key).unwrap().item = sub_weapon.item.clone();
             }
-            Spot::Chest(spot) => {
-                storage.chests_mut()[spot.src_idx].item = checkpoint.item.clone();
+            CheckpointRef::Chest(chest) => {
+                let key = (chest.spot.field_id(), chest.spot.item());
+                storage.chests.get_mut(&key).unwrap().item = chest.item.clone();
             }
-            Spot::Seal(spot) => {
-                storage.seals_mut()[spot.src_idx].item = checkpoint.item.clone();
+            CheckpointRef::Seal(seal) => {
+                let content = seal.spot.seal();
+                storage.seals.get_mut(&content).unwrap().item = seal.item.clone();
             }
-            Spot::Shop(spot) => {
-                let items = &mut storage.shops_mut()[spot.src_idx].items;
-                *[&mut items.0, &mut items.1, &mut items.2][checkpoint.idx] =
-                    checkpoint.item.clone();
+            CheckpointRef::Shop(shop) => {
+                let items = &mut storage
+                    .shops
+                    .iter_mut()
+                    .find(|x| x.spot.items() == shop.spot.items())
+                    .unwrap()
+                    .items;
+                items.0 = shop.items.0.cloned();
+                items.1 = shop.items.1.cloned();
+                items.2 = shop.items.2.cloned();
             }
+            CheckpointRef::Rom(rom) => {
+                let content = rom.spot.rom();
+                storage.roms.get_mut(&content).unwrap().item = rom.item.clone();
+            }
+            CheckpointRef::Event(_) => {}
         }
     }
     storage
 }
 
-fn random_spoiler<'a>(rng: &mut impl Rng, source: &'a Storage) -> SpoilerLogRef<'a> {
+fn random_spoiler<'a>(
+    rng: &mut impl Rng,
+    source: &'a Storage,
+    options: &RandomizeOptions,
+) -> SpoilerLogRef<'a> {
     let start = std::time::Instant::now();
     let items = &Items::new(source);
     let spots = &Spots::new(source);
@@ -94,7 +113,7 @@ fn random_spoiler<'a>(rng: &mut impl Rng, source: &'a Storage) -> SpoilerLogRef<
         for i in 0..100000 {
             let handles: Vec<_> = (0..thread_count)
                 .map(|_| rng.next_u64())
-                .map(|seed| scope.spawn(move || spoiler(seed, items, spots)))
+                .map(|seed| scope.spawn(move || spoiler(seed, options, items, spots)))
                 .collect();
             let Some(spoiler_log) = handles.into_iter().filter_map(|h| h.join().unwrap()).next()
             else {
@@ -107,8 +126,9 @@ fn random_spoiler<'a>(rng: &mut impl Rng, source: &'a Storage) -> SpoilerLogRef<
     })
 }
 
-fn shuffle<'a>(rng: &mut impl Rng, source: &'a Storage) -> (Storage, SpoilerLogRef<'a>) {
-    let spoiler_log = random_spoiler(rng, source);
+fn shuffle<'a>(source: &'a Storage, options: &RandomizeOptions) -> (Storage, SpoilerLogRef<'a>) {
+    let mut rng = make_rng(&options.seed);
+    let spoiler_log = random_spoiler(&mut rng, source, options);
     let storage = create_shuffled_storage(source, &spoiler_log);
     (storage, spoiler_log)
 }
@@ -120,19 +140,20 @@ fn assert_unique(storage: &Storage) {
     let mut names = HashSet::new();
 
     storage
-        .main_weapons()
-        .iter()
-        .map(|x| ("weapon", x))
-        .chain(storage.sub_weapons().iter().map(|x| ("weapon", x)))
-        .chain(storage.chests().iter().map(|x| ("chest", x)))
-        .chain(storage.seals().iter().map(|x| ("seal", x)))
-        .map(|(item_type, item_spot)| (item_type, item_spot.item.clone()))
-        .chain(storage.shops().iter().flat_map(|x| {
-            [&x.items.0, &x.items.1, &x.items.2]
-                .into_iter()
-                .cloned()
-                .map(|item| ("shop", item))
-        }))
+        .main_weapons
+        .values()
+        .map(|x| ("weapon", &x.item))
+        .chain(storage.sub_weapons.values().map(|x| ("weapon", &x.item)))
+        .chain(storage.chests.values().map(|x| ("chest", &x.item)))
+        .chain(storage.seals.values().map(|x| ("seal", &x.item)))
+        .chain(
+            storage
+                .shops
+                .iter()
+                .flat_map(|x| [&x.items.0, &x.items.1, &x.items.2])
+                .filter_map(|item| item.as_ref())
+                .map(|item| ("shop", item)),
+        )
         .for_each(|(item_type, item)| {
             if !item.name.is_consumable()
                 && ![
@@ -148,4 +169,42 @@ fn assert_unique(storage: &Storage) {
                 names.insert(key);
             }
         });
+}
+
+#[cfg(test)]
+mod tests {
+    use sha3::Digest;
+
+    use crate::{
+        app::read_game_structure_files_debug,
+        dataset::{create_source::create_source, game_structure::GameStructure},
+    };
+
+    use super::*;
+
+    #[tokio::test]
+    async fn test_shuffle() -> Result<()> {
+        let game_structure_files = read_game_structure_files_debug().await?;
+        let game_structure = GameStructure::new(game_structure_files)?;
+        let opts = RandomizeOptions {
+            seed: "test".to_owned(),
+            shuffle_secret_roms: true,
+            need_glitches: false,
+            absolutely_shuffle: false,
+        };
+        let source = create_source(&game_structure, &opts)?;
+        let (shuffled, spoiler_log) = shuffle(&source, &opts);
+
+        let shuffled_str = format!("{:?}", shuffled);
+        let shuffled_hash = hex::encode(sha3::Sha3_512::digest(shuffled_str));
+        const EXPECTED_SHUFFLED_HASH: &str = "d62207d7d142bbf864df8b2d844d2e1b226a649d91ba4266a10ec4cceae183c31ded5f55b56fa2396fee2b9e29936a2283cd245baf50941d6ce74201a3b64fcb";
+        assert_eq!(shuffled_hash, EXPECTED_SHUFFLED_HASH);
+
+        let spoiler_log_str = format!("{:?}", spoiler_log.to_owned());
+        let spoiler_log_hash = hex::encode(sha3::Sha3_512::digest(spoiler_log_str));
+        const EXPECTED_SPOILER_LOG_HASH: &str = "6c81dc3fbaddc53b821a6d98d3b21a9e84d00ced0284dab68ad62cb5ae003a8316f67b73a32b4f9550a194c16fca482609c5a2bd0504592c16190ff8e9e313e5";
+        assert_eq!(spoiler_log_hash, EXPECTED_SPOILER_LOG_HASH);
+
+        Ok(())
+    }
 }

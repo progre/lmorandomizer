@@ -1,122 +1,136 @@
 # TODO: 基本セットが必要かどうかはフィールドで判断する
-- event:basicSet:
-    - handScanner, shellHorn, holyGrail, gameMaster, glyphReader
+event:basicSet:
+  - handScanner, shellHorn, holyGrail, gameMaster, glyphReader
 # TODO: unsupported events
-- event:qBert:
-    - event:reachedFrontOfGateOfIllusion, handScanner
-- event:miniDoll:
-    - event:reachedFrontOfGateOfIllusion, event:reachedGrailOfGateOfIllusion, handScanner, glyphReader
-- event:pepper:
-    - event:reachedFrontOfGateOfIllusion
-- event:anchor:
-    - event:reachedFrontOfGateOfIllusion, treasures
-- event:mulanaTalisman:
-    - diary
-- event:subWeaponWallForward: # some forward sub weapons for various things
-    - shuriken
-    - pistol, ammunition
-    - bomb, bombAmmo, sacredOrb:3
+event:miniDoll:
+  - event:reachedFrontOfGateOfIllusion, event:reachedGrailOfGateOfIllusion, handScanner, glyphReader
+event:pepper:
+  - event:reachedFrontOfGateOfIllusion
+event:anchor:
+  - event:reachedFrontOfGateOfIllusion, treasures
+event:mulanaTalisman:
+  - diary
+event:subWeaponWallForward: # some forward sub weapons for various things
+  - shuriken, shurikenAmmo
+  - pistol, ammunition
+  - bomb, bombAmmo, sacredOrb:3
 
-- event:reachedBackDoorOfSurface:
-    - event:defeatedPalenque # bronze mirror and feather included in defeated Palenque requirements
+event:reachedBackDoorOfSurface:
+  - event:defeatedPalenque # bronze mirror and feather included in defeated Palenque requirements
 
-- event:defeatedAmphisbaena:
-    - ankhJewel:gateOfGuidance
+event:defeatedAmphisbaena:
+  - ankhJewel:gateOfGuidance
 
-- event:floodedTempleOfTheSun:
-    - scalesphere
-    - knife, sacredOrb:6 # tested
-    # test how many Sacred Orbs it takes without knife
+event:defeatedSakit:
+  - ankhJewel:mausoleumOfTheGiants
 
-- event:SpringElevator:
-    - sacredOrb:2, helmet, holyGrail
-    - scalesphere, helmet
-    - sacredOrb:4, feather, grappleClaw, holyGrail
-    - scalesphere, feather, grappleClaw
-- event:floodedSpringInTheSky:
-    - helmet, originSeal, scalesphere
-    - sacredOrb:8, helmet, originSeal
-    - feather, grappleClaw, originSeal, scalesphere
-- event:defeatedBahamut:
-    - event:floodedSpringInTheSky, ankhJewel:springInTheSky, event:subWeaponWallForward # deleted event escapefromspringinthesky. added sub weapons
+event:floodedTempleOfTheSun:
+  - scalesphere
+  - knife, sacredOrb:6 # tested
+  # test how many Sacred Orbs it takes without knife
+event:defeatedEllmac:
+  - ankhJewel:templeOfTheSun
 
-- event:defeatedViy:
-    - event:reachedFrontOfTowerOfRuin, spear, bronzeMirror, event:defeatedBahamut, ankhJewel:towerOfRuin, iceCape, sacredOrb:3 # should have some health
-    - event:reachedFrontOfTowerOfRuin, bomb, bombAmmo, bronzeMirror, event:defeatedBahamut, ankhJewel:towerOfRuin, iceCape, sacredOrb:3 # can reach with bombs
+event:SpringElevator:
+  - helmet, sacredOrb:2, holyGrail
+  - helmet, scalesphere
+  - feather, grappleClaw, sacredOrb:4, holyGrail
+  - feather, grappleClaw, scalesphere
+event:floodedSpringInTheSky:
+  - originSeal, helmet, sacredOrb:8
+  - originSeal, helmet, scalesphere
+  - originSeal, feather, grappleClaw, scalesphere
+event:defeatedBahamut:
+  - event:floodedSpringInTheSky, event:subWeaponWallForward, ankhJewel:springInTheSky # deleted event escapefromspringinthesky. added sub weapons
 
-- event:reachedPalenque: # this is to reach palenque, not fight him
-    - event:defeatedViy, feather
-    - divinerSensation, event:qBert, msx2, feather, bronzeMirror
-- event:defeatedPalenque: # added sub weapon and sacred orb requirements
-    - event:reachedPalenque, event:reachedUpperOfChamberOfBirth, event:lightedUpChamberOfExtinction, pochetteKey, ankhJewel:chamberOfBirth, sacredOrb:4, event:subWeaponWallForward
+event:defeatedViy:
+  - event:reachedFrontOfTowerOfRuin, event:defeatedBahamut, ankhJewel:towerOfRuin, iceCape, sacredOrb:3, bronzeMirror, spear, spearAmmo # should have some health
+  - event:reachedFrontOfTowerOfRuin, event:defeatedBahamut, ankhJewel:towerOfRuin, iceCape, sacredOrb:3, bronzeMirror, bomb, bombAmmo # can reach with bombs
 
-- event:releasedTwins:
-    - ankhJewel:templeOfTheSun, twinStatue
-- event:defeatedBaphomet:
-    - event:releasedTwins, flareGun, ankhJewel:twinLabyrinths, sacredOrb:4 # with just flares, fight is insanely hard without some health
+event:reachedPalenque: # this is to reach palenque, not fight him
+  - event:defeatedViy, feather
+  - msx2, qBert, divinerSensation, feather, bronzeMirror
+event:defeatedPalenque: # added sub weapon and sacred orb requirements
+  - event:reachedPalenque, event:reachedUpperOfChamberOfBirth, event:lightedUpChamberOfExtinction, event:subWeaponWallForward, pochetteKey, ankhJewel:chamberOfBirth, sacredOrb:4
 
-- event:reachedFrontOfShrineOfTheMother:
-    - keyOfEternity, handScanner, glyphReader, feather, spear, glove, dragonBone # boots not necessary
+event:releasedTwins:
+  - event:defeatedEllmac, twinStatue
+event:twinLabyrinthsGlitch:
+  - feather, grappleClaw # https://youtu.be/JcKnq1GcZD4
+event:defeatedBaphomet:
+  - event:releasedTwins, flareGun, flareGunAmmo, ankhJewel:twinLabyrinths, sacredOrb:4 # with just flares, fight is insanely hard without some health
 
-- event:reachedFrontOfGateOfIllusion:
-    - event:reachedGrailOfTempleOfMoonlight
-- event:reachedElevatorOfGateOfIllusion:
-    - event:anchor, knife # event anchor already includes getting to Illusion
-- event:reachedGrailOfGateOfIllusion:
-    - event:reachedElevatorOfGateOfIllusion, sacredOrb:1 # need health to survive water
-    - event:reachedElevatorOfGateOfIllusion, scalesphere
-    # - event:reachedBackDoorOfGateOfIllusion # circular reference
-- event:reachedBackDoorOfGateOfIllusion:
-    - event:reachedTowerOfTheGoddess, feather, grappleClaw, boots, keySword, planeModel # need boots to climb tower
-- event:escapeShu: # this is for escaping the fight with Shu
-    - axe
-    - lifeSeal
-    - holyGrail
+event:reachedMapSpotOfShrineOfTheMother:
+  - event:releasedTwins, dragonBone
+event:reachedDeathSealSpot:
+  - keyOfEternity, dragonBone, bomb, bombAmmo, ocarina, flareGun, flareGunAmmo # need to talk to sage in Moonlight
+event:reachedFrontOfShrineOfTheMother:
+  - dragonBone, keyOfEternity, handScanner, glyphReader, feather, spear, spearAmmo, glove # boots not necessary
+  - option:glitch, event:twinLabyrinthsGlitch, twinStatue, knife # https://youtu.be/HxWC093flfI
 
-- event:reachedFrontOfGraveyardOfTheGiants:
-    - bronzeMirror, ankhJewel:mausoleumOfTheGiants
-    # - event:reachedBackDoorOfGraveyardOfTheGiants, bomb, bombAmmo # circular reference
-- event:reachedBackDoorOfGraveyardOfTheGiants:
-    - event:reachedTowerOfTheGoddess, feather, grappleClaw, boots, planeModel # need boots to climb tower
-    - event:reachedFrontOfGraveyardOfTheGiants, bomb, bombAmmo, sacredOrb:3 # can open bomb wall from left side
-- event:reachedLiarOfGraveyardOfTheGiants:
-    - event:reachedFrontOfGraveyardOfTheGiants, feather
-    - event:reachedFrontOfGateOfIllusion
+event:reachedFrontOfGateOfIllusion:
+  - event:reachedGrailOfTempleOfMoonlight
+event:reachedElevatorOfGateOfIllusion:
+  - event:anchor, knife, sacredOrb:1 # event:anchor already includes getting to Illusion
+  - event:anchor, knife, scalesphere # need health to survive water
+  - option:glitch, event:reachedFrontOfGateOfIllusion # https://youtu.be/VQ3e1CJxx5c
+event:reachedGrailOfGateOfIllusion:
+  - event:reachedElevatorOfGateOfIllusion
+  - event:reachedBackDoorOfGateOfIllusion
+event:reachedBackDoorOfGateOfIllusion:
+  - event:reachedTowerOfTheGoddess, feather, grappleClaw, boots, keySword, planeModel # need boots to climb tower
+event:escapeShu: # this is for escaping the fight with Shu
+  - axe
+  - lifeSeal
+  - holyGrail
 
-- event:surviveAnubis: # need to survive anubis
-    - bookOfTheDead
-    - sacredOrb:4
-- event:reachedFrontOfTempleOfMoonlight:
-    - ankhJewel:templeOfTheSun, bronzeMirror
-- event:reachedGrailOfTempleOfMoonlight:
-    - event:reachedFrontOfTempleOfMoonlight, shuriken, shurikenAmmo
-    - flareGun, grappleClaw, event:escapeFromTempleOfMoonlight
-    - flareGun, feather, event:escapeFromTempleOfMoonlight
-- event:escapeFromTempleOfMoonlight:
-    - holyGrail
-    # - event:anchor, knife, bronzeMirror, ankhJewel:gateOfGuidance # circular reference
-    - bronzeMirror, ankhJewel:mausoleumOfTheGiants
+event:reachedFrontOfGraveyardOfTheGiants:
+  - event:defeatedSakit, bronzeMirror
+  - event:reachedBackDoorOfGraveyardOfTheGiants, bomb, bombAmmo
+event:reachedBackDoorOfGraveyardOfTheGiants:
+  - event:reachedTowerOfTheGoddess, feather, grappleClaw, boots, planeModel # need boots to climb tower
+  - event:reachedFrontOfGraveyardOfTheGiants, bomb, bombAmmo, sacredOrb:3 # can open bomb wall from left side
+event:reachedLiarOfGraveyardOfTheGiants:
+  - event:reachedFrontOfGraveyardOfTheGiants, feather
+  - event:reachedFrontOfGateOfIllusion
 
-- event:reachedTowerOfTheGoddess:
-    - event:defeatedViy # defeatedViy already includes bronze mirror
-    - event:reachedFrontOfGraveyardOfTheGiants, bomb, bombAmmo, sacredOrb:3, planeModel, holyGrail # can backdoor from Graveyard
+event:surviveAnubis: # need to survive anubis
+  - bookOfTheDead
+  - sacredOrb:4
+event:reachedFrontOfTempleOfMoonlight:
+  - event:defeatedEllmac, bronzeMirror
+event:reachedGrailOfTempleOfMoonlight:
+  - event:reachedFrontOfTempleOfMoonlight, shuriken, shurikenAmmo
+  - flareGun, flareGunAmmo, grappleClaw, event:escapeFromTempleOfMoonlight
+  - flareGun, flareGunAmmo, feather, event:escapeFromTempleOfMoonlight
+event:escapeFromTempleOfMoonlight:
+  - holyGrail
+  - event:defeatedAmphisbaena, event:anchor, knife, bronzeMirror
+  - event:defeatedSakit, bronzeMirror
 
-- event:reachedFrontOfTowerOfRuin:
-    - event:reachedFrontOfGraveyardOfTheGiants
-    # - event:reachedGrailOfGateOfIllusion, event:miniDoll # TODO: performance
-- event:reachedBackDoorOfTowerOfRuin:
-    - event:reachedBackDoorOfSurface, event:defeatedBaphomet # reachedBackDoorOfSurface already includes bronze mirror
+event:reachedTowerOfTheGoddess:
+  - event:defeatedViy # defeatedViy already includes bronze mirror
+  - event:reachedFrontOfGraveyardOfTheGiants, bomb, bombAmmo, sacredOrb:3, planeModel, holyGrail # can backdoor from Graveyard
 
-- event:reachedLowerOfChamberOfBirth: # health is drained too fast to get through water without scalesphere
-    - event:reachedTowerOfTheGoddess, handScanner, glyphReader, planeModel, scalesphere, boots, helmet # need boots and helmet
-- event:reachedUpperOfChamberOfBirth:
-    - event:reachedBackDoorOfGraveyardOfTheGiants
-- event:lightedUpChamberOfExtinction:
-    - event:reachedUpperOfChamberOfBirth, feather
-    - flareGun
+event:reachedFrontOfTowerOfRuin:
+  - event:reachedFrontOfGraveyardOfTheGiants
+  - event:reachedGrailOfGateOfIllusion, event:miniDoll
+event:reachedBackDoorOfTowerOfRuin:
+  - event:reachedBackDoorOfSurface, event:defeatedBaphomet # reachedBackDoorOfSurface already includes bronze mirror
 
-- event:reachedDimensionalCorridor:
-    - event:releasedTwins, crystalSkull, feather, bronzeMirror
-    - event:releasedTwins, crystalSkull, boots, grappleClaw, bronzeMirror # can get in with boots and grapple claw
-- event:defeatedTiamat:
-    - event:reachedDimensionalCorridor, ankhJewel:dimensionalCorridor, keySword, sacredOrb:4 # added health requirement
+event:reachedLowerOfChamberOfBirth: # health is drained too fast to get through water without scalesphere
+  - event:reachedTowerOfTheGoddess, handScanner, glyphReader, planeModel, scalesphere, boots, helmet # need boots and helmet
+event:reachedUpperOfChamberOfBirth:
+  - event:reachedBackDoorOfGraveyardOfTheGiants
+event:lightedUpChamberOfExtinction:
+  - event:reachedUpperOfChamberOfBirth, feather
+  - flareGun, flareGunAmmo
+
+event:reachedDimensionalCorridor:
+  - event:releasedTwins, crystalSkull, feather, bronzeMirror
+  - event:releasedTwins, crystalSkull, boots, grappleClaw, bronzeMirror # can get in with boots and grapple claw
+event:defeatedTiamat:
+  - event:reachedDimensionalCorridor, ankhJewel:dimensionalCorridor, keySword, sacredOrb:4 # added health requirement
+
+event:reachedTrueShrineOfTheMother:
+  - event:reachedMapSpotOfShrineOfTheMother, event:reachedDeathSealSpot, event:reachedFrontOfShrineOfTheMother, event:defeatedAmphisbaena, event:defeatedSakit, event:defeatedEllmac, event:defeatedBahamut, event:defeatedViy, event:defeatedPalenque, event:defeatedBaphomet, event:defeatedTiamat

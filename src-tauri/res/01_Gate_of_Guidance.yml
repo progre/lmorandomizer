@@ -1,16 +1,22 @@
 subWeapons:
-  - shuriken:
-  - ankhJewel:gateOfGuidance:
+  shuriken:
+  ankhJewel:gateOfGuidance:
 chests:
-  - treasures:
-      - event:pepper
-  - sacredOrb:gateOfGuidance:
-  - crucifix:
-      - flareGun, birthSeal
-  - map:gateOfGuidance:
-  - gameMaster2:
-      - event:reachedGrailOfGateOfIllusion, event:defeatedAmphisbaena, bronzeMirror
-  - holyGrail:
+  treasures:
+    - event:pepper
+  sacredOrb:gateOfGuidance:
+  crucifix:
+    - flareGun, flareGunAmmo,birthSeal
+  map:gateOfGuidance:
+  gameMaster2:
+    - event:reachedGrailOfGateOfIllusion, event:defeatedAmphisbaena, bronzeMirror
+  holyGrail:
 shops:
-  - shurikenAmmo, finder, weights:
-      - originSeal
+  shurikenAmmo, finder, weights:
+    - originSeal
+roms:
+  athleticLand:
+  mahjongDojo:
+  hyperRally:
+  konamiTennis:
+  gameCollectionEx:

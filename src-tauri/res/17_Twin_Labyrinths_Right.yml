@@ -1,7 +1,19 @@
+subWeapons:
+  ankhJewel:twinLabyrinths:
+    - event:releasedTwins
 chests:
-  # skip fake ankhJewel
 shops:
-  - scriptures, bombAmmo, spearAmmo:
-      - event:releasedTwins, feather
-  - dragonBone, spearAmmo, flareGunAmmo:
-      - fakeHandScanner
+  scriptures, bombAmmo, spearAmmo:
+    - event:releasedTwins, feather
+  dragonBone, spearAmmo, flareGunAmmo:
+    - fakeHandScanner
+roms:
+  hyperSports2:
+    - event:releasedTwins
+  konamiPingPong:
+    - event:releasedTwins
+  ganbareGoemon:
+    - event:releasedTwins, feather
+  usas:
+    - event:releasedTwins
+  pennantRace:
