@@ -2,7 +2,8 @@ name: Build
 
 on:
   push:
-    tags: ["v*.*.*"]
+    branches: [main]
+    tags: ['v*.*.*']
 
 jobs:
   publish-tauri:
@@ -12,14 +13,14 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - platform: "macos-latest"
-            args: "--target aarch64-apple-darwin"
-          - platform: "macos-latest"
-            args: "--target x86_64-apple-darwin"
-          - platform: "ubuntu-22.04"
-            args: ""
-          - platform: "windows-latest"
-            args: ""
+          - platform: 'macos-latest'
+            args: '--target aarch64-apple-darwin'
+          - platform: 'macos-latest'
+            args: '--target x86_64-apple-darwin'
+          - platform: 'ubuntu-22.04'
+            args: ''
+          - platform: 'windows-latest'
+            args: ''
 
     runs-on: ${{ matrix.platform }}
     steps:
@@ -44,6 +45,12 @@ jobs:
       - name: install frontend dependencies
         run: npm install
 
+      - name: test
+        shell: bash
+        run: |
+          cd src-tauri/
+          cargo test --release
+
       - if: startsWith(github.ref, 'refs/tags/')
         uses: tauri-apps/tauri-action@v0
         env:
@@ -55,3 +62,19 @@ jobs:
           releaseDraft: true
           prerelease: false
           args: ${{ matrix.args }}
+
+      - name: move artifacts
+        if: startsWith(github.ref, 'refs/tags/') && matrix.platform == 'windows-latest'
+        shell: bash
+        run: |
+          mkdir --parents artifact
+          mv \
+            ./src-tauri/target/release/*.exe \
+            ./src-tauri/target/release/res \
+            ./artifact/
+          cp LICENSE README.md ./artifact/
+      - if: startsWith(github.ref, 'refs/tags/') && matrix.platform == 'windows-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: artifact-windows
+          path: ./artifact
