@@ -1,16 +1,25 @@
-use std::collections::{BTreeMap, BTreeSet};
+use std::{
+    collections::{BTreeMap, BTreeSet},
+    mem::take,
+};
 
 use anyhow::{bail, Result};
 
-use crate::dataset::{
-    game_structure::GameStructure,
-    item::Item,
-    storage::{Chest, MainWeapon, Rom, Seal, Shop, Storage, SubWeapon},
+use crate::{
+    dataset::{
+        game_structure::GameStructure,
+        item::Item,
+        storage::{Chest, MainWeapon, Rom, Seal, Shop, Storage, SubWeapon},
+    },
+    randomizer::RandomizeOptions,
 };
 
-use super::item::StrategyFlag;
+use super::{item::StrategyFlag, storage::Event};
 
-pub fn create_source(game_structure: &GameStructure) -> Result<Storage> {
+pub fn create_source(
+    game_structure: &GameStructure,
+    options: &RandomizeOptions,
+) -> Result<Storage> {
     let mut main_weapons = BTreeMap::new();
     for spot in game_structure.main_weapon_shutters.iter().cloned() {
         let item = Item::main_weapon(spot.main_weapon(), spot.name().clone().into());
@@ -69,6 +78,23 @@ pub fn create_source(game_structure: &GameStructure) -> Result<Storage> {
         );
         shops.push(Shop { spot, items });
     }
+    let mut events = game_structure.events.clone();
+    log::trace!(
+        "options.shuffle_secret_roms: {:?}",
+        options.shuffle_secret_roms
+    );
+    if !options.shuffle_secret_roms {
+        let roms = take(&mut roms);
+        events.append(
+            &mut roms
+                .into_values()
+                .map(|x| Event {
+                    name: x.spot.name().to_owned().into(),
+                    requirements: x.spot.requirements().to_owned(),
+                })
+                .collect::<Vec<_>>(),
+        );
+    }
 
     Storage::new(
         main_weapons,
@@ -77,6 +103,6 @@ pub fn create_source(game_structure: &GameStructure) -> Result<Storage> {
         seals,
         shops,
         roms,
-        game_structure.events.clone(),
+        events,
     )
 }

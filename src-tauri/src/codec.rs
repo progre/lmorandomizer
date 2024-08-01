@@ -3,6 +3,9 @@
 mod dataset;
 #[allow(unused)]
 #[cfg(not(test))]
+mod randomizer;
+#[allow(unused)]
+#[cfg(not(test))]
 mod script;
 
 #[cfg(not(test))]

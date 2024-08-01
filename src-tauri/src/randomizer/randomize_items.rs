@@ -13,19 +13,20 @@ use super::{
     items_spots::{Items, Spots},
     spoiler::{make_rng, spoiler},
     spoiler_log::{CheckpointRef, SpoilerLogRef},
+    RandomizeOptions,
 };
 
 pub fn randomize_items<'a>(
     script: &mut Script,
     source: &'a Storage,
-    seed: &str,
+    options: &RandomizeOptions,
 ) -> Result<SpoilerLogRef<'a>> {
     let start = std::time::Instant::now();
     assert_unique(source);
     trace!("Assertion in {:?}", start.elapsed());
 
     let start = std::time::Instant::now();
-    let (shuffled, spoiler_log) = shuffle(seed, source);
+    let (shuffled, spoiler_log) = shuffle(source, options);
     trace!("Randomized items in {:?}", start.elapsed());
 
     let start = std::time::Instant::now();
@@ -121,8 +122,8 @@ fn random_spoiler<'a>(rng: &mut impl Rng, source: &'a Storage) -> SpoilerLogRef<
     })
 }
 
-fn shuffle<'a>(seed: &str, source: &'a Storage) -> (Storage, SpoilerLogRef<'a>) {
-    let mut rng = make_rng(seed);
+fn shuffle<'a>(source: &'a Storage, options: &RandomizeOptions) -> (Storage, SpoilerLogRef<'a>) {
+    let mut rng = make_rng(&options.seed);
     let spoiler_log = random_spoiler(&mut rng, source);
     let storage = create_shuffled_storage(source, &spoiler_log);
     (storage, spoiler_log)
@@ -181,8 +182,15 @@ mod tests {
     async fn test_shuffle() -> Result<()> {
         let game_structure_files = read_game_structure_files_debug().await?;
         let game_structure = GameStructure::new(game_structure_files)?;
-        let source = create_source(&game_structure)?;
-        let (shuffled, spoiler_log) = shuffle("test", &source);
+        let opts = RandomizeOptions {
+            seed: "test".to_owned(),
+            shuffle_secret_items: true,
+            shuffle_secret_roms: true,
+            need_glitches: false,
+            absolutely_shuffle: false,
+        };
+        let source = create_source(&game_structure, &opts)?;
+        let (shuffled, spoiler_log) = shuffle(&source, &opts);
 
         let shuffled_str = format!("{:?}", shuffled);
         let shuffled_hash = hex::encode(sha3::Sha3_512::digest(shuffled_str));

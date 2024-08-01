@@ -1,11 +1,9 @@
-export interface InitialParameters {
+export interface InitialData {
   seed: string;
   installDirectory: string;
   easyMode: boolean;
-}
-
-export interface Settings {
-  seed?: string;
-  installDirectory?: string;
-  easyMode?: boolean;
+  shuffleSecretItems: boolean;
+  shuffleSecretRoms: boolean;
+  needGlitches: boolean;
+  absolutelyShuffle: boolean;
 }

@@ -1,4 +1,5 @@
 use anyhow::{anyhow, bail, Result};
+use log::debug;
 
 use crate::dataset::{
     spot::{self, FieldId},
@@ -35,7 +36,7 @@ fn replace_all_flags(starts: &[Start], script: &Script, shuffled: &Storage) -> R
                 .values()
                 .find(|new_rom| new_rom.spot.rom() == old_rom.rom().content)
             else {
-                log::warn!("unsupported rom: {}", old_rom.rom().content);
+                debug!("rom not found: {}", old_rom.rom().content);
                 return Ok(start.clone());
             };
             let item = Item::from_dataset(&new_rom.item, script)?;
@@ -133,12 +134,13 @@ fn new_objs(
             Ok(vec![to_object_for_shutter(obj, open_flag, item)])
         }
         Object::Shop(_) => Ok(vec![obj.clone()]),
-        Object::Rom(obj) => {
-            let Some(rom) = shuffled.roms.get(&obj.rom().content) else {
-                bail!("rom not found: {}", obj.rom().content)
+        Object::Rom(rom_obj) => {
+            let Some(rom) = shuffled.roms.get(&rom_obj.rom().content) else {
+                debug!("rom not found: {}", rom_obj.rom().content);
+                return Ok(vec![obj.clone()]);
             };
             let item = Item::from_dataset(&rom.item, script)?;
-            Ok(to_objects_for_hand_scanner(obj, item))
+            Ok(to_objects_for_hand_scanner(rom_obj, item))
         }
         Object::Seal(seal_obj) => {
             let Some(seal) = shuffled.seals.get(&seal_obj.seal().content) else {

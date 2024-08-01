@@ -49,8 +49,11 @@ pub fn assert_eq_elem_count(source: &Storage, script: &Script) {
 #[derive(serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct RandomizeOptions {
-    seed: String,
-    easy_mode: bool,
+    pub seed: String,
+    pub shuffle_secret_items: bool,
+    pub shuffle_secret_roms: bool,
+    pub need_glitches: bool,
+    pub absolutely_shuffle: bool,
 }
 
 pub fn randomize(
@@ -63,7 +66,7 @@ pub fn randomize(
     trace!("Read script.dat in {:?}", start.elapsed());
 
     let game_structure = GameStructure::new(game_structure_files)?;
-    let source = create_source(&game_structure)?;
+    let source = create_source(&game_structure, options)?;
 
     if cfg!(debug_assertions) {
         let start = std::time::Instant::now();
@@ -72,8 +75,8 @@ pub fn randomize(
     }
 
     let start = std::time::Instant::now();
-    let spoiler_log = randomize_items(&mut script, &source, &options.seed)?;
-    if options.easy_mode {
+    let spoiler_log = randomize_items(&mut script, &source, &options)?;
+    if false {
         script.add_starting_items(
             &[
                 // crate::script::data::items::Equipment::Boots,
