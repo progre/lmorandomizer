@@ -12,7 +12,6 @@ async function main() {
       <Index
         defaultSeed={json.seed}
         defaultInstallDirectory={json.installDirectory}
-        defaultShuffleSecretItems={json.shuffleSecretItems}
         defaultShuffleSecretRoms={json.shuffleSecretRoms}
         defaultNeedGlitches={json.needGlitches}
         defaultAbsolutelyShuffle={json.absolutelyShuffle}

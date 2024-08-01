@@ -6,12 +6,10 @@ import { default as Component } from '../components/Index';
 
 function toDifficulty(state: typeof initialState): number {
   if (state.absolutelyShuffle) {
-    return 4;
-  } else if (state.needGlitches) {
     return 3;
-  } else if (state.shuffleSecretRoms) {
+  } else if (state.needGlitches) {
     return 2;
-  } else if (state.shuffleSecretItems) {
+  } else if (state.shuffleSecretRoms) {
     return 1;
   } else {
     return 0;
@@ -21,7 +19,6 @@ function toDifficulty(state: typeof initialState): number {
 interface Props {
   defaultSeed: string;
   defaultInstallDirectory: string;
-  defaultShuffleSecretItems: boolean;
   defaultShuffleSecretRoms: boolean;
   defaultNeedGlitches: boolean;
   defaultAbsolutelyShuffle: boolean;
@@ -30,7 +27,6 @@ interface Props {
 const initialState = {
   seed: '',
   installDirectory: '',
-  shuffleSecretItems: false,
   shuffleSecretRoms: false,
   needGlitches: false,
   absolutelyShuffle: false,
@@ -52,7 +48,6 @@ export default class Index extends React.Component<Props, typeof initialState> {
       ...initialState,
       seed: props.defaultSeed,
       installDirectory: props.defaultInstallDirectory,
-      shuffleSecretItems: props.defaultShuffleSecretItems,
       shuffleSecretRoms: props.defaultShuffleSecretRoms,
       needGlitches: props.defaultNeedGlitches,
       absolutelyShuffle: props.defaultAbsolutelyShuffle,
@@ -76,14 +71,10 @@ export default class Index extends React.Component<Props, typeof initialState> {
   }
 
   private onChangeDifficulty(difficulty: number) {
-    const shuffleSecretItems = difficulty >= 1;
-    const shuffleSecretRoms = difficulty >= 2;
-    const needGlitches = difficulty >= 3;
-    const absolutelyShuffle = difficulty >= 4;
+    const shuffleSecretRoms = difficulty >= 1;
+    const needGlitches = difficulty >= 2;
+    const absolutelyShuffle = difficulty >= 3;
 
-    invoke('set_shuffle_secret_items', { value: shuffleSecretItems }).catch(
-      error
-    );
     invoke('set_shuffle_secret_roms', { value: shuffleSecretRoms }).catch(
       error
     );
@@ -91,7 +82,6 @@ export default class Index extends React.Component<Props, typeof initialState> {
     invoke('set_absolutely_shuffle', { value: absolutelyShuffle }).catch(error);
     this.setState({
       ...this.state,
-      shuffleSecretItems: shuffleSecretItems,
       shuffleSecretRoms: shuffleSecretRoms,
       needGlitches,
       absolutelyShuffle,
@@ -110,7 +100,6 @@ export default class Index extends React.Component<Props, typeof initialState> {
         installDirectory: this.state.installDirectory,
         options: {
           seed: this.state.seed,
-          shuffleSecretItems: this.state.shuffleSecretItems,
           shuffleSecretRoms: this.state.shuffleSecretRoms,
           needGlitches: this.state.needGlitches,
           absolutelyShuffle: this.state.absolutelyShuffle,

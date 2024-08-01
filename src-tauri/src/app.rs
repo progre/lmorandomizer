@@ -23,7 +23,6 @@ pub struct InitialData {
     seed: String,
     install_directory: String,
     easy_mode: bool,
-    shuffle_secret_items: bool,
     shuffle_secret_roms: bool,
     need_glitches: bool,
     absolutely_shuffle: bool,
@@ -46,10 +45,6 @@ impl InitialData {
                 .get("easy_mode")
                 .and_then(|obj| obj.as_bool())
                 .unwrap_or(false),
-            shuffle_secret_items: store
-                .get("shuffle_secret_items")
-                .and_then(|obj| obj.as_bool())
-                .unwrap_or(true),
             shuffle_secret_roms: store
                 .get("shuffle_secret_roms")
                 .and_then(|obj| obj.as_bool())
@@ -70,7 +65,6 @@ impl InitialData {
             seed,
             install_directory,
             easy_mode,
-            shuffle_secret_items,
             shuffle_secret_roms,
             need_glitches,
             absolutely_shuffle,
@@ -78,10 +72,6 @@ impl InitialData {
         store.insert("seed".to_owned(), json!(seed))?;
         store.insert("install_directory".to_owned(), json!(install_directory))?;
         store.insert("easy_mode".to_owned(), json!(easy_mode))?;
-        store.insert(
-            "shuffle_secret_items".to_owned(),
-            json!(*shuffle_secret_items),
-        )?;
         store.insert(
             "shuffle_secret_roms".to_owned(),
             json!(*shuffle_secret_roms),
@@ -143,15 +133,6 @@ pub fn set_install_directory(
 #[tauri::command]
 pub fn set_easy_mode(app_handle: AppHandle, stores: State<StoreCollection<Wry>>, value: bool) {
     set_initial_data_value(app_handle, stores, |data| data.easy_mode = value);
-}
-
-#[tauri::command]
-pub fn set_shuffle_secret_items(
-    app_handle: AppHandle,
-    stores: State<StoreCollection<Wry>>,
-    value: bool,
-) {
-    set_initial_data_value(app_handle, stores, |data| data.shuffle_secret_items = value);
 }
 
 #[tauri::command]

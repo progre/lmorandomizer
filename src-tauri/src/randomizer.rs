@@ -50,7 +50,6 @@ pub fn assert_eq_elem_count(source: &Storage, script: &Script) {
 #[serde(rename_all = "camelCase")]
 pub struct RandomizeOptions {
     pub seed: String,
-    pub shuffle_secret_items: bool,
     pub shuffle_secret_roms: bool,
     pub need_glitches: bool,
     pub absolutely_shuffle: bool,

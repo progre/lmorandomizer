@@ -14,13 +14,12 @@ import {
   TableRow,
 } from '@mui/material';
 
-type Row = [string, boolean, boolean, boolean, boolean];
+type Row = [string, boolean, boolean, boolean];
 const rows: Row[] = [
-  ['Very Easy', false, false, false, false],
-  ['Easy', true, false, false, false],
-  ['Normal', true, true, false, false],
-  ['Hard', true, true, true, false],
-  ['Extreme', true, true, true, true],
+  ['Easy', false, false, false],
+  ['Normal', true, false, false],
+  ['Hard', true, true, false],
+  ['Extreme', true, true, true],
 ];
 
 function buildOnChangeInputElement(callback: (value: number) => void) {
@@ -55,13 +54,6 @@ export default function Difficulty(props: {
                 <TableCell />
                 <TableCell
                   align="center"
-                  title="Shuffle secret items that are not essential to finishing the game."
-                  style={{ fontSize: 0 }}
-                >
-                  Shuffle secret&nbsp;items
-                </TableCell>
-                <TableCell
-                  align="center"
                   title="Shuffle the ROM to be found in the Hand Scanner."
                 >
                   Shuffle secret&nbsp;roms
@@ -85,7 +77,7 @@ export default function Difficulty(props: {
             <TableBody>
               {rows
                 .map((row, i) => [row, i] as [Row, number])
-                .filter(([row, _i]) => row[1] && !row[3])
+                .filter(([row, _i]) => row[0] && !row[2])
                 .map(([row, i]) => (
                   <TableRow
                     key={row[0] as string}
@@ -105,25 +97,18 @@ export default function Difficulty(props: {
                       />
                     </TableCell>
                     <TableCell align="center">
+                      <Checkbox checked={row[1] as boolean} disabled={true} />
+                    </TableCell>
+                    <TableCell align="center">
                       <Checkbox
-                        checked={row[1] as boolean}
+                        checked={row[2] as boolean}
                         disabled={true}
                         style={{ display: 'none' }}
                       />
-                    </TableCell>
-                    <TableCell align="center">
-                      <Checkbox checked={row[2] as boolean} disabled={true} />
                     </TableCell>
                     <TableCell align="center">
                       <Checkbox
                         checked={row[3] as boolean}
-                        disabled={true}
-                        style={{ display: 'none' }}
-                      />
-                    </TableCell>
-                    <TableCell align="center">
-                      <Checkbox
-                        checked={row[4] as boolean}
                         disabled={true}
                         hidden={true}
                         style={{ display: 'none' }}

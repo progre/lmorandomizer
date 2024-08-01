@@ -184,7 +184,6 @@ mod tests {
         let game_structure = GameStructure::new(game_structure_files)?;
         let opts = RandomizeOptions {
             seed: "test".to_owned(),
-            shuffle_secret_items: true,
             shuffle_secret_roms: true,
             need_glitches: false,
             absolutely_shuffle: false,
