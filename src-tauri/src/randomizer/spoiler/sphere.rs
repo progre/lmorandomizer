@@ -6,16 +6,20 @@ use std::{
 
 use rand::Rng;
 
-use crate::dataset::{
-    item::StrategyFlag,
-    spot::{AnyOfAllRequirements, ShopSpot},
-    storage::{Event, ShopRef},
+use crate::{
+    dataset::spot::{AnyOfAllRequirements, ShopSpot},
+    randomizer::{
+        spoiler_log::{CheckpointRef, SphereRef},
+        storage::{
+            item::StrategyFlag,
+            {Event, ShopRef},
+        },
+    },
 };
 
 use super::{
     items_pool::{ItemsPool, ShuffledItems},
     items_spots::Spots,
-    spoiler_log::{CheckpointRef, SphereRef},
 };
 
 #[derive(Clone)]

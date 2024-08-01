@@ -2,10 +2,9 @@ use std::collections::BTreeMap;
 
 use rand::Rng;
 
-use crate::dataset::{
-    item::Item,
-    spot::{FieldId, SpotRef},
-    storage::{Event, Storage},
+use crate::{
+    dataset::spot::{FieldId, SpotRef},
+    randomizer::storage::{item::Item, Event, Storage},
 };
 
 use super::{

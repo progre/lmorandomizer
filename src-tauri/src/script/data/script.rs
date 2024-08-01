@@ -3,7 +3,7 @@ use std::mem::take;
 use anyhow::Result;
 
 use crate::{
-    dataset::storage::Storage,
+    randomizer::storage::Storage,
     script::file::scripttxtparser::{parse_script_txt, stringify_script_txt},
 };
 

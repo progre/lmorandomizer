@@ -2,11 +2,12 @@ use anyhow::{bail, Result};
 use log::warn;
 use regex::Regex;
 
-use crate::dataset::{
-    self,
-    spot::{self},
-    storage::{self},
-    WARE_NO_MISE_COUNT,
+use crate::{
+    dataset::{
+        spot::{self},
+        WARE_NO_MISE_COUNT,
+    },
+    randomizer::{self, storage},
 };
 
 use super::{
@@ -192,7 +193,7 @@ pub fn replace_shops(
 ) -> Result<()> {
     assert_eq!(script_shops.len(), dataset_shops.len() + WARE_NO_MISE_COUNT);
     for dataset_shop in dataset_shops {
-        let create_item = |item: &Option<dataset::item::Item>| {
+        let create_item = |item: &Option<randomizer::storage::item::Item>| {
             item.as_ref()
                 .map(|x| Item::from_dataset(x, script))
                 .transpose()

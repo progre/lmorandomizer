@@ -10,13 +10,9 @@ use crate::{
     script::data::items::{Equipment, MainWeapon, Rom, Seal, SubWeapon},
 };
 
-use super::{
-    item::StrategyFlag,
-    spot::{
-        AllRequirements, AnyOfAllRequirements, ChestSpot, FieldId, MainWeaponSpot, RequirementFlag,
-        RomSpot, SealSpot, ShopSpot, SubWeaponSpot,
-    },
-    storage::Event,
+use super::spot::{
+    AllRequirements, AnyOfAllRequirements, ChestSpot, FieldId, MainWeaponSpot, RequirementFlag,
+    RomSpot, SealSpot, ShopSpot, SubWeaponSpot,
 };
 
 pub struct GameStructureFiles {
@@ -96,7 +92,7 @@ fn parse_event_requirements(items: BTreeMap<String, Vec<String>>) -> Result<Vec<
         .into_iter()
         .map(|(name, requirements)| {
             Ok(Event {
-                name: StrategyFlag(name),
+                name: SpotName::new(name),
                 requirements: to_any_of_all_requirements(requirements)?.unwrap(),
             })
         })
@@ -109,6 +105,12 @@ fn to_pascal_case(camel_case: &str) -> String {
         .chars()
         .chain(camel_case[1..].chars())
         .collect()
+}
+
+#[derive(Clone, Debug)]
+pub struct Event {
+    pub name: SpotName,
+    pub requirements: AnyOfAllRequirements,
 }
 
 pub struct GameStructure {

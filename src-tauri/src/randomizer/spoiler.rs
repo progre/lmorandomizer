@@ -1,3 +1,7 @@
+mod items_pool;
+pub mod items_spots;
+mod sphere;
+
 use std::{
     collections::{BTreeMap, HashSet},
     hash::Hash,
@@ -10,16 +14,17 @@ use rand::{seq::SliceRandom, Rng};
 use rand_seeder::Seeder;
 use rand_xoshiro::Xoshiro256PlusPlus;
 
-use crate::dataset::{
-    item::{Item, StrategyFlag},
-    spot::{FieldId, SpotRef},
-};
+use crate::dataset::spot::{FieldId, SpotRef};
 
 use super::{
+    spoiler_log::{CheckpointRef, SpoilerLogRef},
+    storage::item::{Item, StrategyFlag},
+    RandomizeOptions,
+};
+
+use {
     items_spots::{Items, Spots},
     sphere::sphere,
-    spoiler_log::{CheckpointRef, SpoilerLogRef},
-    RandomizeOptions,
 };
 
 static GLITCH: LazyLock<StrategyFlag> = LazyLock::new(|| StrategyFlag::new("option:glitch".into()));

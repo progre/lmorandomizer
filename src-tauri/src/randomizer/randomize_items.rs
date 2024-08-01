@@ -5,14 +5,14 @@ use log::{info, trace};
 use rand::Rng;
 
 use crate::{
-    dataset::{item::StrategyFlag, storage::Storage},
+    randomizer::spoiler::items_spots::{Items, Spots},
     script::data::script::Script,
 };
 
 use super::{
-    items_spots::{Items, Spots},
     spoiler::{make_rng, spoiler},
     spoiler_log::{CheckpointRef, SpoilerLogRef},
+    storage::{item::StrategyFlag, Storage},
     RandomizeOptions,
 };
 
@@ -176,8 +176,8 @@ mod tests {
     use sha3::Digest;
 
     use crate::{
-        app::read_game_structure_files_debug,
-        dataset::{create_source::create_source, game_structure::GameStructure},
+        app::read_game_structure_files_debug, dataset::game_structure::GameStructure,
+        randomizer::storage::create_source::create_source,
     };
 
     use super::*;

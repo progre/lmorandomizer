@@ -4,8 +4,6 @@ use vec1::Vec1;
 
 use crate::script::data::items::{self, MainWeapon, Rom, Seal, SubWeapon};
 
-use super::super::item::StrategyFlag;
-
 #[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd, num_derive::FromPrimitive)]
 pub enum FieldId {
     Surface = 0,
@@ -77,12 +75,6 @@ impl RequirementFlag {
 
     pub fn get(&self) -> &str {
         self.0.as_str()
-    }
-}
-
-impl PartialEq<StrategyFlag> for RequirementFlag {
-    fn eq(&self, other: &StrategyFlag) -> bool {
-        self.0 == other.0
     }
 }
 
@@ -351,15 +343,6 @@ impl ShopSpot {
     }
     pub fn requirements(&self) -> Option<&AnyOfAllRequirements> {
         self.0.requirements.as_ref()
-    }
-
-    pub fn to_strategy_flags(&self) -> (StrategyFlag, StrategyFlag, StrategyFlag) {
-        let mut names = self.0.name.0.split(',').map(|x| x.trim());
-        (
-            StrategyFlag::new(names.next().unwrap().to_string()),
-            StrategyFlag::new(names.next().unwrap().to_string()),
-            StrategyFlag::new(names.next().unwrap().to_string()),
-        )
     }
 }
 

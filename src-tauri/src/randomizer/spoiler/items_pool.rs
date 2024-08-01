@@ -2,7 +2,7 @@ use std::mem::take;
 
 use rand::{seq::SliceRandom, Rng};
 
-use crate::dataset::{item::Item, spot::SpotRef};
+use crate::{dataset::spot::SpotRef, randomizer::storage::item::Item};
 
 use super::items_spots::Spots;
 

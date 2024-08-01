@@ -5,16 +5,12 @@ use std::{
 
 use anyhow::{bail, Result};
 
-use crate::{
-    dataset::{
-        game_structure::GameStructure,
-        item::Item,
-        storage::{Chest, MainWeapon, Rom, Seal, Shop, Storage, SubWeapon},
-    },
-    randomizer::RandomizeOptions,
-};
+use crate::{dataset::game_structure::GameStructure, randomizer::RandomizeOptions};
 
-use super::{item::StrategyFlag, storage::Event};
+use super::{
+    item::{Item, StrategyFlag},
+    Chest, Event, MainWeapon, Rom, Seal, Shop, Storage, SubWeapon,
+};
 
 pub fn create_source(
     game_structure: &GameStructure,
@@ -78,7 +74,14 @@ pub fn create_source(
         );
         shops.push(Shop { spot, items });
     }
-    let mut events = game_structure.events.clone();
+    let mut events: Vec<_> = game_structure
+        .events
+        .iter()
+        .map(|x| Event {
+            name: x.name.clone().into(),
+            requirements: x.requirements.clone(),
+        })
+        .collect();
     log::trace!(
         "options.shuffle_secret_roms: {:?}",
         options.shuffle_secret_roms

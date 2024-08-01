@@ -1,20 +1,17 @@
-mod items_pool;
-mod items_spots;
 mod randomize_items;
-mod sphere;
 mod spoiler;
 mod spoiler_log;
+pub mod storage;
 
 use anyhow::Result;
 use log::trace;
 use randomize_items::randomize_items;
 pub use spoiler_log::SpoilerLog;
+use storage::{create_source::create_source, Storage};
 
 use crate::{
     dataset::{
-        create_source::create_source,
         game_structure::{GameStructure, GameStructureFiles},
-        storage::Storage,
         NIGHT_SURFACE_CHEST_COUNT, NIGHT_SURFACE_SEAL_COUNT, NIGHT_SURFACE_SUB_WEAPON_COUNT,
         TRUE_SHRINE_OF_THE_MOTHER_SEAL_COUNT, WARE_NO_MISE_COUNT,
     },

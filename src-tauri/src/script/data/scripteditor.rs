@@ -1,9 +1,9 @@
 use anyhow::{anyhow, bail, Result};
 use log::debug;
 
-use crate::dataset::{
-    spot::{self, FieldId},
-    storage::Storage,
+use crate::{
+    dataset::spot::{self, FieldId},
+    randomizer::storage::Storage,
 };
 
 use super::{

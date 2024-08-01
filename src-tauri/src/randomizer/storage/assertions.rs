@@ -2,11 +2,9 @@ use std::collections::HashSet;
 
 use anyhow::bail;
 
-use super::{
-    item::StrategyFlag,
-    spot::{AnyOfAllRequirements, RequirementFlag},
-    storage::Storage,
-};
+use crate::dataset::spot::{AnyOfAllRequirements, RequirementFlag};
+
+use super::{item::StrategyFlag, Storage};
 
 fn append<'a>(
     set: &mut HashSet<RequirementFlag>,

@@ -1,9 +1,8 @@
 use anyhow::{bail, Result};
 
-use crate::dataset::{
-    self,
-    item::ItemSource,
-    spot::{self, FieldId},
+use crate::{
+    dataset::spot::{self, FieldId},
+    randomizer::{self, storage::item::ItemSource},
 };
 
 use super::{items, object::Shop, script::Script, shop_items_data::ShopItem};
@@ -103,7 +102,7 @@ impl Item {
         );
     }
 
-    pub fn from_dataset(item: &dataset::item::Item, script: &Script) -> Result<Self> {
+    pub fn from_dataset(item: &randomizer::storage::item::Item, script: &Script) -> Result<Self> {
         Ok(match &item.src {
             ItemSource::MainWeapon(main_weapon) => {
                 let Some(item) = script

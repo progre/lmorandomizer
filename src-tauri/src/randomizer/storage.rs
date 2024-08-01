@@ -1,16 +1,22 @@
+mod assertions;
+pub mod create_source;
+pub mod item;
+
 use std::collections::BTreeMap;
 
 use anyhow::Result;
 
-use crate::script::data::items;
-
-use super::{
-    assertions::ware_missing_requirements,
-    item::{Item, StrategyFlag},
-    spot::{
+use crate::{
+    dataset::spot::{
         AnyOfAllRequirements, ChestItem, ChestSpot, FieldId, MainWeaponSpot, RomSpot, SealSpot,
         ShopSpot, SubWeaponSpot,
     },
+    script::data::items,
+};
+
+use {
+    assertions::ware_missing_requirements,
+    item::{Item, StrategyFlag},
 };
 
 #[derive(Clone, Debug)]

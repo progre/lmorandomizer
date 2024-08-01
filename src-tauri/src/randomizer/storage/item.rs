@@ -1,6 +1,7 @@
-use crate::script::data::items;
-
-use super::spot::{ChestItem, FieldId, RequirementFlag, ShopItem, SpotName, SpotRef};
+use crate::{
+    dataset::spot::{ChestItem, FieldId, RequirementFlag, ShopItem, SpotName, SpotRef},
+    script::data::items,
+};
 
 #[derive(Clone, Debug, Hash, Eq, Ord, PartialEq, PartialOrd)]
 pub struct StrategyFlag(pub String);
@@ -45,6 +46,12 @@ impl StrategyFlag {
 impl PartialEq<RequirementFlag> for StrategyFlag {
     fn eq(&self, other: &RequirementFlag) -> bool {
         self.0 == other.get()
+    }
+}
+
+impl PartialEq<StrategyFlag> for RequirementFlag {
+    fn eq(&self, other: &StrategyFlag) -> bool {
+        self.get() == other.0
     }
 }
 
