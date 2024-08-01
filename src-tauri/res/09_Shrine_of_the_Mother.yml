@@ -1,6 +1,7 @@
 chests:
   crystalSkull:
     - event:reachedFrontOfShrineOfTheMother, event:mulanaTalisman, lifeSeal
+    - option:glitch, event:twinLabyrinthsGlitch, lifeSeal, twinStatue, knife, msx2, athleticLand, cabbagePatchKids # https://youtu.be/k4S4xUn8zFI
   sacredOrb:shrineOfTheMother:
     - event:reachedFrontOfShrineOfTheMother, originSeal, birthSeal, lifeSeal, deathSeal
   diary:

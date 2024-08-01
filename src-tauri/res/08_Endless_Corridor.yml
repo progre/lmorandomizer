@@ -7,6 +7,7 @@ chests:
   twinStatue:
     - keyOfEternity, feather
     - keyOfEternity, grappleClaw
+    - option:glitch, holyGrail # https://youtu.be/7_D0TQ7ZWk0?si=g1TK2_l7qHGtg2Dm&t=2368
 shops:
   bombAmmo, toukenAmmo, weights:
     - lifeSeal

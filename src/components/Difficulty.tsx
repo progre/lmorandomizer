@@ -56,12 +56,11 @@ export default function Difficulty(props: {
                   align="center"
                   title="Shuffle the ROM to be found in the Hand Scanner."
                 >
-                  Shuffle secret&nbsp;roms
+                  Shuffle secret&nbsp;ROMs
                 </TableCell>
                 <TableCell
                   align="center"
                   title="You may need to use glitches to retrieve items."
-                  style={{ fontSize: 0 }}
                 >
                   Need glitches
                 </TableCell>
@@ -77,7 +76,7 @@ export default function Difficulty(props: {
             <TableBody>
               {rows
                 .map((row, i) => [row, i] as [Row, number])
-                .filter(([row, _i]) => row[0] && !row[2])
+                .filter(([row, _i]) => !row[3])
                 .map(([row, i]) => (
                   <TableRow
                     key={row[0] as string}
@@ -100,11 +99,7 @@ export default function Difficulty(props: {
                       <Checkbox checked={row[1] as boolean} disabled={true} />
                     </TableCell>
                     <TableCell align="center">
-                      <Checkbox
-                        checked={row[2] as boolean}
-                        disabled={true}
-                        style={{ display: 'none' }}
-                      />
+                      <Checkbox checked={row[2] as boolean} disabled={true} />
                     </TableCell>
                     <TableCell align="center">
                       <Checkbox

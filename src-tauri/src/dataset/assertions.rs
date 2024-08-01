@@ -3,6 +3,7 @@ use std::collections::HashSet;
 use anyhow::bail;
 
 use super::{
+    item::StrategyFlag,
     spot::{AnyOfAllRequirements, RequirementFlag},
     storage::Storage,
 };
@@ -21,10 +22,12 @@ fn append<'a>(
 }
 
 pub fn ware_missing_requirements(storage: &Storage) -> anyhow::Result<()> {
+    let glitch = StrategyFlag::new("option:glitch".into());
     let all_items: Vec<_> = storage
         .all_items()
         .map(|x| &x.name)
         .chain(storage.events.iter().map(|y| &y.name))
+        .chain([&glitch])
         .collect();
     let mut set = HashSet::new();
     let iter = storage

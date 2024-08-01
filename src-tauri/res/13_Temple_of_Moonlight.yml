@@ -13,6 +13,8 @@ chests:
   ocarina:
     - event:escapeFromTempleOfMoonlight, flareGun, flareGunAmmo, womanStatue, feather # need a way out of moonlight
     - event:escapeFromTempleOfMoonlight, flareGun, flareGunAmmo, womanStatue, grappleClaw
+    - option:glitch, event:escapeFromTempleOfMoonlight, flareGun, flareGunAmmo # https://youtu.be/7_D0TQ7ZWk0?si=ihOBzdfkrRGv06Pv&t=2302
+    - option:glitch, event:reachedFrontOfTempleOfMoonlight, shuriken, shurikenAmmo, axe # https://youtu.be/YVIJwPo2CQw
   serpentStaff:
     - event:reachedFrontOfTempleOfMoonlight, feather
     - event:reachedFrontOfTempleOfMoonlight, grappleClaw

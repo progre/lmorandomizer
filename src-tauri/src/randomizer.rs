@@ -74,7 +74,7 @@ pub fn randomize(
     }
 
     let start = std::time::Instant::now();
-    let spoiler_log = randomize_items(&mut script, &source, &options)?;
+    let spoiler_log = randomize_items(&mut script, &source, options)?;
     if false {
         script.add_starting_items(
             &[

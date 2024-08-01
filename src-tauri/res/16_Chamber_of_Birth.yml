@@ -6,7 +6,7 @@ chests:
     - event:reachedUpperOfChamberOfBirth, cogOfTheSoul
   womanStatue:
     - event:reachedUpperOfChamberOfBirth, feather
-    - event:reachedUpperOfChamberOfBirth, holyGrail # TODO: probably glitch pattern
+    - option:glitch, event:reachedUpperOfChamberOfBirth, holyGrail
   map:chamberOfBirth:
     - event:reachedLowerOfChamberOfBirth
   pochetteKey:

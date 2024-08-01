@@ -82,7 +82,11 @@ fn create_shuffled_storage(source: &Storage, spoiler_log: &SpoilerLogRef) -> Sto
     storage
 }
 
-fn random_spoiler<'a>(rng: &mut impl Rng, source: &'a Storage) -> SpoilerLogRef<'a> {
+fn random_spoiler<'a>(
+    rng: &mut impl Rng,
+    source: &'a Storage,
+    options: &RandomizeOptions,
+) -> SpoilerLogRef<'a> {
     let start = std::time::Instant::now();
     let items = &Items::new(source);
     let spots = &Spots::new(source);
@@ -109,7 +113,7 @@ fn random_spoiler<'a>(rng: &mut impl Rng, source: &'a Storage) -> SpoilerLogRef<
         for i in 0..100000 {
             let handles: Vec<_> = (0..thread_count)
                 .map(|_| rng.next_u64())
-                .map(|seed| scope.spawn(move || spoiler(seed, items, spots)))
+                .map(|seed| scope.spawn(move || spoiler(seed, options, items, spots)))
                 .collect();
             let Some(spoiler_log) = handles.into_iter().filter_map(|h| h.join().unwrap()).next()
             else {
@@ -124,7 +128,7 @@ fn random_spoiler<'a>(rng: &mut impl Rng, source: &'a Storage) -> SpoilerLogRef<
 
 fn shuffle<'a>(source: &'a Storage, options: &RandomizeOptions) -> (Storage, SpoilerLogRef<'a>) {
     let mut rng = make_rng(&options.seed);
-    let spoiler_log = random_spoiler(&mut rng, source);
+    let spoiler_log = random_spoiler(&mut rng, source, options);
     let storage = create_shuffled_storage(source, &spoiler_log);
     (storage, spoiler_log)
 }
@@ -193,12 +197,12 @@ mod tests {
 
         let shuffled_str = format!("{:?}", shuffled);
         let shuffled_hash = hex::encode(sha3::Sha3_512::digest(shuffled_str));
-        const EXPECTED_SHUFFLED_HASH: &str = "db0d609be692be76ef991a9df662c888d998fccedf0fbec725430efc80f2469efa35380677f1df5249c85e4a5d058f17b4dba81416a7a4e48a29cf5088188dbb";
+        const EXPECTED_SHUFFLED_HASH: &str = "b73aa24b0c04f844088b718f9b45e688af62cc935475148e85b4366754cdd335283c5f5f02354d77adc6018f1df00fc07323c454d327a20567d4707c3388b2d1";
         assert_eq!(shuffled_hash, EXPECTED_SHUFFLED_HASH);
 
         let spoiler_log_str = format!("{:?}", spoiler_log.to_owned());
         let spoiler_log_hash = hex::encode(sha3::Sha3_512::digest(spoiler_log_str));
-        const EXPECTED_SPOILER_LOG_HASH: &str = "8340d1f07d2e64a2fed9727c09357976dd7c0564d0b3a5eb2f5d2304848aa475a3f164e4e304812edf936a41620e6b42bade097aeab265831f020cedcf29adda";
+        const EXPECTED_SPOILER_LOG_HASH: &str = "4d9d375dc6f1c160c30a5d8b59ed71c4bdf418424dd8cea1448326648513eff9f1f7591456ceefcb8e7e4234b430273ecaf86ebbdfc0b6dbb8c2834356971cd5";
         assert_eq!(spoiler_log_hash, EXPECTED_SPOILER_LOG_HASH);
 
         Ok(())

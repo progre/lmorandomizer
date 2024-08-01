@@ -2,6 +2,7 @@ use std::{
     collections::{BTreeMap, HashSet},
     hash::Hash,
     ptr,
+    sync::LazyLock,
 };
 
 use log::{info, trace};
@@ -18,7 +19,10 @@ use super::{
     items_spots::{Items, Spots},
     sphere::sphere,
     spoiler_log::{CheckpointRef, SpoilerLogRef},
+    RandomizeOptions,
 };
+
+static GLITCH: LazyLock<StrategyFlag> = LazyLock::new(|| StrategyFlag::new("option:glitch".into()));
 
 pub fn make_rng<H: Hash>(seed: H) -> Xoshiro256PlusPlus {
     Seeder::from(seed).make_rng()
@@ -75,7 +79,12 @@ fn maps<'a>(
         .collect()
 }
 
-pub fn spoiler<'a>(seed: u64, items: &Items<'a>, spots: &Spots<'a>) -> Option<SpoilerLogRef<'a>> {
+pub fn spoiler<'a>(
+    seed: u64,
+    options: &RandomizeOptions,
+    items: &Items<'a>,
+    spots: &Spots<'a>,
+) -> Option<SpoilerLogRef<'a>> {
     let start = std::time::Instant::now();
     let mut rng = make_rng(seed);
     let mut items_pool = items.to_items_pool(&mut rng, spots.shops.len());
@@ -92,6 +101,10 @@ pub fn spoiler<'a>(seed: u64, items: &Items<'a>, spots: &Spots<'a>) -> Option<Sp
 
     let mut strategy_flags: HashSet<&'a StrategyFlag> = Default::default();
     let mut progression = Vec::new();
+
+    if options.need_glitches {
+        strategy_flags.insert(&GLITCH);
+    }
 
     for i in 0..100 {
         let Some(sphere) = sphere(
