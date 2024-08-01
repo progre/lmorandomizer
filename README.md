@@ -26,21 +26,11 @@ Place seed and La-Mulana install directory, select options, then push Apply.
 
 ### Current restrictions
 
-- Items in *True Shrine of the Mother* and *Night Surface* aren't replaced.
-  This means whatever is in the *Death Seal* location does NOT carry over to *True Shrine of the Mother*. Get it before killing all 8 guardians.
 - *Mini Doll*, *Pepper*, *Anchor*, and *Mulana Talisman* are still given by their respective NPCs.
-- ROMs acquired from scanning are not changed.
-- Item names in shops are mismatched with actual item.
 
-### Constraints on the system
+### Note
 
 - Certain situations can cause a softlock. For example, going to *Dimensional Corridor* without *Bronze Mirror*.
-- Shop restrictions:
-  - Maps are sold out if any map is acquired. Maps are not necessary to beat the game.
-  - Sacred Orbs have the same problem as maps but have a real impact on game play.
-  - Main Weapon cannot be displayed.
-  - Shuriken, Throwing Knives, Flares, Spears, and Bombs are always ammo in shops.
-  - Silver Shield and Angel Shield don't sell out when bought. You do get the proper item if purchased.
 
 ### Stuck?
 
@@ -49,3 +39,12 @@ Place seed and La-Mulana install directory, select options, then push Apply.
 - The bombable wall in *Graveyard of the Giants* can be opened from the left side if you have *Bombs* and enough health.
 - Palenque's section of *Chamber of Extinction* can be accessed through the Gate of Time. Climb up the ladder and you get warped there.
 - The door in *Tower of Ruin* leading to Viy can be accessed by using *Bombs* instead of *Spears*. Hold down to roll bombs.
+
+## Constraints on the system
+
+- Shop restrictions:
+  - Maps are sold out if any map is acquired. Maps are not necessary to beat the game.
+  - Sacred Orbs have the same problem as maps but have a real impact on game play.
+  - Main Weapon cannot be displayed.
+  - Shuriken, Throwing Knives, Flares, Spears, and Bombs are always ammo in shops.
+  - Silver Shield and Angel Shield don't sell out when bought. You do get the proper item if purchased.
