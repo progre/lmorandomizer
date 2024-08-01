@@ -53,6 +53,7 @@ impl<'a> Items<'a> {
                 "shellHorn",
                 "holyGrail",
                 "gameMaster",
+                "gameMaster2",
                 "glyphReader",
             ]
             .contains(&item.name.get())
