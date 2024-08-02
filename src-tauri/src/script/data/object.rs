@@ -9,7 +9,7 @@ use num_traits::FromPrimitive;
 use crate::script::enums;
 
 use super::{
-    item::{self, ChestItem, MainWeapon, Rom, Seal, SubWeapon},
+    item::{ChestItem, Equipment, MainWeapon, Rom, Seal, SubWeapon},
     shop_items_data,
 };
 
@@ -36,13 +36,13 @@ fn create_chest_object(
     let open_flag = u16::try_from(op1)?;
     let item = match op2 {
         -1 => ChestItem::None(op3),
-        0..=99 => ChestItem::Equipment(item::Equipment {
+        0..=99 => ChestItem::Equipment(Equipment {
             content: enums::Equipment::from_i32(op2)
                 .ok_or_else(|| anyhow!("invalid parameter: op2={}", op2))?,
             price: None,
             flag: u16::try_from(op3)?,
         }),
-        _ => ChestItem::Rom(item::Rom {
+        _ => ChestItem::Rom(Rom {
             content: enums::Rom::from_i32(op2 - 100)
                 .ok_or_else(|| anyhow!("invalid parameter: op2={}", op2))?,
             price: None,

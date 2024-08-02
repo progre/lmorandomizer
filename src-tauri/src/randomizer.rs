@@ -3,6 +3,8 @@ mod spoiler;
 mod spoiler_log;
 pub mod storage;
 
+use std::mem::take;
+
 use anyhow::Result;
 use log::trace;
 use randomize_items::randomize_items;
@@ -17,6 +19,7 @@ use crate::{
     },
     script::{
         data::{object::Shop, script::Script},
+        editor::add_starting_items::add_starting_items,
         enums::Rom,
         file::scriptconverter::{build_script_dat, read_script_dat},
     },
@@ -74,7 +77,9 @@ pub fn randomize(
     let start = std::time::Instant::now();
     let spoiler_log = randomize_items(&mut script, &source, options)?;
     if false {
-        script.add_starting_items(
+        let worlds = take(&mut script.worlds);
+        script.worlds = add_starting_items(
+            worlds,
             &[
                 // crate::script::data::items::Equipment::Boots,
                 // crate::script::data::items::Equipment::Feather,

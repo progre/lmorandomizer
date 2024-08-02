@@ -1,9 +1,6 @@
-use crate::script::data::item::Rom;
+use crate::script::data::item::{ChestItem, Rom, Seal};
 
-use super::{
-    super::item::{ChestItem, Seal},
-    Start,
-};
+use super::Start;
 
 #[derive(Clone)]
 pub struct ChestObject {

@@ -6,7 +6,7 @@ use rand::Rng;
 
 use crate::{
     randomizer::spoiler::{items::Items, spots::Spots},
-    script::data::script::Script,
+    script::{data::script::Script, editor::apply_storage},
 };
 
 use super::{
@@ -31,7 +31,7 @@ pub fn randomize_items<'a>(
 
     let start = std::time::Instant::now();
     assert_unique(&shuffled);
-    script.replace_items(&script.clone(), &shuffled)?;
+    apply_storage(script, &shuffled)?;
     trace!("Replaced items in {:?}", start.elapsed());
     Ok(spoiler_log)
 }

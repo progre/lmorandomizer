@@ -1,7 +1,6 @@
-use super::{
-    super::item::{MainWeapon, SubWeapon},
-    Start,
-};
+use crate::script::data::item::{MainWeapon, SubWeapon};
+
+use super::Start;
 
 #[derive(Clone)]
 pub struct SubWeaponObject {

@@ -1,28 +1,20 @@
 use core::fmt;
-use std::mem::take;
 
 use anyhow::Result;
 
-use crate::{
-    randomizer::storage::Storage,
-    script::{
-        editor::{
-            add_starting_items::add_starting_items, script_editor::replace_items,
-            talks_editor::replace_shops,
-        },
-        enums,
-        file::{
-            dat::{code_map, reverse_code_map},
-            scripttxtparser::{parse_script_txt, stringify_script_txt},
-        },
+use crate::script::{
+    enums,
+    file::{
+        dat::{code_map, reverse_code_map},
+        scripttxtparser::{parse_script_txt, stringify_script_txt},
     },
 };
 
 use super::{
-    item::{self, ChestItem},
+    item::{ChestItem, Equipment},
     object::{
-        ChestObject, MainWeaponObject, Object, RomObject, SealObject, Shop, ShopObject,
-        SubWeaponObject, UnknownObject,
+        ChestObject, MainWeaponObject, Object, RomObject, SealObject, ShopObject, SubWeaponObject,
+        UnknownObject,
     },
 };
 
@@ -169,7 +161,7 @@ impl Script {
                 !matches!(
                     chest_obj.item(),
                     ChestItem::None(_)
-                        | ChestItem::Equipment(item::Equipment {
+                        | ChestItem::Equipment(Equipment {
                             content: enums::Equipment::SweetClothing,
                             ..
                         })
@@ -202,30 +194,6 @@ impl Script {
             };
             Some(x)
         })
-    }
-
-    pub fn replace_items(&mut self, script: &Script, shuffled: &Storage) -> Result<()> {
-        let shops: Vec<_> = self
-            .shops()
-            .filter_map(|x| Shop::try_from_shop_object(x, &self.talks).transpose())
-            .collect::<Result<_>>()?;
-        replace_items(&mut self.worlds, script, shuffled)?;
-        replace_shops(&mut self.talks, script, &shops, &shuffled.shops)?;
-        Ok(())
-    }
-
-    pub fn add_starting_items(
-        &mut self,
-        equipment_list: &[enums::Equipment],
-        rom_list: &[enums::Rom],
-        sub_weapon_list: &[enums::SubWeapon],
-    ) {
-        self.worlds = add_starting_items(
-            take(&mut self.worlds),
-            equipment_list,
-            rom_list,
-            sub_weapon_list,
-        );
     }
 
     fn view_objects(&self) -> impl Iterator<Item = &Object> {

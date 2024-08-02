@@ -4,7 +4,7 @@ use num_traits::FromPrimitive;
 use crate::script::enums;
 
 use super::{
-    item::{self, Equipment, Item, Rom, SubWeapon},
+    item::{Equipment, Item, Rom, SubWeapon},
     script::Talk,
 };
 
@@ -87,7 +87,7 @@ impl ShopItem {
                 if content == enums::SubWeapon::HandScanner && flag == 65279 {
                     flag = 696;
                 }
-                let item = item::SubWeapon {
+                let item = SubWeapon {
                     content,
                     amount: data[4] - 1,
                     price: Some(price),
@@ -96,7 +96,7 @@ impl ShopItem {
                 Ok(Self::SubWeapon(ShopSubWeapon { item, price }))
             }
             1 => {
-                let item = item::Equipment {
+                let item = Equipment {
                     content: enums::Equipment::from_u8(number)
                         .ok_or_else(|| anyhow!("Invalid equipment number: {}", number))?,
                     price: Some(price),
@@ -108,7 +108,7 @@ impl ShopItem {
             2 => {
                 let content = enums::Rom::from_u8(number)
                     .ok_or_else(|| anyhow!("Invalid rom number: {}", number))?;
-                let item = item::Rom {
+                let item = Rom {
                     content,
                     price: Some(price),
                     flag,
