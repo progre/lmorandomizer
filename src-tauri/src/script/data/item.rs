@@ -2,20 +2,21 @@ use anyhow::{bail, Result};
 
 use crate::{
     dataset::spot::FieldId,
-    randomizer::{self, storage::item::ItemSource},
+    randomizer::storage::{self, item::ItemSource},
+    script::enums,
 };
 
-use super::{items, object::Shop, script::Script, shop_items_data::ShopItem};
+use super::{object::Shop, script::Script, shop_items_data::ShopItem};
 
 #[derive(Clone)]
 pub struct MainWeapon {
-    pub content: items::MainWeapon,
+    pub content: enums::MainWeapon,
     pub flag: u16,
 }
 
 #[derive(Clone)]
 pub struct SubWeapon {
-    pub content: items::SubWeapon,
+    pub content: enums::SubWeapon,
     pub amount: u8,
     pub price: Option<u16>,
     pub flag: u16,
@@ -23,14 +24,14 @@ pub struct SubWeapon {
 
 #[derive(Clone, Debug)]
 pub struct Equipment {
-    pub content: items::Equipment,
+    pub content: enums::Equipment,
     pub price: Option<u16>,
     pub flag: u16,
 }
 
 #[derive(Clone, Debug)]
 pub struct Rom {
-    pub content: items::Rom,
+    pub content: enums::Rom,
     pub price: Option<u16>,
     pub flag: u16,
 }
@@ -55,7 +56,7 @@ impl ChestItem {
 
 #[derive(Clone)]
 pub struct Seal {
-    pub content: items::Seal,
+    pub content: enums::Seal,
     pub flag: u16,
 }
 
@@ -102,7 +103,7 @@ impl Item {
         );
     }
 
-    pub fn from_dataset(item: &randomizer::storage::item::Item, script: &Script) -> Result<Self> {
+    pub fn from_dataset(item: &storage::item::Item, script: &Script) -> Result<Self> {
         Ok(match &item.src {
             ItemSource::MainWeapon(main_weapon) => {
                 let Some(item) = script
@@ -124,7 +125,7 @@ impl Item {
                 };
                 Self::SubWeapon(item.sub_weapon().clone())
             }
-            ItemSource::Chest((field_id, items::ChestItem::Equipment(equipment))) => {
+            ItemSource::Chest((field_id, enums::ChestItem::Equipment(equipment))) => {
                 let Some(item) = script
                     .field(to_field_number(*field_id))
                     .unwrap()
@@ -142,7 +143,7 @@ impl Item {
                 };
                 Self::Equipment(item.clone())
             }
-            ItemSource::Chest((field_id, items::ChestItem::Rom(rom))) => {
+            ItemSource::Chest((field_id, enums::ChestItem::Rom(rom))) => {
                 let Some(item) = script
                     .field(to_field_number(*field_id))
                     .unwrap()
@@ -174,7 +175,7 @@ impl Item {
                     .into_iter()
                     .find(|x| {
                         let old = ShopItem::to_spot_shop_items(&x.items);
-                        items::ShopItem::matches_items(old, *items)
+                        enums::ShopItem::matches_items(old, *items)
                     })
                 else {
                     bail!("invalid shop: {:?}", items)

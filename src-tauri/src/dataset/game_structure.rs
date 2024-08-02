@@ -7,7 +7,7 @@ use vec1::Vec1;
 
 use crate::{
     dataset::spot::SpotName,
-    script::data::items::{ChestItem, Equipment, MainWeapon, Rom, Seal, ShopItem, SubWeapon},
+    script::enums::{ChestItem, Equipment, MainWeapon, Rom, Seal, ShopItem, SubWeapon},
 };
 
 use super::spot::{

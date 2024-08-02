@@ -3,11 +3,13 @@ use std::fmt::Write;
 use anyhow::{anyhow, bail, Result};
 use scraper::{node::Attributes, ElementRef, Html};
 
-use crate::script::data::{
-    items::SubWeapon,
-    object::{Object, Start, UnknownObject},
-    script::{Field, Map, Talk, World},
-    shop_items_data,
+use crate::script::{
+    data::{
+        object::{Object, Start, UnknownObject},
+        script::{Field, Map, Talk, World},
+        shop_items_data,
+    },
+    enums::SubWeapon,
 };
 
 pub fn parse_script_txt(text: &str) -> Result<(Vec<Talk>, Vec<World>)> {

@@ -1,17 +1,22 @@
 use anyhow::{anyhow, bail, Result};
 use log::debug;
 
-use crate::{dataset::spot::FieldId, randomizer::storage::Storage};
-
-use super::{
-    item::{ChestItem, Equipment, Item, Rom},
-    items::{self, SubWeapon},
-    object::{Object, Start, UnknownObject},
-    objects_factory::{
-        to_object_for_shutter, to_object_for_special_chest, to_objects_for_chest,
-        to_objects_for_hand_scanner,
+use crate::{
+    dataset::spot::FieldId,
+    randomizer::storage::Storage,
+    script::{
+        data::{
+            item::{ChestItem, Equipment, Item, Rom},
+            object::{Object, Start, UnknownObject},
+            script::{Script, World},
+        },
+        enums,
     },
-    script::{Script, World},
+};
+
+use super::objects_factory::{
+    to_object_for_shutter, to_object_for_special_chest, to_objects_for_chest,
+    to_objects_for_hand_scanner,
 };
 
 fn fix_trap_of_mausoleum_of_the_giants(
@@ -84,15 +89,15 @@ fn new_objs(
                 // Skip the empty or Sweet Clothing
                 ChestItem::None(_)
                 | ChestItem::Equipment(Equipment {
-                    content: items::Equipment::SweetClothing,
+                    content: enums::Equipment::SweetClothing,
                     ..
                 }) => {
                     return Ok(vec![obj.clone()]);
                 }
                 ChestItem::Equipment(Equipment { content, .. }) => {
-                    items::ChestItem::Equipment(*content)
+                    enums::ChestItem::Equipment(*content)
                 }
-                ChestItem::Rom(Rom { content, .. }) => items::ChestItem::Rom(*content),
+                ChestItem::Rom(Rom { content, .. }) => enums::ChestItem::Rom(*content),
             };
             let field_id = to_field_id(field_number)
                 .ok_or_else(|| anyhow!("field_id not found: {}", field_number))?;
@@ -112,7 +117,7 @@ fn new_objs(
             };
             let item = Item::from_dataset(&sub_weapon.item, script)?;
 
-            if sub_weapon_obj.sub_weapon().content == SubWeapon::AnkhJewel {
+            if sub_weapon_obj.sub_weapon().content == enums::SubWeapon::AnkhJewel {
                 // Gate of Guidance
                 if sub_weapon_obj.sub_weapon().flag == 743 {
                     let wall_check_flag = get_next_wall_check_flag(next_objs)
@@ -122,7 +127,7 @@ fn new_objs(
                 }
                 return Ok(vec![to_object_for_special_chest(obj, item)]);
             }
-            let open_flag = if sub_weapon_obj.sub_weapon().content == SubWeapon::Pistol {
+            let open_flag = if sub_weapon_obj.sub_weapon().content == enums::SubWeapon::Pistol {
                 get_next_breakable_wall_check_flag(next_objs)?
             } else {
                 get_next_shutter_check_flag(next_objs)?
@@ -166,7 +171,10 @@ fn new_objs(
                 // Trap object for the Ankh Jewel Treasure Chest in Mausoleum of the Giants.
                 // It is made to work correctly when acquiring items.
                 140 if unknown_obj.x == 49152 && unknown_obj.y == 16384 => {
-                    let key = (to_field_id(field_number).unwrap(), SubWeapon::AnkhJewel);
+                    let key = (
+                        to_field_id(field_number).unwrap(),
+                        enums::SubWeapon::AnkhJewel,
+                    );
                     let Some(sub_weapon) = shuffled.sub_weapons.get(&key) else {
                         bail!("sub_weapon not found")
                     };

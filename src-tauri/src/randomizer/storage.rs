@@ -11,7 +11,7 @@ use crate::{
         AnyOfAllRequirements, ChestSpot, FieldId, MainWeaponSpot, RomSpot, SealSpot, ShopSpot,
         SubWeaponSpot,
     },
-    script::data::items,
+    script::enums,
 };
 
 use {
@@ -93,23 +93,23 @@ pub struct Event {
 
 #[derive(Clone, Debug)]
 pub struct Storage {
-    pub main_weapons: BTreeMap<items::MainWeapon, MainWeapon>,
-    pub sub_weapons: BTreeMap<(FieldId, items::SubWeapon), SubWeapon>,
-    pub chests: BTreeMap<(FieldId, items::ChestItem), Chest>,
-    pub seals: BTreeMap<items::Seal, Seal>,
+    pub main_weapons: BTreeMap<enums::MainWeapon, MainWeapon>,
+    pub sub_weapons: BTreeMap<(FieldId, enums::SubWeapon), SubWeapon>,
+    pub chests: BTreeMap<(FieldId, enums::ChestItem), Chest>,
+    pub seals: BTreeMap<enums::Seal, Seal>,
     pub shops: Vec<Shop>,
-    pub roms: BTreeMap<items::Rom, Rom>,
+    pub roms: BTreeMap<enums::Rom, Rom>,
     pub events: Vec<Event>,
 }
 
 impl Storage {
     pub fn new(
-        main_weapons: BTreeMap<items::MainWeapon, MainWeapon>,
-        sub_weapons: BTreeMap<(FieldId, items::SubWeapon), SubWeapon>,
-        chests: BTreeMap<(FieldId, items::ChestItem), Chest>,
-        seals: BTreeMap<items::Seal, Seal>,
+        main_weapons: BTreeMap<enums::MainWeapon, MainWeapon>,
+        sub_weapons: BTreeMap<(FieldId, enums::SubWeapon), SubWeapon>,
+        chests: BTreeMap<(FieldId, enums::ChestItem), Chest>,
+        seals: BTreeMap<enums::Seal, Seal>,
         shops: Vec<Shop>,
-        roms: BTreeMap<items::Rom, Rom>,
+        roms: BTreeMap<enums::Rom, Rom>,
         events: Vec<Event>,
     ) -> Result<Self> {
         let zelf = Self {

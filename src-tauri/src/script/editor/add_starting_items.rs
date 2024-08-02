@@ -1,8 +1,10 @@
-use super::{
-    item,
-    items::{Equipment, Rom, SubWeapon},
-    object::{ChestObject, Object, Start, UnknownObject},
-    script::{Field, Map, World},
+use crate::script::{
+    data::{
+        item,
+        object::{ChestObject, Object, Start, UnknownObject},
+        script::{Field, Map, World},
+    },
+    enums::{Equipment, Rom, SubWeapon},
 };
 
 pub fn add_starting_items(

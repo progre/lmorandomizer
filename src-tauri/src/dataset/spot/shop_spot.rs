@@ -1,6 +1,6 @@
 use std::fmt;
 
-use crate::script::data::items::ShopItem;
+use crate::script::enums::ShopItem;
 
 use super::{
     params::{AnyOfAllRequirements, SpotName, SpotParams},

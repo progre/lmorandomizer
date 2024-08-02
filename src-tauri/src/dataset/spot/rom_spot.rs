@@ -1,6 +1,6 @@
 use std::fmt;
 
-use crate::script::data::items::Rom;
+use crate::script::enums::Rom;
 
 use super::{
     params::{AnyOfAllRequirements, SpotName},

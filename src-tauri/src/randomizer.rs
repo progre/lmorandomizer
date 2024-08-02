@@ -16,7 +16,8 @@ use crate::{
         TRUE_SHRINE_OF_THE_MOTHER_SEAL_COUNT, WARE_NO_MISE_COUNT,
     },
     script::{
-        data::{items::Rom, object::Shop, script::Script},
+        data::{object::Shop, script::Script},
+        enums::Rom,
         file::scriptconverter::{build_script_dat, read_script_dat},
     },
 };

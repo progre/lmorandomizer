@@ -6,11 +6,11 @@ mod weapon_objects;
 use anyhow::{anyhow, bail, Result};
 use num_traits::FromPrimitive;
 
-use crate::script::data::item;
+use crate::script::enums;
 
 use super::{
-    item::{ChestItem, MainWeapon, Rom, Seal, SubWeapon},
-    items, shop_items_data,
+    item::{self, ChestItem, MainWeapon, Rom, Seal, SubWeapon},
+    shop_items_data,
 };
 
 pub use field_objects::{ChestObject, RomObject, SealObject, UnknownObject};
@@ -37,13 +37,13 @@ fn create_chest_object(
     let item = match op2 {
         -1 => ChestItem::None(op3),
         0..=99 => ChestItem::Equipment(item::Equipment {
-            content: items::Equipment::from_i32(op2)
+            content: enums::Equipment::from_i32(op2)
                 .ok_or_else(|| anyhow!("invalid parameter: op2={}", op2))?,
             price: None,
             flag: u16::try_from(op3)?,
         }),
         _ => ChestItem::Rom(item::Rom {
-            content: items::Rom::from_i32(op2 - 100)
+            content: enums::Rom::from_i32(op2 - 100)
                 .ok_or_else(|| anyhow!("invalid parameter: op2={}", op2))?,
             price: None,
             flag: u16::try_from(op3)?,
@@ -68,7 +68,7 @@ fn create_sub_weapon_object(
         bail!("invalid parameter: op4={}", op4);
     }
     let sub_weapon = SubWeapon {
-        content: items::SubWeapon::from_i32(op1)
+        content: enums::SubWeapon::from_i32(op1)
             .ok_or_else(|| anyhow!("invalid parameter: op1={}", op1))?,
         amount: u8::try_from(op2)?,
         price: None,
@@ -90,7 +90,7 @@ fn create_rom_object(
         bail!("invalid parameters: op3={}, op4={}", op3, op4);
     }
     let rom = Rom {
-        content: items::Rom::from_i32(op1)
+        content: enums::Rom::from_i32(op1)
             .ok_or_else(|| anyhow!("invalid parameter: op1={}", op1))?,
         price: None,
         flag: u16::try_from(op2)?,
@@ -111,7 +111,7 @@ fn create_seal_object(
         bail!("invalid parameters: op3={}, op4={}", op3, op4);
     }
     let seal = Seal {
-        content: items::Seal::from_i32(op1)
+        content: enums::Seal::from_i32(op1)
             .ok_or_else(|| anyhow!("invalid parameter: content={}", op1))?,
         flag: u16::try_from(op2)?,
     };
@@ -131,7 +131,7 @@ fn create_main_weapon_object(
         bail!("invalid parameters: op3={}, op4={}", op3, op4);
     }
     let main_weapon = MainWeapon {
-        content: items::MainWeapon::from_i32(op1)
+        content: enums::MainWeapon::from_i32(op1)
             .ok_or_else(|| anyhow!("invalid parameter: op1={}", op1))?,
         flag: u16::try_from(op2)?,
     };

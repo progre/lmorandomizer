@@ -1,6 +1,6 @@
 use std::fmt;
 
-use crate::{dataset::spot::FieldId, script::data::items::ChestItem};
+use crate::{dataset::spot::FieldId, script::enums::ChestItem};
 
 use super::{
     spoiler::spots::SpotRef,

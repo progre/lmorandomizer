@@ -1,6 +1,6 @@
 use std::fmt;
 
-use crate::script::data::items::ChestItem;
+use crate::script::enums::ChestItem;
 
 use super::{
     params::{AnyOfAllRequirements, SpotName, SpotParams},

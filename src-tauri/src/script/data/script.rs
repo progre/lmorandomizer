@@ -5,22 +5,25 @@ use anyhow::Result;
 
 use crate::{
     randomizer::storage::Storage,
-    script::file::{
-        dat::{code_map, reverse_code_map},
-        scripttxtparser::{parse_script_txt, stringify_script_txt},
+    script::{
+        editor::{
+            add_starting_items::add_starting_items, script_editor::replace_items,
+            talks_editor::replace_shops,
+        },
+        enums,
+        file::{
+            dat::{code_map, reverse_code_map},
+            scripttxtparser::{parse_script_txt, stringify_script_txt},
+        },
     },
 };
 
 use super::{
-    add_starting_items::add_starting_items,
     item::{self, ChestItem},
-    items,
     object::{
         ChestObject, MainWeaponObject, Object, RomObject, SealObject, Shop, ShopObject,
         SubWeaponObject, UnknownObject,
     },
-    script_editor::replace_items,
-    talks_editor::replace_shops,
 };
 
 #[derive(Clone)]
@@ -167,7 +170,7 @@ impl Script {
                     chest_obj.item(),
                     ChestItem::None(_)
                         | ChestItem::Equipment(item::Equipment {
-                            content: items::Equipment::SweetClothing,
+                            content: enums::Equipment::SweetClothing,
                             ..
                         })
                 )
@@ -213,9 +216,9 @@ impl Script {
 
     pub fn add_starting_items(
         &mut self,
-        equipment_list: &[items::Equipment],
-        rom_list: &[items::Rom],
-        sub_weapon_list: &[items::SubWeapon],
+        equipment_list: &[enums::Equipment],
+        rom_list: &[enums::Rom],
+        sub_weapon_list: &[enums::SubWeapon],
     ) {
         self.worlds = add_starting_items(
             take(&mut self.worlds),

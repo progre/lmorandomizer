@@ -1,9 +1,10 @@
 use anyhow::{anyhow, bail, Result};
 use num_traits::FromPrimitive;
 
+use crate::script::enums;
+
 use super::{
     item::{self, Equipment, Item, Rom, SubWeapon},
-    items,
     script::Talk,
 };
 
@@ -56,7 +57,7 @@ pub enum ShopItem {
 impl ShopItem {
     pub fn to_spot_shop_items(
         selfs: &(ShopItem, ShopItem, ShopItem),
-    ) -> (items::ShopItem, items::ShopItem, items::ShopItem) {
+    ) -> (enums::ShopItem, enums::ShopItem, enums::ShopItem) {
         (
             selfs.0.to_spot_shop_item(),
             selfs.1.to_spot_shop_item(),
@@ -81,9 +82,9 @@ impl ShopItem {
         let mut flag = (((data[5] - 1) as u16) << 8) + data[6] as u16; // 254 * 256 + 255 is no set flag
         match shop_item_type {
             0 => {
-                let content = items::SubWeapon::from_u8(number)
+                let content = enums::SubWeapon::from_u8(number)
                     .ok_or_else(|| anyhow!("Invalid subweapon number: {}", number))?;
-                if content == items::SubWeapon::HandScanner && flag == 65279 {
+                if content == enums::SubWeapon::HandScanner && flag == 65279 {
                     flag = 696;
                 }
                 let item = item::SubWeapon {
@@ -96,7 +97,7 @@ impl ShopItem {
             }
             1 => {
                 let item = item::Equipment {
-                    content: items::Equipment::from_u8(number)
+                    content: enums::Equipment::from_u8(number)
                         .ok_or_else(|| anyhow!("Invalid equipment number: {}", number))?,
                     price: Some(price),
                     flag,
@@ -105,7 +106,7 @@ impl ShopItem {
             }
             // NOTE: 占いセンセーション(72) count is not as specified. It has 1 in it, not 0.
             2 => {
-                let content = items::Rom::from_u8(number)
+                let content = enums::Rom::from_u8(number)
                     .ok_or_else(|| anyhow!("Invalid rom number: {}", number))?;
                 let item = item::Rom {
                     content,
@@ -118,11 +119,11 @@ impl ShopItem {
         }
     }
 
-    pub fn to_spot_shop_item(&self) -> items::ShopItem {
+    pub fn to_spot_shop_item(&self) -> enums::ShopItem {
         match self {
-            ShopItem::Equipment(script) => items::ShopItem::Equipment(script.item.content),
-            ShopItem::Rom(script) => items::ShopItem::Rom(script.item.content),
-            ShopItem::SubWeapon(script) => items::ShopItem::SubWeapon(script.item.content),
+            ShopItem::Equipment(script) => enums::ShopItem::Equipment(script.item.content),
+            ShopItem::Rom(script) => enums::ShopItem::Rom(script.item.content),
+            ShopItem::SubWeapon(script) => enums::ShopItem::SubWeapon(script.item.content),
         }
     }
     fn to_bytes(&self) -> [u8; 7] {
