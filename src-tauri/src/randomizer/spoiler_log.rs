@@ -3,7 +3,7 @@ use std::fmt;
 use crate::{dataset::spot::FieldId, script::data::items::ChestItem};
 
 use super::{
-    spoiler::items_spots::SpotRef,
+    spoiler::spots::SpotRef,
     storage::{
         item::{Item, StrategyFlag},
         Chest, ChestRef, MainWeapon, MainWeaponRef, Rom, RomRef, Seal, SealRef, Shop, ShopRef,

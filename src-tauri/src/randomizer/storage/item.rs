@@ -1,6 +1,6 @@
 use crate::{
     dataset::spot::{FieldId, RequirementFlag, SpotName},
-    randomizer::spoiler::items_spots::SpotRef,
+    randomizer::spoiler::spots::SpotRef,
     script::data::items,
 };
 

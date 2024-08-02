@@ -1,6 +1,7 @@
+pub mod items;
 mod items_pool;
-pub mod items_spots;
 mod sphere;
+pub mod spots;
 
 use std::{
     collections::{BTreeMap, HashSet},
@@ -9,11 +10,11 @@ use std::{
     sync::LazyLock,
 };
 
-use items_spots::SpotRef;
 use log::{info, trace};
 use rand::{seq::SliceRandom, Rng};
 use rand_seeder::Seeder;
 use rand_xoshiro::Xoshiro256PlusPlus;
+use spots::SpotRef;
 
 use crate::dataset::spot::FieldId;
 
@@ -23,10 +24,7 @@ use super::{
     RandomizeOptions,
 };
 
-use {
-    items_spots::{Items, Spots},
-    sphere::sphere,
-};
+use {items::Items, sphere::sphere, spots::Spots};
 
 static GLITCH: LazyLock<StrategyFlag> = LazyLock::new(|| StrategyFlag::new("option:glitch".into()));
 

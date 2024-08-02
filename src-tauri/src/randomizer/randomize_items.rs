@@ -5,7 +5,7 @@ use log::{info, trace};
 use rand::Rng;
 
 use crate::{
-    randomizer::spoiler::items_spots::{Items, Spots},
+    randomizer::spoiler::{items::Items, spots::Spots},
     script::data::script::Script,
 };
 

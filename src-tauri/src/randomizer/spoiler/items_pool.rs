@@ -4,7 +4,7 @@ use rand::{seq::SliceRandom, Rng};
 
 use crate::randomizer::storage::item::Item;
 
-use super::items_spots::{SpotRef, Spots};
+use super::spots::{SpotRef, Spots};
 
 fn move_items_to<'a>(
     mut dst: ShuffledItems<'a>,

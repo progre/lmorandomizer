@@ -19,7 +19,7 @@ use crate::{
 
 use super::{
     items_pool::{ItemsPool, ShuffledItems},
-    items_spots::Spots,
+    spots::Spots,
 };
 
 #[derive(Clone)]
