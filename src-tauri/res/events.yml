@@ -56,7 +56,7 @@ event:defeatedPalenque: # added sub weapon and sacred orb requirements
 event:releasedTwins:
   - event:defeatedEllmac, twinStatue
 event:twinLabyrinthsGlitch:
-  - feather, grappleClaw # https://youtu.be/JcKnq1GcZD4
+  - option:glitch, feather, grappleClaw # https://youtu.be/JcKnq1GcZD4
 event:defeatedBaphomet:
   - event:releasedTwins, flareGun, flareGunAmmo, ankhJewel:twinLabyrinths, sacredOrb:4 # with just flares, fight is insanely hard without some health
 
