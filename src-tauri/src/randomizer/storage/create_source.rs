@@ -67,11 +67,11 @@ pub fn create_source(
             })
             .enumerate()
             .map(|(idx, name)| name.map(|name| Item::shop_item(spot.items(), idx, name)));
-        let items = (
+        let items = [
             names.next().unwrap(),
             names.next().unwrap(),
             names.next().unwrap(),
-        );
+        ];
         shops.push(Shop { spot, items });
     }
     let mut events: Vec<_> = game_structure

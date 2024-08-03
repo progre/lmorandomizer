@@ -164,19 +164,16 @@ fn replace_items(
 fn create_shop_item_talks(
     talks: &[Talk],
     base_talk_number: u16,
-    old: (enums::ShopItem, enums::ShopItem, enums::ShopItem),
-    new: (
-        Option<enums::ShopItem>,
-        Option<enums::ShopItem>,
-        Option<enums::ShopItem>,
-    ),
+    old: [enums::ShopItem; 3],
+    new: [Option<enums::ShopItem>; 3],
 ) -> Result<Vec<(usize, Talk)>> {
-    [(1, old.0, new.0), (2, old.1, new.1), (3, old.2, new.2)]
-        .into_iter()
-        .flat_map(|(idx, old, new)| new.map(|new| (idx, old, new)))
+    old.into_iter()
+        .enumerate()
+        .zip(new)
+        .flat_map(|((idx, old), new)| new.map(|new| (idx, old, new)))
         .filter(|(_, old, new)| old != new)
         .map(|(idx, old, new)| {
-            let talk_number = base_talk_number as usize + idx;
+            let talk_number = base_talk_number as usize + 1 + idx;
             let new_talk = replace_shop_item_talk(talks, talk_number, old, new)?;
             Ok((talk_number, new_talk))
         })
@@ -195,19 +192,20 @@ pub fn replace_shops(
             item.as_ref().map(|x| Item::new(&x.src, script)).transpose()
         };
         let new_items = (
-            create_item(&dataset_shop.items.0)?,
-            create_item(&dataset_shop.items.1)?,
-            create_item(&dataset_shop.items.2)?,
+            create_item(&dataset_shop.items[0])?,
+            create_item(&dataset_shop.items[1])?,
+            create_item(&dataset_shop.items[2])?,
         );
-        let new_dataset_shop_items = (
+        let new_dataset_shop_items = [
             to_dataset_shop_item_from_item(new_items.0.as_ref()),
             to_dataset_shop_item_from_item(new_items.1.as_ref()),
             to_dataset_shop_item_from_item(new_items.2.as_ref()),
-        );
+        ];
 
         let Some(script_shop) = script_shops.iter().find(|script_shop| {
             let old = ShopItem::to_spot_shop_items(&script_shop.items);
-            enums::ShopItem::matches_items(old, dataset_shop.spot.items())
+            let items = dataset_shop.spot.items();
+            enums::ShopItem::matches_items(old, items)
         }) else {
             bail!("shop not found: {:?}", dataset_shop.spot.items())
         };

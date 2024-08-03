@@ -208,12 +208,7 @@ impl GameStructure {
                     .collect::<Result<_, ParseError>>()?;
                 let name = SpotName::new(key);
                 let any_of_all_requirements = to_any_of_all_requirements(value)?;
-                let mut items = items.into_iter();
-                let items = (
-                    items.next().unwrap(),
-                    items.next().unwrap(),
-                    items.next().unwrap(),
-                );
+                let items = [items[0], items[1], items[2]];
                 let spot = ShopSpot::new(field_number, name, items, any_of_all_requirements);
                 shops.push(spot)
             }

@@ -55,14 +55,12 @@ pub enum ShopItem {
 }
 
 impl ShopItem {
-    pub fn to_spot_shop_items(
-        selfs: &(ShopItem, ShopItem, ShopItem),
-    ) -> (enums::ShopItem, enums::ShopItem, enums::ShopItem) {
-        (
+    pub fn to_spot_shop_items(selfs: &(ShopItem, ShopItem, ShopItem)) -> [enums::ShopItem; 3] {
+        [
             selfs.0.to_spot_shop_item(),
             selfs.1.to_spot_shop_item(),
             selfs.2.to_spot_shop_item(),
-        )
+        ]
     }
 
     pub fn from_item(item: Item, price: u16) -> Self {

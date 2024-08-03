@@ -115,11 +115,11 @@ fn place_items<'a>(
                 }
             })
         });
-        let items = (
+        let items = [
             items.next().unwrap(),
             items.next().unwrap(),
             items.next().unwrap(),
-        );
+        ];
         let spot = shops[0].spot;
         sphere.push(CheckpointRef::Shop(ShopRef { spot, items }));
     }
@@ -142,13 +142,7 @@ fn append_flags<'a>(strategy_flags: &mut HashSet<&'a StrategyFlag>, sphere: &Sph
                 strategy_flags.insert(&checkpoint.item.name);
             }
             CheckpointRef::Shop(checkpoint) => {
-                if let Some(item) = &checkpoint.items.0 {
-                    strategy_flags.insert(&item.name);
-                }
-                if let Some(item) = &checkpoint.items.1 {
-                    strategy_flags.insert(&item.name);
-                }
-                if let Some(item) = &checkpoint.items.2 {
+                for item in checkpoint.items.iter().flatten() {
                     strategy_flags.insert(&item.name);
                 }
             }

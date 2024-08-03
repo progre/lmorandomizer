@@ -69,16 +69,13 @@ impl<'a> Spots<'a> {
                 .shops
                 .iter()
                 .flat_map(|shop| {
-                    [&shop.items.0, &shop.items.1, &shop.items.2]
-                        .into_iter()
-                        .enumerate()
-                        .filter_map(|(idx, item)| {
-                            item.as_ref().map(|item| ShopItemDisplay {
-                                spot: &shop.spot,
-                                idx,
-                                name: &item.name,
-                            })
+                    shop.items.iter().enumerate().filter_map(|(idx, item)| {
+                        item.as_ref().map(|item| ShopItemDisplay {
+                            spot: &shop.spot,
+                            idx,
+                            name: &item.name,
                         })
+                    })
                 })
                 .collect(),
             events: source.events.iter().collect(),

@@ -48,12 +48,10 @@ impl fmt::Display for Checkpoint {
             Self::Shop(checkpoint) => {
                 let spot = &checkpoint.spot;
                 let items = &checkpoint.items;
-                let items = (
-                    items.0.as_ref().map_or("_", |x| x.name.get()),
-                    items.1.as_ref().map_or("_", |x| x.name.get()),
-                    items.2.as_ref().map_or("_", |x| x.name.get()),
-                );
-                write!(f, "{} = {}, {}, {}", spot, items.0, items.1, items.2)
+                let item0 = items[0].as_ref().map_or("_", |x| x.name.get());
+                let item1 = items[1].as_ref().map_or("_", |x| x.name.get());
+                let item2 = items[2].as_ref().map_or("_", |x| x.name.get());
+                write!(f, "{} = {}, {}, {}", spot, item0, item1, item2)
             }
             Self::Rom(checkpoint) => {
                 write!(f, "{} = {}", checkpoint.spot, checkpoint.item.name.get())
@@ -105,11 +103,7 @@ impl<'a> CheckpointRef<'a> {
             }),
             Self::Shop(checkpoint) => Checkpoint::Shop(Shop {
                 spot: checkpoint.spot.to_owned(),
-                items: (
-                    checkpoint.items.0.cloned(),
-                    checkpoint.items.1.cloned(),
-                    checkpoint.items.2.cloned(),
-                ),
+                items: checkpoint.items.map(|x| x.cloned()),
             }),
             Self::Rom(checkpoint) => Checkpoint::Rom(Rom {
                 spot: checkpoint.spot.to_owned(),

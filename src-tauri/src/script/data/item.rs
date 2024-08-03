@@ -154,15 +154,7 @@ impl Item {
         };
         Ok(Self::Rom(rom.rom().clone()))
     }
-    fn shop(
-        script: &Script,
-        items: (
-            Option<enums::ShopItem>,
-            Option<enums::ShopItem>,
-            Option<enums::ShopItem>,
-        ),
-        item_idx: usize,
-    ) -> Result<Self> {
+    fn shop(script: &Script, items: [Option<enums::ShopItem>; 3], item_idx: usize) -> Result<Self> {
         let Some(shop) = script
             .shops()
             .filter_map(|x| Shop::try_from_shop_object(x, &script.talks).transpose())

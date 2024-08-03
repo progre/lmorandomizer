@@ -39,7 +39,7 @@ impl<'a> Items<'a> {
                 source
                     .shops
                     .iter()
-                    .flat_map(|x| [&x.items.0, &x.items.1, &x.items.2])
+                    .flat_map(|x| &x.items)
                     .filter_map(|x| x.as_ref()),
             )
             .chain(source.roms.values().map(|x| &x.item));
@@ -84,7 +84,7 @@ impl<'a> Items<'a> {
                             item.as_ref()
                                 .map_or(0, |x| !x.name.is_consumable() as usize)
                         };
-                        count(&shop.items.0) + count(&shop.items.1) + count(&shop.items.2)
+                        shop.items.iter().map(count).sum::<usize>()
                     })
                     .sum::<usize>()
                 + source.roms.len(),

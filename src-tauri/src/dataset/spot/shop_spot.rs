@@ -5,13 +5,13 @@ use crate::script::enums::{FieldNumber, ShopItem};
 use super::params::{AnyOfAllRequirements, SpotName, SpotParams};
 
 #[derive(Clone, Debug)]
-pub struct ShopSpot(SpotParams<(Option<ShopItem>, Option<ShopItem>, Option<ShopItem>)>);
+pub struct ShopSpot(SpotParams<[Option<ShopItem>; 3]>);
 
 impl ShopSpot {
     pub fn new(
         field_number: FieldNumber,
         name: SpotName,
-        content: (Option<ShopItem>, Option<ShopItem>, Option<ShopItem>),
+        content: [Option<ShopItem>; 3],
         requirements: Option<AnyOfAllRequirements>,
     ) -> Self {
         if cfg!(debug_assertions) {
@@ -27,7 +27,7 @@ impl ShopSpot {
     pub fn name(&self) -> &SpotName {
         &self.0.name
     }
-    pub fn items(&self) -> (Option<ShopItem>, Option<ShopItem>, Option<ShopItem>) {
+    pub fn items(&self) -> [Option<ShopItem>; 3] {
         self.0.content
     }
     pub fn requirements(&self) -> Option<&AnyOfAllRequirements> {

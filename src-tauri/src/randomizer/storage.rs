@@ -45,7 +45,7 @@ pub struct Seal {
 #[derive(Clone, Debug)]
 pub struct Shop {
     pub spot: ShopSpot,
-    pub items: (Option<Item>, Option<Item>, Option<Item>),
+    pub items: [Option<Item>; 3],
 }
 
 #[derive(Clone, Debug)]
@@ -76,7 +76,7 @@ pub struct SealRef<'a> {
 
 pub struct ShopRef<'a> {
     pub spot: &'a ShopSpot,
-    pub items: (Option<&'a Item>, Option<&'a Item>, Option<&'a Item>),
+    pub items: [Option<&'a Item>; 3],
 }
 
 pub struct RomRef<'a> {
@@ -136,7 +136,7 @@ impl Storage {
             .chain(
                 self.shops
                     .iter()
-                    .flat_map(|x| [&x.items.0, &x.items.1, &x.items.2])
+                    .flat_map(|x| &x.items)
                     .filter_map(|x| x.as_ref()),
             )
             .chain(self.roms.values().map(|x| &x.item))

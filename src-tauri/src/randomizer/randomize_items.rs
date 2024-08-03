@@ -68,9 +68,9 @@ fn create_shuffled_storage(source: &Storage, spoiler_log: &SpoilerLogRef) -> Sto
                     .find(|x| x.spot.items() == shop.spot.items())
                     .unwrap()
                     .items;
-                items.0 = shop.items.0.cloned();
-                items.1 = shop.items.1.cloned();
-                items.2 = shop.items.2.cloned();
+                items.iter_mut().zip(&shop.items).for_each(|(old, new)| {
+                    *old = new.cloned();
+                });
             }
             CheckpointRef::Rom(rom) => {
                 let content = rom.spot.rom();
@@ -150,7 +150,7 @@ fn assert_unique(storage: &Storage) {
             storage
                 .shops
                 .iter()
-                .flat_map(|x| [&x.items.0, &x.items.1, &x.items.2])
+                .flat_map(|x| &x.items)
                 .filter_map(|item| item.as_ref())
                 .map(|item| ("shop", item)),
         )
@@ -197,7 +197,7 @@ mod tests {
 
         let shuffled_str = format!("{:?}", shuffled);
         let shuffled_hash = hex::encode(sha3::Sha3_512::digest(shuffled_str));
-        const EXPECTED_SHUFFLED_HASH: &str = "6f06676c37439ee786c9a384d00dbac3f615980daeb07263b58001fa781049891334464fe18ee688cdc0357251a7e76459c039a4d7245755c1545d7b030e7ec2";
+        const EXPECTED_SHUFFLED_HASH: &str = "7d416fe875f11d80cc00ced83f63b7563bd145c4d8cc8003c00439f43349e17ab82e92c28391bddce262a6681dca19c8fac5c1605aa7f9f86389ad7d6b5ed5c2";
         assert_eq!(shuffled_hash, EXPECTED_SHUFFLED_HASH);
 
         let spoiler_log_str = format!("{}", spoiler_log.to_owned());
