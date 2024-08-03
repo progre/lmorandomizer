@@ -202,7 +202,7 @@ mod tests {
 
         let spoiler_log_str = format!("{}", spoiler_log.to_owned());
         let spoiler_log_hash = hex::encode(sha3::Sha3_512::digest(spoiler_log_str));
-        const EXPECTED_SPOILER_LOG_HASH: &str = "a8e8439c1c17c6db30b5d10e98cb216aa1cb95b53f86e193388da438a8305ef82e4a09310480609e18607b1450554207573390223cf2def513f3a2edbdd3b7f2";
+        const EXPECTED_SPOILER_LOG_HASH: &str = "cc18277c285d1ed1c6d0e4d7f1f2042e0845a898032ccfb7457e98e32c0cbd41b08815042c941cf7559b2c9993d412ed788d7bc933a5deb2dc7d7382300f2b8c";
         assert_eq!(spoiler_log_hash, EXPECTED_SPOILER_LOG_HASH);
 
         Ok(())

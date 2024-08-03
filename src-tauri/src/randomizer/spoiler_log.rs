@@ -155,8 +155,8 @@ impl fmt::Display for SpoilerLog {
                         (x.spot.field_number(), 3, number)
                     }
                     Checkpoint::Seal(x) => (x.spot.field_number(), 4, x.spot.seal() as usize),
-                    Checkpoint::Shop(x) => (x.spot.field_number(), 5, 0),
-                    Checkpoint::Rom(x) => (x.spot.field_number(), 6, 0),
+                    Checkpoint::Rom(x) => (x.spot.field_number(), 5, 0),
+                    Checkpoint::Shop(x) => (x.spot.field_number(), 6, 0),
                     Checkpoint::Event(_) => return 10000000,
                 };
                 compare_key_for_spoiler_log(field) as usize * 10000 + type_num * 1000 + src_idx
