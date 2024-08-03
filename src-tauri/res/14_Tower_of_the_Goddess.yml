@@ -16,4 +16,4 @@ roms:
   unreleasedRom:
     - event:reachedBackDoorOfGateOfIllusion, msx2, qBert, divinerSensation
   pippols:
-    - event:reachedLowerOfChamberOfBirth
+    - event:reachedLowerOfChamberOfBirth, lampOfTime
