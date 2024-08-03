@@ -200,9 +200,9 @@ mod tests {
         const EXPECTED_SHUFFLED_HASH: &str = "d62207d7d142bbf864df8b2d844d2e1b226a649d91ba4266a10ec4cceae183c31ded5f55b56fa2396fee2b9e29936a2283cd245baf50941d6ce74201a3b64fcb";
         assert_eq!(shuffled_hash, EXPECTED_SHUFFLED_HASH);
 
-        let spoiler_log_str = format!("{:?}", spoiler_log.to_owned());
+        let spoiler_log_str = format!("{}", spoiler_log.to_owned());
         let spoiler_log_hash = hex::encode(sha3::Sha3_512::digest(spoiler_log_str));
-        const EXPECTED_SPOILER_LOG_HASH: &str = "6c81dc3fbaddc53b821a6d98d3b21a9e84d00ced0284dab68ad62cb5ae003a8316f67b73a32b4f9550a194c16fca482609c5a2bd0504592c16190ff8e9e313e5";
+        const EXPECTED_SPOILER_LOG_HASH: &str = "b93ec5112f7b0cf0f8d5531806729c213a6e51bb124b0ebae00ba366eaff85312f51159f4fc79503cb38c3c6e8310756571bdf6c78a9eb6cb230f708dfb798e2";
         assert_eq!(spoiler_log_hash, EXPECTED_SPOILER_LOG_HASH);
 
         Ok(())
