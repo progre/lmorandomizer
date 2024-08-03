@@ -192,9 +192,7 @@ pub fn replace_shops(
     assert_eq!(script_shops.len(), dataset_shops.len() + WARE_NO_MISE_COUNT);
     for dataset_shop in dataset_shops {
         let create_item = |item: &Option<randomizer::storage::item::Item>| {
-            item.as_ref()
-                .map(|x| Item::from_dataset(x, script))
-                .transpose()
+            item.as_ref().map(|x| Item::new(&x.src, script)).transpose()
         };
         let new_items = (
             create_item(&dataset_shop.items.0)?,

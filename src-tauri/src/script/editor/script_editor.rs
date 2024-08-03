@@ -40,7 +40,7 @@ fn replace_all_flags(starts: &[Start], script: &Script, shuffled: &Storage) -> R
                 debug!("rom not found: {}", old_rom.rom().content);
                 return Ok(start.clone());
             };
-            let item = Item::from_dataset(&new_rom.item, script)?;
+            let item = Item::new(&new_rom.item.src, script)?;
             Ok(Start {
                 flag: item.flag() as u32,
                 run_when: start.run_when,
@@ -78,7 +78,7 @@ fn new_objs(
             let Some(chest) = shuffled.chests.get(&(field_number, chest_item)) else {
                 bail!("chest not found: {} {:?}", field_number, chest_obj.item())
             };
-            let item = Item::from_dataset(&chest.item, script)?;
+            let item = Item::new(&chest.item.src, script)?;
             Ok(to_objects_for_chest(chest_obj, item))
         }
         Object::SubWeapon(sub_weapon_obj) => {
@@ -87,7 +87,7 @@ fn new_objs(
                 let content = sub_weapon_obj.sub_weapon().content;
                 bail!("sub_weapon not found: {}", content)
             };
-            let item = Item::from_dataset(&sub_weapon.item, script)?;
+            let item = Item::new(&sub_weapon.item.src, script)?;
 
             if sub_weapon_obj.sub_weapon().content == enums::SubWeapon::AnkhJewel {
                 // Gate of Guidance
@@ -113,14 +113,14 @@ fn new_objs(
                 debug!("rom not found: {}", rom_obj.rom().content);
                 return Ok(vec![obj.clone()]);
             };
-            let item = Item::from_dataset(&rom.item, script)?;
+            let item = Item::new(&rom.item.src, script)?;
             Ok(to_objects_for_hand_scanner(rom_obj, item))
         }
         Object::Seal(seal_obj) => {
             let Some(seal) = shuffled.seals.get(&seal_obj.seal().content) else {
                 bail!("seal not found: {}", seal_obj.seal().content)
             };
-            let item = Item::from_dataset(&seal.item, script)?;
+            let item = Item::new(&seal.item.src, script)?;
             Ok(vec![to_object_for_special_chest(obj, item)])
         }
         Object::MainWeapon(main_weapon_obj) => {
@@ -131,7 +131,7 @@ fn new_objs(
                 let content = main_weapon_obj.main_weapon().content;
                 bail!("main_weapon not found: {}", content)
             };
-            let item = Item::from_dataset(&main_weapon.item, script)?;
+            let item = Item::new(&main_weapon.item.src, script)?;
             let open_flag = get_next_shutter_check_flag(next_objs)?
                 .ok_or(anyhow!("next_shutter_check_flag not found"))?;
             Ok(vec![to_object_for_shutter(obj, open_flag, item)])
@@ -148,8 +148,7 @@ fn new_objs(
                         bail!("sub_weapon not found")
                     };
                     let mut obj = unknown_obj.clone();
-                    let prev_sub_weapon_shutter_item =
-                        &Item::from_dataset(&sub_weapon.item, script)?;
+                    let prev_sub_weapon_shutter_item = &Item::new(&sub_weapon.item.src, script)?;
                     fix_trap_of_mausoleum_of_the_giants(&mut obj, prev_sub_weapon_shutter_item);
                     Ok(vec![Object::Unknown(obj)])
                 }
