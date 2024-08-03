@@ -1,7 +1,8 @@
 use anyhow::Result;
+use num_traits::FromPrimitive;
 
 use crate::script::{
-    enums,
+    enums::{self, FieldNumber},
     file::scripttxtparser::{parse_script_txt, stringify_script_txt},
 };
 
@@ -35,8 +36,8 @@ pub struct Field {
 }
 
 impl Field {
-    pub fn number(&self) -> u8 {
-        self.attrs.0
+    pub fn number(&self) -> FieldNumber {
+        FieldNumber::from_u8(self.attrs.0).unwrap()
     }
 
     pub fn chests(&self) -> impl Iterator<Item = &ChestObject> {
@@ -82,7 +83,7 @@ impl Script {
         stringify_script_txt(&self.talks, &self.worlds)
     }
 
-    pub fn field(&self, number: u8) -> Option<&Field> {
+    pub fn field(&self, number: FieldNumber) -> Option<&Field> {
         self.worlds
             .iter()
             .flat_map(|x| &x.fields)

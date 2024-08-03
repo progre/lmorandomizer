@@ -1,7 +1,7 @@
 use crate::{
-    dataset::spot::{FieldId, RequirementFlag, SpotName},
+    dataset::spot::{RequirementFlag, SpotName},
     randomizer::spoiler::spots::SpotRef,
-    script::enums,
+    script::enums::{ChestItem, FieldNumber, MainWeapon, Rom, Seal, ShopItem, SubWeapon},
 };
 
 #[derive(Clone, Debug, Hash, Eq, Ord, PartialEq, PartialOrd)]
@@ -62,21 +62,18 @@ impl From<SpotName> for StrategyFlag {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Copy, Debug)]
+#[repr(u8)]
 pub enum ItemSource {
-    MainWeapon(enums::MainWeapon),
-    SubWeapon((FieldId, enums::SubWeapon)),
-    Chest((FieldId, enums::ChestItem)),
-    Seal(enums::Seal),
+    MainWeapon(MainWeapon),
+    SubWeapon((FieldNumber, SubWeapon)),
+    Chest((FieldNumber, ChestItem)),
+    Seal(Seal),
     Shop(
-        (
-            Option<enums::ShopItem>,
-            Option<enums::ShopItem>,
-            Option<enums::ShopItem>,
-        ),
+        (Option<ShopItem>, Option<ShopItem>, Option<ShopItem>),
         usize,
     ),
-    Rom(enums::Rom),
+    Rom(Rom),
 }
 
 #[derive(Clone, Debug)]
@@ -86,35 +83,35 @@ pub struct Item {
 }
 
 impl Item {
-    pub fn main_weapon(main_weapon: enums::MainWeapon, name: StrategyFlag) -> Self {
+    pub fn main_weapon(main_weapon: MainWeapon, name: StrategyFlag) -> Self {
         let src = ItemSource::MainWeapon(main_weapon);
         Self { src, name }
     }
-    pub fn sub_weapon(field_id: FieldId, sub_weapon: enums::SubWeapon, name: StrategyFlag) -> Self {
-        let src = ItemSource::SubWeapon((field_id, sub_weapon));
+    pub fn sub_weapon(
+        field_number: FieldNumber,
+        sub_weapon: SubWeapon,
+        name: StrategyFlag,
+    ) -> Self {
+        let src = ItemSource::SubWeapon((field_number, sub_weapon));
         Self { src, name }
     }
-    pub fn chest_item(field_id: FieldId, item: enums::ChestItem, name: StrategyFlag) -> Self {
-        let src = ItemSource::Chest((field_id, item));
+    pub fn chest_item(field_number: FieldNumber, item: ChestItem, name: StrategyFlag) -> Self {
+        let src = ItemSource::Chest((field_number, item));
         Self { src, name }
     }
-    pub fn seal(seal: enums::Seal, name: StrategyFlag) -> Self {
+    pub fn seal(seal: Seal, name: StrategyFlag) -> Self {
         let src = ItemSource::Seal(seal);
         Self { src, name }
     }
     pub fn shop_item(
-        items: (
-            Option<enums::ShopItem>,
-            Option<enums::ShopItem>,
-            Option<enums::ShopItem>,
-        ),
+        items: (Option<ShopItem>, Option<ShopItem>, Option<ShopItem>),
         item_idx: usize,
         name: StrategyFlag,
     ) -> Self {
         let src = ItemSource::Shop(items, item_idx);
         Self { src, name }
     }
-    pub fn rom(rom: enums::Rom, name: StrategyFlag) -> Self {
+    pub fn rom(rom: Rom, name: StrategyFlag) -> Self {
         let src = ItemSource::Rom(rom);
         Self { src, name }
     }

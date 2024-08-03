@@ -16,7 +16,7 @@ use rand_seeder::Seeder;
 use rand_xoshiro::Xoshiro256PlusPlus;
 use spots::SpotRef;
 
-use crate::dataset::spot::FieldId;
+use crate::script::enums::FieldNumber;
 
 use super::{
     spoiler_log::{CheckpointRef, SpoilerLogRef},
@@ -46,31 +46,32 @@ fn ptr_eq<'a>(a: SpotRef<'a>, b: &CheckpointRef<'a>) -> bool {
 
 fn maps<'a>(
     rng: &mut impl Rng,
-    maps: &BTreeMap<FieldId, &'a Item>,
+    maps: &BTreeMap<FieldNumber, &'a Item>,
     spots: &mut Spots<'a>,
 ) -> Vec<CheckpointRef<'a>> {
-    let mut spot_hash_map: BTreeMap<FieldId, Vec<SpotRef<'a>>> = Default::default();
+    let mut spot_hash_map: BTreeMap<FieldNumber, Vec<SpotRef<'a>>> = Default::default();
     let mut twin_labrynths_spots = Vec::new();
     for spot in &spots.field_item_spots {
         if matches!(
-            spot.field_id(),
-            FieldId::TwinLabyrinthsLeft | FieldId::TwinLabyrinthsRight
+            spot.field_number(),
+            FieldNumber::TwinLabyrinthsLeft | FieldNumber::TwinLabyrinthsRight
         ) {
             twin_labrynths_spots.push(*spot);
             continue;
         }
         spot_hash_map
-            .entry(spot.field_id())
+            .entry(spot.field_number())
             .or_default()
             .push(*spot);
     }
     maps.iter()
-        .map(|(field_id, item)| {
-            if *field_id == FieldId::TwinLabyrinthsLeft {
+        .map(|(field_number, item)| {
+            if *field_number == FieldNumber::TwinLabyrinthsLeft {
                 let spot = *twin_labrynths_spots.choose(rng).unwrap();
                 return CheckpointRef::from_field_spot_item(spot, item);
             }
-            CheckpointRef::from_field_spot_item(*spot_hash_map[field_id].choose(rng).unwrap(), item)
+            let spot = spot_hash_map[field_number].choose(rng).unwrap();
+            CheckpointRef::from_field_spot_item(*spot, item)
         })
         .inspect(|checkpoint| {
             let idx = spots

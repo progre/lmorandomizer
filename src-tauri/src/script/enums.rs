@@ -4,17 +4,19 @@ mod rom;
 
 pub use {
     equipment::Equipment,
-    others::{MainWeapon, Seal, SubWeapon},
+    others::{FieldNumber, MainWeapon, Seal, SubWeapon},
     rom::Rom,
 };
 
 #[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd)]
+#[repr(u8)]
 pub enum ChestItem {
     Equipment(Equipment),
     Rom(Rom),
 }
 
 #[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd)]
+#[repr(u8)]
 pub enum ShopItem {
     Equipment(Equipment),
     Rom(Rom),

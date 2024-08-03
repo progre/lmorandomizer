@@ -2,7 +2,6 @@ use anyhow::{anyhow, bail, Result};
 use log::debug;
 
 use crate::{
-    dataset::spot::FieldId,
     randomizer::storage::Storage,
     script::{
         data::{
@@ -10,7 +9,7 @@ use crate::{
             object::{Object, Start, UnknownObject},
             script::{Script, World},
         },
-        enums,
+        enums::{self, FieldNumber},
     },
 };
 
@@ -50,39 +49,16 @@ fn replace_all_flags(starts: &[Start], script: &Script, shuffled: &Storage) -> R
         .collect()
 }
 
-fn to_field_id(field_number: u8) -> Option<FieldId> {
-    match field_number {
-        0 => Some(FieldId::GateOfGuidance),
-        1 => Some(FieldId::Surface),
-        2 => Some(FieldId::MausoleumOfTheGiants),
-        3 => Some(FieldId::TempleOfTheSun),
-        4 => Some(FieldId::SpringInTheSky),
-        5 => Some(FieldId::InfernoCavern),
-        6 => Some(FieldId::ChamberOfExtinction),
-        7 => Some(FieldId::EndlessCorridor),
-        8 => Some(FieldId::ShrineOfTheMother),
-        9 => Some(FieldId::TwinLabyrinthsLeft),
-        10 => Some(FieldId::TwinLabyrinthsRight),
-        11 => Some(FieldId::GateOfIllusion),
-        12 => Some(FieldId::GraveyardOfTheGiants),
-        13 => Some(FieldId::TowerOfTheGoddess),
-        14 => Some(FieldId::TempleOfMoonlight),
-        15 => Some(FieldId::TowerOfRuin),
-        16 => Some(FieldId::ChamberOfBirth),
-        17 => Some(FieldId::DimensionalCorridor),
-        19 => Some(FieldId::TrueShrineOfTheMother),
-        28 => Some(FieldId::Surface),
-        _ => None,
-    }
-}
-
 fn new_objs(
     obj: &Object,
-    field_number: u8,
+    mut field_number: FieldNumber,
     next_objs: &[Object],
     script: &Script,
     shuffled: &Storage,
 ) -> Result<Vec<Object>> {
+    if field_number == FieldNumber::SurfaceNight {
+        field_number = FieldNumber::Surface;
+    }
     match obj {
         Object::Chest(chest_obj) => {
             let chest_item = match chest_obj.item() {
@@ -99,18 +75,14 @@ fn new_objs(
                 }
                 ChestItem::Rom(Rom { content, .. }) => enums::ChestItem::Rom(*content),
             };
-            let field_id = to_field_id(field_number)
-                .ok_or_else(|| anyhow!("field_id not found: {}", field_number))?;
-            let Some(chest) = shuffled.chests.get(&(field_id, chest_item)) else {
-                bail!("chest not found: {:?}", chest_obj.item())
+            let Some(chest) = shuffled.chests.get(&(field_number, chest_item)) else {
+                bail!("chest not found: {} {:?}", field_number, chest_obj.item())
             };
             let item = Item::from_dataset(&chest.item, script)?;
             Ok(to_objects_for_chest(chest_obj, item))
         }
         Object::SubWeapon(sub_weapon_obj) => {
-            let field_id = to_field_id(field_number)
-                .ok_or_else(|| anyhow!("field_id not found: {}", field_number))?;
-            let key = (field_id, sub_weapon_obj.sub_weapon().content);
+            let key = (field_number, sub_weapon_obj.sub_weapon().content);
             let Some(sub_weapon) = shuffled.sub_weapons.get(&key) else {
                 let content = sub_weapon_obj.sub_weapon().content;
                 bail!("sub_weapon not found: {}", content)
@@ -171,10 +143,7 @@ fn new_objs(
                 // Trap object for the Ankh Jewel Treasure Chest in Mausoleum of the Giants.
                 // It is made to work correctly when acquiring items.
                 140 if unknown_obj.x == 49152 && unknown_obj.y == 16384 => {
-                    let key = (
-                        to_field_id(field_number).unwrap(),
-                        enums::SubWeapon::AnkhJewel,
-                    );
+                    let key = (field_number, enums::SubWeapon::AnkhJewel);
                     let Some(sub_weapon) = shuffled.sub_weapons.get(&key) else {
                         bail!("sub_weapon not found")
                     };

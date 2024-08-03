@@ -1,7 +1,6 @@
 use anyhow::Result;
 use futures::future::join_all;
 use log::{error, info};
-use num_traits::FromPrimitive;
 use serde_json::json;
 use std::{collections::BTreeMap, path::PathBuf};
 use tauri::{path::BaseDirectory, AppHandle, Manager, State, Wry};
@@ -12,7 +11,7 @@ use tokio::{
 };
 
 use crate::{
-    dataset::{game_structure::GameStructureFiles, spot::FieldId},
+    dataset::game_structure::GameStructureFiles,
     randomizer::{randomize, RandomizeOptions, SpoilerLog},
     script::file::scriptconverter::is_valid_script_dat,
 };
@@ -214,12 +213,7 @@ async fn read_game_structure_files_internal(
         .collect::<io::Result<Vec<_>>>()?
         .into_iter()
         .zip(file_paths)
-        .map(|(contents, file_path)| {
-            (
-                FieldId::from_u8(file_path[4..6].parse::<u8>().unwrap()).unwrap(),
-                contents,
-            )
-        })
+        .map(|(contents, file_path)| (file_path[4..6].parse::<u8>().unwrap(), contents))
         .collect();
     let events = read_to_string(resolve_path("res/events.yml")?).await?;
 

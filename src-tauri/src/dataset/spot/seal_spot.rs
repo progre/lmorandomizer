@@ -1,27 +1,24 @@
 use std::fmt;
 
-use crate::script::enums::Seal;
+use crate::script::enums::{FieldNumber, Seal};
 
-use super::{
-    params::{AnyOfAllRequirements, SpotName, SpotParams},
-    FieldId,
-};
+use super::params::{AnyOfAllRequirements, SpotName, SpotParams};
 
 #[derive(Clone, Debug)]
 pub struct SealSpot(SpotParams<Seal>);
 
 impl SealSpot {
     pub fn new(
-        field_id: FieldId,
+        field_number: FieldNumber,
         name: SpotName,
         content: Seal,
         requirements: Option<AnyOfAllRequirements>,
     ) -> Self {
-        Self(SpotParams::new(field_id, name, content, requirements))
+        Self(SpotParams::new(field_number, name, content, requirements))
     }
 
-    pub fn field_id(&self) -> FieldId {
-        self.0.field_id
+    pub fn field_number(&self) -> FieldNumber {
+        self.0.field_number
     }
     pub fn name(&self) -> &SpotName {
         &self.0.name

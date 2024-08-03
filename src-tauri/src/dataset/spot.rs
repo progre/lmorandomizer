@@ -9,7 +9,7 @@ mod sub_weapon_spot;
 pub use {
     chest_spot::ChestSpot,
     main_weapon_spot::MainWeaponSpot,
-    params::{AllRequirements, AnyOfAllRequirements, FieldId, RequirementFlag, SpotName},
+    params::{AllRequirements, AnyOfAllRequirements, RequirementFlag, SpotName},
     rom_spot::RomSpot,
     seal_spot::SealSpot,
     shop_spot::ShopSpot,

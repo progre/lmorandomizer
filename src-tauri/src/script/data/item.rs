@@ -1,7 +1,6 @@
 use anyhow::{bail, Result};
 
 use crate::{
-    dataset::spot::FieldId,
     randomizer::storage::{self, item::ItemSource},
     script::enums,
 };
@@ -60,30 +59,6 @@ pub struct Seal {
     pub flag: u16,
 }
 
-fn to_field_number(field_id: FieldId) -> u8 {
-    match field_id {
-        FieldId::Surface => 1,
-        FieldId::GateOfGuidance => 0,
-        FieldId::MausoleumOfTheGiants => 2,
-        FieldId::TempleOfTheSun => 3,
-        FieldId::SpringInTheSky => 4,
-        FieldId::InfernoCavern => 5,
-        FieldId::ChamberOfExtinction => 6,
-        FieldId::TwinLabyrinthsLeft => 9,
-        FieldId::EndlessCorridor => 7,
-        FieldId::ShrineOfTheMother => 8,
-        FieldId::GateOfIllusion => 11,
-        FieldId::GraveyardOfTheGiants => 12,
-        FieldId::TempleOfMoonlight => 14,
-        FieldId::TowerOfTheGoddess => 13,
-        FieldId::TowerOfRuin => 15,
-        FieldId::ChamberOfBirth => 16,
-        FieldId::TwinLabyrinthsRight => 10,
-        FieldId::DimensionalCorridor => 17,
-        FieldId::TrueShrineOfTheMother => 19,
-    }
-}
-
 pub enum Item {
     MainWeapon(MainWeapon),
     SubWeapon(SubWeapon),
@@ -114,20 +89,20 @@ impl Item {
                 };
                 Self::MainWeapon(item.main_weapon().clone())
             }
-            ItemSource::SubWeapon((field_id, sub_weapon)) => {
+            ItemSource::SubWeapon((field_number, sub_weapon)) => {
                 let Some(item) = script
-                    .field(to_field_number(*field_id))
+                    .field(*field_number)
                     .unwrap()
                     .sub_weapons()
                     .find(|x| x.sub_weapon().content == *sub_weapon)
                 else {
-                    bail!("sub weapon not found: {} {}", field_id, sub_weapon)
+                    bail!("sub weapon not found: {:?} {}", *field_number, sub_weapon)
                 };
                 Self::SubWeapon(item.sub_weapon().clone())
             }
-            ItemSource::Chest((field_id, enums::ChestItem::Equipment(equipment))) => {
+            ItemSource::Chest((field_number, enums::ChestItem::Equipment(equipment))) => {
                 let Some(item) = script
-                    .field(to_field_number(*field_id))
+                    .field(*field_number)
                     .unwrap()
                     .chests()
                     .filter_map(|x| {
@@ -139,13 +114,13 @@ impl Item {
                     })
                     .find(|x| x.content == *equipment)
                 else {
-                    bail!("equipment not found: {} {}", field_id, equipment)
+                    bail!("equipment not found: {:?} {}", field_number, equipment)
                 };
                 Self::Equipment(item.clone())
             }
-            ItemSource::Chest((field_id, enums::ChestItem::Rom(rom))) => {
+            ItemSource::Chest((field_number, enums::ChestItem::Rom(rom))) => {
                 let Some(item) = script
-                    .field(to_field_number(*field_id))
+                    .field(*field_number)
                     .unwrap()
                     .chests()
                     .filter_map(|x| {
@@ -157,7 +132,7 @@ impl Item {
                     })
                     .find(|x| x.content == *rom)
                 else {
-                    bail!("rom not found: {} {}", field_id, rom)
+                    bail!("rom not found: {:?} {}", field_number, rom)
                 };
                 Self::Rom(item.clone())
             }

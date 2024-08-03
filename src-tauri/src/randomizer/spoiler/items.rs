@@ -3,15 +3,15 @@ use std::collections::BTreeMap;
 use rand::Rng;
 
 use crate::{
-    dataset::spot::FieldId,
     randomizer::storage::{item::Item, Storage},
+    script::enums::FieldNumber,
 };
 
 use super::items_pool::{ItemsPool, UnorderedItems};
 
 pub struct Items<'a> {
     priority_items: Vec<&'a Item>,
-    maps: BTreeMap<FieldId, &'a Item>,
+    maps: BTreeMap<FieldNumber, &'a Item>,
     unsellable_items: Vec<&'a Item>,
     consumable_items: Vec<&'a Item>,
     sellable_items: Vec<&'a Item>,
@@ -23,9 +23,9 @@ impl<'a> Items<'a> {
             .chests
             .values()
             .partition::<Vec<_>, _>(|x| x.item.name.is_map());
-        let maps: BTreeMap<FieldId, &Item> = maps
+        let maps: BTreeMap<FieldNumber, &Item> = maps
             .into_iter()
-            .map(|x| (x.spot.field_id(), &x.item))
+            .map(|x| (x.spot.field_number(), &x.item))
             .collect();
 
         let items = source
@@ -103,7 +103,7 @@ impl<'a> Items<'a> {
     pub fn priority_items(&self) -> &[&'a Item] {
         &self.priority_items
     }
-    pub fn maps(&self) -> &BTreeMap<FieldId, &'a Item> {
+    pub fn maps(&self) -> &BTreeMap<FieldNumber, &'a Item> {
         &self.maps
     }
     pub fn unsellable_items(&self) -> &[&'a Item] {

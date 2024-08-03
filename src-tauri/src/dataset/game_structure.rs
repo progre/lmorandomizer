@@ -1,37 +1,35 @@
 use std::{collections::BTreeMap, str::FromStr};
 
 use anyhow::Result;
-use num_traits::FromPrimitive;
 use strum::ParseError;
 use vec1::Vec1;
 
 use crate::{
     dataset::spot::SpotName,
-    script::enums::{ChestItem, Equipment, MainWeapon, Rom, Seal, ShopItem, SubWeapon},
+    script::enums::{
+        ChestItem, Equipment, FieldNumber, MainWeapon, Rom, Seal, ShopItem, SubWeapon,
+    },
 };
 
 use super::spot::{
-    AllRequirements, AnyOfAllRequirements, ChestSpot, FieldId, MainWeaponSpot, RequirementFlag,
-    RomSpot, SealSpot, ShopSpot, SubWeaponSpot,
+    AllRequirements, AnyOfAllRequirements, ChestSpot, MainWeaponSpot, RequirementFlag, RomSpot,
+    SealSpot, ShopSpot, SubWeaponSpot,
 };
 
 pub struct GameStructureFiles {
-    pub fields: Vec<(FieldId, FieldYaml)>,
+    pub fields: Vec<(FieldNumber, FieldYaml)>,
     pub events: EventsYaml,
 }
 
 impl GameStructureFiles {
-    pub fn new(fields: BTreeMap<FieldId, String>, events: String) -> Result<GameStructureFiles> {
-        const ORDER_OF_FIELD_DATA: [u8; 19] = [
-            1, 0, 2, 3, 4, 5, 6, 8, 9, 7, 17, 11, 12, 14, 13, 15, 16, 18, 19,
-        ];
-        let fields = ORDER_OF_FIELD_DATA
-            .map(|x| {
-                let field_id = FieldId::from_u8(x).unwrap();
-                let yaml = FieldYaml::new(&fields[&field_id])?;
-                Ok((field_id, yaml))
-            })
+    pub fn new(fields: BTreeMap<u8, String>, events: String) -> Result<GameStructureFiles> {
+        let fields = fields
             .into_iter()
+            .map(|(field_logic_number, string)| {
+                let field_number = FieldNumber::from_logic_number(field_logic_number).unwrap();
+                let yaml = FieldYaml::new(&string)?;
+                Ok((field_number, yaml))
+            })
             .collect::<Result<_>>()?;
         let events = EventsYaml::new(&events)?;
         Ok(Self { fields, events })
@@ -124,19 +122,22 @@ pub struct GameStructure {
 }
 
 impl GameStructure {
-    pub fn new(game_structure_files: GameStructureFiles) -> Result<Self> {
+    pub fn new(mut game_structure_files: GameStructureFiles) -> Result<Self> {
         let mut main_weapon_shutters = Vec::new();
         let mut sub_weapon_shutters = Vec::new();
         let mut chests = Vec::new();
         let mut seals = Vec::new();
         let mut roadside_roms = Vec::new();
         let mut shops = Vec::new();
-        for (field_id, field_data) in game_structure_files.fields {
+        game_structure_files
+            .fields
+            .sort_by_key(|(field_number, _)| *field_number as u8);
+        for (field_number, field_data) in game_structure_files.fields {
             for (key, value) in field_data.main_weapons {
                 let main_weapon = MainWeapon::from_str(&to_pascal_case(&key))?;
                 let name = SpotName::new(key.clone());
                 let requirements = to_any_of_all_requirements(value)?;
-                let spot = MainWeaponSpot::new(field_id, name, main_weapon, requirements);
+                let spot = MainWeaponSpot::new(field_number, name, main_weapon, requirements);
                 main_weapon_shutters.push(spot);
             }
             for (key, value) in field_data.sub_weapons {
@@ -144,7 +145,7 @@ impl GameStructure {
                     SubWeapon::from_str(to_pascal_case(&key).split(":").next().unwrap())?;
                 let name = SpotName::new(key.clone());
                 let requirements = to_any_of_all_requirements(value)?;
-                let spot = SubWeaponSpot::new(field_id, name, sub_weapon, requirements);
+                let spot = SubWeaponSpot::new(field_number, name, sub_weapon, requirements);
                 sub_weapon_shutters.push(spot);
             }
             for (key, value) in field_data.chests {
@@ -155,14 +156,14 @@ impl GameStructure {
                     .or_else(|_| Rom::from_str(pascal_case).map(ChestItem::Rom))?;
                 let name = SpotName::new(key.clone());
                 let requirements = to_any_of_all_requirements(value)?;
-                let spot = ChestSpot::new(field_id, name, item, requirements);
+                let spot = ChestSpot::new(field_number, name, item, requirements);
                 chests.push(spot);
             }
             for (key, value) in field_data.seals {
                 let seal = Seal::from_str(&to_pascal_case(&key.replace("Seal", "")))?;
                 let name = SpotName::new(key.clone());
                 let requirements = to_any_of_all_requirements(value)?;
-                let spot = SealSpot::new(field_id, name, seal, requirements);
+                let spot = SealSpot::new(field_number, name, seal, requirements);
                 seals.push(spot);
             }
             for (key, value) in field_data.roms {
@@ -180,7 +181,7 @@ impl GameStructure {
                         let hand_scanner = RequirementFlag::new("handScanner".into());
                         AnyOfAllRequirements(Vec1::new(AllRequirements(Vec1::new(hand_scanner))))
                     });
-                roadside_roms.push(RomSpot::new(field_id, name, rom, requirements));
+                roadside_roms.push(RomSpot::new(field_number, name, rom, requirements));
             }
             for (key, value) in field_data.shops {
                 let items: Vec<_> = key
@@ -213,7 +214,7 @@ impl GameStructure {
                     items.next().unwrap(),
                     items.next().unwrap(),
                 );
-                let spot = ShopSpot::new(field_id, name, items, any_of_all_requirements);
+                let spot = ShopSpot::new(field_number, name, items, any_of_all_requirements);
                 shops.push(spot)
             }
         }

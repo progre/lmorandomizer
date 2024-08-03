@@ -1,6 +1,6 @@
 use std::fmt;
 
-use crate::{dataset::spot::FieldId, script::enums::ChestItem};
+use crate::script::enums::{ChestItem, FieldNumber};
 
 use super::{
     spoiler::spots::SpotRef,
@@ -11,11 +11,11 @@ use super::{
     },
 };
 
-fn compare_key_for_spoiler_log(field_id: FieldId) -> u8 {
-    if matches!(field_id, FieldId::TwinLabyrinthsRight) {
-        FieldId::TwinLabyrinthsLeft as u8 * 10 + 1
+fn compare_key_for_spoiler_log(field_number: FieldNumber) -> u8 {
+    if matches!(field_number, FieldNumber::TwinLabyrinthsRight) {
+        FieldNumber::TwinLabyrinthsLeft.to_logic_number().unwrap() * 10 + 1
     } else {
-        field_id as u8 * 10
+        field_number.to_logic_number().unwrap() * 10
     }
 }
 
@@ -142,21 +142,21 @@ impl fmt::Display for SpoilerLog {
             checkpoints.sort_by_key(|checkpoint| {
                 let (field, type_num, src_idx) = match checkpoint {
                     Checkpoint::MainWeapon(x) => {
-                        (x.spot.field_id(), 1, x.spot.main_weapon() as usize)
+                        (x.spot.field_number(), 1, x.spot.main_weapon() as usize)
                     }
                     Checkpoint::SubWeapon(x) => {
-                        (x.spot.field_id(), 2, x.spot.sub_weapon() as usize)
+                        (x.spot.field_number(), 2, x.spot.sub_weapon() as usize)
                     }
                     Checkpoint::Chest(x) => {
                         let number = match x.spot.item() {
                             ChestItem::Equipment(equipment) => equipment as usize,
                             ChestItem::Rom(rom) => 100 + rom as usize,
                         };
-                        (x.spot.field_id(), 3, number)
+                        (x.spot.field_number(), 3, number)
                     }
-                    Checkpoint::Seal(x) => (x.spot.field_id(), 4, x.spot.seal() as usize),
-                    Checkpoint::Shop(x) => (x.spot.field_id(), 5, 0),
-                    Checkpoint::Rom(x) => (x.spot.field_id(), 6, 0),
+                    Checkpoint::Seal(x) => (x.spot.field_number(), 4, x.spot.seal() as usize),
+                    Checkpoint::Shop(x) => (x.spot.field_number(), 5, 0),
+                    Checkpoint::Rom(x) => (x.spot.field_number(), 6, 0),
                     Checkpoint::Event(_) => return 10000000,
                 };
                 compare_key_for_spoiler_log(field) as usize * 10000 + type_num * 1000 + src_idx

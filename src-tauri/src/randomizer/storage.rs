@@ -8,10 +8,9 @@ use anyhow::Result;
 
 use crate::{
     dataset::spot::{
-        AnyOfAllRequirements, ChestSpot, FieldId, MainWeaponSpot, RomSpot, SealSpot, ShopSpot,
-        SubWeaponSpot,
+        AnyOfAllRequirements, ChestSpot, MainWeaponSpot, RomSpot, SealSpot, ShopSpot, SubWeaponSpot,
     },
-    script::enums,
+    script::enums::{self, FieldNumber},
 };
 
 use {
@@ -94,8 +93,8 @@ pub struct Event {
 #[derive(Clone, Debug)]
 pub struct Storage {
     pub main_weapons: BTreeMap<enums::MainWeapon, MainWeapon>,
-    pub sub_weapons: BTreeMap<(FieldId, enums::SubWeapon), SubWeapon>,
-    pub chests: BTreeMap<(FieldId, enums::ChestItem), Chest>,
+    pub sub_weapons: BTreeMap<(FieldNumber, enums::SubWeapon), SubWeapon>,
+    pub chests: BTreeMap<(FieldNumber, enums::ChestItem), Chest>,
     pub seals: BTreeMap<enums::Seal, Seal>,
     pub shops: Vec<Shop>,
     pub roms: BTreeMap<enums::Rom, Rom>,
@@ -105,8 +104,8 @@ pub struct Storage {
 impl Storage {
     pub fn new(
         main_weapons: BTreeMap<enums::MainWeapon, MainWeapon>,
-        sub_weapons: BTreeMap<(FieldId, enums::SubWeapon), SubWeapon>,
-        chests: BTreeMap<(FieldId, enums::ChestItem), Chest>,
+        sub_weapons: BTreeMap<(FieldNumber, enums::SubWeapon), SubWeapon>,
+        chests: BTreeMap<(FieldNumber, enums::ChestItem), Chest>,
         seals: BTreeMap<enums::Seal, Seal>,
         shops: Vec<Shop>,
         roms: BTreeMap<enums::Rom, Rom>,

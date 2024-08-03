@@ -50,11 +50,11 @@ fn create_shuffled_storage(source: &Storage, spoiler_log: &SpoilerLogRef) -> Sto
                 storage.main_weapons.get_mut(&content).unwrap().item = main_weapon.item.clone();
             }
             CheckpointRef::SubWeapon(sub_weapon) => {
-                let key = (sub_weapon.spot.field_id(), sub_weapon.spot.sub_weapon());
+                let key = (sub_weapon.spot.field_number(), sub_weapon.spot.sub_weapon());
                 storage.sub_weapons.get_mut(&key).unwrap().item = sub_weapon.item.clone();
             }
             CheckpointRef::Chest(chest) => {
-                let key = (chest.spot.field_id(), chest.spot.item());
+                let key = (chest.spot.field_number(), chest.spot.item());
                 storage.chests.get_mut(&key).unwrap().item = chest.item.clone();
             }
             CheckpointRef::Seal(seal) => {
@@ -197,7 +197,7 @@ mod tests {
 
         let shuffled_str = format!("{:?}", shuffled);
         let shuffled_hash = hex::encode(sha3::Sha3_512::digest(shuffled_str));
-        const EXPECTED_SHUFFLED_HASH: &str = "d62207d7d142bbf864df8b2d844d2e1b226a649d91ba4266a10ec4cceae183c31ded5f55b56fa2396fee2b9e29936a2283cd245baf50941d6ce74201a3b64fcb";
+        const EXPECTED_SHUFFLED_HASH: &str = "8927b40ae6eeef31d8907740951ff78087b0cb3a528de5cfbe02ec0ec546d7eec692d74126eb953f400e5577816139c6e8d2edfa110c3f65ea3241b102e2c0b5";
         assert_eq!(shuffled_hash, EXPECTED_SHUFFLED_HASH);
 
         let spoiler_log_str = format!("{}", spoiler_log.to_owned());

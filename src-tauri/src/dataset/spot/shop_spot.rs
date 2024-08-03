@@ -1,18 +1,15 @@
 use std::fmt;
 
-use crate::script::enums::ShopItem;
+use crate::script::enums::{FieldNumber, ShopItem};
 
-use super::{
-    params::{AnyOfAllRequirements, SpotName, SpotParams},
-    FieldId,
-};
+use super::params::{AnyOfAllRequirements, SpotName, SpotParams};
 
 #[derive(Clone, Debug)]
 pub struct ShopSpot(SpotParams<(Option<ShopItem>, Option<ShopItem>, Option<ShopItem>)>);
 
 impl ShopSpot {
     pub fn new(
-        field_id: FieldId,
+        field_number: FieldNumber,
         name: SpotName,
         content: (Option<ShopItem>, Option<ShopItem>, Option<ShopItem>),
         requirements: Option<AnyOfAllRequirements>,
@@ -21,11 +18,11 @@ impl ShopSpot {
             let names: Vec<_> = name.get().split(',').map(|x| x.trim()).collect();
             debug_assert_eq!(names.len(), 3);
         }
-        Self(SpotParams::new(field_id, name, content, requirements))
+        Self(SpotParams::new(field_number, name, content, requirements))
     }
 
-    pub fn field_id(&self) -> FieldId {
-        self.0.field_id
+    pub fn field_number(&self) -> FieldNumber {
+        self.0.field_number
     }
     pub fn name(&self) -> &SpotName {
         &self.0.name

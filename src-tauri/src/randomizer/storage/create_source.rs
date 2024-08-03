@@ -24,8 +24,8 @@ pub fn create_source(
     let mut sub_weapons = BTreeMap::new();
     for spot in game_structure.sub_weapon_shutters.iter().cloned() {
         let name = spot.name().clone().into();
-        let item = Item::sub_weapon(spot.field_id(), spot.sub_weapon(), name);
-        let key = (spot.field_id(), spot.sub_weapon());
+        let item = Item::sub_weapon(spot.field_number(), spot.sub_weapon(), name);
+        let key = (spot.field_number(), spot.sub_weapon());
         if sub_weapons.contains_key(&key) {
             bail!("duplicate sub weapon: {:?}", key);
         }
@@ -33,8 +33,8 @@ pub fn create_source(
     }
     let mut chests = BTreeMap::new();
     for spot in game_structure.chests.iter().cloned() {
-        let item = Item::chest_item(spot.field_id(), spot.item(), spot.name().clone().into());
-        let key = (spot.field_id(), spot.item());
+        let item = Item::chest_item(spot.field_number(), spot.item(), spot.name().clone().into());
+        let key = (spot.field_number(), spot.item());
         if chests.contains_key(&key) {
             bail!("duplicate chest: {:?}", key);
         }

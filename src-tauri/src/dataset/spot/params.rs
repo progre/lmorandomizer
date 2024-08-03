@@ -2,34 +2,7 @@ use std::fmt;
 
 use vec1::Vec1;
 
-#[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd, num_derive::FromPrimitive)]
-pub enum FieldId {
-    Surface = 0,
-    GateOfGuidance,
-    MausoleumOfTheGiants,
-    TempleOfTheSun,
-    SpringInTheSky,
-    InfernoCavern,
-    ChamberOfExtinction,
-    TwinLabyrinthsLeft,
-    EndlessCorridor,
-    ShrineOfTheMother,
-    GateOfIllusion = 11,
-    GraveyardOfTheGiants,
-    TempleOfMoonlight,
-    TowerOfTheGoddess,
-    TowerOfRuin,
-    ChamberOfBirth,
-    TwinLabyrinthsRight,
-    DimensionalCorridor,
-    TrueShrineOfTheMother,
-}
-
-impl fmt::Display for FieldId {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{:?}", self)
-    }
-}
+use crate::script::enums::FieldNumber;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct SpotName(String);
@@ -84,7 +57,7 @@ pub struct AnyOfAllRequirements(pub Vec1<AllRequirements>);
 
 #[derive(Clone, Debug)]
 pub struct SpotParams<T> {
-    pub field_id: FieldId,
+    pub field_number: FieldNumber,
     pub name: SpotName,
     pub content: T,
     pub requirements: Option<AnyOfAllRequirements>,
@@ -92,13 +65,13 @@ pub struct SpotParams<T> {
 
 impl<T> SpotParams<T> {
     pub fn new(
-        field_id: FieldId,
+        field_number: FieldNumber,
         name: SpotName,
         content: T,
         requirements: Option<AnyOfAllRequirements>,
     ) -> Self {
         Self {
-            field_id,
+            field_number,
             name,
             content,
             requirements,
@@ -106,6 +79,12 @@ impl<T> SpotParams<T> {
     }
 
     pub fn fmt(&self, f: &mut fmt::Formatter<'_>, type_name: &str) -> fmt::Result {
-        write!(f, "{}_{}({})", self.field_id, type_name, self.name.get())
+        write!(
+            f,
+            "{:?}_{}({})",
+            self.field_number,
+            type_name,
+            self.name.get()
+        )
     }
 }
