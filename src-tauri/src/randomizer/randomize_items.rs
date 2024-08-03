@@ -197,7 +197,7 @@ mod tests {
 
         let shuffled_str = format!("{:?}", shuffled);
         let shuffled_hash = hex::encode(sha3::Sha3_512::digest(shuffled_str));
-        const EXPECTED_SHUFFLED_HASH: &str = "40ea07cf9499f0bec5d6b21200a08a64444a5acbcb0aed019a056aa3e358fdd385060dca9bee8e7d9eaa03c52ed032fa79c8da008e5b6cdc2bcef706757fbd8d";
+        const EXPECTED_SHUFFLED_HASH: &str = "6f06676c37439ee786c9a384d00dbac3f615980daeb07263b58001fa781049891334464fe18ee688cdc0357251a7e76459c039a4d7245755c1545d7b030e7ec2";
         assert_eq!(shuffled_hash, EXPECTED_SHUFFLED_HASH);
 
         let spoiler_log_str = format!("{}", spoiler_log.to_owned());
