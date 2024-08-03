@@ -73,7 +73,7 @@ impl<'a> UnorderedItems<'a> {
     }
 }
 
-#[derive(Default)]
+#[derive(Default, Debug)]
 pub struct ShuffledItems<'a>(Vec<&'a Item>);
 
 impl<'a> ShuffledItems<'a> {

@@ -67,6 +67,7 @@ impl ItemShop {
 }
 
 pub struct Eldest {
+    important_talk_cond_talk_numbers: Vec<u16>,
     important_talk_numbers: Vec<u16>,
     important_talks: Vec<Talk>,
 }
@@ -80,15 +81,17 @@ impl Eldest {
         if bytes.len() < 3 {
             bail!("invalid table header: {:?}", bytes);
         }
-        let base_talk_number = read_u16(bytes[0], bytes[1]) as usize;
-        let len = bytes[2] as usize;
-        if talks.len() < base_talk_number + len {
+        let important_talk_cond_base_number = read_u16(bytes[0], bytes[1]);
+        let len = bytes[2] as u16;
+        if talks.len() < (important_talk_cond_base_number + len) as usize {
             bail!("invalid table header: {:?}", bytes);
         }
-        let important_talk_numbers: Vec<_> = talks[base_talk_number..(base_talk_number + len)]
+        let important_talk_cond_talk_numbers: Vec<_> =
+            (important_talk_cond_base_number..(important_talk_cond_base_number + len)).collect();
+        let important_talk_numbers: Vec<_> = important_talk_cond_talk_numbers
             .iter()
-            .map(|x| {
-                let bytes = x.as_bytes();
+            .map(|&x| {
+                let bytes = talks[x as usize].as_bytes();
                 read_u16(bytes[0], bytes[1])
             })
             .collect();
@@ -97,11 +100,15 @@ impl Eldest {
             .map(|&x| talks[x as usize].clone())
             .collect();
         Ok(Eldest {
+            important_talk_cond_talk_numbers,
             important_talk_numbers,
             important_talks,
         })
     }
 
+    pub fn into_important_talk_cond_talk_numbers(self) -> Vec<u16> {
+        self.important_talk_cond_talk_numbers
+    }
     pub fn important_talk_numbers(&self) -> &[u16] {
         &self.important_talk_numbers
     }

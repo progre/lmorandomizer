@@ -41,7 +41,8 @@ impl<'a> Items<'a> {
                     .flat_map(|x| &x.items)
                     .filter_map(|x| x.as_ref()),
             )
-            .chain(source.roms.values().map(|x| &x.item));
+            .chain(source.roms.values().map(|x| &x.item))
+            .chain(source.talks.iter().map(|x| &x.item));
         let (priority_items, remaining_items) = items.partition::<Vec<_>, _>(|item| {
             [
                 "handScanner",
@@ -84,6 +85,16 @@ impl<'a> Items<'a> {
         shop_items_count: usize,
     ) -> ItemsPool<'a> {
         let list = self.general_items.clone();
+        let (talk_items, list) = if talk_items_count == 0 {
+            (UnorderedItems::new(vec![]).shuffle(rng), list)
+        } else {
+            let (candidate, mut list) = list.into_iter().partition(|x| x.can_talk());
+            let mut candidate = UnorderedItems::new(candidate).shuffle(rng);
+            let talk_items = candidate.split_off(candidate.len() - talk_items_count);
+            list.append(&mut candidate.into_inner());
+            (talk_items, list)
+        };
+
         let (candidate, mut list) = list.into_iter().partition(|x| x.can_display_in_shop());
         let mut candidate = UnorderedItems::new(candidate).shuffle(rng);
         let shop_items =
@@ -95,6 +106,7 @@ impl<'a> Items<'a> {
             priority_items: Some(UnorderedItems::new(self.priority_items.clone())),
             consumable_items: UnorderedItems::new(self.consumable_items.clone()).shuffle(rng),
             field_items,
+            talk_items,
             shop_items,
         }
     }

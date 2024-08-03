@@ -39,6 +39,7 @@ fn ptr_eq<'a>(a: SpotRef<'a>, b: &CheckpointRef<'a>) -> bool {
         (SpotRef::Chest(a), CheckpointRef::Chest(b)) => ptr::eq(a, b.spot),
         (SpotRef::Seal(a), CheckpointRef::Seal(b)) => ptr::eq(a, b.spot),
         (SpotRef::Rom(a), CheckpointRef::Rom(b)) => ptr::eq(a, b.spot),
+        (SpotRef::Talk(a), CheckpointRef::Talk(b)) => ptr::eq(a, b.spot),
         (SpotRef::Shop(a), CheckpointRef::Shop(b)) => ptr::eq(a, b.spot),
         _ => false,
     }
@@ -92,7 +93,7 @@ pub fn spoiler<'a>(
 ) -> Option<SpoilerLogRef<'a>> {
     let start = std::time::Instant::now();
     let mut rng = make_rng(seed);
-    let mut items_pool = items.to_items_pool(&mut rng, 0, spots.shops.len());
+    let mut items_pool = items.to_items_pool(&mut rng, spots.talk_spots.len(), spots.shops.len());
     let mut remaining_spots = spots.clone();
     let maps = maps(&mut rng, items.maps(), &mut remaining_spots);
 
@@ -116,6 +117,18 @@ pub fn spoiler<'a>(
         progression.push(sphere);
 
         if !remaining_spots.is_empty() {
+            debug_assert_eq!(
+                remaining_spots.field_item_spots.len(),
+                items_pool.field_items.len(),
+            );
+            debug_assert_eq!(
+                remaining_spots.talk_spots.len(),
+                items_pool.talk_items.len(),
+            );
+            debug_assert_eq!(
+                remaining_spots.shops.len(),
+                items_pool.shop_items.len() + items_pool.consumable_items.len(),
+            );
             continue;
         }
         info!("Sphere: {}, time: {:?}", i, start.elapsed());

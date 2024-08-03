@@ -1,7 +1,9 @@
 use crate::{
     dataset::spot::{RequirementFlag, SpotName},
     randomizer::spoiler::spots::SpotRef,
-    script::enums::{ChestItem, FieldNumber, MainWeapon, Rom, Seal, ShopItem, SubWeapon},
+    script::enums::{
+        ChestItem, Equipment, FieldNumber, MainWeapon, Rom, Seal, ShopItem, SubWeapon, TalkItem,
+    },
 };
 
 #[derive(Clone, Debug, Hash, Eq, Ord, PartialEq, PartialOrd)]
@@ -70,6 +72,7 @@ pub enum ItemSource {
     Chest((FieldNumber, ChestItem)),
     Seal(Seal),
     Rom(Rom),
+    Talk(TalkItem),
     Shop([Option<ShopItem>; 3], usize),
 }
 
@@ -104,6 +107,10 @@ impl Item {
         let src = ItemSource::Rom(rom);
         Self { src, name }
     }
+    pub fn talk(item: TalkItem, name: StrategyFlag) -> Self {
+        let src = ItemSource::Talk(item);
+        Self { src, name }
+    }
     pub fn shop_item(items: [Option<ShopItem>; 3], item_idx: usize, name: StrategyFlag) -> Self {
         let src = ItemSource::Shop(items, item_idx);
         Self { src, name }
@@ -118,7 +125,7 @@ impl Item {
             ItemSource::MainWeapon(_) | ItemSource::Seal(_) => false,
             ItemSource::Shop(..) | ItemSource::Rom(_) => true,
             ItemSource::SubWeapon(_) => self.name.get() == "pistol",
-            ItemSource::Chest(_) => {
+            ItemSource::Chest(_) | ItemSource::Talk(_) => {
                 !self.name.is_map()
                     && !self.name.is_sacred_orb()
                     && (
@@ -126,6 +133,23 @@ impl Item {
                         self.name.get() != "boots"
                     )
             }
+        }
+    }
+
+    pub fn can_talk(&self) -> bool {
+        match &self.src {
+            ItemSource::MainWeapon(_) | ItemSource::SubWeapon(_) | ItemSource::Seal(_) => false,
+            ItemSource::Chest((_, ChestItem::Equipment(equipment))) => {
+                // Boots with set flag 768 (multiples of 256) cannot be sold in shops
+                *equipment != Equipment::Boots
+            }
+            ItemSource::Shop(items, idx) => match &items[*idx] {
+                None | Some(ShopItem::SubWeapon(_)) => false,
+                Some(ShopItem::Equipment(_)) | Some(ShopItem::Rom(_)) => true,
+            },
+            ItemSource::Rom(_)
+            | ItemSource::Chest((_, ChestItem::Rom(_)))
+            | ItemSource::Talk(_) => true,
         }
     }
 

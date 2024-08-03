@@ -7,7 +7,7 @@ use super::{
     storage::{
         item::{Item, StrategyFlag},
         Chest, ChestRef, MainWeapon, MainWeaponRef, Rom, RomRef, Seal, SealRef, Shop, ShopRef,
-        SubWeapon, SubWeaponRef,
+        SubWeapon, SubWeaponRef, Talk, TalkRef,
     },
 };
 
@@ -26,6 +26,7 @@ pub enum Checkpoint {
     Chest(Chest),
     Seal(Seal),
     Rom(Rom),
+    Talk(Talk),
     Shop(Shop),
     Event(StrategyFlag),
 }
@@ -48,6 +49,9 @@ impl fmt::Display for Checkpoint {
             Self::Rom(checkpoint) => {
                 write!(f, "{} = {}", checkpoint.spot, checkpoint.item.name.get())
             }
+            Self::Talk(checkpoint) => {
+                write!(f, "{} = {}", checkpoint.spot, checkpoint.item.name.get())
+            }
             Self::Shop(checkpoint) => {
                 let spot = &checkpoint.spot;
                 let items = &checkpoint.items;
@@ -67,6 +71,7 @@ pub enum CheckpointRef<'a> {
     Chest(ChestRef<'a>),
     Seal(SealRef<'a>),
     Rom(RomRef<'a>),
+    Talk(TalkRef<'a>),
     Shop(ShopRef<'a>),
     Event(&'a StrategyFlag),
 }
@@ -79,6 +84,7 @@ impl<'a> CheckpointRef<'a> {
             SpotRef::Chest(spot) => Self::Chest(ChestRef { spot, item }),
             SpotRef::Seal(spot) => Self::Seal(SealRef { spot, item }),
             SpotRef::Rom(spot) => Self::Rom(RomRef { spot, item }),
+            SpotRef::Talk(spot) => Self::Talk(TalkRef { spot, item }),
             SpotRef::Shop(_) => unreachable!(),
         }
     }
@@ -102,6 +108,10 @@ impl<'a> CheckpointRef<'a> {
                 item: checkpoint.item.to_owned(),
             }),
             Self::Rom(checkpoint) => Checkpoint::Rom(Rom {
+                spot: checkpoint.spot.to_owned(),
+                item: checkpoint.item.to_owned(),
+            }),
+            Self::Talk(checkpoint) => Checkpoint::Talk(Talk {
                 spot: checkpoint.spot.to_owned(),
                 item: checkpoint.item.to_owned(),
             }),
@@ -150,7 +160,8 @@ impl fmt::Display for SpoilerLog {
                     }
                     Checkpoint::Seal(x) => (x.spot.field_number(), 4, x.spot.seal() as usize),
                     Checkpoint::Rom(x) => (x.spot.field_number(), 5, 0),
-                    Checkpoint::Shop(x) => (x.spot.field_number(), 6, 0),
+                    Checkpoint::Talk(x) => (x.spot.field_number(), 6, 0),
+                    Checkpoint::Shop(x) => (x.spot.field_number(), 7, 0),
                     Checkpoint::Event(_) => return 10000000,
                 };
                 compare_key_for_spoiler_log(field) as usize * 10000 + type_num * 1000 + src_idx

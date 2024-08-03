@@ -76,6 +76,15 @@ fn create_shuffled_storage(source: &Storage, spoiler_log: &SpoilerLogRef) -> Sto
                 let content = rom.spot.rom();
                 storage.roms.get_mut(&content).unwrap().item = rom.item.clone();
             }
+            CheckpointRef::Talk(talk) => {
+                let item = talk.spot.item();
+                storage
+                    .talks
+                    .iter_mut()
+                    .find(|x| x.spot.item() == item)
+                    .unwrap()
+                    .item = talk.item.clone();
+            }
             CheckpointRef::Event(_) => {}
         }
     }
@@ -183,7 +192,7 @@ mod tests {
     use super::*;
 
     #[tokio::test]
-    async fn test_shuffle() -> Result<()> {
+    async fn test_shuffle_hash() -> Result<()> {
         let game_structure_files = read_game_structure_files_debug().await?;
         let game_structure = GameStructure::new(game_structure_files)?;
         let opts = RandomizeOptions {
@@ -197,13 +206,31 @@ mod tests {
 
         let shuffled_str = format!("{:?}", shuffled);
         let shuffled_hash = hex::encode(sha3::Sha3_512::digest(shuffled_str));
-        const EXPECTED_SHUFFLED_HASH: &str = "e2a61422c74c3d3f1e5cf821300aed11d4cbb9bbb65ccfddd834d662c85e3ed003d5e91e145899e263e9591a11c2cd17114fbe90be098b7a3f423e9d482e6aec";
+        const EXPECTED_SHUFFLED_HASH: &str = "2d574ab0a158a2a3cdb02047ffb7eaaae5189fbf2f1697b88dc60f211a558b6a557702f04aa71380a64a89c81871ccccca5b2fe293ae8eed5877c158698ff64a";
         assert_eq!(shuffled_hash, EXPECTED_SHUFFLED_HASH);
 
         let spoiler_log_str = format!("{}", spoiler_log.to_owned());
         let spoiler_log_hash = hex::encode(sha3::Sha3_512::digest(spoiler_log_str));
         const EXPECTED_SPOILER_LOG_HASH: &str = "ada2d2b032a866389b77d5409c4518ef8a9aef869a4776cd485186622facae0d9b51c5cd0d45db18458fb5e5ac42f07327e12f2aea934c53438387aada650612";
         assert_eq!(spoiler_log_hash, EXPECTED_SPOILER_LOG_HASH);
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_shuffle_multi_patterns() -> Result<()> {
+        let game_structure_files = read_game_structure_files_debug().await?;
+        let game_structure = GameStructure::new(game_structure_files)?;
+        for i in 0..100 {
+            let opts = RandomizeOptions {
+                seed: i.to_string(),
+                shuffle_secret_roms: true,
+                need_glitches: false,
+                absolutely_shuffle: false,
+            };
+            let source = create_source(&game_structure, &opts)?;
+            let (_, _) = shuffle(&source, &opts);
+        }
 
         Ok(())
     }

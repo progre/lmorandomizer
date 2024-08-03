@@ -2,10 +2,14 @@ use anyhow::{bail, Result};
 
 use crate::{
     randomizer::storage::item::ItemSource,
-    script::enums::{self, FieldNumber},
+    script::enums::{self, FieldNumber, TalkItem},
 };
 
-use super::{object::ItemShop, script::Script, shop_items_data::ShopItem};
+use super::{
+    object::{ItemShop, Shop},
+    script::Script,
+    shop_items_data::ShopItem,
+};
 
 #[derive(Clone)]
 pub struct MainWeapon {
@@ -154,6 +158,40 @@ impl Item {
         };
         Ok(Self::Rom(rom.rom().clone()))
     }
+    pub fn talk(script: &Script, talk_item: TalkItem) -> Result<Self> {
+        let Some((_, set_flag)) = script
+            .shops()
+            .map(|x| Shop::try_from_shop_object(x, &script.talks))
+            .collect::<Result<Vec<_>>>()?
+            .into_iter()
+            .filter_map(|x| match x {
+                Shop::Storyteller(s) => Some(vec![s.into_talk()]),
+                Shop::ItemShop(_) => None,
+                Shop::Eldest(e) => Some(e.into_important_talks()),
+            })
+            .flatten()
+            .map(|x| x.item())
+            .collect::<Result<Vec<_>>>()?
+            .into_iter()
+            .flatten()
+            .find(|&(x, _)| x == talk_item)
+        else {
+            bail!("talk not found: {:?}", talk_item)
+        };
+
+        Ok(match talk_item {
+            enums::TalkItem::Equipment(e) => Self::Equipment(Equipment {
+                content: e,
+                price: None,
+                flag: set_flag,
+            }),
+            enums::TalkItem::Rom(r) => Self::Rom(Rom {
+                content: r,
+                price: None,
+                flag: set_flag,
+            }),
+        })
+    }
     fn shop(script: &Script, items: [Option<enums::ShopItem>; 3], item_idx: usize) -> Result<Self> {
         let Some(shop) = script
             .shops()
@@ -203,6 +241,7 @@ impl Item {
             }
             ItemSource::Seal(seal) => Self::seal(script, *seal),
             ItemSource::Rom(rom) => Self::roadside_rom(script, *rom),
+            ItemSource::Talk(talk_item) => Self::talk(script, *talk_item),
             ItemSource::Shop(items, item_idx) => Self::shop(script, *items, *item_idx),
         }
     }

@@ -1,6 +1,7 @@
 use log::warn;
 
 use crate::script::{
+    consts::{ALWAYS_ON_FLAG_NO, BLANK_TALK_NUMBER},
     data::{
         item::{ChestItem, Equipment, MainWeapon, Rom, Seal, SubWeapon},
         object::{
@@ -13,7 +14,6 @@ use crate::script::{
             UnknownObject,
         },
     },
-    editor::consts::{ALWAYS_ON_FLAG_NO, BLANK_TALK_NUMBER},
 };
 
 pub fn hidden_equipment_chest(old_obj: &Object, item: Equipment, open_flag: u16) -> ChestObject {

@@ -56,20 +56,22 @@ fn to_name_talk_number(item: enums::ShopItem) -> usize {
     }
 }
 
+fn to_name(item: enums::ShopItem, talks: &[Talk]) -> Result<Talk> {
+    let talk_number = to_name_talk_number(item);
+    let Some(talk) = talks.get(talk_number).cloned() else {
+        bail!("script broken: talk_number={}", talk_number)
+    };
+    Ok(talk)
+}
+
 fn replace_shop_item_talk(
     talks: &[Talk],
     talk_number: usize,
     old: enums::ShopItem,
     new: enums::ShopItem,
 ) -> Result<Talk> {
-    let old_item_name_talk_number = to_name_talk_number(old);
-    let Some(old_item_name) = talks.get(old_item_name_talk_number).cloned() else {
-        bail!("script broken: talk_number={}", old_item_name_talk_number)
-    };
-    let new_item_name_talk_number = to_name_talk_number(new);
-    let Some(new_item_name) = talks.get(new_item_name_talk_number).cloned() else {
-        bail!("script broken: talk_number={}", new_item_name_talk_number)
-    };
+    let old_item_name = to_name(old, talks)?;
+    let new_item_name = to_name(new, talks)?;
     let Some(talk) = talks.get(talk_number) else {
         bail!("script broken: talk_number={}", talk_number)
     };
