@@ -6,7 +6,7 @@ use rand::Rng;
 
 use super::spots::{SpotRef, Spots};
 
-use items::{fill_items_from, fill_items_including_requires_from, partition_randomly};
+use items::{fill_items_from, move_one_required_item, partition_randomly};
 
 pub use items::{ShuffledItems, UnorderedItems};
 
@@ -72,29 +72,23 @@ impl<'a> ItemsPool<'a> {
                 Default::default()
             };
         // 少なくとも一つは行動を広げるアイテムを配置する
-        let has_requires = field_items
+        let has_already_required_items = field_items
             .iter()
             .chain(shop_items.iter())
             .any(|item| item.is_required(&remaining_spots));
-        let numerator = req_f_items as u32;
-        let denominator = (req_f_items + req_s_items) as u32;
-        if has_requires {
-            fill_items_from(&mut field_items, req_f_items, &mut self.field_items);
-            fill_items_from(&mut shop_items, req_s_items, &mut self.shop_items);
-        } else if rng.gen_ratio(numerator, denominator) {
-            let dst = &mut field_items;
-            let src = &mut self.field_items;
-            fill_items_including_requires_from(dst, req_f_items, src, &remaining_spots);
-            fill_items_from(&mut shop_items, req_s_items, &mut self.shop_items);
-        } else {
-            fill_items_from(&mut field_items, req_f_items, &mut self.field_items);
-            let dst = &mut shop_items;
-            let src = &mut self.shop_items;
-            fill_items_including_requires_from(dst, req_s_items, src, &remaining_spots);
-        };
+        if !has_already_required_items {
+            let numerator = req_f_items as u32;
+            let denominator = (req_f_items + req_s_items) as u32;
+            let (dst, src) = if rng.gen_ratio(numerator, denominator) {
+                (&mut field_items, &mut self.field_items)
+            } else {
+                (&mut shop_items, &mut self.shop_items)
+            };
+            move_one_required_item(dst, src, &remaining_spots);
+        }
+        fill_items_from(&mut field_items, req_f_items, &mut self.field_items);
+        fill_items_from(&mut shop_items, req_s_items, &mut self.shop_items);
 
-        let field_items = field_items.shuffle(rng);
-        let shop_items = shop_items.shuffle(rng);
-        (field_items, shop_items)
+        (field_items.shuffle(rng), shop_items.shuffle(rng))
     }
 }
