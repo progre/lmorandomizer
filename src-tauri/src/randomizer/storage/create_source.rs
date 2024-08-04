@@ -104,8 +104,8 @@ pub fn create_source(
         sub_weapons,
         chests,
         seals,
-        shops,
         roms,
+        shops,
         events,
     )
 }

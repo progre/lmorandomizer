@@ -14,8 +14,8 @@ pub enum SpotRef<'a> {
     SubWeapon(&'a SubWeaponSpot),
     Chest(&'a ChestSpot),
     Seal(&'a SealSpot),
-    Shop(&'a ShopSpot),
     Rom(&'a RomSpot),
+    Shop(&'a ShopSpot),
 }
 
 impl SpotRef<'_> {
@@ -25,8 +25,8 @@ impl SpotRef<'_> {
             Self::SubWeapon(x) => x.field_number(),
             Self::Chest(x) => x.field_number(),
             Self::Seal(x) => x.field_number(),
-            Self::Shop(x) => x.field_number(),
             Self::Rom(x) => x.field_number(),
+            Self::Shop(x) => x.field_number(),
         }
     }
     pub fn requirements(&self) -> Option<&AnyOfAllRequirements> {
@@ -35,8 +35,8 @@ impl SpotRef<'_> {
             Self::SubWeapon(x) => x.requirements(),
             Self::Chest(x) => x.requirements(),
             Self::Seal(x) => x.requirements(),
-            Self::Shop(x) => x.requirements(),
             Self::Rom(x) => Some(x.requirements()),
+            Self::Shop(x) => x.requirements(),
         }
     }
 }

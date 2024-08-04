@@ -19,7 +19,7 @@ use crate::{
 
 use super::{
     items_pool::{ItemsPool, ShuffledItems},
-    spots::Spots,
+    spots::{SpotRef, Spots},
 };
 
 #[derive(Clone)]
@@ -92,10 +92,20 @@ fn place_items<'a>(
     reachables: Spots<'a>,
 ) -> SphereRef<'a> {
     let mut sphere: Vec<_> = Default::default();
-    reachables.field_item_spots.into_iter().for_each(|spot| {
-        let item = field_items.pop().unwrap();
-        sphere.push(CheckpointRef::from_field_spot_item(spot, item));
-    });
+    reachables
+        .field_item_spots
+        .into_iter()
+        .for_each(|spot| match spot {
+            SpotRef::MainWeapon(_)
+            | SpotRef::SubWeapon(_)
+            | SpotRef::Chest(_)
+            | SpotRef::Seal(_)
+            | SpotRef::Rom(_) => {
+                let item = field_items.pop().unwrap();
+                sphere.push(CheckpointRef::from_field_spot_item(spot, item));
+            }
+            SpotRef::Shop(_) => unreachable!(),
+        });
     let shops = reachables
         .shops
         .into_iter()

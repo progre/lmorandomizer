@@ -96,8 +96,8 @@ pub struct Storage {
     pub sub_weapons: BTreeMap<(FieldNumber, enums::SubWeapon), SubWeapon>,
     pub chests: BTreeMap<(FieldNumber, enums::ChestItem), Chest>,
     pub seals: BTreeMap<enums::Seal, Seal>,
-    pub shops: Vec<Shop>,
     pub roms: BTreeMap<enums::Rom, Rom>,
+    pub shops: Vec<Shop>,
     pub events: Vec<Event>,
 }
 
@@ -107,8 +107,8 @@ impl Storage {
         sub_weapons: BTreeMap<(FieldNumber, enums::SubWeapon), SubWeapon>,
         chests: BTreeMap<(FieldNumber, enums::ChestItem), Chest>,
         seals: BTreeMap<enums::Seal, Seal>,
-        shops: Vec<Shop>,
         roms: BTreeMap<enums::Rom, Rom>,
+        shops: Vec<Shop>,
         events: Vec<Event>,
     ) -> Result<Self> {
         let zelf = Self {
@@ -116,8 +116,8 @@ impl Storage {
             sub_weapons,
             chests,
             seals,
-            shops,
             roms,
+            shops,
             events,
         };
         if cfg!(debug_assertions) {

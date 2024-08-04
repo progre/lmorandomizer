@@ -77,12 +77,12 @@ impl<'a> ItemsPool<'a> {
             .chain(shop_items.iter())
             .any(|item| item.is_required(&remaining_spots));
         if !has_already_required_items {
-            let numerator = req_f_items as u32;
-            let denominator = (req_f_items + req_s_items) as u32;
-            let (dst, src) = if rng.gen_ratio(numerator, denominator) {
-                (&mut field_items, &mut self.field_items)
-            } else {
-                (&mut shop_items, &mut self.shop_items)
+            let dice = rng.gen_range(0..(req_f_items + req_s_items));
+            let (dst, src) = match dice {
+                dice if (0..req_f_items).contains(&dice) => {
+                    (&mut field_items, &mut self.field_items)
+                }
+                _ => (&mut shop_items, &mut self.shop_items),
             };
             move_one_required_item(dst, src, &remaining_spots);
         }

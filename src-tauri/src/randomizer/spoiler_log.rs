@@ -25,8 +25,8 @@ pub enum Checkpoint {
     SubWeapon(SubWeapon),
     Chest(Chest),
     Seal(Seal),
-    Shop(Shop),
     Rom(Rom),
+    Shop(Shop),
     Event(StrategyFlag),
 }
 
@@ -45,6 +45,9 @@ impl fmt::Display for Checkpoint {
             Self::Seal(checkpoint) => {
                 write!(f, "{} = {}", checkpoint.spot, checkpoint.item.name.get())
             }
+            Self::Rom(checkpoint) => {
+                write!(f, "{} = {}", checkpoint.spot, checkpoint.item.name.get())
+            }
             Self::Shop(checkpoint) => {
                 let spot = &checkpoint.spot;
                 let items = &checkpoint.items;
@@ -52,9 +55,6 @@ impl fmt::Display for Checkpoint {
                 let item1 = items[1].as_ref().map_or("_", |x| x.name.get());
                 let item2 = items[2].as_ref().map_or("_", |x| x.name.get());
                 write!(f, "{} = {}, {}, {}", spot, item0, item1, item2)
-            }
-            Self::Rom(checkpoint) => {
-                write!(f, "{} = {}", checkpoint.spot, checkpoint.item.name.get())
             }
             Self::Event(flag) => write!(f, "{}", flag.get()),
         }
@@ -66,8 +66,8 @@ pub enum CheckpointRef<'a> {
     SubWeapon(SubWeaponRef<'a>),
     Chest(ChestRef<'a>),
     Seal(SealRef<'a>),
-    Shop(ShopRef<'a>),
     Rom(RomRef<'a>),
+    Shop(ShopRef<'a>),
     Event(&'a StrategyFlag),
 }
 
@@ -78,8 +78,8 @@ impl<'a> CheckpointRef<'a> {
             SpotRef::SubWeapon(spot) => Self::SubWeapon(SubWeaponRef { spot, item }),
             SpotRef::Chest(spot) => Self::Chest(ChestRef { spot, item }),
             SpotRef::Seal(spot) => Self::Seal(SealRef { spot, item }),
-            SpotRef::Shop(_) => unreachable!(),
             SpotRef::Rom(spot) => Self::Rom(RomRef { spot, item }),
+            SpotRef::Shop(_) => unreachable!(),
         }
     }
 
@@ -101,13 +101,13 @@ impl<'a> CheckpointRef<'a> {
                 spot: checkpoint.spot.to_owned(),
                 item: checkpoint.item.to_owned(),
             }),
-            Self::Shop(checkpoint) => Checkpoint::Shop(Shop {
-                spot: checkpoint.spot.to_owned(),
-                items: checkpoint.items.map(|x| x.cloned()),
-            }),
             Self::Rom(checkpoint) => Checkpoint::Rom(Rom {
                 spot: checkpoint.spot.to_owned(),
                 item: checkpoint.item.to_owned(),
+            }),
+            Self::Shop(checkpoint) => Checkpoint::Shop(Shop {
+                spot: checkpoint.spot.to_owned(),
+                items: checkpoint.items.map(|x| x.cloned()),
             }),
             Self::Event(flag) => Checkpoint::Event((*flag).to_owned()),
         }

@@ -12,9 +12,8 @@ use super::items_pool::{ItemsPool, UnorderedItems};
 pub struct Items<'a> {
     priority_items: Vec<&'a Item>,
     maps: BTreeMap<FieldNumber, &'a Item>,
-    unsellable_items: Vec<&'a Item>,
     consumable_items: Vec<&'a Item>,
-    sellable_items: Vec<&'a Item>,
+    general_items: Vec<&'a Item>,
 }
 
 impl<'a> Items<'a> {
@@ -54,49 +53,17 @@ impl<'a> Items<'a> {
             ]
             .contains(&item.name.get())
         });
-        let (sellable_items, unsellable_items): (Vec<_>, Vec<_>) = remaining_items
+        let (consumable_items, general_items): (Vec<_>, Vec<_>) = remaining_items
             .into_iter()
-            .partition(|x| x.can_display_in_shop());
-        let (consumable_items, sellable_items): (Vec<_>, Vec<_>) = sellable_items
-            .into_iter()
-            .partition(|x| x.name.is_consumable());
+            .partition(|x| x.can_display_in_shop() && x.name.is_consumable());
 
-        debug_assert!(unsellable_items.iter().all(|x| !x.name.is_consumable()));
-        debug_assert_eq!(
-            priority_items.len()
-                + unsellable_items.len()
-                + sellable_items.len()
-                + consumable_items.len()
-                + maps.len(),
-            source.all_items().count(),
-        );
-        debug_assert_eq!(
-            priority_items.len() + unsellable_items.len() + sellable_items.len() + maps.len(),
-            source.main_weapons.len()
-                + source.sub_weapons.len()
-                + source.chests.len()
-                + source.seals.len()
-                + source
-                    .shops
-                    .iter()
-                    .map(|shop| {
-                        let count = |item: &Option<Item>| {
-                            item.as_ref()
-                                .map_or(0, |x| !x.name.is_consumable() as usize)
-                        };
-                        shop.items.iter().map(count).sum::<usize>()
-                    })
-                    .sum::<usize>()
-                + source.roms.len(),
-        );
         debug_assert!(priority_items.iter().all(|item| item.can_display_in_shop()));
 
         Self {
             priority_items,
             maps,
-            unsellable_items,
             consumable_items,
-            sellable_items,
+            general_items,
         }
     }
 
@@ -106,27 +73,29 @@ impl<'a> Items<'a> {
     pub fn maps(&self) -> &BTreeMap<FieldNumber, &'a Item> {
         &self.maps
     }
-    pub fn unsellable_items(&self) -> &[&'a Item] {
-        &self.unsellable_items
-    }
     pub fn consumable_items(&self) -> &[&'a Item] {
         &self.consumable_items
     }
-    pub fn sellable_items(&self) -> &[&'a Item] {
-        &self.sellable_items
-    }
 
-    pub fn to_items_pool(&self, rng: &mut impl Rng, shop_display_count: usize) -> ItemsPool<'a> {
-        let mut sellable_items = UnorderedItems::new(self.sellable_items.clone()).shuffle(rng);
-        let shop_display_count = shop_display_count - self.consumable_items.len();
-        let shop_items = sellable_items.split_off(sellable_items.len() - shop_display_count);
-        let mut field_items = sellable_items.into_unordered();
-        field_items.append(&mut self.unsellable_items.clone());
+    pub fn to_items_pool(
+        &self,
+        rng: &mut impl Rng,
+        talk_items_count: usize,
+        shop_items_count: usize,
+    ) -> ItemsPool<'a> {
+        let list = self.general_items.clone();
+        let (candidate, mut list) = list.into_iter().partition(|x| x.can_display_in_shop());
+        let mut candidate = UnorderedItems::new(candidate).shuffle(rng);
+        let shop_items =
+            candidate.split_off(candidate.len() - (shop_items_count - self.consumable_items.len()));
+        list.append(&mut candidate.into_inner());
+        let field_items = UnorderedItems::new(list).shuffle(rng);
+
         ItemsPool {
             priority_items: Some(UnorderedItems::new(self.priority_items.clone())),
-            field_items: field_items.shuffle(rng),
-            shop_items,
             consumable_items: UnorderedItems::new(self.consumable_items.clone()).shuffle(rng),
+            field_items,
+            shop_items,
         }
     }
 }

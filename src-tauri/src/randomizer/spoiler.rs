@@ -38,8 +38,8 @@ fn ptr_eq<'a>(a: SpotRef<'a>, b: &CheckpointRef<'a>) -> bool {
         (SpotRef::SubWeapon(a), CheckpointRef::SubWeapon(b)) => ptr::eq(a, b.spot),
         (SpotRef::Chest(a), CheckpointRef::Chest(b)) => ptr::eq(a, b.spot),
         (SpotRef::Seal(a), CheckpointRef::Seal(b)) => ptr::eq(a, b.spot),
-        (SpotRef::Shop(a), CheckpointRef::Shop(b)) => ptr::eq(a, b.spot),
         (SpotRef::Rom(a), CheckpointRef::Rom(b)) => ptr::eq(a, b.spot),
+        (SpotRef::Shop(a), CheckpointRef::Shop(b)) => ptr::eq(a, b.spot),
         _ => false,
     }
 }
@@ -92,17 +92,9 @@ pub fn spoiler<'a>(
 ) -> Option<SpoilerLogRef<'a>> {
     let start = std::time::Instant::now();
     let mut rng = make_rng(seed);
-    let mut items_pool = items.to_items_pool(&mut rng, spots.shops.len());
+    let mut items_pool = items.to_items_pool(&mut rng, 0, spots.shops.len());
     let mut remaining_spots = spots.clone();
     let maps = maps(&mut rng, items.maps(), &mut remaining_spots);
-
-    debug_assert_eq!(
-        items.priority_items().len()
-            + items.unsellable_items().len()
-            + items.consumable_items().len()
-            + items.sellable_items().len(),
-        remaining_spots.field_item_spots.len() + remaining_spots.shops.len()
-    );
 
     let mut strategy_flags: HashSet<&'a StrategyFlag> = Default::default();
     let mut progression = Vec::new();

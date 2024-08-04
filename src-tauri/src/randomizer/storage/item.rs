@@ -69,8 +69,8 @@ pub enum ItemSource {
     SubWeapon((FieldNumber, SubWeapon)),
     Chest((FieldNumber, ChestItem)),
     Seal(Seal),
-    Shop([Option<ShopItem>; 3], usize),
     Rom(Rom),
+    Shop([Option<ShopItem>; 3], usize),
 }
 
 #[derive(Clone, Debug)]
@@ -100,12 +100,12 @@ impl Item {
         let src = ItemSource::Seal(seal);
         Self { src, name }
     }
-    pub fn shop_item(items: [Option<ShopItem>; 3], item_idx: usize, name: StrategyFlag) -> Self {
-        let src = ItemSource::Shop(items, item_idx);
-        Self { src, name }
-    }
     pub fn rom(rom: Rom, name: StrategyFlag) -> Self {
         let src = ItemSource::Rom(rom);
+        Self { src, name }
+    }
+    pub fn shop_item(items: [Option<ShopItem>; 3], item_idx: usize, name: StrategyFlag) -> Self {
+        let src = ItemSource::Shop(items, item_idx);
         Self { src, name }
     }
 

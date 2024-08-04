@@ -81,6 +81,10 @@ impl<'a> ShuffledItems<'a> {
         UnorderedItems(self.0)
     }
 
+    pub fn into_inner(self) -> Vec<&'a Item> {
+        self.0
+    }
+
     pub fn append_count(mut self, other: &mut ShuffledItems<'a>, cnt: usize) -> UnorderedItems<'a> {
         self.0.append(&mut other.split_off(other.len() - cnt).0);
         UnorderedItems(self.0)
