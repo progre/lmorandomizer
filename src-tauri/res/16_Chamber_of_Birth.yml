@@ -16,9 +16,9 @@ shops:
     - event:reachedLowerOfChamberOfBirth, cogOfTheSoul
 roms:
   gr3:
-    - event:reachedLowerOfChamberOfBirth
+    - event:reachedUpperOfChamberOfBirth
   konamiSoccer:
-    - event:reachedLowerOfChamberOfBirth
+    - event:reachedUpperOfChamberOfBirth
   kingKong2:
     - event:reachedLowerOfChamberOfBirth
   heavenAndEarth:
