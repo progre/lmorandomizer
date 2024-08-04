@@ -2,25 +2,13 @@ use rand::{seq::SliceRandom, Rng};
 
 use crate::randomizer::{spoiler::spots::SpotRef, storage::item::Item};
 
-pub fn move_items_to<'a>(
-    mut dst: ShuffledItems<'a>,
-    src: &mut ShuffledItems<'a>,
-    cnt: usize,
-) -> UnorderedItems<'a> {
-    dst.0.append(&mut src.split_off(src.len() - cnt).0);
-    UnorderedItems(dst.0)
-}
-fn move_items<'a>(dst: &mut UnorderedItems<'a>, src: &mut ShuffledItems<'a>, cnt: usize) {
-    dst.0.append(&mut src.split_off(src.len() - cnt).0);
-}
-
 pub fn fill_items_from<'a>(
     dst: &mut UnorderedItems<'a>,
     target_len: usize,
     src: &mut ShuffledItems<'a>,
 ) {
     let cnt = target_len - dst.0.len();
-    move_items(dst, src, cnt);
+    dst.append_count(src, cnt);
 }
 
 fn pick_items_including_requires<'a>(
@@ -35,7 +23,7 @@ fn pick_items_including_requires<'a>(
     };
     let req_item = items_pool.0.swap_remove(pos);
     let mut field_items = UnorderedItems(vec![req_item]);
-    move_items(&mut field_items, items_pool, cnt - 1);
+    field_items.append_count(items_pool, cnt - 1);
     debug_assert!(!field_items.0.is_empty());
     field_items
 }
@@ -86,6 +74,10 @@ impl<'a> UnorderedItems<'a> {
         self.0.append(other);
     }
 
+    fn append_count(&mut self, other: &mut ShuffledItems<'a>, cnt: usize) {
+        self.0.append(&mut other.split_off(other.len() - cnt).0);
+    }
+
     pub fn iter(&self) -> impl Iterator<Item = &&'a Item> {
         self.0.iter()
     }
@@ -108,8 +100,9 @@ impl<'a> ShuffledItems<'a> {
         UnorderedItems(self.0)
     }
 
-    pub fn iter(&self) -> impl Iterator<Item = &&'a Item> {
-        self.0.iter()
+    pub fn append_count(mut self, other: &mut ShuffledItems<'a>, cnt: usize) -> UnorderedItems<'a> {
+        self.0.append(&mut other.split_off(other.len() - cnt).0);
+        UnorderedItems(self.0)
     }
 
     pub fn len(&self) -> usize {
