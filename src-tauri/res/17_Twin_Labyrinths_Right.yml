@@ -15,5 +15,5 @@ roms:
   ganbareGoemon:
     - event:releasedTwins, feather
   usas:
-    - event:releasedTwins
+    - event:releasedTwins, flareGun, flareGunAmmo
   pennantRace:
