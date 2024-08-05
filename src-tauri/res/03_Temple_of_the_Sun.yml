@@ -5,19 +5,16 @@ mainWeapons:
     - bomb, bombAmmo # bombs can reach
 subWeapons:
   ankhJewel:templeOfTheSun:
-    - event:basicSet
 chests:
   bronzeMirror:
     - ankhJewel:templeOfTheSun, handScanner, glyphReader
   map:templeOfTheSun:
-    - event:basicSet
   talisman:
     - event:defeatedViy
   boots:
     - event:floodedTempleOfTheSun
     - feather
   sacredOrb:templeOfTheSun:
-    - event:basicSet
 shops:
   toukenAmmo, spearAmmo, flareGunAmmo:
     - shuriken, shurikenAmmo
@@ -25,13 +22,10 @@ shops:
     - bomb, bombAmmo # bombs can reach
     - feather
   heatproofCase, divinerSensation, weights:
-    - event:basicSet
   ammunition, bombAmmo, shurikenAmmo:
     - deathSeal, feather # need feather
 roms:
   superCobra:
-    - event:basicSet
   yieArKungFu:
-    - event:basicSet
   kingsValley:
     - bomb, bombAmmo

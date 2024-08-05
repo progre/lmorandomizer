@@ -89,4 +89,11 @@ impl<'a> Spots<'a> {
             && self.talk_spots.is_empty()
             && self.shops.iter().all(|shop| shop.name.is_consumable())
     }
+
+    pub fn extend(&mut self, other: Self) {
+        self.field_item_spots.extend(other.field_item_spots);
+        self.talk_spots.extend(other.talk_spots);
+        self.shops.extend(other.shops);
+        self.events.extend(other.events);
+    }
 }

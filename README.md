@@ -24,9 +24,11 @@ If you feel stuck, see some tips below. They may help.
 
 Place seed and La-Mulana install directory, select options, then push Apply.
 
-### Note
+### Hint
 
-- Certain situations can cause a softlock. For example, going to *Dimensional Corridor* without *Bronze Mirror*.
+- By exploring the ground and *Gate of Guidance*, you can obtain the *Hand Scanner*, *Shell Horn*, *Holy Grail*, *Game Master*, and *Glyph Reader*. These are essential for comfortable game play.
+- *Game Master 2* will be available by the time you need to defeat Guardians. This is because you can use a limited number of Ankh Jewels to defeat Guardians in the wrong order, which may result in a softlock.
+- Be careful with a softlock. For example, going to *Dimensional Corridor* without *Bronze Mirror*.
 
 ### Stuck?
 

@@ -6,7 +6,7 @@ use rand::Rng;
 
 use super::spots::{SpotRef, Spots};
 
-use items::{fill_items_from, move_one_required_item, partition_randomly};
+use items::{fill_items_from, move_one_required_item};
 
 pub use items::{ShuffledItems, UnorderedItems};
 
@@ -27,7 +27,7 @@ pub struct ItemsPool<'a> {
 }
 
 impl<'a> ItemsPool<'a> {
-    fn move_shop_items_to_field_items(&mut self, rng: &mut impl Rng, cnt: usize) {
+    pub fn move_shop_items_to_field_items(&mut self, rng: &mut impl Rng, cnt: usize) {
         self.field_items = take(&mut self.field_items)
             .append_count(&mut self.shop_items, cnt)
             .shuffle(rng);
@@ -43,6 +43,7 @@ impl<'a> ItemsPool<'a> {
             self.shop_items.len() + self.consumable_items.len(),
             reachables.shops.len() + unreachables.shops.len(),
         );
+        debug_assert!(self.priority_items.is_none());
 
         let shops: Vec<_> = unreachables
             .shops
@@ -62,35 +63,19 @@ impl<'a> ItemsPool<'a> {
         // 必要なショップアイテムの数
         let req_s_items = item_shop_spot_count(reachables);
 
-        // 初期配置アイテムの取得、なければなし
-        let (mut field_items, mut shop_items) =
-            if let Some(priority_items) = self.priority_items.take() {
-                let (field_items, shop_items) =
-                    partition_randomly(rng, priority_items, req_f_items, req_s_items);
-                self.move_shop_items_to_field_items(rng, shop_items.len());
-                (field_items, shop_items)
-            } else {
-                Default::default()
-            };
+        let mut field_items = Default::default();
+        let mut shop_items = Default::default();
         let mut talk_items = Default::default();
         // 少なくとも一つは行動を広げるアイテムを配置する
-        let has_already_required_items = field_items
-            .iter()
-            .chain(shop_items.iter())
-            .any(|item| item.is_required(&remaining_spots));
-        if !has_already_required_items {
-            let dice = rng.gen_range(0..(req_f_items + req_t_items + req_s_items));
-            let (dst, src) = match dice {
-                dice if (0..req_f_items).contains(&dice) => {
-                    (&mut field_items, &mut self.field_items)
-                }
-                dice if (req_f_items..(req_f_items + req_t_items)).contains(&dice) => {
-                    (&mut talk_items, &mut self.talk_items)
-                }
-                _ => (&mut shop_items, &mut self.shop_items),
-            };
-            move_one_required_item(dst, src, &remaining_spots);
-        }
+        let dice = rng.gen_range(0..(req_f_items + req_t_items + req_s_items));
+        let (dst, src) = match dice {
+            dice if (0..req_f_items).contains(&dice) => (&mut field_items, &mut self.field_items),
+            dice if (req_f_items..(req_f_items + req_t_items)).contains(&dice) => {
+                (&mut talk_items, &mut self.talk_items)
+            }
+            _ => (&mut shop_items, &mut self.shop_items),
+        };
+        move_one_required_item(dst, src, &remaining_spots);
         fill_items_from(&mut field_items, req_f_items, &mut self.field_items);
         fill_items_from(&mut talk_items, req_t_items, &mut self.talk_items);
         fill_items_from(&mut shop_items, req_s_items, &mut self.shop_items);

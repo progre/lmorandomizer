@@ -3,7 +3,6 @@ mainWeapons:
     - keyOfEternity
 chests:
   map:endlessCorridor:
-    - event:basicSet
   twinStatue:
     - keyOfEternity, feather
     - keyOfEternity, grappleClaw
@@ -13,7 +12,6 @@ shops:
     - lifeSeal
 roms:
   videoHustler:
-    - event:basicSet
   konamiGolf:
     - keyOfEternity
   konamiBoxing:

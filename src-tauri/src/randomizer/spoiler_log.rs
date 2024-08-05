@@ -171,7 +171,7 @@ impl fmt::Display for SpoilerLog {
             if i != 0 {
                 writeln!(f)?;
             }
-            writeln!(f, "[Sphere {}]", i + 1)?;
+            writeln!(f, "[Sphere {}]", i)?;
             let mut checkpoints: Vec<_> = sphere.0.iter().collect();
             let shop_list: Vec<_> = checkpoints
                 .iter()

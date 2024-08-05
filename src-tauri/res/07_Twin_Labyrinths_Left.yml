@@ -13,7 +13,6 @@ chests:
     - event:twinLabyrinthsGlitch
 shops:
   helmet, bombAmmo, fakeHandScanner:
-    - event:basicSet
   lampOfTime, shurikenAmmo, toukenAmmo:
     - event:releasedTwins, feather, boots # need feather and boots. puzzle is unsolvable so bombs not needed
     - event:twinLabyrinthsGlitch

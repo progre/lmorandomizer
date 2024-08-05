@@ -7,7 +7,6 @@ chests:
   glove:
     - event:floodedSpringInTheSky
   map:springInTheSky:
-    - event:basicSet
   scalesphere:
     - event:SpringElevator, originSeal # new event allows more varied options for getting up
 seals:
@@ -28,4 +27,3 @@ roms:
   quarth:
     - scalesphere
   gameCollection1: # not yet tested with initial status
-    - event:basicSet

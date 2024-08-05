@@ -1,15 +1,15 @@
+mod pre_sphere;
+
 use std::{collections::HashSet, mem::take, ops::Deref};
 
+use pre_sphere::pre_sphere;
 use rand::Rng;
 
 use crate::{
     dataset::spot::{AnyOfAllRequirements, ShopSpot},
     randomizer::{
         spoiler_log::{CheckpointRef, SphereRef},
-        storage::{
-            item::StrategyFlag,
-            {Event, ShopRef},
-        },
+        storage::{item::StrategyFlag, Event, ShopRef},
     },
 };
 
@@ -42,28 +42,28 @@ fn is_reachable(
 }
 
 fn explore<'a>(
-    remainging_spots: &Spots<'a>,
+    remaining_spots: &Spots<'a>,
     strategy_flags: &HashSet<&'a StrategyFlag>,
 ) -> (Spots<'a>, Spots<'a>) {
     let strategy_flag_strings: Vec<_> = strategy_flags.iter().map(|x| x.get().to_owned()).collect();
     let strategy_flag_strs: HashSet<_> = strategy_flag_strings.iter().map(|x| x.as_str()).collect();
     let sacred_orb_count = strategy_flags.iter().filter(|x| x.is_sacred_orb()).count() as u8;
 
-    let (reachables_field_item_spots, unreachables_field_item_spots) = remainging_spots
+    let (reachables_field_item_spots, unreachables_field_item_spots) = remaining_spots
         .field_item_spots
         .iter()
         .copied()
         .partition::<Vec<_>, _>(|x| {
             is_reachable(x.requirements(), &strategy_flag_strs, sacred_orb_count)
         });
-    let (reachables_talk_spots, unreachables_talk_spots) = remainging_spots
+    let (reachables_talk_spots, unreachables_talk_spots) = remaining_spots
         .talk_spots
         .iter()
         .copied()
         .partition::<Vec<_>, _>(|x| {
             is_reachable(x.requirements(), &strategy_flag_strs, sacred_orb_count)
         });
-    let (reachables_shops, unreachable_shops) = remainging_spots
+    let (reachables_shops, unreachable_shops) = remaining_spots
         .shops
         .iter()
         .cloned()
@@ -85,7 +85,7 @@ fn explore<'a>(
         field_item_spots: unreachables_field_item_spots,
         talk_spots: unreachables_talk_spots,
         shops: unreachable_shops,
-        events: remainging_spots.events.clone(),
+        events: remaining_spots.events.clone(),
     };
     (reachables, unreachables)
 }
@@ -208,6 +208,37 @@ pub fn sphere<'a>(
         remaining_spots.shops.len()
     );
 
+    if let Some(priority_items) = items_pool.priority_items.take() {
+        let sphere = pre_sphere(rng, priority_items, remaining_spots, strategy_flags);
+        let shop_count = sphere
+            .0
+            .iter()
+            .filter(|x| match x {
+                CheckpointRef::MainWeapon(_)
+                | CheckpointRef::SubWeapon(_)
+                | CheckpointRef::Chest(_)
+                | CheckpointRef::Seal(_)
+                | CheckpointRef::Rom(_)
+                | CheckpointRef::Talk(_)
+                | CheckpointRef::Event(_) => false,
+                CheckpointRef::Shop(_) => true,
+            })
+            .count();
+        items_pool.move_shop_items_to_field_items(rng, shop_count);
+        debug_assert_eq!(
+            remaining_spots.field_item_spots.len(),
+            items_pool.field_items.len(),
+        );
+        debug_assert_eq!(
+            remaining_spots.talk_spots.len(),
+            items_pool.talk_items.len(),
+        );
+        debug_assert_eq!(
+            remaining_spots.shops.len(),
+            items_pool.shop_items.len() + items_pool.consumable_items.len(),
+        );
+        return Some(sphere);
+    }
     let (reachables, unreachables) = explore(remaining_spots.deref(), strategy_flags);
 
     if reachables.is_empty() {

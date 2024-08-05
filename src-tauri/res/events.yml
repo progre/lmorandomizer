@@ -1,6 +1,3 @@
-# TODO: 基本セットが必要かどうかはフィールドで判断する
-event:basicSet:
-  - handScanner, shellHorn, holyGrail, gameMaster, glyphReader
 event:subWeaponWallForward: # some forward sub weapons for various things
   - shuriken, shurikenAmmo
   - pistol, ammunition
@@ -10,17 +7,17 @@ event:reachedBackDoorOfSurface:
   - event:defeatedPalenque # bronze mirror and feather included in defeated Palenque requirements
 
 event:defeatedAmphisbaena:
-  - ankhJewel:gateOfGuidance
+  - ankhJewel:gateOfGuidance, gameMaster2
 
 event:defeatedSakit:
-  - ankhJewel:mausoleumOfTheGiants
+  - ankhJewel:mausoleumOfTheGiants, gameMaster2
 
 event:floodedTempleOfTheSun:
   - scalesphere
   - knife, sacredOrb:6 # tested
   # test how many Sacred Orbs it takes without knife
 event:defeatedEllmac:
-  - ankhJewel:templeOfTheSun
+  - ankhJewel:templeOfTheSun, gameMaster2
 
 event:SpringElevator:
   - helmet, sacredOrb:2, holyGrail
@@ -32,24 +29,24 @@ event:floodedSpringInTheSky:
   - originSeal, helmet, scalesphere
   - originSeal, feather, grappleClaw, scalesphere
 event:defeatedBahamut:
-  - event:floodedSpringInTheSky, event:subWeaponWallForward, ankhJewel:springInTheSky # deleted event escapefromspringinthesky. added sub weapons
+  - event:floodedSpringInTheSky, event:subWeaponWallForward, ankhJewel:springInTheSky, gameMaster2 # deleted event escapefromspringinthesky. added sub weapons
 
 event:defeatedViy:
-  - event:reachedFrontOfTowerOfRuin, event:defeatedBahamut, ankhJewel:towerOfRuin, iceCape, sacredOrb:3, bronzeMirror, spear, spearAmmo # should have some health
-  - event:reachedFrontOfTowerOfRuin, event:defeatedBahamut, ankhJewel:towerOfRuin, iceCape, sacredOrb:3, bronzeMirror, bomb, bombAmmo # can reach with bombs
+  - event:reachedFrontOfTowerOfRuin, event:defeatedBahamut, ankhJewel:towerOfRuin, iceCape, sacredOrb:3, bronzeMirror, gameMaster2, spear, spearAmmo # should have some health
+  - event:reachedFrontOfTowerOfRuin, event:defeatedBahamut, ankhJewel:towerOfRuin, iceCape, sacredOrb:3, bronzeMirror, gameMaster2, bomb, bombAmmo # can reach with bombs
 
 event:reachedPalenque: # this is to reach palenque, not fight him
   - event:defeatedViy, feather
   - msx2, qBert, divinerSensation, feather, bronzeMirror
 event:defeatedPalenque: # added sub weapon and sacred orb requirements
-  - event:reachedPalenque, event:reachedUpperOfChamberOfBirth, event:lightedUpChamberOfExtinction, event:subWeaponWallForward, pochetteKey, ankhJewel:chamberOfBirth, sacredOrb:4
+  - event:reachedPalenque, event:reachedUpperOfChamberOfBirth, event:lightedUpChamberOfExtinction, event:subWeaponWallForward, pochetteKey, ankhJewel:chamberOfBirth, sacredOrb:4, gameMaster2
 
 event:releasedTwins:
   - event:defeatedEllmac, twinStatue
 event:twinLabyrinthsGlitch:
   - option:glitch, feather, grappleClaw # https://youtu.be/JcKnq1GcZD4
 event:defeatedBaphomet:
-  - event:releasedTwins, flareGun, flareGunAmmo, ankhJewel:twinLabyrinths, sacredOrb:4 # with just flares, fight is insanely hard without some health
+  - event:releasedTwins, flareGun, flareGunAmmo, ankhJewel:twinLabyrinths, sacredOrb:4, gameMaster2 # with just flares, fight is insanely hard without some health
 
 event:reachedMapSpotOfShrineOfTheMother:
   - event:releasedTwins, dragonBone
@@ -121,7 +118,7 @@ event:reachedDimensionalCorridor:
   - event:releasedTwins, crystalSkull, feather, bronzeMirror
   - event:releasedTwins, crystalSkull, boots, grappleClaw, bronzeMirror # can get in with boots and grapple claw
 event:defeatedTiamat:
-  - event:reachedDimensionalCorridor, ankhJewel:dimensionalCorridor, keySword, sacredOrb:4 # added health requirement
+  - event:reachedDimensionalCorridor, ankhJewel:dimensionalCorridor, keySword, sacredOrb:4, gameMaster2 # added health requirement
 
 event:reachedTrueShrineOfTheMother:
   - event:reachedMapSpotOfShrineOfTheMother, event:reachedDeathSealSpot, event:reachedFrontOfShrineOfTheMother, event:defeatedAmphisbaena, event:defeatedSakit, event:defeatedEllmac, event:defeatedBahamut, event:defeatedViy, event:defeatedPalenque, event:defeatedBaphomet, event:defeatedTiamat
