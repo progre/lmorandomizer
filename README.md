@@ -24,10 +24,6 @@ If you feel stuck, see some tips below. They may help.
 
 Place seed and La-Mulana install directory, select options, then push Apply.
 
-### Current restrictions
-
-- *Mini Doll*, *Pepper*, *Anchor*, and *Mulana Talisman* are still given by their respective NPCs.
-
 ### Note
 
 - Certain situations can cause a softlock. For example, going to *Dimensional Corridor* without *Bronze Mirror*.
