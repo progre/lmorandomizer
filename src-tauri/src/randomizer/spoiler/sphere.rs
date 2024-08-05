@@ -1,8 +1,4 @@
-use std::{
-    collections::{BTreeMap, HashSet},
-    mem::take,
-    ops::Deref,
-};
+use std::{collections::HashSet, mem::take, ops::Deref};
 
 use rand::Rng;
 
@@ -118,38 +114,19 @@ fn place_items<'a>(
         });
     reachables.talk_spots.into_iter().for_each(|spot| {
         let item = talk_items.pop().unwrap();
-        sphere.push(CheckpointRef::from_field_spot_item(
-            super::spots::SpotRef::Talk(spot),
-            item,
-        ));
+        let spot = SpotRef::Talk(spot);
+        sphere.push(CheckpointRef::from_field_spot_item(spot, item));
     });
-    let shops = reachables
-        .shops
-        .into_iter()
-        .fold(BTreeMap::<_, Vec<_>>::new(), |mut map, shop| {
-            map.entry(shop.spot as *const ShopSpot)
-                .or_default()
-                .push(shop);
-            map
-        });
-    for shops in shops.into_values() {
-        let mut items = (0..=2).map(|idx| {
-            shops.iter().find(|x| x.idx == idx).map(|shop| {
-                if shop.name.is_consumable() {
-                    consumable_items_pool.pop().unwrap()
-                } else {
-                    shop_items.pop().unwrap()
-                }
-            })
-        });
-        let items = [
-            items.next().unwrap(),
-            items.next().unwrap(),
-            items.next().unwrap(),
-        ];
-        let spot = shops[0].spot;
-        sphere.push(CheckpointRef::Shop(ShopRef { spot, items }));
-    }
+    reachables.shops.into_iter().for_each(|shop| {
+        let item = if shop.name.is_consumable() {
+            consumable_items_pool.pop().unwrap()
+        } else {
+            shop_items.pop().unwrap()
+        };
+        let spot = &shop.spot;
+        let idx = shop.idx;
+        sphere.push(CheckpointRef::Shop(ShopRef { spot, idx, item }));
+    });
     SphereRef(sphere)
 }
 
@@ -169,9 +146,7 @@ fn append_flags<'a>(strategy_flags: &mut HashSet<&'a StrategyFlag>, sphere: &Sph
                 strategy_flags.insert(&checkpoint.item.name);
             }
             CheckpointRef::Shop(checkpoint) => {
-                for item in checkpoint.items.iter().flatten() {
-                    strategy_flags.insert(&item.name);
-                }
+                strategy_flags.insert(&checkpoint.item.name);
             }
             CheckpointRef::Rom(checkpoint) => {
                 strategy_flags.insert(&checkpoint.item.name);

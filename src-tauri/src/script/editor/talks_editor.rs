@@ -1,9 +1,10 @@
+use std::collections::BTreeMap;
+
 use anyhow::{bail, Result};
 use log::warn;
 use regex::Regex;
 
 use crate::{
-    dataset::WARE_NO_MISE_COUNT,
     randomizer::{self, storage},
     script::{
         data::{
@@ -188,15 +189,19 @@ pub fn replace_shops(
     script_shops: &[ItemShop],
     dataset_shops: &[storage::Shop],
 ) -> Result<()> {
-    assert_eq!(script_shops.len(), dataset_shops.len() + WARE_NO_MISE_COUNT);
-    for dataset_shop in dataset_shops {
-        let create_item = |item: &Option<randomizer::storage::item::Item>| {
+    let dataset_shops: BTreeMap<_, Vec<_>> =
+        dataset_shops.iter().fold(BTreeMap::new(), |mut map, shop| {
+            map.entry(shop.spot.items()).or_default().push(shop);
+            map
+        });
+    for dataset_shop in dataset_shops.values() {
+        let create_item = |item: Option<&randomizer::storage::item::Item>| {
             item.as_ref().map(|x| Item::new(&x.src, script)).transpose()
         };
         let new_items = (
-            create_item(&dataset_shop.items[0])?,
-            create_item(&dataset_shop.items[1])?,
-            create_item(&dataset_shop.items[2])?,
+            create_item(dataset_shop.iter().find(|x| x.idx == 0).map(|x| &x.item))?,
+            create_item(dataset_shop.iter().find(|x| x.idx == 1).map(|x| &x.item))?,
+            create_item(dataset_shop.iter().find(|x| x.idx == 2).map(|x| &x.item))?,
         );
         let new_dataset_shop_items = [
             to_dataset_shop_item_from_item(new_items.0.as_ref()),
@@ -206,10 +211,10 @@ pub fn replace_shops(
 
         let Some(script_shop) = script_shops.iter().find(|script_shop| {
             let old = ShopItem::to_spot_shop_items(script_shop.items());
-            let items = dataset_shop.spot.items();
+            let items = dataset_shop[0].spot.items();
             enums::ShopItem::matches_items(old, items)
         }) else {
-            bail!("shop not found: {:?}", dataset_shop.spot.items())
+            bail!("shop not found: {:?}", dataset_shop[0].spot.items())
         };
         let talk_number = script_shop.item_data_talk_number();
 

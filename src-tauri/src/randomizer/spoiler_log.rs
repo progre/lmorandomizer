@@ -1,6 +1,9 @@
 use std::fmt;
 
-use crate::script::enums::{ChestItem, FieldNumber};
+use crate::{
+    dataset::spot::ShopSpot,
+    script::enums::{ChestItem, FieldNumber},
+};
 
 use super::{
     spoiler::spots::SpotRef,
@@ -31,38 +34,64 @@ pub enum Checkpoint {
     Event(StrategyFlag),
 }
 
-impl fmt::Display for Checkpoint {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            Self::MainWeapon(checkpoint) => {
-                write!(f, "{} = {}", checkpoint.spot, checkpoint.item.name.get())
+fn fmt_checkpoints(checkpoints: &[&Checkpoint], f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    let fmt_shop = |f: &mut fmt::Formatter<'_>, spot: &ShopSpot, shop: &Vec<&Shop>| {
+        let item0 = shop.iter().find(|x| x.idx == 0);
+        let item0 = item0.as_ref().map_or("_", |x| x.item.name.get());
+        let item1 = shop.iter().find(|x| x.idx == 1);
+        let item1 = item1.as_ref().map_or("_", |x| x.item.name.get());
+        let item2 = shop.iter().find(|x| x.idx == 2);
+        let item2 = item2.as_ref().map_or("_", |x| x.item.name.get());
+        writeln!(f, "{} = {}, {}, {}", spot, item0, item1, item2)
+    };
+    let mut shop: Vec<&Shop> = Vec::new();
+    for checkpoint in checkpoints {
+        if !shop.is_empty() {
+            let spot = &shop[0].spot;
+            let different = match checkpoint {
+                Checkpoint::MainWeapon(_)
+                | Checkpoint::SubWeapon(_)
+                | Checkpoint::Chest(_)
+                | Checkpoint::Seal(_)
+                | Checkpoint::Rom(_)
+                | Checkpoint::Talk(_)
+                | Checkpoint::Event(_) => true,
+                Checkpoint::Shop(checkpoint) => checkpoint.spot.items() != spot.items(),
+            };
+            if different {
+                fmt_shop(f, spot, &shop)?;
+                shop.clear();
             }
-            Self::SubWeapon(checkpoint) => {
-                write!(f, "{} = {}", checkpoint.spot, checkpoint.item.name.get())
+        }
+        match checkpoint {
+            Checkpoint::MainWeapon(checkpoint) => {
+                writeln!(f, "{} = {}", checkpoint.spot, checkpoint.item.name.get())?
             }
-            Self::Chest(checkpoint) => {
-                write!(f, "{} = {}", checkpoint.spot, checkpoint.item.name.get())
+            Checkpoint::SubWeapon(checkpoint) => {
+                writeln!(f, "{} = {}", checkpoint.spot, checkpoint.item.name.get())?
             }
-            Self::Seal(checkpoint) => {
-                write!(f, "{} = {}", checkpoint.spot, checkpoint.item.name.get())
+            Checkpoint::Chest(checkpoint) => {
+                writeln!(f, "{} = {}", checkpoint.spot, checkpoint.item.name.get())?
             }
-            Self::Rom(checkpoint) => {
-                write!(f, "{} = {}", checkpoint.spot, checkpoint.item.name.get())
+            Checkpoint::Seal(checkpoint) => {
+                writeln!(f, "{} = {}", checkpoint.spot, checkpoint.item.name.get())?
             }
-            Self::Talk(checkpoint) => {
-                write!(f, "{} = {}", checkpoint.spot, checkpoint.item.name.get())
+            Checkpoint::Rom(checkpoint) => {
+                writeln!(f, "{} = {}", checkpoint.spot, checkpoint.item.name.get())?
             }
-            Self::Shop(checkpoint) => {
-                let spot = &checkpoint.spot;
-                let items = &checkpoint.items;
-                let item0 = items[0].as_ref().map_or("_", |x| x.name.get());
-                let item1 = items[1].as_ref().map_or("_", |x| x.name.get());
-                let item2 = items[2].as_ref().map_or("_", |x| x.name.get());
-                write!(f, "{} = {}, {}, {}", spot, item0, item1, item2)
+            Checkpoint::Talk(checkpoint) => {
+                writeln!(f, "{} = {}", checkpoint.spot, checkpoint.item.name.get())?
             }
-            Self::Event(flag) => write!(f, "{}", flag.get()),
+            Checkpoint::Shop(checkpoint) => {
+                shop.push(checkpoint);
+            }
+            Checkpoint::Event(flag) => writeln!(f, "{}", flag.get())?,
         }
     }
+    if !shop.is_empty() {
+        fmt_shop(f, &shop[0].spot, &shop)?;
+    }
+    Ok(())
 }
 
 pub enum CheckpointRef<'a> {
@@ -117,7 +146,8 @@ impl<'a> CheckpointRef<'a> {
             }),
             Self::Shop(checkpoint) => Checkpoint::Shop(Shop {
                 spot: checkpoint.spot.to_owned(),
-                items: checkpoint.items.map(|x| x.cloned()),
+                idx: checkpoint.idx,
+                item: checkpoint.item.to_owned(),
             }),
             Self::Event(flag) => Checkpoint::Event((*flag).to_owned()),
         }
@@ -143,6 +173,20 @@ impl fmt::Display for SpoilerLog {
             }
             writeln!(f, "[Sphere {}]", i + 1)?;
             let mut checkpoints: Vec<_> = sphere.0.iter().collect();
+            let shop_list: Vec<_> = checkpoints
+                .iter()
+                .filter_map(|x| match x {
+                    Checkpoint::Shop(x) => Some(x),
+                    Checkpoint::MainWeapon(_)
+                    | Checkpoint::SubWeapon(_)
+                    | Checkpoint::Chest(_)
+                    | Checkpoint::Seal(_)
+                    | Checkpoint::Rom(_)
+                    | Checkpoint::Talk(_)
+                    | Checkpoint::Event(_) => None,
+                })
+                .map(|x| x.spot.items())
+                .collect();
             checkpoints.sort_by_key(|checkpoint| {
                 let (field, type_num, src_idx) = match checkpoint {
                     Checkpoint::MainWeapon(x) => {
@@ -161,21 +205,20 @@ impl fmt::Display for SpoilerLog {
                     Checkpoint::Seal(x) => (x.spot.field_number(), 4, x.spot.seal() as usize),
                     Checkpoint::Rom(x) => (x.spot.field_number(), 5, 0),
                     Checkpoint::Talk(x) => (x.spot.field_number(), 6, 0),
-                    Checkpoint::Shop(x) => (x.spot.field_number(), 7, 0),
+                    Checkpoint::Shop(x) => (
+                        x.spot.field_number(),
+                        7,
+                        shop_list.iter().position(|&y| y == x.spot.items()).unwrap(),
+                    ),
                     Checkpoint::Event(_) => return 10000000,
                 };
                 compare_key_for_spoiler_log(field) as usize * 10000 + type_num * 1000 + src_idx
             });
-            for checkpoint in checkpoints {
-                writeln!(f, "{}", checkpoint)?;
-            }
+            fmt_checkpoints(&checkpoints, f)?;
         }
         writeln!(f)?;
         writeln!(f, "[Maps]")?;
-        for checkpoint in &self.maps {
-            writeln!(f, "{}", checkpoint)?;
-        }
-        Ok(())
+        fmt_checkpoints(&self.maps.iter().collect::<Vec<_>>(), f)
     }
 }
 

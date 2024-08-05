@@ -15,10 +15,10 @@ use crate::{
     dataset::{
         game_structure::{GameStructure, GameStructureFiles},
         NIGHT_SURFACE_CHEST_COUNT, NIGHT_SURFACE_SEAL_COUNT, NIGHT_SURFACE_SUB_WEAPON_COUNT,
-        TRUE_SHRINE_OF_THE_MOTHER_SEAL_COUNT, WARE_NO_MISE_COUNT,
+        TRUE_SHRINE_OF_THE_MOTHER_SEAL_COUNT,
     },
     script::{
-        data::{object::ItemShop, script::Script},
+        data::script::Script,
         editor::add_starting_items::add_starting_items,
         enums::Rom,
         file::scriptconverter::{build_script_dat, read_script_dat},
@@ -35,16 +35,6 @@ pub fn assert_eq_elem_count(source: &Storage, script: &Script) {
     let seal_count =
         source.seals.len() + TRUE_SHRINE_OF_THE_MOTHER_SEAL_COUNT + NIGHT_SURFACE_SEAL_COUNT;
     debug_assert_eq!(seal_count, script.seals().count());
-    let shop_count = source.shops.len() + WARE_NO_MISE_COUNT;
-    debug_assert_eq!(
-        shop_count,
-        script
-            .shops()
-            .filter_map(|x| ItemShop::try_from_shop_object(x, &script.talks).transpose())
-            .collect::<Result<Vec<_>>>()
-            .unwrap()
-            .len()
-    );
 }
 
 #[derive(serde::Deserialize)]

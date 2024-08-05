@@ -46,7 +46,8 @@ pub struct Seal {
 #[derive(Clone, Debug)]
 pub struct Shop {
     pub spot: ShopSpot,
-    pub items: [Option<Item>; 3],
+    pub idx: usize,
+    pub item: Item,
 }
 
 #[derive(Clone, Debug)]
@@ -83,7 +84,8 @@ pub struct SealRef<'a> {
 
 pub struct ShopRef<'a> {
     pub spot: &'a ShopSpot,
-    pub items: [Option<&'a Item>; 3],
+    pub idx: usize,
+    pub item: &'a Item,
 }
 
 pub struct RomRef<'a> {
@@ -149,12 +151,7 @@ impl Storage {
             .chain(self.sub_weapons.values().map(|x| &x.item))
             .chain(self.chests.values().map(|x| &x.item))
             .chain(self.seals.values().map(|x| &x.item))
-            .chain(
-                self.shops
-                    .iter()
-                    .flat_map(|x| &x.items)
-                    .filter_map(|x| x.as_ref()),
-            )
+            .chain(self.shops.iter().map(|x| &x.item))
             .chain(self.roms.values().map(|x| &x.item))
             .chain(self.talks.iter().map(|x| &x.item))
     }

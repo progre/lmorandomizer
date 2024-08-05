@@ -34,13 +34,7 @@ impl<'a> Items<'a> {
             .chain(source.sub_weapons.values().map(|x| &x.item))
             .chain(chests.iter().map(|x| &x.item))
             .chain(source.seals.values().map(|x| &x.item))
-            .chain(
-                source
-                    .shops
-                    .iter()
-                    .flat_map(|x| &x.items)
-                    .filter_map(|x| x.as_ref()),
-            )
+            .chain(source.shops.iter().map(|x| &x.item))
             .chain(source.roms.values().map(|x| &x.item))
             .chain(source.talks.iter().map(|x| &x.item));
         let (priority_items, remaining_items) = items.partition::<Vec<_>, _>(|item| {

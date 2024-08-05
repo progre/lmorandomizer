@@ -70,12 +70,17 @@ pub fn create_source(
             })
             .enumerate()
             .map(|(idx, name)| name.map(|name| Item::shop_item(spot.items(), idx, name)));
-        let items = [
-            names.next().unwrap(),
-            names.next().unwrap(),
-            names.next().unwrap(),
-        ];
-        shops.push(Shop { spot, items });
+        if let Some(item) = names.next().unwrap() {
+            let spot = spot.clone();
+            shops.push(Shop { spot, idx: 0, item });
+        }
+        if let Some(item) = names.next().unwrap() {
+            let spot = spot.clone();
+            shops.push(Shop { spot, idx: 1, item });
+        }
+        if let Some(item) = names.next().unwrap() {
+            shops.push(Shop { spot, idx: 2, item });
+        }
     }
     let mut events: Vec<_> = game_structure
         .events
