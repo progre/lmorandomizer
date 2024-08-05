@@ -85,15 +85,10 @@ impl<'a> Items<'a> {
         shop_items_count: usize,
     ) -> ItemsPool<'a> {
         let list = self.general_items.clone();
-        let (talk_items, list) = if talk_items_count == 0 {
-            (UnorderedItems::new(vec![]).shuffle(rng), list)
-        } else {
-            let (candidate, mut list) = list.into_iter().partition(|x| x.can_talk());
-            let mut candidate = UnorderedItems::new(candidate).shuffle(rng);
-            let talk_items = candidate.split_off(candidate.len() - talk_items_count);
-            list.append(&mut candidate.into_inner());
-            (talk_items, list)
-        };
+        let (candidate, mut list) = list.into_iter().partition(|x| x.can_talk());
+        let mut candidate = UnorderedItems::new(candidate).shuffle(rng);
+        let talk_items = candidate.split_off(candidate.len() - talk_items_count);
+        list.append(&mut candidate.into_inner());
 
         let (candidate, mut list) = list.into_iter().partition(|x| x.can_display_in_shop());
         let mut candidate = UnorderedItems::new(candidate).shuffle(rng);

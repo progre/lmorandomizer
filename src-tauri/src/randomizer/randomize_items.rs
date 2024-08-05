@@ -206,12 +206,12 @@ mod tests {
 
         let shuffled_str = format!("{:?}", shuffled);
         let shuffled_hash = hex::encode(sha3::Sha3_512::digest(shuffled_str));
-        const EXPECTED_SHUFFLED_HASH: &str = "2d574ab0a158a2a3cdb02047ffb7eaaae5189fbf2f1697b88dc60f211a558b6a557702f04aa71380a64a89c81871ccccca5b2fe293ae8eed5877c158698ff64a";
+        const EXPECTED_SHUFFLED_HASH: &str = "d7551a0e4a2e486ba591c78a55d7ac5a97c5984be4f13cac0c2d9164d597b24ecac43fa5cb6c7855a1f67b1b1a59728c6a701ff6aad41fc64bfd5dcd8b4970d8";
         assert_eq!(shuffled_hash, EXPECTED_SHUFFLED_HASH);
 
         let spoiler_log_str = format!("{}", spoiler_log.to_owned());
         let spoiler_log_hash = hex::encode(sha3::Sha3_512::digest(spoiler_log_str));
-        const EXPECTED_SPOILER_LOG_HASH: &str = "ada2d2b032a866389b77d5409c4518ef8a9aef869a4776cd485186622facae0d9b51c5cd0d45db18458fb5e5ac42f07327e12f2aea934c53438387aada650612";
+        const EXPECTED_SPOILER_LOG_HASH: &str = "79174852d9a5224ca47731f4b13573abed10ae4328fc3d2d033233646c125146cd6f9040d4469507ce977086eefbf8561b6521b5205b057e9a56aec915861129";
         assert_eq!(spoiler_log_hash, EXPECTED_SPOILER_LOG_HASH);
 
         Ok(())

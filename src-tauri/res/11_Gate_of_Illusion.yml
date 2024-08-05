@@ -1,6 +1,6 @@
 chests:
   keyOfEternity:
-    - event:reachedElevatorOfGateOfIllusion, event:miniDoll, event:escapeShu # need mini doll and a way to get out from Shu area
+    - event:reachedElevatorOfGateOfIllusion, miniDoll, event:escapeShu # need mini doll and a way to get out from Shu area
     - option:glitch, event:reachedElevatorOfGateOfIllusion, spear, spearAmmo, holyGrail, sacredOrb:1, msx2, athleticLand, cabbagePatchKids # https://youtu.be/7_D0TQ7ZWk0?si=Cn2sTNOxnzGJOyMt&t=3223
     - option:glitch, event:reachedElevatorOfGateOfIllusion, spear, spearAmmo, holyGrail, sacredOrb:2
   protectiveClothes:
@@ -21,3 +21,10 @@ roms:
     - event:reachedFrontOfGateOfIllusion
   salamander:
     - event:reachedFrontOfGateOfIllusion
+talks:
+  miniDoll:
+    - event:reachedFrontOfGateOfIllusion, event:reachedGrailOfGateOfIllusion, handScanner, glyphReader, anchor
+  pepper:
+    - event:reachedFrontOfGateOfIllusion
+  anchor:
+    - event:reachedFrontOfGateOfIllusion, treasures

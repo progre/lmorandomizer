@@ -3,7 +3,7 @@ subWeapons:
   ankhJewel:gateOfGuidance:
 chests:
   treasures:
-    - event:pepper
+    - pepper
   sacredOrb:gateOfGuidance:
   crucifix:
     - flareGun, flareGunAmmo,birthSeal
