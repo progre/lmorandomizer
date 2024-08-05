@@ -33,6 +33,8 @@ roms:
   nemesis3:
     - pistol, ammunition
 talks:
+  mulanaTalisman:
+    - diary
   pr3:
     - feather, sacredOrb:2
     - feather, scalesphere

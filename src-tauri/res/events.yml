@@ -1,8 +1,6 @@
 # TODO: 基本セットが必要かどうかはフィールドで判断する
 event:basicSet:
   - handScanner, shellHorn, holyGrail, gameMaster, glyphReader
-event:mulanaTalisman:
-  - diary
 event:subWeaponWallForward: # some forward sub weapons for various things
   - shuriken, shurikenAmmo
   - pistol, ammunition

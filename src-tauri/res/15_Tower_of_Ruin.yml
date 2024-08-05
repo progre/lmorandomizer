@@ -5,7 +5,7 @@ subWeapons:
     - event:reachedFrontOfTowerOfRuin
 chests:
   djedPillar:
-    - event:reachedBackDoorOfTowerOfRuin, event:mulanaTalisman, ocarina # need to talk to sage in spring. need mulana talisman to get item
+    - event:reachedBackDoorOfTowerOfRuin, mulanaTalisman, ocarina # need to talk to sage in spring. need mulana talisman to get item
   map:towerOfRuin:
     - event:reachedFrontOfTowerOfRuin
   sacredOrb:towerOfRuin:
