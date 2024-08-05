@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use anyhow::{anyhow, bail, Result};
 use log::debug;
 
@@ -25,26 +27,34 @@ fn fix_trap_of_mausoleum_of_the_giants(
     obj.op1 = prev_sub_weapon_shutter_item.flag() as i32;
 }
 
-fn replace_all_flags(starts: &[Start], script: &Script, shuffled: &Storage) -> Result<Vec<Start>> {
+fn replace_flag_map(shuffled: &Storage, script: &Script) -> Result<HashMap<u16, u16>> {
+    shuffled
+        .roms
+        .values()
+        .map(|rom| {
+            let item = Item::new(&rom.item.src, script).unwrap();
+            let rom_obj = script
+                .roms()
+                .find(|x| x.rom().content == rom.spot.rom())
+                .ok_or_else(|| anyhow!("rom not found: {}", rom.spot.rom()))?;
+            Ok((rom_obj.rom().flag, item.flag()))
+        })
+        .collect()
+}
+
+fn replace_all_flags(starts: &[Start], replace_flag_map: &HashMap<u16, u16>) -> Vec<Start> {
     starts
         .iter()
         .map(|start| {
-            let Some(old_rom) = script.roms().find(|x| x.rom().flag as u32 == start.flag) else {
-                return Ok(start.clone());
+            let Ok(flag) = u16::try_from(start.flag) else {
+                return start.clone();
             };
-            let Some(new_rom) = shuffled
-                .roms
-                .values()
-                .find(|new_rom| new_rom.spot.rom() == old_rom.rom().content)
-            else {
-                debug!("rom not found: {}", old_rom.rom().content);
-                return Ok(start.clone());
+            let Some(&new_flag) = replace_flag_map.get(&flag) else {
+                return start.clone();
             };
-            let item = Item::new(&new_rom.item.src, script)?;
-            Ok(Start {
-                flag: item.flag() as u32,
-                run_when: start.run_when,
-            })
+            let flag = new_flag as u32;
+            let run_when = start.run_when;
+            Start { flag, run_when }
         })
         .collect()
 }
@@ -55,6 +65,7 @@ fn new_objs(
     next_objs: &[Object],
     script: &Script,
     shuffled: &Storage,
+    replace_flag_map: &HashMap<u16, u16>,
 ) -> Result<Vec<Object>> {
     if field_number == FieldNumber::SurfaceNight {
         field_number = FieldNumber::Surface;
@@ -171,7 +182,7 @@ fn new_objs(
                     op2: obj.op2(),
                     op3: obj.op3(),
                     op4: obj.op4(),
-                    starts: replace_all_flags(obj.starts(), script, shuffled)?,
+                    starts: replace_all_flags(obj.starts(), replace_flag_map),
                 })]),
             }
         }
@@ -179,6 +190,7 @@ fn new_objs(
 }
 
 pub fn replace_items(worlds: &mut [World], script: &Script, shuffled: &Storage) -> Result<()> {
+    let replace_flag_map = replace_flag_map(shuffled, script)?;
     for world in worlds {
         for field in &mut world.fields {
             let field_number = field.number();
@@ -191,6 +203,7 @@ pub fn replace_items(worlds: &mut [World], script: &Script, shuffled: &Storage) 
                         &map.objects[i + 1..],
                         script,
                         shuffled,
+                        &replace_flag_map,
                     )?);
                 }
                 map.objects = objects;
