@@ -249,4 +249,12 @@ impl SpoilerLogRef<'_> {
                 .collect(),
         }
     }
+
+    pub fn count_checkpoints(&self) -> usize {
+        self.progression
+            .iter()
+            .map(|sphere| sphere.0.len())
+            .sum::<usize>()
+            + self.maps.len()
+    }
 }

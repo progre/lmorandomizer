@@ -221,11 +221,15 @@ mod tests {
             let opts = RandomizeOptions {
                 seed: i.to_string(),
                 shuffle_secret_roms: true,
-                need_glitches: false,
+                need_glitches: true,
                 absolutely_shuffle: false,
             };
             let source = create_source(&game_structure, &opts)?;
-            let (_, _) = shuffle(&source, &opts);
+            let (_, spoiler_log) = shuffle(&source, &opts);
+            assert_eq!(
+                spoiler_log.count_checkpoints(),
+                source.all_items().count() + source.events.len()
+            );
         }
 
         Ok(())
