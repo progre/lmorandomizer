@@ -1,15 +1,6 @@
 # TODO: 基本セットが必要かどうかはフィールドで判断する
 event:basicSet:
   - handScanner, shellHorn, holyGrail, gameMaster, glyphReader
-# TODO: unsupported events
-event:miniDoll:
-  - event:reachedFrontOfGateOfIllusion, event:reachedGrailOfGateOfIllusion, handScanner, glyphReader
-event:pepper:
-  - event:reachedFrontOfGateOfIllusion
-event:anchor:
-  - event:reachedFrontOfGateOfIllusion, treasures
-event:mulanaTalisman:
-  - diary
 event:subWeaponWallForward: # some forward sub weapons for various things
   - shuriken, shurikenAmmo
   - pistol, ammunition
@@ -71,8 +62,8 @@ event:reachedFrontOfShrineOfTheMother:
 event:reachedFrontOfGateOfIllusion:
   - event:reachedGrailOfTempleOfMoonlight
 event:reachedElevatorOfGateOfIllusion:
-  - event:anchor, knife, sacredOrb:1 # event:anchor already includes getting to Illusion
-  - event:anchor, knife, scalesphere # need health to survive water
+  - anchor, knife, sacredOrb:1 # event:anchor already includes getting to Illusion
+  - anchor, knife, scalesphere # need health to survive water
   - option:glitch, event:reachedFrontOfGateOfIllusion # https://youtu.be/VQ3e1CJxx5c
 event:reachedGrailOfGateOfIllusion:
   - event:reachedElevatorOfGateOfIllusion
@@ -105,7 +96,7 @@ event:reachedGrailOfTempleOfMoonlight:
   - flareGun, flareGunAmmo, feather, event:escapeFromTempleOfMoonlight
 event:escapeFromTempleOfMoonlight:
   - holyGrail
-  - event:defeatedAmphisbaena, event:anchor, knife, bronzeMirror
+  - event:defeatedAmphisbaena, anchor, knife, bronzeMirror
   - event:defeatedSakit, bronzeMirror
 
 event:reachedTowerOfTheGoddess:
@@ -114,7 +105,7 @@ event:reachedTowerOfTheGoddess:
 
 event:reachedFrontOfTowerOfRuin:
   - event:reachedFrontOfGraveyardOfTheGiants
-  - event:reachedGrailOfGateOfIllusion, event:miniDoll
+  - event:reachedGrailOfGateOfIllusion, miniDoll
 event:reachedBackDoorOfTowerOfRuin:
   - event:reachedBackDoorOfSurface, event:defeatedBaphomet # reachedBackDoorOfSurface already includes bronze mirror
 

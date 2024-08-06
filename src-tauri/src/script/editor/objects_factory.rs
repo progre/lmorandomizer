@@ -7,12 +7,13 @@ use object_factory::{
     simple_seal, simple_sub_weapon, sub_weapon,
 };
 
-use crate::script::data::{
-    item::{ChestItem, Item},
-    object::{ChestObject, Object, RomObject},
+use crate::script::{
+    consts::MEMO_FLAG_BASE_NO,
+    data::{
+        item::{ChestItem, Item},
+        object::{ChestObject, Object, RomObject},
+    },
 };
-
-use super::consts::MEMO_FLAG_BASE_NO;
 
 pub fn to_object_for_shutter(old_obj: &Object, open_flag: u16, item: Item) -> Object {
     match item {

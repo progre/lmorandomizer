@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use anyhow::{anyhow, bail, Result};
 use log::debug;
 
@@ -6,10 +8,10 @@ use crate::{
     script::{
         data::{
             item::{ChestItem, Equipment, Item, Rom},
-            object::{Object, Start, UnknownObject},
+            object::{Object, Shop, Start, UnknownObject},
             script::{Script, World},
         },
-        enums::{self, FieldNumber},
+        enums,
     },
 };
 
@@ -25,39 +27,83 @@ fn fix_trap_of_mausoleum_of_the_giants(
     obj.op1 = prev_sub_weapon_shutter_item.flag() as i32;
 }
 
-fn replace_all_flags(starts: &[Start], script: &Script, shuffled: &Storage) -> Result<Vec<Start>> {
+pub fn find_item_set_flag(script: &Script, talk_item: enums::TalkItem) -> Result<Option<u16>> {
+    Ok(script
+        .shops()
+        .map(|shop_obj| Shop::try_from_shop_object(shop_obj, &script.talks))
+        .collect::<Result<Vec<_>>>()?
+        .into_iter()
+        .filter_map(|x| match x {
+            Shop::Storyteller(x) => Some(vec![x.talk_number()]),
+            Shop::ItemShop(_) => None,
+            Shop::Eldest(x) => Some(x.into_important_talk_numbers()),
+        })
+        .flatten()
+        .filter_map(|talk_number| script.talks[talk_number as usize].item().transpose())
+        .collect::<Result<Vec<_>>>()?
+        .into_iter()
+        .find(|(item, _set_flag)| item == &talk_item)
+        .map(|(_item, set_flag)| set_flag))
+}
+
+/// ROMs do not alter the environment. Therefore, the flags of ROMs can be replaced in a batch.
+fn replace_flag_map(shuffled: &Storage, script: &Script) -> Result<HashMap<u16, u16>> {
+    shuffled
+        .roms
+        .values()
+        .map(|rom| {
+            let old_rom_obj = script
+                .roms()
+                .find(|x| x.rom().content == rom.spot.rom())
+                .ok_or_else(|| anyhow!("rom not found: {}", rom.spot.rom()))?;
+            let new_item_flag = Item::new(&rom.item.src, script).unwrap().flag();
+            Ok((old_rom_obj.rom().flag, new_item_flag))
+        })
+        .chain(
+            shuffled
+                .talks
+                .iter()
+                .filter(|talk| match talk.spot.item() {
+                    enums::TalkItem::Equipment(_) => false,
+                    enums::TalkItem::Rom(_) => true,
+                })
+                .map(|talk| {
+                    let old_flag = find_item_set_flag(script, talk.spot.item())?
+                        .ok_or_else(|| anyhow!("talk not found: {:?}", talk.spot.item()))?;
+                    let new_flag = Item::new(&talk.item.src, script).unwrap().flag();
+                    Ok((old_flag, new_flag))
+                }),
+        )
+        .collect()
+}
+
+fn replace_all_flags(starts: &[Start], replace_flag_map: &HashMap<u16, u16>) -> Vec<Start> {
     starts
         .iter()
         .map(|start| {
-            let Some(old_rom) = script.roms().find(|x| x.rom().flag as u32 == start.flag) else {
-                return Ok(start.clone());
+            let Ok(flag) = u16::try_from(start.flag) else {
+                return start.clone();
             };
-            let Some(new_rom) = shuffled
-                .roms
-                .values()
-                .find(|new_rom| new_rom.spot.rom() == old_rom.rom().content)
-            else {
-                debug!("rom not found: {}", old_rom.rom().content);
-                return Ok(start.clone());
+            let Some(&new_flag) = replace_flag_map.get(&flag) else {
+                return start.clone();
             };
-            let item = Item::new(&new_rom.item.src, script)?;
-            Ok(Start {
-                flag: item.flag() as u32,
-                run_when: start.run_when,
-            })
+            let flag = new_flag as u32;
+            let run_when = start.run_when;
+            Start { flag, run_when }
         })
         .collect()
 }
 
 fn new_objs(
     obj: &Object,
-    mut field_number: FieldNumber,
+    mut field_number: enums::FieldNumber,
     next_objs: &[Object],
     script: &Script,
     shuffled: &Storage,
+    replace_flag_map: &HashMap<u16, u16>,
 ) -> Result<Vec<Object>> {
-    if field_number == FieldNumber::SurfaceNight {
-        field_number = FieldNumber::Surface;
+    if field_number == enums::FieldNumber::SurfaceNight {
+        field_number = enums::FieldNumber::Surface;
     }
     match obj {
         Object::Chest(chest_obj) => {
@@ -107,7 +153,43 @@ fn new_objs(
             .ok_or(anyhow!("next_shutter_check_flag not found"))?;
             Ok(vec![to_object_for_shutter(obj, open_flag, item)])
         }
-        Object::Shop(_) => Ok(vec![obj.clone()]),
+        Object::Shop(_) => {
+            let starts = if field_number == enums::FieldNumber::GateOfIllusion {
+                // NOTE: Do not rewrite flags elsewhere, as the item must be effective.
+                let mut replace_flag_map = replace_flag_map.clone();
+
+                let pepper = enums::TalkItem::Equipment(enums::Equipment::Pepper);
+                let old_flag = find_item_set_flag(script, pepper)?
+                    .ok_or_else(|| anyhow!("talk not found: {:?}", pepper))?;
+                let new_flag = Item::talk(script, pepper)?.flag();
+                replace_flag_map.insert(old_flag, new_flag);
+                let anchor = enums::TalkItem::Equipment(enums::Equipment::Anchor);
+                let old_flag = find_item_set_flag(script, anchor)?
+                    .ok_or_else(|| anyhow!("talk not found: {:?}", anchor))?;
+                let new_flag = Item::talk(script, anchor)?.flag();
+                replace_flag_map.insert(old_flag, new_flag);
+
+                let mini_doll = enums::TalkItem::Equipment(enums::Equipment::MiniDoll);
+                let old_flag = find_item_set_flag(script, mini_doll)?
+                    .ok_or_else(|| anyhow!("talk not found: {:?}", mini_doll))?;
+                let new_flag = Item::talk(script, mini_doll)?.flag();
+                replace_flag_map.insert(old_flag, new_flag);
+
+                replace_all_flags(obj.starts(), &replace_flag_map)
+            } else {
+                replace_all_flags(obj.starts(), replace_flag_map)
+            };
+            Ok(vec![Object::Unknown(UnknownObject {
+                number: obj.number(),
+                x: obj.x(),
+                y: obj.y(),
+                op1: obj.op1(),
+                op2: obj.op2(),
+                op3: obj.op3(),
+                op4: obj.op4(),
+                starts,
+            })])
+        }
         Object::Rom(rom_obj) => {
             let Some(rom) = shuffled.roms.get(&rom_obj.rom().content) else {
                 debug!("rom not found: {}", rom_obj.rom().content);
@@ -171,7 +253,7 @@ fn new_objs(
                     op2: obj.op2(),
                     op3: obj.op3(),
                     op4: obj.op4(),
-                    starts: replace_all_flags(obj.starts(), script, shuffled)?,
+                    starts: replace_all_flags(obj.starts(), replace_flag_map),
                 })]),
             }
         }
@@ -179,6 +261,7 @@ fn new_objs(
 }
 
 pub fn replace_items(worlds: &mut [World], script: &Script, shuffled: &Storage) -> Result<()> {
+    let replace_flag_map = replace_flag_map(shuffled, script)?;
     for world in worlds {
         for field in &mut world.fields {
             let field_number = field.number();
@@ -191,6 +274,7 @@ pub fn replace_items(worlds: &mut [World], script: &Script, shuffled: &Storage) 
                         &map.objects[i + 1..],
                         script,
                         shuffled,
+                        &replace_flag_map,
                     )?);
                 }
                 map.objects = objects;

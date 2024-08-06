@@ -5,7 +5,10 @@ use std::{
 
 use anyhow::{bail, Result};
 
-use crate::{dataset::game_structure::GameStructure, randomizer::RandomizeOptions};
+use crate::{
+    dataset::game_structure::GameStructure,
+    randomizer::{storage::Talk, RandomizeOptions},
+};
 
 use super::{
     item::{Item, StrategyFlag},
@@ -98,14 +101,20 @@ pub fn create_source(
                 .collect::<Vec<_>>(),
         );
     }
+    let mut talks = Vec::new();
+    for spot in game_structure.talks.iter().cloned() {
+        let item = Item::talk(spot.item(), spot.name().clone().into());
+        talks.push(Talk { spot, item });
+    }
 
     Storage::new(
         main_weapons,
         sub_weapons,
         chests,
         seals,
-        shops,
         roms,
+        talks,
+        shops,
         events,
     )
 }

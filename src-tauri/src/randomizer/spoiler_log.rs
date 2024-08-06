@@ -7,7 +7,7 @@ use super::{
     storage::{
         item::{Item, StrategyFlag},
         Chest, ChestRef, MainWeapon, MainWeaponRef, Rom, RomRef, Seal, SealRef, Shop, ShopRef,
-        SubWeapon, SubWeaponRef,
+        SubWeapon, SubWeaponRef, Talk, TalkRef,
     },
 };
 
@@ -25,8 +25,9 @@ pub enum Checkpoint {
     SubWeapon(SubWeapon),
     Chest(Chest),
     Seal(Seal),
-    Shop(Shop),
     Rom(Rom),
+    Talk(Talk),
+    Shop(Shop),
     Event(StrategyFlag),
 }
 
@@ -45,6 +46,12 @@ impl fmt::Display for Checkpoint {
             Self::Seal(checkpoint) => {
                 write!(f, "{} = {}", checkpoint.spot, checkpoint.item.name.get())
             }
+            Self::Rom(checkpoint) => {
+                write!(f, "{} = {}", checkpoint.spot, checkpoint.item.name.get())
+            }
+            Self::Talk(checkpoint) => {
+                write!(f, "{} = {}", checkpoint.spot, checkpoint.item.name.get())
+            }
             Self::Shop(checkpoint) => {
                 let spot = &checkpoint.spot;
                 let items = &checkpoint.items;
@@ -52,9 +59,6 @@ impl fmt::Display for Checkpoint {
                 let item1 = items[1].as_ref().map_or("_", |x| x.name.get());
                 let item2 = items[2].as_ref().map_or("_", |x| x.name.get());
                 write!(f, "{} = {}, {}, {}", spot, item0, item1, item2)
-            }
-            Self::Rom(checkpoint) => {
-                write!(f, "{} = {}", checkpoint.spot, checkpoint.item.name.get())
             }
             Self::Event(flag) => write!(f, "{}", flag.get()),
         }
@@ -66,8 +70,9 @@ pub enum CheckpointRef<'a> {
     SubWeapon(SubWeaponRef<'a>),
     Chest(ChestRef<'a>),
     Seal(SealRef<'a>),
-    Shop(ShopRef<'a>),
     Rom(RomRef<'a>),
+    Talk(TalkRef<'a>),
+    Shop(ShopRef<'a>),
     Event(&'a StrategyFlag),
 }
 
@@ -78,8 +83,9 @@ impl<'a> CheckpointRef<'a> {
             SpotRef::SubWeapon(spot) => Self::SubWeapon(SubWeaponRef { spot, item }),
             SpotRef::Chest(spot) => Self::Chest(ChestRef { spot, item }),
             SpotRef::Seal(spot) => Self::Seal(SealRef { spot, item }),
-            SpotRef::Shop(_) => unreachable!(),
             SpotRef::Rom(spot) => Self::Rom(RomRef { spot, item }),
+            SpotRef::Talk(spot) => Self::Talk(TalkRef { spot, item }),
+            SpotRef::Shop(_) => unreachable!(),
         }
     }
 
@@ -101,13 +107,17 @@ impl<'a> CheckpointRef<'a> {
                 spot: checkpoint.spot.to_owned(),
                 item: checkpoint.item.to_owned(),
             }),
-            Self::Shop(checkpoint) => Checkpoint::Shop(Shop {
-                spot: checkpoint.spot.to_owned(),
-                items: checkpoint.items.map(|x| x.cloned()),
-            }),
             Self::Rom(checkpoint) => Checkpoint::Rom(Rom {
                 spot: checkpoint.spot.to_owned(),
                 item: checkpoint.item.to_owned(),
+            }),
+            Self::Talk(checkpoint) => Checkpoint::Talk(Talk {
+                spot: checkpoint.spot.to_owned(),
+                item: checkpoint.item.to_owned(),
+            }),
+            Self::Shop(checkpoint) => Checkpoint::Shop(Shop {
+                spot: checkpoint.spot.to_owned(),
+                items: checkpoint.items.map(|x| x.cloned()),
             }),
             Self::Event(flag) => Checkpoint::Event((*flag).to_owned()),
         }
@@ -150,7 +160,8 @@ impl fmt::Display for SpoilerLog {
                     }
                     Checkpoint::Seal(x) => (x.spot.field_number(), 4, x.spot.seal() as usize),
                     Checkpoint::Rom(x) => (x.spot.field_number(), 5, 0),
-                    Checkpoint::Shop(x) => (x.spot.field_number(), 6, 0),
+                    Checkpoint::Talk(x) => (x.spot.field_number(), 6, 0),
+                    Checkpoint::Shop(x) => (x.spot.field_number(), 7, 0),
                     Checkpoint::Event(_) => return 10000000,
                 };
                 compare_key_for_spoiler_log(field) as usize * 10000 + type_num * 1000 + src_idx

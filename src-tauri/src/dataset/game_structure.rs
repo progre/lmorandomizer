@@ -7,13 +7,13 @@ use vec1::Vec1;
 use crate::{
     dataset::spot::SpotName,
     script::enums::{
-        ChestItem, Equipment, FieldNumber, MainWeapon, Rom, Seal, ShopItem, SubWeapon,
+        ChestItem, Equipment, FieldNumber, MainWeapon, Rom, Seal, ShopItem, SubWeapon, TalkItem,
     },
 };
 
 use super::spot::{
     AllRequirements, AnyOfAllRequirements, ChestSpot, MainWeaponSpot, RequirementFlag, RomSpot,
-    SealSpot, ShopSpot, SubWeaponSpot,
+    SealSpot, ShopSpot, SubWeaponSpot, TalkSpot,
 };
 
 pub struct GameStructureFiles {
@@ -51,6 +51,8 @@ pub struct FieldYaml {
     pub roms: BTreeMap<String, Vec<String>>,
     #[serde(default)]
     pub shops: BTreeMap<String, Vec<String>>,
+    #[serde(default)]
+    pub talks: BTreeMap<String, Vec<String>>,
 }
 
 impl FieldYaml {
@@ -118,6 +120,7 @@ pub struct GameStructure {
     pub seals: Vec<SealSpot>,
     pub roadside_roms: Vec<RomSpot>,
     pub shops: Vec<ShopSpot>,
+    pub talks: Vec<TalkSpot>,
     pub events: Vec<Event>,
 }
 
@@ -129,6 +132,7 @@ impl GameStructure {
         let mut seals = Vec::new();
         let mut roadside_roms = Vec::new();
         let mut shops = Vec::new();
+        let mut talks = Vec::new();
         game_structure_files
             .fields
             .sort_by_key(|(field_number, _)| *field_number as u8);
@@ -212,6 +216,16 @@ impl GameStructure {
                 let spot = ShopSpot::new(field_number, name, items, any_of_all_requirements);
                 shops.push(spot)
             }
+            for (key, value) in field_data.talks {
+                let pascal_case = to_pascal_case(&key);
+                let item = Equipment::from_str(&pascal_case)
+                    .map(TalkItem::Equipment)
+                    .or_else(|_| Rom::from_str(&pascal_case).map(TalkItem::Rom))?;
+                let name = SpotName::new(key.clone());
+                let requirements = to_any_of_all_requirements(value)?;
+                let spot = TalkSpot::new(field_number, name, item, requirements);
+                talks.push(spot);
+            }
         }
         let events = parse_event_requirements(game_structure_files.events.0)?;
 
@@ -220,8 +234,9 @@ impl GameStructure {
             sub_weapon_shutters,
             chests,
             seals,
-            shops,
             roadside_roms,
+            shops,
+            talks,
             events,
         })
     }

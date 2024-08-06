@@ -19,10 +19,10 @@ use crate::{
 
 use super::{
     items_pool::{ItemsPool, ShuffledItems},
-    spots::Spots,
+    spots::{SpotRef, Spots},
 };
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct ShopItemDisplay<'a> {
     pub spot: &'a ShopSpot,
     pub idx: usize,
@@ -60,6 +60,13 @@ fn explore<'a>(
         .partition::<Vec<_>, _>(|x| {
             is_reachable(x.requirements(), &strategy_flag_strs, sacred_orb_count)
         });
+    let (reachables_talk_spots, unreachables_talk_spots) = remainging_spots
+        .talk_spots
+        .iter()
+        .copied()
+        .partition::<Vec<_>, _>(|x| {
+            is_reachable(x.requirements(), &strategy_flag_strs, sacred_orb_count)
+        });
     let (reachables_shops, unreachable_shops) = remainging_spots
         .shops
         .iter()
@@ -74,11 +81,13 @@ fn explore<'a>(
 
     let reachables = Spots {
         field_item_spots: reachables_field_item_spots,
+        talk_spots: reachables_talk_spots,
         shops: reachables_shops,
         events: vec![],
     };
     let unreachables = Spots {
         field_item_spots: unreachables_field_item_spots,
+        talk_spots: unreachables_talk_spots,
         shops: unreachable_shops,
         events: remainging_spots.events.clone(),
     };
@@ -87,14 +96,32 @@ fn explore<'a>(
 
 fn place_items<'a>(
     mut field_items: ShuffledItems<'a>,
+    mut talk_items: ShuffledItems<'a>,
     mut shop_items: ShuffledItems<'a>,
     consumable_items_pool: &mut ShuffledItems<'a>,
     reachables: Spots<'a>,
 ) -> SphereRef<'a> {
     let mut sphere: Vec<_> = Default::default();
-    reachables.field_item_spots.into_iter().for_each(|spot| {
-        let item = field_items.pop().unwrap();
-        sphere.push(CheckpointRef::from_field_spot_item(spot, item));
+    reachables
+        .field_item_spots
+        .into_iter()
+        .for_each(|spot| match spot {
+            SpotRef::MainWeapon(_)
+            | SpotRef::SubWeapon(_)
+            | SpotRef::Chest(_)
+            | SpotRef::Seal(_)
+            | SpotRef::Rom(_) => {
+                let item = field_items.pop().unwrap();
+                sphere.push(CheckpointRef::from_field_spot_item(spot, item));
+            }
+            SpotRef::Talk(_) | SpotRef::Shop(_) => unreachable!(),
+        });
+    reachables.talk_spots.into_iter().for_each(|spot| {
+        let item = talk_items.pop().unwrap();
+        sphere.push(CheckpointRef::from_field_spot_item(
+            super::spots::SpotRef::Talk(spot),
+            item,
+        ));
     });
     let shops = reachables
         .shops
@@ -149,6 +176,9 @@ fn append_flags<'a>(strategy_flags: &mut HashSet<&'a StrategyFlag>, sphere: &Sph
             CheckpointRef::Rom(checkpoint) => {
                 strategy_flags.insert(&checkpoint.item.name);
             }
+            CheckpointRef::Talk(checkpoint) => {
+                strategy_flags.insert(&checkpoint.item.name);
+            }
             CheckpointRef::Event(flag) => {
                 strategy_flags.insert(flag);
             }
@@ -199,11 +229,8 @@ pub fn sphere<'a>(
     strategy_flags: &mut HashSet<&'a StrategyFlag>,
 ) -> Option<SphereRef<'a>> {
     debug_assert_eq!(
-        items_pool.priority_items.as_ref().map_or(0, |x| x.len())
-            + items_pool.field_items.len()
-            + items_pool.shop_items.len()
-            + items_pool.consumable_items.len(),
-        remaining_spots.field_item_spots.len() + remaining_spots.shops.len()
+        items_pool.shop_items.len() + items_pool.consumable_items.len(),
+        remaining_spots.shops.len()
     );
 
     let (reachables, unreachables) = explore(remaining_spots.deref(), strategy_flags);
@@ -212,10 +239,12 @@ pub fn sphere<'a>(
         return None;
     }
 
-    let (field_items, shop_items) = items_pool.pick_items_randomly(rng, &reachables, &unreachables);
+    let (field_items, talk_items, shop_items) =
+        items_pool.pick_items_randomly(rng, &reachables, &unreachables);
 
     let mut sphere = place_items(
         field_items,
+        talk_items,
         shop_items,
         &mut items_pool.consumable_items,
         reachables,

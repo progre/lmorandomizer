@@ -18,7 +18,7 @@ use crate::{
         TRUE_SHRINE_OF_THE_MOTHER_SEAL_COUNT, WARE_NO_MISE_COUNT,
     },
     script::{
-        data::{object::Shop, script::Script},
+        data::{object::ItemShop, script::Script},
         editor::add_starting_items::add_starting_items,
         enums::Rom,
         file::scriptconverter::{build_script_dat, read_script_dat},
@@ -40,7 +40,7 @@ pub fn assert_eq_elem_count(source: &Storage, script: &Script) {
         shop_count,
         script
             .shops()
-            .filter_map(|x| Shop::try_from_shop_object(x, &script.talks).transpose())
+            .filter_map(|x| ItemShop::try_from_shop_object(x, &script.talks).transpose())
             .collect::<Result<Vec<_>>>()
             .unwrap()
             .len()

@@ -8,7 +8,8 @@ use anyhow::Result;
 
 use crate::{
     dataset::spot::{
-        AnyOfAllRequirements, ChestSpot, MainWeaponSpot, RomSpot, SealSpot, ShopSpot, SubWeaponSpot,
+        AnyOfAllRequirements, ChestSpot, MainWeaponSpot, RomSpot, SealSpot, ShopSpot,
+        SubWeaponSpot, TalkSpot,
     },
     script::enums::{self, FieldNumber},
 };
@@ -54,6 +55,12 @@ pub struct Rom {
     pub item: Item,
 }
 
+#[derive(Clone, Debug)]
+pub struct Talk {
+    pub spot: TalkSpot,
+    pub item: Item,
+}
+
 pub struct MainWeaponRef<'a> {
     pub spot: &'a MainWeaponSpot,
     pub item: &'a Item,
@@ -84,6 +91,11 @@ pub struct RomRef<'a> {
     pub item: &'a Item,
 }
 
+pub struct TalkRef<'a> {
+    pub spot: &'a TalkSpot,
+    pub item: &'a Item,
+}
+
 #[derive(Clone, Debug)]
 pub struct Event {
     pub name: StrategyFlag,
@@ -96,19 +108,22 @@ pub struct Storage {
     pub sub_weapons: BTreeMap<(FieldNumber, enums::SubWeapon), SubWeapon>,
     pub chests: BTreeMap<(FieldNumber, enums::ChestItem), Chest>,
     pub seals: BTreeMap<enums::Seal, Seal>,
-    pub shops: Vec<Shop>,
     pub roms: BTreeMap<enums::Rom, Rom>,
+    pub talks: Vec<Talk>,
+    pub shops: Vec<Shop>,
     pub events: Vec<Event>,
 }
 
 impl Storage {
+    #[allow(clippy::too_many_arguments)]
     pub fn new(
         main_weapons: BTreeMap<enums::MainWeapon, MainWeapon>,
         sub_weapons: BTreeMap<(FieldNumber, enums::SubWeapon), SubWeapon>,
         chests: BTreeMap<(FieldNumber, enums::ChestItem), Chest>,
         seals: BTreeMap<enums::Seal, Seal>,
-        shops: Vec<Shop>,
         roms: BTreeMap<enums::Rom, Rom>,
+        talks: Vec<Talk>,
+        shops: Vec<Shop>,
         events: Vec<Event>,
     ) -> Result<Self> {
         let zelf = Self {
@@ -116,8 +131,9 @@ impl Storage {
             sub_weapons,
             chests,
             seals,
-            shops,
             roms,
+            talks,
+            shops,
             events,
         };
         if cfg!(debug_assertions) {
@@ -140,5 +156,6 @@ impl Storage {
                     .filter_map(|x| x.as_ref()),
             )
             .chain(self.roms.values().map(|x| &x.item))
+            .chain(self.talks.iter().map(|x| &x.item))
     }
 }

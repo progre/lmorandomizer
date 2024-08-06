@@ -73,12 +73,16 @@ impl<'a> UnorderedItems<'a> {
     }
 }
 
-#[derive(Default)]
+#[derive(Default, Debug)]
 pub struct ShuffledItems<'a>(Vec<&'a Item>);
 
 impl<'a> ShuffledItems<'a> {
     pub fn into_unordered(self) -> UnorderedItems<'a> {
         UnorderedItems(self.0)
+    }
+
+    pub fn into_inner(self) -> Vec<&'a Item> {
+        self.0
     }
 
     pub fn append_count(mut self, other: &mut ShuffledItems<'a>, cnt: usize) -> UnorderedItems<'a> {

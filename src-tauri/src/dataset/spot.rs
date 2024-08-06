@@ -5,6 +5,7 @@ mod rom_spot;
 mod seal_spot;
 mod shop_spot;
 mod sub_weapon_spot;
+mod talk_spot;
 
 pub use {
     chest_spot::ChestSpot,
@@ -14,4 +15,5 @@ pub use {
     seal_spot::SealSpot,
     shop_spot::ShopSpot,
     sub_weapon_spot::SubWeaponSpot,
+    talk_spot::TalkSpot,
 };

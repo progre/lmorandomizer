@@ -10,9 +10,18 @@ use items::{fill_items_from, move_one_required_item, partition_randomly};
 
 pub use items::{ShuffledItems, UnorderedItems};
 
+fn item_shop_spot_count(spots: &Spots<'_>) -> usize {
+    spots
+        .shops
+        .iter()
+        .map(|shop| (!shop.name.is_consumable()) as usize)
+        .sum::<usize>()
+}
+
 pub struct ItemsPool<'a> {
     pub priority_items: Option<UnorderedItems<'a>>,
     pub field_items: ShuffledItems<'a>,
+    pub talk_items: ShuffledItems<'a>,
     pub shop_items: ShuffledItems<'a>,
     pub consumable_items: ShuffledItems<'a>,
 }
@@ -29,16 +38,10 @@ impl<'a> ItemsPool<'a> {
         rng: &mut impl Rng,
         reachables: &Spots<'a>,
         unreachables: &Spots<'a>,
-    ) -> (ShuffledItems<'a>, ShuffledItems<'a>) {
+    ) -> (ShuffledItems<'a>, ShuffledItems<'a>, ShuffledItems<'a>) {
         debug_assert_eq!(
-            reachables.field_item_spots.len()
-                + unreachables.field_item_spots.len()
-                + reachables.shops.len()
-                + unreachables.shops.len(),
-            self.priority_items.as_ref().map_or(0, |x| x.len())
-                + self.field_items.len()
-                + self.shop_items.len()
-                + self.consumable_items.len(),
+            self.shop_items.len() + self.consumable_items.len(),
+            reachables.shops.len() + unreachables.shops.len(),
         );
 
         let shops: Vec<_> = unreachables
@@ -54,12 +57,10 @@ impl<'a> ItemsPool<'a> {
             .collect();
         // 必要な通常アイテムの数
         let req_f_items = reachables.field_item_spots.len();
+        // 必要なトークアイテムの数
+        let req_t_items = reachables.talk_spots.len();
         // 必要なショップアイテムの数
-        let req_s_items = reachables
-            .shops
-            .iter()
-            .map(|shop| (!shop.name.is_consumable()) as usize)
-            .sum::<usize>();
+        let req_s_items = item_shop_spot_count(reachables);
 
         // 初期配置アイテムの取得、なければなし
         let (mut field_items, mut shop_items) =
@@ -71,24 +72,33 @@ impl<'a> ItemsPool<'a> {
             } else {
                 Default::default()
             };
+        let mut talk_items = Default::default();
         // 少なくとも一つは行動を広げるアイテムを配置する
         let has_already_required_items = field_items
             .iter()
             .chain(shop_items.iter())
             .any(|item| item.is_required(&remaining_spots));
         if !has_already_required_items {
-            let numerator = req_f_items as u32;
-            let denominator = (req_f_items + req_s_items) as u32;
-            let (dst, src) = if rng.gen_ratio(numerator, denominator) {
-                (&mut field_items, &mut self.field_items)
-            } else {
-                (&mut shop_items, &mut self.shop_items)
+            let dice = rng.gen_range(0..(req_f_items + req_t_items + req_s_items));
+            let (dst, src) = match dice {
+                dice if (0..req_f_items).contains(&dice) => {
+                    (&mut field_items, &mut self.field_items)
+                }
+                dice if (req_f_items..(req_f_items + req_t_items)).contains(&dice) => {
+                    (&mut talk_items, &mut self.talk_items)
+                }
+                _ => (&mut shop_items, &mut self.shop_items),
             };
             move_one_required_item(dst, src, &remaining_spots);
         }
         fill_items_from(&mut field_items, req_f_items, &mut self.field_items);
+        fill_items_from(&mut talk_items, req_t_items, &mut self.talk_items);
         fill_items_from(&mut shop_items, req_s_items, &mut self.shop_items);
 
-        (field_items.shuffle(rng), shop_items.shuffle(rng))
+        (
+            field_items.shuffle(rng),
+            talk_items.shuffle(rng),
+            shop_items.shuffle(rng),
+        )
     }
 }

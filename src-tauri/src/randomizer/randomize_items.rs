@@ -76,6 +76,15 @@ fn create_shuffled_storage(source: &Storage, spoiler_log: &SpoilerLogRef) -> Sto
                 let content = rom.spot.rom();
                 storage.roms.get_mut(&content).unwrap().item = rom.item.clone();
             }
+            CheckpointRef::Talk(talk) => {
+                let item = talk.spot.item();
+                storage
+                    .talks
+                    .iter_mut()
+                    .find(|x| x.spot.item() == item)
+                    .unwrap()
+                    .item = talk.item.clone();
+            }
             CheckpointRef::Event(_) => {}
         }
     }
@@ -183,7 +192,7 @@ mod tests {
     use super::*;
 
     #[tokio::test]
-    async fn test_shuffle() -> Result<()> {
+    async fn test_shuffle_hash() -> Result<()> {
         let game_structure_files = read_game_structure_files_debug().await?;
         let game_structure = GameStructure::new(game_structure_files)?;
         let opts = RandomizeOptions {
@@ -197,13 +206,31 @@ mod tests {
 
         let shuffled_str = format!("{:?}", shuffled);
         let shuffled_hash = hex::encode(sha3::Sha3_512::digest(shuffled_str));
-        const EXPECTED_SHUFFLED_HASH: &str = "1c6e666d6773b780d1a1a6f9dfe3ee92e9e18ad2714a77e5499851c2eb3d573683cfb2d287ed9b03aad7a930d56c06a386fa30284dfe4bfd30eab17eb5fd5bf5";
+        const EXPECTED_SHUFFLED_HASH: &str = "1bceba2304dcf0ceb71d632345039861b74417141223d680c997907107e8aa840032d498628364eeeb92096b5b527adef352dab30019fdaeaf589a3db2396835";
         assert_eq!(shuffled_hash, EXPECTED_SHUFFLED_HASH);
 
         let spoiler_log_str = format!("{}", spoiler_log.to_owned());
         let spoiler_log_hash = hex::encode(sha3::Sha3_512::digest(spoiler_log_str));
-        const EXPECTED_SPOILER_LOG_HASH: &str = "b385880c3fdf6022f0d4bbd23ccffa0444954bb93a018b49a0231073912c0086b307f5e6de2c9b79bba3e984f95d913ec4777f9af5630a388c99c441ab0034cf";
+        const EXPECTED_SPOILER_LOG_HASH: &str = "f62e4ddc8b2a649220dfc80901409ec3b06b835ea22105d1e9ac42d1bc5f4c700a49f3e4e0f9ea7a03b6346d59b1b024fba9cfbaae658ee73a5c34b839eff31f";
         assert_eq!(spoiler_log_hash, EXPECTED_SPOILER_LOG_HASH);
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_shuffle_multi_patterns() -> Result<()> {
+        let game_structure_files = read_game_structure_files_debug().await?;
+        let game_structure = GameStructure::new(game_structure_files)?;
+        for i in 0..100 {
+            let opts = RandomizeOptions {
+                seed: i.to_string(),
+                shuffle_secret_roms: true,
+                need_glitches: false,
+                absolutely_shuffle: false,
+            };
+            let source = create_source(&game_structure, &opts)?;
+            let (_, _) = shuffle(&source, &opts);
+        }
 
         Ok(())
     }

@@ -16,6 +16,12 @@ pub enum ChestItem {
 }
 
 #[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd)]
+pub enum TalkItem {
+    Equipment(Equipment),
+    Rom(Rom),
+}
+
+#[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd)]
 #[repr(u8)]
 pub enum ShopItem {
     Equipment(Equipment),
