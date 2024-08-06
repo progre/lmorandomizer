@@ -14,7 +14,7 @@ use crate::{
 };
 
 use super::{
-    items_pool::{ItemsPool, ShuffledItems},
+    items_pool::{ItemsPool, ShuffledItems, UnorderedItems},
     spots::{SpotRef, Spots},
 };
 
@@ -91,12 +91,13 @@ fn explore<'a>(
 }
 
 fn place_items<'a>(
+    rng: &mut impl Rng,
     mut field_items: ShuffledItems<'a>,
     mut talk_items: ShuffledItems<'a>,
     mut shop_items: ShuffledItems<'a>,
-    consumable_items_pool: &mut ShuffledItems<'a>,
+    consumable_items_pool: &mut UnorderedItems<'a>,
     reachables: Spots<'a>,
-) -> SphereRef<'a> {
+) -> Option<SphereRef<'a>> {
     let mut sphere: Vec<_> = Default::default();
     reachables
         .field_item_spots
@@ -117,17 +118,39 @@ fn place_items<'a>(
         let spot = SpotRef::Talk(spot);
         sphere.push(CheckpointRef::from_field_spot_item(spot, item));
     });
-    reachables.shops.into_iter().for_each(|shop| {
+    for shop in reachables.shops {
         let item = if shop.name.is_consumable() {
-            consumable_items_pool.pop().unwrap()
+            // Do not sell the same item to the same store
+            let placed_items: HashSet<_> = sphere
+                .iter()
+                .filter_map(|x| match x {
+                    CheckpointRef::Shop(x) => Some(x),
+                    CheckpointRef::MainWeapon(_)
+                    | CheckpointRef::SubWeapon(_)
+                    | CheckpointRef::Chest(_)
+                    | CheckpointRef::Seal(_)
+                    | CheckpointRef::Rom(_)
+                    | CheckpointRef::Talk(_)
+                    | CheckpointRef::Event(_) => None,
+                })
+                .filter(|x| x.spot.items() == shop.spot.items())
+                .map(|x| &x.item.name)
+                .collect();
+            let mut items_pool = take(consumable_items_pool).shuffle(rng).into_inner();
+            let idx = items_pool
+                .iter()
+                .position(|x| !placed_items.contains(&&x.name))?;
+            let item = items_pool.swap_remove(idx);
+            *consumable_items_pool = UnorderedItems::new(items_pool);
+            item
         } else {
             shop_items.pop().unwrap()
         };
         let spot = &shop.spot;
         let idx = shop.idx;
         sphere.push(CheckpointRef::Shop(ShopRef { spot, idx, item }));
-    });
-    SphereRef(sphere)
+    }
+    Some(SphereRef(sphere))
 }
 
 fn append_flags<'a>(strategy_flags: &mut HashSet<&'a StrategyFlag>, sphere: &SphereRef<'a>) {
@@ -249,12 +272,13 @@ pub fn sphere<'a>(
         items_pool.pick_items_randomly(rng, &reachables, &unreachables);
 
     let mut sphere = place_items(
+        rng,
         field_items,
         talk_items,
         shop_items,
         &mut items_pool.consumable_items,
         reachables,
-    );
+    )?;
     append_flags(strategy_flags, &sphere);
     *remaining_spots = unreachables;
 

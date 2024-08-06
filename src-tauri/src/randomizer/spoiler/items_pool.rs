@@ -23,7 +23,7 @@ pub struct ItemsPool<'a> {
     pub field_items: ShuffledItems<'a>,
     pub talk_items: ShuffledItems<'a>,
     pub shop_items: ShuffledItems<'a>,
-    pub consumable_items: ShuffledItems<'a>,
+    pub consumable_items: UnorderedItems<'a>,
 }
 
 impl<'a> ItemsPool<'a> {

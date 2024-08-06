@@ -92,7 +92,7 @@ impl<'a> Items<'a> {
 
         ItemsPool {
             priority_items: Some(UnorderedItems::new(self.priority_items.clone())),
-            consumable_items: UnorderedItems::new(self.consumable_items.clone()).shuffle(rng),
+            consumable_items: UnorderedItems::new(self.consumable_items.clone()),
             field_items,
             talk_items,
             shop_items,
