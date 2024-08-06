@@ -6,41 +6,15 @@ use crate::script::{
         item::{ChestItem, Equipment, MainWeapon, Rom, Seal, SubWeapon},
         object::{
             starts::{
-                starts_as_is, starts_that_hide_when_startup,
-                starts_that_hide_when_startup_and_taken, starts_with_open_and_remove_flags,
-                starts_with_replaced_flag, starts_without_old_flag,
+                starts_as_is, starts_that_hide_when_startup_and_taken,
+                starts_with_open_and_remove_flags, starts_with_replaced_flag,
+                starts_without_old_flag,
             },
             ChestObject, MainWeaponObject, Object, RomObject, SealObject, Start, SubWeaponObject,
             UnknownObject,
         },
     },
 };
-
-pub fn hidden_equipment_chest(old_obj: &Object, item: Equipment, open_flag: u16) -> ChestObject {
-    let item = ChestItem::Equipment(item);
-    let starts = starts_that_hide_when_startup(old_obj, open_flag).unwrap();
-    ChestObject::new(
-        old_obj.x(),
-        old_obj.y(),
-        ALWAYS_ON_FLAG_NO,
-        item,
-        -1,
-        starts,
-    )
-}
-
-pub fn hidden_rom_chest(old_obj: &Object, item: Rom, open_flag: u16) -> ChestObject {
-    let item = ChestItem::Rom(item);
-    let starts = starts_that_hide_when_startup(old_obj, open_flag).unwrap();
-    ChestObject::new(
-        old_obj.x(),
-        old_obj.y(),
-        ALWAYS_ON_FLAG_NO,
-        item,
-        -1,
-        starts,
-    )
-}
 
 pub fn invisible_chest(x: i32, y: i32, open_flag: u16, item: ChestItem) -> ChestObject {
     let starts = starts_with_open_and_remove_flags(open_flag, u16::try_from(item.flag()).unwrap());

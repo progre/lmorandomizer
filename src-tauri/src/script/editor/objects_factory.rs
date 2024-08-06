@@ -1,10 +1,10 @@
 mod object_factory;
 
 use object_factory::{
-    empty_chest, equipment_chest, equipment_chest_from_ankh_jewel_or_seal, hidden_equipment_chest,
-    hidden_main_weapon, hidden_rom_chest, hidden_seal, hidden_sub_weapon, invisible_chest,
-    main_weapon, memo, rom, rom_chest, rom_chset_from_ankh_jewel_or_seal, seal, simple_main_weapon,
-    simple_seal, simple_sub_weapon, sub_weapon,
+    empty_chest, equipment_chest, equipment_chest_from_ankh_jewel_or_seal, hidden_main_weapon,
+    hidden_seal, hidden_sub_weapon, invisible_chest, main_weapon, memo, rom, rom_chest,
+    rom_chset_from_ankh_jewel_or_seal, seal, simple_main_weapon, simple_seal, simple_sub_weapon,
+    sub_weapon,
 };
 
 use crate::script::{
@@ -19,8 +19,14 @@ pub fn to_object_for_shutter(old_obj: &Object, open_flag: u16, item: Item) -> Ob
     match item {
         Item::MainWeapon(item) => Object::MainWeapon(main_weapon(old_obj, item)),
         Item::SubWeapon(item) => Object::SubWeapon(sub_weapon(old_obj, item)),
-        Item::Equipment(item) => Object::Chest(hidden_equipment_chest(old_obj, item, open_flag)),
-        Item::Rom(item) => Object::Chest(hidden_rom_chest(old_obj, item, open_flag)),
+        Item::Equipment(item) => {
+            let item = ChestItem::Equipment(item);
+            Object::Chest(invisible_chest(old_obj.x(), old_obj.y(), open_flag, item))
+        }
+        Item::Rom(item) => {
+            let item = ChestItem::Rom(item);
+            Object::Chest(invisible_chest(old_obj.x(), old_obj.y(), open_flag, item))
+        }
         Item::Seal(item) => Object::Seal(seal(old_obj, item)),
     }
 }
