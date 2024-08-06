@@ -46,6 +46,21 @@ pub fn find_item_set_flag(script: &Script, talk_item: enums::TalkItem) -> Result
         .map(|(_item, set_flag)| set_flag))
 }
 
+fn find_new_item_flag(
+    storage: &Storage,
+    script: &Script,
+    talk_item: enums::TalkItem,
+) -> Result<u16> {
+    let new_item_src = storage
+        .talks
+        .iter()
+        .find(|x| x.spot.item() == talk_item)
+        .ok_or_else(|| anyhow!("talk not found: {:?}", talk_item))?
+        .item
+        .src;
+    Ok(Item::new(&new_item_src, script)?.flag())
+}
+
 /// ROMs do not alter the environment. Therefore, the flags of ROMs can be replaced in a batch.
 fn replace_flag_map(shuffled: &Storage, script: &Script) -> Result<HashMap<u16, u16>> {
     shuffled
@@ -161,18 +176,18 @@ fn new_objs(
                 let pepper = enums::TalkItem::Equipment(enums::Equipment::Pepper);
                 let old_flag = find_item_set_flag(script, pepper)?
                     .ok_or_else(|| anyhow!("talk not found: {:?}", pepper))?;
-                let new_flag = Item::talk(script, pepper)?.flag();
+                let new_flag = find_new_item_flag(shuffled, script, pepper)?;
                 replace_flag_map.insert(old_flag, new_flag);
                 let anchor = enums::TalkItem::Equipment(enums::Equipment::Anchor);
                 let old_flag = find_item_set_flag(script, anchor)?
                     .ok_or_else(|| anyhow!("talk not found: {:?}", anchor))?;
-                let new_flag = Item::talk(script, anchor)?.flag();
+                let new_flag = find_new_item_flag(shuffled, script, anchor)?;
                 replace_flag_map.insert(old_flag, new_flag);
 
                 let mini_doll = enums::TalkItem::Equipment(enums::Equipment::MiniDoll);
                 let old_flag = find_item_set_flag(script, mini_doll)?
                     .ok_or_else(|| anyhow!("talk not found: {:?}", mini_doll))?;
-                let new_flag = Item::talk(script, mini_doll)?.flag();
+                let new_flag = find_new_item_flag(shuffled, script, mini_doll)?;
                 replace_flag_map.insert(old_flag, new_flag);
 
                 replace_all_flags(obj.starts(), &replace_flag_map)
