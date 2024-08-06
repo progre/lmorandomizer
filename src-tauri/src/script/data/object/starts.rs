@@ -1,6 +1,6 @@
 use anyhow::Result;
 
-use super::{ChestObject, Object, Start};
+use super::{ChestObject, Start};
 
 pub fn starts_that_hide_when_startup_and_taken(
     old_obj: &ChestObject,
@@ -30,17 +30,6 @@ pub fn starts_that_hide_when_startup_and_taken(
             .cloned(),
     )
     .collect())
-}
-
-pub fn starts_as_is(old_starts: &[Start], old_flag: u16, new_flag: u16) -> Vec<Start> {
-    let mut vec = starts_without_old_flag(old_starts, old_flag);
-    if old_starts.iter().any(|x| x.flag == old_flag as u32) {
-        vec.push(Start {
-            flag: new_flag as u32,
-            run_when: false, // TODO: bug? 元の run_when を維持すべきの筈
-        });
-    }
-    vec
 }
 
 pub fn starts_with_replaced_flag(old_starts: &[Start], old_flag: u16, new_flag: u16) -> Vec<Start> {

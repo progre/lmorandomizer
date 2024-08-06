@@ -6,9 +6,8 @@ use crate::script::{
         item::{ChestItem, Equipment, MainWeapon, Rom, Seal, SubWeapon},
         object::{
             starts::{
-                starts_as_is, starts_that_hide_when_startup_and_taken,
-                starts_with_open_and_remove_flags, starts_with_replaced_flag,
-                starts_without_old_flag,
+                starts_that_hide_when_startup_and_taken, starts_with_open_and_remove_flags,
+                starts_with_replaced_flag, starts_without_old_flag,
             },
             ChestObject, MainWeaponObject, Object, RomObject, SealObject, Start, SubWeaponObject,
             UnknownObject,
@@ -50,7 +49,7 @@ pub fn rom_chset_from_ankh_jewel_or_seal(old_obj: &Object, item: Rom) -> ChestOb
 pub fn equipment_chest(old_obj: &ChestObject, item: Equipment) -> ChestObject {
     let open_flag = old_obj.open_flag();
     let old_item_flag = u16::try_from(old_obj.item().flag()).unwrap();
-    let starts = starts_as_is(old_obj.starts(), old_item_flag, item.flag);
+    let starts = starts_with_replaced_flag(old_obj.starts(), old_item_flag, item.flag);
     let item = ChestItem::Equipment(item);
     ChestObject::new(old_obj.x(), old_obj.y(), open_flag, item, -1, starts)
 }
@@ -58,7 +57,7 @@ pub fn equipment_chest(old_obj: &ChestObject, item: Equipment) -> ChestObject {
 pub fn rom_chest(old_obj: &ChestObject, item: Rom) -> ChestObject {
     let open_flag = old_obj.open_flag();
     let old_item_flag = u16::try_from(old_obj.item().flag()).unwrap();
-    let starts = starts_as_is(old_obj.starts(), old_item_flag, item.flag);
+    let starts = starts_with_replaced_flag(old_obj.starts(), old_item_flag, item.flag);
     let item = ChestItem::Rom(item);
     ChestObject::new(old_obj.x(), old_obj.y(), open_flag, item, -1, starts)
 }
@@ -67,7 +66,7 @@ pub fn empty_chest(old_obj: &ChestObject, set_flag: u16) -> ChestObject {
     let open_flag = old_obj.open_flag();
     let item = ChestItem::None(open_flag as i32);
     let old_item_flag = u16::try_from(old_obj.item().flag()).unwrap();
-    let starts = starts_as_is(old_obj.starts(), old_item_flag, set_flag);
+    let starts = starts_with_replaced_flag(old_obj.starts(), old_item_flag, set_flag);
     ChestObject::new(old_obj.x(), old_obj.y(), open_flag, item, -1, starts)
 }
 
@@ -78,7 +77,7 @@ pub fn simple_sub_weapon(x: i32, y: i32, open_flag: u16, item: SubWeapon) -> Sub
 
 pub fn sub_weapon(old_obj: &Object, item: SubWeapon) -> SubWeaponObject {
     let old_set_flag = old_obj.set_flag().unwrap();
-    let starts = starts_as_is(old_obj.starts(), old_set_flag, item.flag);
+    let starts = starts_with_replaced_flag(old_obj.starts(), old_set_flag, item.flag);
     SubWeaponObject::new(old_obj.x(), old_obj.y(), item, starts)
 }
 
@@ -99,7 +98,7 @@ pub fn simple_seal(x: i32, y: i32, open_flag: u16, item: Seal) -> SealObject {
 
 pub fn seal(old_obj: &Object, item: Seal) -> SealObject {
     let old_set_flag = old_obj.set_flag().unwrap();
-    let starts = starts_as_is(old_obj.starts(), old_set_flag, item.flag);
+    let starts = starts_with_replaced_flag(old_obj.starts(), old_set_flag, item.flag);
     SealObject::new(old_obj.x(), old_obj.y(), item, starts)
 }
 
@@ -115,7 +114,7 @@ pub fn simple_main_weapon(x: i32, y: i32, open_flag: u16, item: MainWeapon) -> M
 
 pub fn main_weapon(old_obj: &Object, item: MainWeapon) -> MainWeaponObject {
     let old_set_flag = old_obj.set_flag().unwrap();
-    let starts = starts_as_is(old_obj.starts(), old_set_flag, item.flag);
+    let starts = starts_with_replaced_flag(old_obj.starts(), old_set_flag, item.flag);
     MainWeaponObject::new(old_obj.x(), old_obj.y(), item, starts)
 }
 
