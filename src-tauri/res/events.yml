@@ -59,9 +59,9 @@ event:reachedFrontOfShrineOfTheMother:
 event:reachedFrontOfGateOfIllusion:
   - event:reachedGrailOfTempleOfMoonlight
 event:reachedElevatorOfGateOfIllusion:
-  - anchor, knife, sacredOrb:1 # event:anchor already includes getting to Illusion
-  - anchor, knife, scalesphere # need health to survive water
-  - option:glitch, event:reachedFrontOfGateOfIllusion # https://youtu.be/VQ3e1CJxx5c
+  - event:reachedFrontOfGateOfIllusion, anchor, knife, sacredOrb:1 # need health to survive water
+  - event:reachedFrontOfGateOfIllusion, anchor, knife, scalesphere
+  - event:reachedFrontOfGateOfIllusion, option:glitch # https://youtu.be/VQ3e1CJxx5c
 event:reachedGrailOfGateOfIllusion:
   - event:reachedElevatorOfGateOfIllusion
   - event:reachedBackDoorOfGateOfIllusion
@@ -93,7 +93,7 @@ event:reachedGrailOfTempleOfMoonlight:
   - flareGun, flareGunAmmo, feather, event:escapeFromTempleOfMoonlight
 event:escapeFromTempleOfMoonlight:
   - holyGrail
-  - event:defeatedAmphisbaena, anchor, knife, bronzeMirror
+  - event:defeatedAmphisbaena, event:reachedElevatorOfGateOfIllusion, bronzeMirror
   - event:defeatedSakit, bronzeMirror
 
 event:reachedTowerOfTheGoddess:
