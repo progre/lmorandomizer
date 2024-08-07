@@ -15,12 +15,16 @@ jobs:
         include:
           - platform: 'macos-latest'
             args: '--target aarch64-apple-darwin'
+            cache_key: 'aarch64'
           - platform: 'macos-latest'
             args: '--target x86_64-apple-darwin'
+            cache_key: 'x86_84'
           - platform: 'ubuntu-22.04'
             args: ''
+            cache_key: ''
           - platform: 'windows-latest'
             args: ''
+            cache_key: ''
 
     runs-on: ${{ matrix.platform }}
     steps:
@@ -33,7 +37,7 @@ jobs:
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
             src-tauri/target/
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ runner.os }}-${{ matrix.cache_key }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
       - name: setup node
         uses: actions/setup-node@v4
