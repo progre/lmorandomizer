@@ -18,5 +18,8 @@ roms:
     - keyOfEternity, feather
     - keyOfEternity, grappleClaw
   yieArKungFu2:
-    - keyOfEternity, feather
-    - keyOfEternity, grappleClaw
+    - keyOfEternity, feather, spear, spearAmmo
+    - keyOfEternity, grappleClaw, spear, spearAmmo
+    - keyOfEternity, feather, touken, toukenAmmo
+    - keyOfEternity, grappleClaw, touken, toukenAmmo
+
