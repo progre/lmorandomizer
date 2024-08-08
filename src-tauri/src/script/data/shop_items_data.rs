@@ -10,7 +10,6 @@ use super::{
 
 pub fn parse(talk: &Talk) -> Result<(ShopItem, ShopItem, ShopItem)> {
     let data = talk.as_bytes();
-    debug_assert_eq!(data.len(), 7 * 3);
     let mut iter = (0..3)
         .map(|i| i * 7)
         .map(|x| ShopItem::from_bytes(&data[x..x + 7]));

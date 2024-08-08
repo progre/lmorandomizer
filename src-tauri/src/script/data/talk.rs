@@ -26,8 +26,13 @@ impl Talk {
         Self(text.chars().map(|c| char_to_code[&c]).collect())
     }
 
-    pub fn from_bytes(data: Vec<u8>) -> Self {
+    pub fn from_bytes(mut data: Vec<u8>) -> Self {
         debug_assert_eq!(data.len(), 7 * 3);
+        // If the last datum is '<'(0x3c), parsing fails in the game.
+        // This happens only on the flag of SkyJaguar (0x33c).
+        if *data.last().unwrap() == b'<' {
+            data.push(b' ');
+        }
         Self(data)
     }
 
