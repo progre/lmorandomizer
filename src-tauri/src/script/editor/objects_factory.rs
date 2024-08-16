@@ -15,6 +15,8 @@ use crate::script::{
     },
 };
 
+pub use object_factory::map_rewrite_with_flags_replaced;
+
 pub fn to_object_for_shutter(old_obj: &Object, open_flag: u16, item: Item) -> Object {
     match item {
         Item::MainWeapon(item) => Object::MainWeapon(main_weapon(old_obj, item)),

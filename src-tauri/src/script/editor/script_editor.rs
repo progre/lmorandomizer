@@ -16,8 +16,8 @@ use crate::{
 };
 
 use super::objects_factory::{
-    to_object_for_shutter, to_object_for_special_chest, to_objects_for_chest,
-    to_objects_for_hand_scanner,
+    map_rewrite_with_flags_replaced, to_object_for_shutter, to_object_for_special_chest,
+    to_objects_for_chest, to_objects_for_hand_scanner,
 };
 
 fn fix_trap_of_mausoleum_of_the_giants(
@@ -239,19 +239,10 @@ fn new_objs(
                 1 | 13 | 14 | 32 | 71 | 77 => unreachable!(),
                 // 59: Map rewrite
                 // apply ROMs replacement
-                59 => Ok(vec![Object::Unknown(UnknownObject {
-                    number: obj.number(),
-                    x: obj.x(),
-                    y: obj.y(),
-                    op1: obj.op1(),
-                    op2: obj.op2(),
-                    op3: replace_flag_map
-                        .get(&u16::try_from(obj.op3())?)
-                        .copied()
-                        .unwrap_or(obj.op3() as u16) as i32,
-                    op4: obj.op4(),
-                    starts: obj.starts().to_vec(),
-                })]),
+                59 => Ok(vec![Object::Unknown(map_rewrite_with_flags_replaced(
+                    unknown_obj,
+                    replace_flag_map,
+                )?)]),
                 // Trap object for the Ankh Jewel Treasure Chest in Mausoleum of the Giants.
                 // It is made to work correctly when acquiring items.
                 140 if unknown_obj.x == 49152 && unknown_obj.y == 16384 => {

@@ -1,3 +1,6 @@
+use std::collections::HashMap;
+
+use anyhow::Result;
 use log::warn;
 
 use crate::script::{
@@ -167,4 +170,34 @@ pub fn memo(old_obj: &RomObject, set_flag: u16, done_flag: u16) -> UnknownObject
         op4: -1,
         starts,
     }
+}
+
+pub fn map_rewrite_with_flags_replaced(
+    base_obj: &UnknownObject,
+    replace_flag_map: &HashMap<u16, u16>,
+) -> Result<UnknownObject> {
+    // Flag of item may be op3 or starts
+    let op3 = u16::try_from(base_obj.op3)?;
+    Ok(UnknownObject {
+        number: base_obj.number,
+        x: base_obj.x,
+        y: base_obj.y,
+        op1: base_obj.op1,
+        op2: base_obj.op2,
+        op3: replace_flag_map.get(&op3).copied().unwrap_or(op3) as i32,
+        op4: base_obj.op4,
+        starts: base_obj
+            .starts
+            .iter()
+            .map(|start| {
+                replace_flag_map.get(&(start.flag as u16)).map_or_else(
+                    || start.clone(),
+                    |&new_flag| Start {
+                        flag: new_flag as u32,
+                        run_when: start.run_when,
+                    },
+                )
+            })
+            .collect(),
+    })
 }
