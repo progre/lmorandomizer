@@ -11,8 +11,8 @@ chests:
   map:TempleOfMoonlight:
     - event:reachedGrailOfTempleOfMoonlight
   ocarina:
-    - event:escapeFromTempleOfMoonlight, flareGun, flareGunAmmo, womanStatue, feather # need a way out of moonlight
-    - event:escapeFromTempleOfMoonlight, flareGun, flareGunAmmo, womanStatue, grappleClaw
+    - event:reachedFrontOfTempleOfMoonlight, event:escapeFromTempleOfMoonlight, flareGun, flareGunAmmo, womanStatue, feather # need a way out of moonlight
+    - event:reachedFrontOfTempleOfMoonlight, event:escapeFromTempleOfMoonlight, flareGun, flareGunAmmo, womanStatue, grappleClaw # Sperm can appear by moving from C-4 to D-4 outside of Moonlight's pyramid. This is a very confusing condition and you will have to check with the Editor to find out.
     - option:glitch, event:escapeFromTempleOfMoonlight, flareGun, flareGunAmmo # https://youtu.be/7_D0TQ7ZWk0?si=ihOBzdfkrRGv06Pv&t=2302
     - option:glitch, event:reachedFrontOfTempleOfMoonlight, shuriken, shurikenAmmo, axe # https://youtu.be/YVIJwPo2CQw
   serpentStaff:

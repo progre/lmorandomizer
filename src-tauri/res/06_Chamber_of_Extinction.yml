@@ -1,3 +1,4 @@
+# TODO: The upper side should be completely lightened before going
 chests:
   sacredOrb:chamberOfExtinction:
     - event:lightedUpChamberOfExtinction, feather # need a way out

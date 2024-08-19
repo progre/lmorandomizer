@@ -27,8 +27,9 @@ event:SpringElevator:
 event:floodedSpringInTheSky:
   - originSeal, helmet, sacredOrb:8
   - originSeal, helmet, scalesphere
+  - originSeal, feather, grappleClaw, sacredOrb:8
   - originSeal, feather, grappleClaw, scalesphere
-event:defeatedBahamut:
+event:defeatedBahamut: # TODO: event:subWeaponWallForward いらなくね？
   - event:floodedSpringInTheSky, event:subWeaponWallForward, ankhJewel:springInTheSky, gameMaster2 # deleted event escapefromspringinthesky. added sub weapons
 
 event:defeatedViy:
@@ -38,7 +39,7 @@ event:defeatedViy:
 event:reachedPalenque: # this is to reach palenque, not fight him
   - event:defeatedViy, feather
   - msx2, qBert, divinerSensation, feather, bronzeMirror
-event:defeatedPalenque: # added sub weapon and sacred orb requirements
+event:defeatedPalenque: # added sub weapon and sacred orb requirements # TODO: event:subWeaponWallForward いらなくね？
   - event:reachedPalenque, event:reachedUpperOfChamberOfBirth, event:lightedUpChamberOfExtinction, event:subWeaponWallForward, pochetteKey, ankhJewel:chamberOfBirth, sacredOrb:4, gameMaster2
 
 event:releasedTwins:
@@ -87,20 +88,22 @@ event:surviveAnubis: # need to survive anubis
   - sacredOrb:4
 event:reachedFrontOfTempleOfMoonlight:
   - event:defeatedEllmac, bronzeMirror
+  - event:reachedLiarOfGraveyardOfTheGiants
 event:reachedGrailOfTempleOfMoonlight:
   - event:reachedFrontOfTempleOfMoonlight, shuriken, shurikenAmmo
   - flareGun, flareGunAmmo, grappleClaw, event:escapeFromTempleOfMoonlight
   - flareGun, flareGunAmmo, feather, event:escapeFromTempleOfMoonlight
 event:escapeFromTempleOfMoonlight:
   - holyGrail
-  - event:defeatedAmphisbaena, event:reachedElevatorOfGateOfIllusion, bronzeMirror
-  - event:defeatedSakit, bronzeMirror
+  - bronzeMirror, event:defeatedAmphisbaena, event:reachedElevatorOfGateOfIllusion
+  - bronzeMirror, event:defeatedSakit
+  - bronzeMirror, event:defeatedEllmac
 
 event:reachedTowerOfTheGoddess:
   - event:defeatedViy # defeatedViy already includes bronze mirror
   - event:reachedFrontOfGraveyardOfTheGiants, bomb, bombAmmo, sacredOrb:3, planeModel, holyGrail # can backdoor from Graveyard
 
-event:reachedFrontOfTowerOfRuin:
+event:reachedFrontOfTowerOfRuin: # TODO: Wouldn't the upper level need feathers or boots?
   - event:reachedFrontOfGraveyardOfTheGiants
   - event:reachedGrailOfGateOfIllusion, miniDoll
 event:reachedBackDoorOfTowerOfRuin:
@@ -108,8 +111,10 @@ event:reachedBackDoorOfTowerOfRuin:
 
 event:reachedLowerOfChamberOfBirth: # health is drained too fast to get through water without scalesphere
   - event:reachedTowerOfTheGoddess, handScanner, glyphReader, planeModel, scalesphere, boots, helmet # need boots and helmet
+  - event:reachedUpperOfChamberOfBirth
 event:reachedUpperOfChamberOfBirth:
   - event:reachedBackDoorOfGraveyardOfTheGiants
+  - event:reachedLowerOfChamberOfBirth, cogOfTheSoul
 event:lightedUpChamberOfExtinction:
   - event:reachedUpperOfChamberOfBirth, feather
   - flareGun, flareGunAmmo
