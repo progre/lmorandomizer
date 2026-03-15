@@ -238,11 +238,27 @@ fn new_objs(
                 // Chests | Sub weapons | Shops | Roms | Seals | Main weapons
                 1 | 13 | 14 | 32 | 71 | 77 => unreachable!(),
                 // 59: Map rewrite
-                // apply ROMs replacement
-                59 => Ok(vec![Object::Unknown(map_rewrite_with_flags_replaced(
-                    unknown_obj,
-                    replace_flag_map,
-                )?)]),
+                59 => {
+                    if field_number == enums::FieldNumber::GateOfIllusion {
+                        // apply ROMs replacement and mini doll
+                        let mut replace_flag_map = replace_flag_map.clone();
+                        let mini_doll = enums::TalkItem::Equipment(enums::Equipment::MiniDoll);
+                        let old_flag = find_item_set_flag(script, mini_doll)?
+                            .ok_or_else(|| anyhow!("talk not found: {:?}", mini_doll))?;
+                        let new_flag = find_new_item_flag(shuffled, script, mini_doll)?;
+                        replace_flag_map.insert(old_flag, new_flag);
+                        Ok(vec![Object::Unknown(map_rewrite_with_flags_replaced(
+                            unknown_obj,
+                            &replace_flag_map,
+                        )?)])
+                    } else {
+                        // apply only ROMs replacement
+                        Ok(vec![Object::Unknown(map_rewrite_with_flags_replaced(
+                            unknown_obj,
+                            replace_flag_map,
+                        )?)])
+                    }
+                }
                 // Trap object for the Ankh Jewel Treasure Chest in Mausoleum of the Giants.
                 // It is made to work correctly when acquiring items.
                 140 if unknown_obj.x == 49152 && unknown_obj.y == 16384 => {
