@@ -186,7 +186,8 @@ pub fn parse_script_txt(text: &str) -> Result<(Vec<Talk>, Vec<World>)> {
 
 fn parse_attrs(attrs: &Attributes) -> Result<Vec<i32>> {
     Ok(attrs
-        .keys()
+        .iter()
+        .map(|(key, _value)| key)
         .next()
         .ok_or(anyhow!("No attributes found"))?
         .local
