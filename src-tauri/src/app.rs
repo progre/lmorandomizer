@@ -3,8 +3,8 @@ use futures::future::join_all;
 use log::{error, info};
 use serde_json::json;
 use std::{collections::BTreeMap, path::PathBuf};
-use tauri::{path::BaseDirectory, AppHandle, Manager, State, Wry};
-use tauri_plugin_store::{with_store, Store, StoreCollection};
+use tauri::{path::BaseDirectory, AppHandle, Manager, Wry};
+use tauri_plugin_store::{Store, StoreExt};
 use tokio::{
     fs::{read_to_string, File},
     io::{self, AsyncReadExt, AsyncWriteExt},
@@ -32,14 +32,12 @@ impl InitialData {
         Self {
             seed: store
                 .get("seed")
-                .and_then(|obj| obj.as_str())
-                .unwrap_or("")
-                .to_owned(),
+                .and_then(|x| x.as_str().map(|x| x.to_owned()))
+                .unwrap_or_default(),
             install_directory: store
                 .get("install_directory")
-                .and_then(|obj| obj.as_str())
-                .unwrap_or("")
-                .to_owned(),
+                .and_then(|x| x.as_str().map(|x| x.to_owned()))
+                .unwrap_or_default(),
             easy_mode: store
                 .get("easy_mode")
                 .and_then(|obj| obj.as_bool())
@@ -59,7 +57,7 @@ impl InitialData {
         }
     }
 
-    pub fn write(&self, store: &mut Store<Wry>) -> Result<(), tauri_plugin_store::Error> {
+    pub fn write(&self, store: &Store<Wry>) {
         let InitialData {
             seed,
             install_directory,
@@ -68,25 +66,22 @@ impl InitialData {
             need_glitches,
             absolutely_shuffle,
         } = &self;
-        store.insert("seed".to_owned(), json!(seed))?;
-        store.insert("install_directory".to_owned(), json!(install_directory))?;
-        store.insert("easy_mode".to_owned(), json!(easy_mode))?;
-        store.insert(
+        store.set("seed".to_owned(), json!(seed));
+        store.set("install_directory".to_owned(), json!(install_directory));
+        store.set("easy_mode".to_owned(), json!(easy_mode));
+        store.set(
             "shuffle_secret_roms".to_owned(),
             json!(*shuffle_secret_roms),
-        )?;
-        store.insert("need_glitches".to_owned(), json!(*need_glitches))?;
-        store.insert("absolutely_shuffle".to_owned(), json!(*absolutely_shuffle))?;
-        Ok(())
+        );
+        store.set("need_glitches".to_owned(), json!(*need_glitches));
+        store.set("absolutely_shuffle".to_owned(), json!(*absolutely_shuffle));
     }
 }
 
 #[tauri::command]
-pub fn initial_data(app_handle: AppHandle, stores: State<StoreCollection<Wry>>) -> InitialData {
-    with_store(app_handle, stores, PathBuf::from("store.json"), |store| {
-        Ok(InitialData::read(store))
-    })
-    .unwrap()
+pub fn initial_data(app_handle: AppHandle) -> InitialData {
+    let store = app_handle.store(PathBuf::from("store.json")).unwrap();
+    InitialData::read(&store)
 }
 
 #[tauri::command]
@@ -98,63 +93,45 @@ pub fn ready(app_handle: AppHandle) {
         .unwrap();
 }
 
-fn set_initial_data_value<T>(
-    app_handle: AppHandle,
-    stores: State<StoreCollection<Wry>>,
-    callback: impl FnOnce(&mut InitialData) -> T,
-) where
+fn set_initial_data_value<T>(app_handle: AppHandle, callback: impl FnOnce(&mut InitialData) -> T)
+where
     T: serde::Serialize,
 {
-    with_store(app_handle, stores, PathBuf::from("store.json"), |store| {
-        let mut data = InitialData::read(store);
-        callback(&mut data);
-        data.write(store)?;
-        store.save()?;
-        Ok(())
-    })
-    .unwrap();
+    let store = app_handle.store(PathBuf::from("store.json")).unwrap();
+    let mut data = InitialData::read(&store);
+    callback(&mut data);
+    data.write(&store);
+    store.save().unwrap();
 }
 
 #[tauri::command]
-pub fn set_seed(app_handle: AppHandle, stores: State<StoreCollection<Wry>>, value: String) {
-    set_initial_data_value(app_handle, stores, |data| data.seed = value);
+pub fn set_seed(app_handle: AppHandle, value: String) {
+    set_initial_data_value(app_handle, |data| data.seed = value);
 }
 
 #[tauri::command]
-pub fn set_install_directory(
-    app_handle: AppHandle,
-    stores: State<StoreCollection<Wry>>,
-    value: String,
-) {
-    set_initial_data_value(app_handle, stores, |data| data.install_directory = value);
+pub fn set_install_directory(app_handle: AppHandle, value: String) {
+    set_initial_data_value(app_handle, |data| data.install_directory = value);
 }
 
 #[tauri::command]
-pub fn set_easy_mode(app_handle: AppHandle, stores: State<StoreCollection<Wry>>, value: bool) {
-    set_initial_data_value(app_handle, stores, |data| data.easy_mode = value);
+pub fn set_easy_mode(app_handle: AppHandle, value: bool) {
+    set_initial_data_value(app_handle, |data| data.easy_mode = value);
 }
 
 #[tauri::command]
-pub fn set_shuffle_secret_roms(
-    app_handle: AppHandle,
-    stores: State<StoreCollection<Wry>>,
-    value: bool,
-) {
-    set_initial_data_value(app_handle, stores, |data| data.shuffle_secret_roms = value);
+pub fn set_shuffle_secret_roms(app_handle: AppHandle, value: bool) {
+    set_initial_data_value(app_handle, |data| data.shuffle_secret_roms = value);
 }
 
 #[tauri::command]
-pub fn set_need_glitches(app_handle: AppHandle, stores: State<StoreCollection<Wry>>, value: bool) {
-    set_initial_data_value(app_handle, stores, |data| data.need_glitches = value);
+pub fn set_need_glitches(app_handle: AppHandle, value: bool) {
+    set_initial_data_value(app_handle, |data| data.need_glitches = value);
 }
 
 #[tauri::command]
-pub fn set_absolutely_shuffle(
-    app_handle: AppHandle,
-    stores: State<StoreCollection<Wry>>,
-    value: bool,
-) {
-    set_initial_data_value(app_handle, stores, |data| data.absolutely_shuffle = value);
+pub fn set_absolutely_shuffle(app_handle: AppHandle, value: bool) {
+    set_initial_data_value(app_handle, |data| data.absolutely_shuffle = value);
 }
 
 async fn read_file(path: &str) -> io::Result<Vec<u8>> {
