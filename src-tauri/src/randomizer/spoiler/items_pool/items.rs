@@ -30,20 +30,12 @@ impl<'a> UnorderedItems<'a> {
         UnorderedItems(items)
     }
 
-    pub fn append(&mut self, other: &mut Vec<&'a Item>) {
-        self.0.append(other);
-    }
-
     fn append_count(&mut self, other: &mut ShuffledItems<'a>, cnt: usize) {
         self.0.append(&mut other.split_off(other.len() - cnt).0);
     }
 
     pub fn into_inner(self) -> Vec<&'a Item> {
         self.0
-    }
-
-    pub fn iter(&self) -> impl Iterator<Item = &&'a Item> {
-        self.0.iter()
     }
 
     pub fn len(&self) -> usize {
@@ -60,10 +52,6 @@ impl<'a> UnorderedItems<'a> {
 pub struct ShuffledItems<'a>(Vec<&'a Item>);
 
 impl<'a> ShuffledItems<'a> {
-    pub fn into_unordered(self) -> UnorderedItems<'a> {
-        UnorderedItems(self.0)
-    }
-
     pub fn into_inner(self) -> Vec<&'a Item> {
         self.0
     }

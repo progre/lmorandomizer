@@ -61,9 +61,6 @@ impl<'a> Items<'a> {
         }
     }
 
-    pub fn priority_items(&self) -> &[&'a Item] {
-        &self.priority_items
-    }
     pub fn maps(&self) -> &BTreeMap<FieldNumber, &'a Item> {
         &self.maps
     }

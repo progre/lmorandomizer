@@ -36,12 +36,14 @@ pub fn starts_with_replaced_flag(old_starts: &[Start], old_flag: u16, new_flag: 
     old_starts
         .iter()
         .map(|start| {
-            (start.flag != old_flag as u32)
-                .then(|| start.clone())
-                .unwrap_or(Start {
+            if start.flag != old_flag as u32 {
+                start.clone()
+            } else {
+                Start {
                     flag: new_flag as u32,
                     run_when: start.run_when,
-                })
+                }
+            }
         })
         .collect()
 }

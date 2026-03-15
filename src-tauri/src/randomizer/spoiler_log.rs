@@ -250,6 +250,7 @@ impl SpoilerLogRef<'_> {
         }
     }
 
+    #[cfg(test)]
     pub fn count_checkpoints(&self) -> usize {
         self.progression
             .iter()

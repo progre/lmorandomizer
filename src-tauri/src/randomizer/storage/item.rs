@@ -16,7 +16,7 @@ impl StrategyFlag {
                 || spot_name
                     .split(':')
                     .nth(1)
-                    .map_or(false, |x| x.parse::<u8>().is_err())
+                    .is_some_and(|x| x.parse::<u8>().is_err())
         );
         Self(spot_name)
     }

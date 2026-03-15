@@ -37,6 +37,6 @@ impl ShopItem {
     }
 
     pub fn matches(&self, right: Option<&Self>) -> bool {
-        right.map_or(true, |x| self == x)
+        right.is_none_or(|x| self == x)
     }
 }

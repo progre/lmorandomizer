@@ -31,7 +31,7 @@ impl RequirementFlag {
                 || requirement
                     .split(':')
                     .nth(1)
-                    .map_or(false, |x| x.parse::<u8>().is_ok())
+                    .is_some_and(|x| x.parse::<u8>().is_ok())
         );
         Self(requirement)
     }
