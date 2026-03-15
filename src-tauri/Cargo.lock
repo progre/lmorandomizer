@@ -1941,6 +1941,7 @@ dependencies = [
  "rand_xoshiro",
  "regex",
  "scraper",
+ "semver",
  "serde",
  "serde_json",
  "serde_yaml",

@@ -1,6 +1,7 @@
 use anyhow::Result;
 use futures::future::join_all;
 use log::{error, info};
+use semver::Version;
 use serde_json::json;
 use std::{collections::BTreeMap, path::PathBuf};
 use tauri::{path::BaseDirectory, AppHandle, Manager, Wry};
@@ -197,7 +198,7 @@ async fn read_game_structure_files_internal(
     GameStructureFiles::new(fields, events)
 }
 
-async fn read_game_structure_files(handle: AppHandle) -> Result<GameStructureFiles> {
+async fn read_game_structure_files(handle: &AppHandle) -> Result<GameStructureFiles> {
     let path = handle.path();
     read_game_structure_files_internal(|file_path| {
         Ok(path.resolve(file_path, BaseDirectory::Resource)?)
@@ -234,7 +235,7 @@ pub async fn apply(
         }
         working
     };
-    let game_structure = match read_game_structure_files(handle).await {
+    let game_structure = match read_game_structure_files(&handle).await {
         Ok(ok) => ok,
         Err(err) => return format!("Failed to read game structure files: {}", err),
     };
@@ -251,7 +252,10 @@ pub async fn apply(
         return format!("Failed to write randomized script.dat: {}", err);
     }
     let spoiler_log_file_path = format!("{}/data/spoilerlog.txt", install_directory);
-    if let Err(err) = write_spoiler_log(&spoiler_log_file_path, &spoiler_log).await {
+    let version = &handle.package_info().version;
+    if let Err(err) =
+        write_spoiler_log(&spoiler_log_file_path, version, &options.seed, &spoiler_log).await
+    {
         return format!("Failed to write spoiler log: {}", err);
     }
     "Succeeded.".to_owned()
@@ -299,6 +303,16 @@ async fn write_valid_script_dat(path: &str, script_dat: &[u8]) -> io::Result<()>
     Ok(())
 }
 
-async fn write_spoiler_log(path: &str, spoiler_log: &SpoilerLog) -> io::Result<()> {
-    write_file(path, spoiler_log.to_string().as_bytes()).await
+async fn write_spoiler_log(
+    path: &str,
+    version: &Version,
+    seed: &str,
+    spoiler_log: &SpoilerLog,
+) -> io::Result<()> {
+    info!("Writing file: {}", path);
+    let header = format!("version = v{version}\nseed = {seed}\n\n");
+    let mut file = File::create(path).await?;
+    file.write_all(header.as_bytes()).await?;
+    file.write_all(spoiler_log.to_string().as_bytes()).await?;
+    Ok(())
 }
