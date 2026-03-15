@@ -22,7 +22,19 @@ If you feel stuck, see some tips below. They may help.
 
 ## How to use
 
-Place seed and La-Mulana install directory, select options, then push Apply.
+Set the seed and the La-Mulana installation directory, choose options,
+then click **APPLY**.
+
+Files changed:
+
+- `data/script.dat` — overwritten with the randomized script.
+- `data/script.dat.bak` — original script saved as a backup.
+- `data/spoilerlog.txt` — a spoiler log is created.
+
+To restore the original script, use the **RESTORE** button
+(restores `data/script.dat` from `data/script.dat.bak`).
+
+Note: If you want a blind playthrough, do not open `data/spoilerlog.txt`.
 
 ### Hint
 
