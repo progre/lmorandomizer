@@ -13,6 +13,10 @@ path = "src/main.rs"
 name = "lmocodec"
 path = "src/codec.rs"
 
+[[bin]]
+name = "lmotalk"
+path = "src/talk.rs"
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [build-dependencies]
 tauri-build = { version = "2.5.6", features = [] }

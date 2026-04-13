@@ -17,7 +17,7 @@ pub struct MainWeapon {
     pub flag: u16,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct SubWeapon {
     pub content: enums::SubWeapon,
     pub amount: u8,

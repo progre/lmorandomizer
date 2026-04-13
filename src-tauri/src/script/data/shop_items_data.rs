@@ -28,25 +28,25 @@ pub fn stringify(items: (ShopItem, ShopItem, ShopItem)) -> Result<Talk> {
     Ok(Talk::from_bytes(data))
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct ShopSubWeapon {
     pub item: SubWeapon,
     price: u16,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct ShopEquipment {
     pub item: Equipment,
     price: u16,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct ShopRom {
     pub item: Rom,
     price: u16,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub enum ShopItem {
     SubWeapon(ShopSubWeapon),
     Equipment(ShopEquipment),
