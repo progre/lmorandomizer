@@ -14,7 +14,7 @@ use crate::{
             shop_items_data::{self, ShopItem},
             talk::Talk,
         },
-        enums,
+        enums::{self, SubWeapon},
     },
 };
 
@@ -243,4 +243,35 @@ pub fn replace_shops(
         }
     }
     Ok(())
+}
+
+pub fn normalize_shuriken_sale(talks: &mut [Talk]) {
+    talks
+        .iter_mut()
+        .filter_map(|talk| shop_items_data::parse(talk).ok().map(|sid| (talk, sid)))
+        .for_each(|(talk, sid)| {
+            let mut iter = [sid.0, sid.1, sid.2].into_iter().map(|item| {
+                let ShopItem::SubWeapon(mut shop_sub_weapon) = item else {
+                    return item;
+                };
+                let item = &mut shop_sub_weapon.item;
+                if item.content != SubWeapon::Shuriken
+                    || item.price != Some(20)
+                    || item.amount != 40
+                {
+                    return ShopItem::SubWeapon(shop_sub_weapon);
+                }
+                let price = 10;
+                item.price = Some(price);
+                item.amount = 20;
+                ShopItem::from_item(Item::SubWeapon(shop_sub_weapon.item), price)
+            });
+            let sid = (
+                iter.next().unwrap(),
+                iter.next().unwrap(),
+                iter.next().unwrap(),
+            );
+            println!("{:#?}", sid);
+            *talk = shop_items_data::stringify(sid).unwrap();
+        });
 }

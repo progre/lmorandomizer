@@ -19,7 +19,7 @@ use crate::{
     },
     script::{
         data::script::Script,
-        editor::add_starting_items::add_starting_items,
+        editor::{add_starting_items::add_starting_items, normalize_shuriken_sale},
         enums::Rom,
         file::scriptconverter::{build_script_dat, read_script_dat},
     },
@@ -54,6 +54,8 @@ pub fn randomize(
     let start = std::time::Instant::now();
     let mut script = read_script_dat(script_dat)?;
     trace!("Read script.dat in {:?}", start.elapsed());
+
+    normalize_shuriken_sale(&mut script.talks);
 
     let game_structure = GameStructure::new(game_structure_files)?;
     let source = create_source(&game_structure, options)?;

@@ -17,6 +17,8 @@ use {
     talks_editor::replace_shops,
 };
 
+pub use talks_editor::normalize_shuriken_sale;
+
 pub fn apply_storage(script: &mut Script, shuffled: &Storage) -> Result<()> {
     let mut worlds = script.worlds.clone();
     replace_items(&mut worlds, script.deref(), shuffled)?;

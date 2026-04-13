@@ -10,13 +10,19 @@ use super::{
 
 pub fn parse(talk: &Talk) -> Result<(ShopItem, ShopItem, ShopItem)> {
     let data = talk.as_bytes();
+    if data.len() != 21 {
+        bail!("Invalid shop item talk length: {}", data.len());
+    }
     let mut iter = (0..3)
         .map(|i| i * 7)
         .map(|x| ShopItem::from_bytes(&data[x..x + 7]));
     Ok((
-        iter.next().unwrap()?,
-        iter.next().unwrap()?,
-        iter.next().unwrap()?,
+        iter.next()
+            .ok_or_else(|| anyhow!("Failed to parse shop item"))??,
+        iter.next()
+            .ok_or_else(|| anyhow!("Failed to parse shop item"))??,
+        iter.next()
+            .ok_or_else(|| anyhow!("Failed to parse shop item"))??,
     ))
 }
 
