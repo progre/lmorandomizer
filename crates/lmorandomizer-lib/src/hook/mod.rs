@@ -50,7 +50,7 @@ pub fn install_hook(
 ) -> windows::core::Result<()> {
     let addrs = OriginalAddrs {
         create_file_a: {
-            let original = hook_addr(handle.create_file_a as *mut _, create_file_a_hook as _)?;
+            let original = hook_addr(handle.create_file_a.cast(), create_file_a_hook as _)?;
             unsafe { transmute::<*const (), CreateFileAFn>(original) }
         },
     };

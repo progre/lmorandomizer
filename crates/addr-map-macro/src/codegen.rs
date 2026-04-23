@@ -97,9 +97,14 @@ fn gen_init_of_simple(ty: &SimpleEntry) -> TokenStream {
     let offset = ty.offset();
     let type_tokens = addr_type_to_tokens(ty);
 
-    let init = quote! { #ident: (base_addr + #offset) as #type_tokens };
-
-    init
+    match ty {
+        SimpleEntry::Function(_) | SimpleEntry::Label(_) => {
+            quote! { #ident: (base_addr + #offset) as #type_tokens }
+        }
+        SimpleEntry::Static(_) | SimpleEntry::StaticFnPtr(_) => {
+            quote! { #ident: std::ptr::NonNull::new((base_addr + #offset) as *mut _).unwrap() }
+        }
+    }
 }
 
 fn gen_init_of_nested(base: &Function) -> TokenStream {
@@ -117,11 +122,11 @@ fn addr_type_to_tokens(ty: &SimpleEntry) -> TokenStream {
         SimpleEntry::Function(_) => quote! { *const () }, // 関数ポインターを定数で生成することはできないため、型不明のポインターで保持する
         SimpleEntry::Static(t) => {
             let ty_tokens = &t.ty;
-            quote! { *mut #ty_tokens }
+            quote! { std::ptr::NonNull<#ty_tokens> }
         }
         SimpleEntry::StaticFnPtr(s) => {
             let alias_name = make_ident(&s.to_type_name());
-            quote! { *mut *const #alias_name }
+            quote! { std::ptr::NonNull<*const #alias_name> }
         }
     }
 }
