@@ -20,19 +20,17 @@ If you feel stuck, see some tips below. They may help.
 
 ----
 
+## Before Updating to v0.10.0
+
+v0.10.0 changes the method from directly overwriting `data/script.dat` to dynamically switching the file being loaded.
+If you are currently using a version prior to v0.10.0, please click **RESTORE** before updating to restore `data/script.dat` to its original state.
+
+----
+
 ## How to use
 
 Set the seed and the La-Mulana installation directory, choose options,
-then click **APPLY**.
-
-Files changed:
-
-- `data/script.dat` — overwritten with the randomized script.
-- `data/script.dat.bak` — original script saved as a backup.
-- `data/spoilerlog.txt` — a spoiler log is created.
-
-To restore the original script, use the **RESTORE** button
-(restores `data/script.dat` from `data/script.dat.bak`).
+then click **LAUNCH**.
 
 Note: If you want a blind playthrough, do not open `data/spoilerlog.txt`.
 
