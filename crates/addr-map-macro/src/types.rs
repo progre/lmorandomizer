@@ -1,3 +1,5 @@
+use crate::util::to_pascal_case;
+
 #[derive(Clone)]
 pub struct Label {
     pub offset: usize,
@@ -22,9 +24,24 @@ pub struct Function {
 }
 
 #[derive(Clone)]
+pub struct StaticFnPtr {
+    pub offset: usize,
+    pub name: String,
+    pub fn_ty: syn::TypeBareFn,
+    pub comment: Option<String>,
+}
+
+impl StaticFnPtr {
+    pub fn to_type_name(&self) -> String {
+        format!("{}Fn", to_pascal_case(&self.name))
+    }
+}
+
+#[derive(Clone)]
 pub enum SimpleEntry {
     Label(Label),
     Static(Static),
+    StaticFnPtr(StaticFnPtr),
     Function(Function),
 }
 
@@ -33,6 +50,7 @@ impl SimpleEntry {
         match self {
             SimpleEntry::Label(Label { offset, .. })
             | SimpleEntry::Static(Static { offset, .. })
+            | SimpleEntry::StaticFnPtr(StaticFnPtr { offset, .. })
             | SimpleEntry::Function(Function { offset, .. }) => *offset,
         }
     }
@@ -41,6 +59,7 @@ impl SimpleEntry {
         match self {
             SimpleEntry::Label(Label { name, .. })
             | SimpleEntry::Static(Static { name, .. })
+            | SimpleEntry::StaticFnPtr(StaticFnPtr { name, .. })
             | SimpleEntry::Function(Function { name, .. }) => name,
         }
     }
@@ -49,6 +68,7 @@ impl SimpleEntry {
         match self {
             SimpleEntry::Label(Label { comment, .. })
             | SimpleEntry::Static(Static { comment, .. })
+            | SimpleEntry::StaticFnPtr(StaticFnPtr { comment, .. })
             | SimpleEntry::Function(Function { comment, .. }) => comment.as_deref(),
         }
     }

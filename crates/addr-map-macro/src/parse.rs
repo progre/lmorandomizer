@@ -3,7 +3,7 @@ use syn::Type;
 use syn::TypeBareFn;
 use toml_edit::{DocumentMut, Item, Table, Value};
 
-use crate::types::{Entry, Function, Label, SimpleEntry, Static};
+use crate::types::{Entry, Function, Label, SimpleEntry, Static, StaticFnPtr};
 use crate::util::parse_hex;
 
 /// toml_edit の decor prefix からコメント文字列を抽出する
@@ -108,6 +108,16 @@ fn parse_text_entry_value(
 
 fn parse_data_entry_value(offset: usize, val: &str, comment: Option<String>) -> SimpleEntry {
     let (name, ty) = parse_var_entry_value(val.trim());
+    if let syn::Type::Ptr(ptr) = &ty
+        && let syn::Type::BareFn(bare_fn) = ptr.elem.as_ref()
+    {
+        return SimpleEntry::StaticFnPtr(StaticFnPtr {
+            offset,
+            name,
+            fn_ty: bare_fn.clone(),
+            comment,
+        });
+    }
     SimpleEntry::Static(Static {
         offset,
         name,

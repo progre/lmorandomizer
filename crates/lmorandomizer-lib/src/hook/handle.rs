@@ -15,13 +15,3 @@ use windows::{
 
 #[addr_map("assets/addr_map.toml", extern "cdecl")]
 pub struct LmoHandle;
-
-pub type CreateFileAFn = extern "system" fn(
-    lpfilename: PCSTR,
-    dwdesiredaccess: u32,
-    dwsharemode: FILE_SHARE_MODE,
-    lpsecurityattributes: *const SECURITY_ATTRIBUTES,
-    dwcreationdisposition: FILE_CREATION_DISPOSITION,
-    dwflagsandattributes: FILE_FLAGS_AND_ATTRIBUTES,
-    htemplatefile: HANDLE,
-) -> HANDLE;

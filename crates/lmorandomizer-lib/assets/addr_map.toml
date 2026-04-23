@@ -20,7 +20,7 @@
 0x0b797a.0x01ac = "'call_create_file_a"
 
 [data]
-0x0bb04c = "create_file_a: *const ()"
+0x0bb04c = 'create_file_a: *const extern "system" fn(lpfilename: PCSTR, dwdesiredaccess: u32, dwsharemode: FILE_SHARE_MODE, lpsecurityattributes: *const SECURITY_ATTRIBUTES, dwcreationdisposition: FILE_CREATION_DISPOSITION, dwflagsandattributes: FILE_FLAGS_AND_ATTRIBUTES, htemplatefile: HANDLE) -> HANDLE'
 0x0cc748 = "flags: *mut Flags"
 
 0x0d9e61 = "f6: u8"

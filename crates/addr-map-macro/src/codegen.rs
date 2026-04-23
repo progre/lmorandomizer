@@ -14,10 +14,13 @@ pub fn generate(
     entries: Vec<Entry>,
     content: &str,
 ) -> TokenStream {
+    let type_aliases = gen_type_aliases(&entries);
     let struct_ = gen_struct_with_constructor(attrs, vis, struct_name, existing_fields, &entries);
     let (group_structs, new_methods) = gen_from_entries(entries);
 
     quote! {
+        #(#type_aliases)*
+
         #struct_
 
         impl #struct_name {
@@ -28,6 +31,21 @@ pub fn generate(
 
         const _: &str = #content;
     }
+}
+
+fn gen_type_aliases(entries: &[Entry]) -> Vec<TokenStream> {
+    entries
+        .iter()
+        .filter_map(|entry| match entry {
+            Entry::Simple(SimpleEntry::StaticFnPtr(s)) => Some(s),
+            _ => None,
+        })
+        .map(|s| {
+            let alias_name = make_ident(&s.to_type_name());
+            let fn_ty = &s.fn_ty;
+            quote! { pub type #alias_name = #fn_ty; }
+        })
+        .collect()
 }
 
 fn gen_struct_with_constructor(
@@ -101,6 +119,10 @@ fn addr_type_to_tokens(ty: &SimpleEntry) -> TokenStream {
             let ty_tokens = &t.ty;
             quote! { *mut #ty_tokens }
         }
+        SimpleEntry::StaticFnPtr(s) => {
+            let alias_name = make_ident(&s.to_type_name());
+            quote! { *mut *const #alias_name }
+        }
     }
 }
 
@@ -109,7 +131,7 @@ fn gen_method_for_simple(ty: &SimpleEntry) -> Option<TokenStream> {
 
     match ty {
         SimpleEntry::Function(sig) => Some(gen_fn_method(&ident, &sig.ty, sig.comment.as_deref())),
-        _ => None,
+        SimpleEntry::Label(_) | SimpleEntry::Static(_) | SimpleEntry::StaticFnPtr(_) => None,
     }
 }
 
@@ -213,6 +235,10 @@ fn gen_fields_from_entries(entries: &[Entry]) -> Vec<TokenStream> {
                 // 関数はメソッド側にdocを付けるのでフィールドにはつけない
                 // 関数ポインターは定数で生成することはできないため、型不明のポインターで保持する
                 (None, entry.name.as_str(), quote! { *const () })
+            }
+            Entry::Simple(SimpleEntry::StaticFnPtr(entry)) => {
+                let ty = addr_type_to_tokens(&SimpleEntry::StaticFnPtr(entry.clone()));
+                (entry.comment.as_deref(), entry.name.as_str(), ty)
             }
             Entry::Simple(entry) => {
                 let ty = addr_type_to_tokens(entry);
