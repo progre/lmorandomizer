@@ -3,9 +3,9 @@
   "version": "0.9.1",
   "identifier": "net.prgrssv.lmorandomizer",
   "build": {
-    "beforeDevCommand": "npm run dev",
+    "beforeDevCommand": "cargo build -p lmorandomizer-lib && npm run dev",
     "devUrl": "http://localhost:1420",
-    "beforeBuildCommand": "npm run build",
+    "beforeBuildCommand": "cargo build -p lmorandomizer-lib --release && npm run build",
     "frontendDist": "../dist"
   },
   "app": {

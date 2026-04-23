@@ -3,6 +3,7 @@
 
 mod app;
 mod dataset;
+mod launcher;
 pub mod randomizer;
 mod script;
 
@@ -15,6 +16,7 @@ fn main() {
     let version = version.as_ref().unwrap();
     app.windows[0].title = format!("La-Mulana Original Randomizer v{version}",);
     tauri::Builder::default()
+        .plugin(tauri_plugin_opener::init())
         .plugin(
             tauri_plugin_log::Builder::new()
                 .level_for("html5ever", LevelFilter::Warn)
@@ -31,8 +33,8 @@ fn main() {
             app::set_shuffle_secret_roms,
             app::set_need_glitches,
             app::set_absolutely_shuffle,
-            app::apply,
-            app::restore,
+            app::launch,
+            app::open_folder,
         ])
         .run(context)
         .expect("error while running tauri application");

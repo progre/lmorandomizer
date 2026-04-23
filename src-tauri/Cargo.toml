@@ -1,8 +1,8 @@
 [package]
 name = "lmorandomizer"
-version = "0.0.0"
+version.workspace = true
 description = "A Tauri App"
-edition = "2021"
+edition.workspace = true
 default-run = "lmorandomizer"
 
 [[bin]]
@@ -22,26 +22,33 @@ path = "src/talk.rs"
 tauri-build = { version = "2.5.6", features = [] }
 
 [dependencies]
-anyhow = "1.0.102"
-futures = "0.3.32"
-hex = "0.4.3"
-log = "0.4.29"
-num-derive = "0.4.2"
-num-traits = "0.2.19"
-rand = "0.8.5"
-rand_seeder = "0.3.0"
-rand_xoshiro = "0.6.0"
-regex = "1.12.3"
-scraper = "0.25.0"
-semver = "*"
-serde = { version = "1", features = ["derive"] }
-serde_json = "1"
-serde_yaml = "0.9.34"
-sha3 = "0.10.8"
-strum = { version = "0.28.0", features = ["derive"] }
+anyhow.workspace = true
+futures.workspace = true
+hex.workspace = true
+lmorandomizer-shared.workspace = true
+log.workspace = true
+num-derive.workspace = true
+num-traits.workspace = true
+rand.workspace = true
+rand_seeder.workspace = true
+rand_xoshiro.workspace = true
+regex.workspace = true
+rmp-serde.workspace = true
+scraper.workspace = true
+semver.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+serde_yaml.workspace = true
+sha3.workspace = true
+smol.workspace = true
+strum.workspace = true
 tauri = { version = "2.10.3", features = [] }
 tauri-plugin-log = "2.8.0"
+tauri-plugin-opener = "2.5.3"
 tauri-plugin-shell = "2.3.5"
 tauri-plugin-store = "2.4.2"
-tokio = { version = "1.50.0", features = ["fs", "macros"] }
-vec1 = "1.12.1"
+tokio.workspace = true
+vec1.workspace = true
+
+[target.'cfg(windows)'.dependencies]
+windows.workspace = true

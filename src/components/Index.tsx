@@ -17,20 +17,19 @@ export default function Index(props: {
   installDirectory: string;
   difficulty: number;
   snackbar: string;
-  isProcessingApply: boolean;
-  isProcessingRestore: boolean;
+  isProcessingLaunch: boolean;
 
   onChangeSeed(seed: string): void;
   onChangeInstallDirectory(path: string): void;
   onChangeDifficulty(difficulty: number): void;
-  onClickApply(): void;
-  onClickRestore(): void;
+  onClickLaunch(): void;
+  onClickOpenFolder(): void;
   onCloseSnackbar(
     event: React.SyntheticEvent<any> | Event,
-    reason?: SnackbarCloseReason | null
+    reason?: SnackbarCloseReason | null,
   ): void;
 }) {
-  const loading = props.isProcessingApply || props.isProcessingRestore;
+  const loading = props.isProcessingLaunch;
   return (
     <>
       <CssBaseline />
@@ -50,39 +49,24 @@ export default function Index(props: {
             justifyContent: 'flex-end',
           }}
         >
-          <div style={{ position: 'relative' }}>
-            <Button
-              variant="contained"
-              color="inherit"
-              disabled={loading}
-              onClick={props.onClickRestore}
-            >
-              Restore
-            </Button>
-            {!props.isProcessingRestore ? (
-              ''
-            ) : (
-              <CircularProgress
-                size={24}
-                style={{
-                  position: 'absolute',
-                  top: '50%',
-                  left: '50%',
-                  marginTop: -12,
-                  marginLeft: -12,
-                }}
-              />
-            )}
-          </div>
+          <Button
+            variant="contained"
+            color="inherit"
+            disabled={loading}
+            onClick={props.onClickOpenFolder}
+            style={{ position: 'relative' }}
+          >
+            Open Folder
+          </Button>
           <div style={{ marginLeft: 16, position: 'relative' }}>
             <Button
               variant="contained"
               disabled={loading}
-              onClick={props.onClickApply}
+              onClick={props.onClickLaunch}
             >
-              Apply
+              Launch
             </Button>
-            {!props.isProcessingApply ? (
+            {!props.isProcessingLaunch ? (
               ''
             ) : (
               <CircularProgress

@@ -31,8 +31,7 @@ const initialState = {
   needGlitches: false,
   absolutelyShuffle: false,
   snackbar: '',
-  isProcessingApply: false,
-  isProcessingRestore: false,
+  isProcessingLaunch: false,
 };
 
 export default class Index extends React.Component<Props, typeof initialState> {
@@ -41,8 +40,8 @@ export default class Index extends React.Component<Props, typeof initialState> {
     this.onChangeSeed = this.onChangeSeed.bind(this);
     this.onChangeInstallDirectory = this.onChangeInstallDirectory.bind(this);
     this.onChangeDifficulty = this.onChangeDifficulty.bind(this);
-    this.onClickApply = this.onClickApply.bind(this);
-    this.onClickRestore = this.onClickRestore.bind(this);
+    this.onClickLaunch = this.onClickLaunch.bind(this);
+    this.onClickOpenFolder = this.onClickOpenFolder.bind(this);
     this.onCloseSnackbar = this.onCloseSnackbar.bind(this);
     this.state = {
       ...initialState,
@@ -76,7 +75,7 @@ export default class Index extends React.Component<Props, typeof initialState> {
     const absolutelyShuffle = difficulty >= 3;
 
     invoke('set_shuffle_secret_roms', { value: shuffleSecretRoms }).catch(
-      error
+      error,
     );
     invoke('set_need_glitches', { value: needGlitches }).catch(error);
     invoke('set_absolutely_shuffle', { value: absolutelyShuffle }).catch(error);
@@ -88,15 +87,15 @@ export default class Index extends React.Component<Props, typeof initialState> {
     });
   }
 
-  private async onClickApply() {
+  private async onClickLaunch() {
     this.setState({
       ...this.state,
-      isProcessingApply: true,
+      isProcessingLaunch: true,
       snackbar: '',
     });
     let result: string;
     try {
-      result = await invoke('apply', {
+      result = await invoke('launch', {
         installDirectory: this.state.installDirectory,
         options: {
           seed: this.state.seed,
@@ -111,38 +110,30 @@ export default class Index extends React.Component<Props, typeof initialState> {
     }
     this.setState({
       ...this.state,
-      isProcessingApply: false,
-      isProcessingRestore: false,
+      isProcessingLaunch: false,
       snackbar: result,
     });
   }
 
-  private async onClickRestore() {
-    this.setState({
-      ...this.state,
-      isProcessingRestore: true,
-      snackbar: '',
-    });
-    let result: string;
+  private async onClickOpenFolder() {
     try {
-      result = await invoke('restore', {
+      await invoke('open_folder', {
         installDirectory: this.state.installDirectory,
       });
     } catch (err) {
       console.error(err);
-      result = `${err}`;
+      const snackbar = `${err}`;
+      this.setState({
+        ...this.state,
+        isProcessingLaunch: false,
+        snackbar,
+      });
     }
-    this.setState({
-      ...this.state,
-      isProcessingApply: false,
-      isProcessingRestore: false,
-      snackbar: result,
-    });
   }
 
   private onCloseSnackbar(
     _event: React.SyntheticEvent<any>,
-    reason?: SnackbarCloseReason | null
+    reason?: SnackbarCloseReason | null,
   ) {
     if (reason === 'clickaway') {
       return;
@@ -161,8 +152,8 @@ export default class Index extends React.Component<Props, typeof initialState> {
         onChangeSeed={this.onChangeSeed}
         onChangeInstallDirectory={this.onChangeInstallDirectory}
         onChangeDifficulty={this.onChangeDifficulty}
-        onClickApply={this.onClickApply}
-        onClickRestore={this.onClickRestore}
+        onClickLaunch={this.onClickLaunch}
+        onClickOpenFolder={this.onClickOpenFolder}
         onCloseSnackbar={this.onCloseSnackbar}
       />
     );
