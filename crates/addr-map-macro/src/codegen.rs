@@ -85,9 +85,9 @@ fn gen_inits_from_entries(entries: &[Entry]) -> Vec<TokenStream> {
         .map(|entry| match entry {
             Entry::Simple(ty) => gen_init_of_simple(ty),
             Entry::Nested {
-                entrypoint,
+                signature,
                 children: _,
-            } => gen_init_of_nested(entrypoint),
+            } => gen_init_of_nested(signature),
         })
         .collect()
 }
@@ -214,10 +214,10 @@ fn gen_from_entries(entries: Vec<Entry>) -> (Vec<TokenStream>, Vec<TokenStream>)
                 (m, None)
             }
             Entry::Nested {
-                entrypoint,
+                signature,
                 children,
             } => {
-                let def = gen_struct_with_constructor_from_nested(entrypoint, children);
+                let def = gen_struct_with_constructor_from_nested(signature, children);
                 (None, Some(def))
             }
         })
@@ -250,7 +250,7 @@ fn gen_fields_from_entries(entries: &[Entry]) -> Vec<TokenStream> {
                 (entry.comment(), entry.name(), ty)
             }
             Entry::Nested {
-                entrypoint,
+                signature: entrypoint,
                 children: _,
             } => {
                 let struct_name = make_ident(&to_pascal_case(&entrypoint.name));

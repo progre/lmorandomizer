@@ -94,16 +94,25 @@ fn parse_text_entry_value(
             comment,
         });
     }
+    parse_text_entry_value_as_fn(offset, val, default_abi, comment).into()
+}
+
+fn parse_text_entry_value_as_fn(
+    offset: usize,
+    val: &str,
+    default_abi: Option<&str>,
+    comment: Option<String>,
+) -> Function {
     let fn_pos = val
         .find("fn ")
         .unwrap_or_else(|| panic!("invalid function entry value: {val}"));
     let (name, ty) = parse_fn_entry_value(val, fn_pos, default_abi);
-    SimpleEntry::Function(Function {
+    Function {
         offset,
         name,
         ty,
         comment,
-    })
+    }
 }
 
 fn parse_data_entry_value(offset: usize, val: &str, comment: Option<String>) -> SimpleEntry {
@@ -126,16 +135,23 @@ fn parse_data_entry_value(offset: usize, val: &str, comment: Option<String>) -> 
     })
 }
 
-fn parse_group_children(t: &Table, default_abi: Option<&str>) -> Vec<SimpleEntry> {
-    t.iter()
-        .map(|(offset_key, item)| {
+fn parse_group_children(t: &Table, default_abi: Option<&str>) -> (Function, Vec<SimpleEntry>) {
+    let mut signature = None;
+    let children = t
+        .iter()
+        .filter_map(|(offset_key, item)| {
             // こちらも同様にキーのleaf_decorから取る
             let comment = extract_comment_for_entry(t, offset_key);
             let s = item.as_str().expect("group child must be string");
+            if offset_key == "------" {
+                signature = Some(parse_text_entry_value_as_fn(0, s, default_abi, comment));
+                return None;
+            }
             let offset = parse_hex(offset_key);
-            parse_text_entry_value(offset, s, default_abi, comment)
+            Some(parse_text_entry_value(offset, s, default_abi, comment))
         })
-        .collect()
+        .collect();
+    (signature.expect("group must have a signature"), children)
 }
 
 fn collect_table(table: &Table, default_abi: Option<&str>) -> Vec<Entry> {
@@ -172,15 +188,10 @@ fn collect_table(table: &Table, default_abi: Option<&str>) -> Vec<Entry> {
                 simples.push(ty);
             }
             Item::Table(t) => {
-                let (mut ep, children): (Vec<_>, Vec<_>) = parse_group_children(t, default_abi)
-                    .into_iter()
-                    .partition(|entry| entry.offset() == 0);
-                let Some(SimpleEntry::Function(mut entrypoint)) = ep.pop() else {
-                    panic!("entrypoint not found in group");
-                };
-                entrypoint.offset = parse_hex(key);
+                let (mut signature, children) = parse_group_children(t, default_abi);
+                signature.offset = parse_hex(key);
                 groups.push(Entry::Nested {
-                    entrypoint,
+                    signature,
                     children,
                 });
             }

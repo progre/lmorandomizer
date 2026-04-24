@@ -74,11 +74,27 @@ impl SimpleEntry {
     }
 }
 
+impl From<Label> for SimpleEntry {
+    fn from(value: Label) -> Self {
+        SimpleEntry::Label(value)
+    }
+}
+impl From<Static> for SimpleEntry {
+    fn from(value: Static) -> Self {
+        SimpleEntry::Static(value)
+    }
+}
+impl From<Function> for SimpleEntry {
+    fn from(value: Function) -> Self {
+        SimpleEntry::Function(value)
+    }
+}
+
 #[derive(Clone)]
 pub enum Entry {
     Simple(SimpleEntry),
     Nested {
-        entrypoint: Function,
+        signature: Function,
         children: Vec<SimpleEntry>,
     },
 }
@@ -87,7 +103,10 @@ impl Entry {
     pub fn offset(&self) -> usize {
         match self {
             Entry::Simple(entry) => entry.offset(),
-            Entry::Nested { entrypoint, .. } => entrypoint.offset,
+            Entry::Nested {
+                signature: entrypoint,
+                ..
+            } => entrypoint.offset,
         }
     }
 }

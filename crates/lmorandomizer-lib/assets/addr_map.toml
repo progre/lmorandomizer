@@ -10,13 +10,13 @@
 0x07d620 = "fn reset_equipments()" # maybe
 
 0x080da0 = "'load_save_data" # unknown
-0x08deb0.0x0000 = "fn game_tick(unknown: *const ()) -> *const ()"
+0x08deb0.------ = "fn game_tick(unknown: *const ()) -> *const ()"
 0x08deb0.0x0543 = "'call_unknown_for_on_game_tick" # func(param as *const ());
 0x08f940 = "fn reset_all_items_flags()" # maybe
-0x091660.0x0000 = "fn init(unconfirmed: *const ()) -> *const ()"
+0x091660.------ = "fn init(unconfirmed: *const ()) -> *const ()"
 0x091660.0x0007 = "'push_script_dat_ref_path"
 0x0b0f00 = "fn load_script(path: *const c_char)"
-0x0b797a.0x0000 = "fn load_script_sub_routine(unconfirmed: *const ()) -> *const ()"
+0x0b797a.------ = "fn load_script_sub_routine(unconfirmed: *const ()) -> *const ()"
 0x0b797a.0x01ac = "'call_create_file_a"
 
 [data]
