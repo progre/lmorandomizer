@@ -151,16 +151,26 @@ fn gen_doc_comment(comment: Option<&str>) -> TokenStream {
     }
 }
 
+fn arg_name(i: usize, arg: &syn::BareFnArg) -> Ident {
+    let name = arg
+        .name
+        .as_ref()
+        .map(|(ident, _)| ident.to_string())
+        .filter(|name| name.as_str() != "_")
+        .unwrap_or_else(|| format!("arg{i}"));
+    make_ident(&name)
+}
+
 fn gen_fn_method(ident: &Ident, f: &syn::TypeBareFn, comment: Option<&str>) -> TokenStream {
     let doc = gen_doc_comment(comment);
     let inputs = f.inputs.iter().enumerate().map(|(i, arg)| {
         let ty = &arg.ty;
-        let name = make_ident(&format!("arg{i}"));
+        let name = arg_name(i, arg);
         quote! { #name: #ty }
     });
 
-    let arg_names = (0..f.inputs.len()).map(|i| {
-        let name = make_ident(&format!("arg{i}"));
+    let arg_names = f.inputs.iter().enumerate().map(|(i, arg)| {
+        let name = arg_name(i, arg);
         quote! { #name }
     });
 
