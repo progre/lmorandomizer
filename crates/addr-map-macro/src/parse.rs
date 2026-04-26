@@ -135,7 +135,7 @@ fn parse_data_entry_value(offset: usize, val: &str, comment: Option<String>) -> 
     })
 }
 
-fn parse_group_children(t: &Table, default_abi: Option<&str>) -> (Function, Vec<SimpleEntry>) {
+fn parse_group_children(t: &Table, default_abi: Option<&str>) -> (SimpleEntry, Vec<SimpleEntry>) {
     let mut signature = None;
     let children = t
         .iter()
@@ -144,7 +144,7 @@ fn parse_group_children(t: &Table, default_abi: Option<&str>) -> (Function, Vec<
             let comment = extract_comment_for_entry(t, offset_key);
             let s = item.as_str().expect("group child must be string");
             if offset_key == "------" {
-                signature = Some(parse_text_entry_value_as_fn(0, s, default_abi, comment));
+                signature = Some(parse_text_entry_value(0, s, default_abi, comment));
                 return None;
             }
             let offset = parse_hex(offset_key);
@@ -189,7 +189,7 @@ fn collect_table(table: &Table, default_abi: Option<&str>) -> Vec<Entry> {
             }
             Item::Table(t) => {
                 let (mut signature, children) = parse_group_children(t, default_abi);
-                signature.offset = parse_hex(key);
+                signature.set_offset(parse_hex(key));
                 groups.push(Entry::Nested {
                     signature,
                     children,

@@ -3,11 +3,16 @@ use std::{
     iter,
     os::windows::ffi::OsStrExt,
     path::PathBuf,
+    ptr::NonNull,
     sync::{Arc, Mutex, OnceLock},
 };
 
 use anyhow::{Result, anyhow};
-use lmorandomizer_shared::{Command, ipc::IpcStream};
+use lmorandomizer_shared::{
+    Command,
+    ipc::IpcStream,
+    lmo::{MEMO_FLAG_BASE_NO, Object, SubWeapon},
+};
 use smol::unblock;
 use tracing::trace;
 use windows::{
@@ -21,16 +26,18 @@ use windows::{
     core::{PCSTR, PCWSTR},
 };
 
-use crate::hook::{CreateFileAFn, LmoDelegate};
+use crate::hook::{CreateFileAFn, CurrentWeaponFn, LmoDelegate, LmoHandle};
 
 #[derive(Debug)]
 pub struct LmoRandomizerHelper {
+    handle: LmoHandle,
     custom_path: OnceLock<PathBuf>,
 }
 
 impl LmoRandomizerHelper {
-    pub fn new() -> Self {
+    pub fn new(handle: LmoHandle) -> Self {
         Self {
+            handle,
             custom_path: OnceLock::new(),
         }
     }
@@ -57,6 +64,15 @@ impl LmoRandomizerHelper {
             }
         }
         Ok(())
+    }
+
+    /// ランダマイザー用のハンディースキャナーのフラグセットロジックをショートカットする
+    fn skip_randomizers_memo(&self, obj: &Object) -> bool {
+        if obj.op2 < MEMO_FLAG_BASE_NO as i32 {
+            return false;
+        }
+        self.handle.set_flag(obj.op2 as u32, true);
+        true
     }
 }
 
@@ -111,7 +127,37 @@ impl LmoDelegate for LmoRandomizerHelper {
         }
         .unwrap_or(INVALID_HANDLE_VALUE)
     }
+
+    fn current_weapon_hook(
+        &self,
+        main_weapon: bool,
+        _undefined_arg1: usize,
+        _undefined_arg2: usize,
+        _undefined_arg3: usize,
+        _undefined_arg4: usize,
+        undefined_arg5: usize,
+        original: CurrentWeaponFn,
+    ) -> u8 {
+        let sub_weapon = original(main_weapon);
+        if sub_weapon != SubWeapon::HandScanner as u8 {
+            return sub_weapon;
+        }
+        // メモの場合は Object へのポインターが得られる
+        let obj: NonNull<Object> = NonNull::new(undefined_arg5 as _).unwrap();
+        let obj = unsafe { obj.as_ref() };
+        trace!(
+            "{undefined_arg5:#x} {} {} {} {}",
+            obj.op1, obj.op2, obj.op3, obj.op4,
+        );
+        if !self.skip_randomizers_memo(obj) {
+            return sub_weapon;
+        }
+        SubWeapon::Unarmed as u8
+    }
 }
+
+unsafe impl Send for LmoRandomizerHelper {}
+unsafe impl Sync for LmoRandomizerHelper {}
 
 fn to_wide_null(s: &OsStr) -> Vec<u16> {
     s.encode_wide().chain(iter::once(0)).collect()

@@ -1,9 +1,11 @@
+use std::iter;
+
 use proc_macro2::{Span, TokenStream};
 use quote::quote;
 use syn::token::Pub;
 use syn::{Attribute, Field, Ident, Visibility};
 
-use crate::types::{Entry, Function, SimpleEntry};
+use crate::types::{Entry, SimpleEntry};
 use crate::util::to_pascal_case;
 
 pub fn generate(
@@ -95,22 +97,13 @@ fn gen_inits_from_entries(entries: &[Entry]) -> Vec<TokenStream> {
 fn gen_init_of_simple(ty: &SimpleEntry) -> TokenStream {
     let ident = make_ident(ty.name());
     let offset = ty.offset();
-    let type_tokens = addr_type_to_tokens(ty);
-
-    match ty {
-        SimpleEntry::Function(_) | SimpleEntry::Label(_) => {
-            quote! { #ident: (base_addr + #offset) as #type_tokens }
-        }
-        SimpleEntry::Static(_) | SimpleEntry::StaticFnPtr(_) => {
-            quote! { #ident: std::ptr::NonNull::new((base_addr + #offset) as *mut _).unwrap() }
-        }
-    }
+    quote! { #ident: std::ptr::NonNull::new((base_addr + #offset) as _).unwrap() }
 }
 
-fn gen_init_of_nested(base: &Function) -> TokenStream {
-    let struct_name = make_ident(&to_pascal_case(&base.name));
-    let field_ident = make_ident(&base.name);
-    let base_offset = base.offset;
+fn gen_init_of_nested(base: &SimpleEntry) -> TokenStream {
+    let struct_name = make_ident(&to_pascal_case(base.name()));
+    let field_ident = make_ident(base.name());
+    let base_offset = base.offset();
     quote! {
         #field_ident: #struct_name::new(base_addr +#base_offset)
     }
@@ -118,8 +111,8 @@ fn gen_init_of_nested(base: &Function) -> TokenStream {
 
 fn addr_type_to_tokens(ty: &SimpleEntry) -> TokenStream {
     match ty {
-        SimpleEntry::Label(..) => quote! { *const () },
-        SimpleEntry::Function(_) => quote! { *const () }, // 関数ポインターを定数で生成することはできないため、型不明のポインターで保持する
+        SimpleEntry::Label(..) => quote! { std::ptr::NonNull<()> },
+        SimpleEntry::Function(_) => quote! { std::ptr::NonNull<()> }, // 関数ポインターを定数で生成することはできないため、型不明のポインターで保持する
         SimpleEntry::Static(t) => {
             let ty_tokens = &t.ty;
             quote! { std::ptr::NonNull<#ty_tokens> }
@@ -178,23 +171,22 @@ fn gen_fn_method(ident: &Ident, f: &syn::TypeBareFn, comment: Option<&str>) -> T
 
     quote! {
         #doc
-        pub unsafe fn #ident(&self, #(#inputs),*) #output {
-            let f: #f = std::mem::transmute(self.#ident);
+        pub fn #ident(&self, #(#inputs),*) #output {
+            let f: #f = unsafe{ std::mem::transmute(self.#ident) };
             f(#(#arg_names),*)
         }
     }
 }
 
 fn gen_struct_with_constructor_from_nested(
-    mut base: Function,
+    mut base: SimpleEntry,
     children: Vec<SimpleEntry>,
 ) -> TokenStream {
-    let struct_name = make_ident(&to_pascal_case(&base.name));
-    base.offset = 0;
-    base.name = "entrypoint".into();
+    let struct_name = make_ident(&to_pascal_case(base.name()));
+    base.set_offset(0);
+    base.set_name("entrypoint".into());
 
-    let fields: Vec<_> = [SimpleEntry::Function(base)]
-        .into_iter()
+    let fields: Vec<_> = iter::once(base)
         .chain(children)
         .map(Entry::Simple)
         .collect();
@@ -249,7 +241,7 @@ fn gen_fields_from_entries(entries: &[Entry]) -> Vec<TokenStream> {
             Entry::Simple(SimpleEntry::Function(entry)) => {
                 // 関数はメソッド側にdocを付けるのでフィールドにはつけない
                 // 関数ポインターは定数で生成することはできないため、型不明のポインターで保持する
-                (None, entry.name.as_str(), quote! { *const () })
+                (None, entry.name.as_str(), quote! { std::ptr::NonNull<()> })
             }
             Entry::Simple(SimpleEntry::StaticFnPtr(entry)) => {
                 let ty = addr_type_to_tokens(&SimpleEntry::StaticFnPtr(entry.clone()));
@@ -263,8 +255,8 @@ fn gen_fields_from_entries(entries: &[Entry]) -> Vec<TokenStream> {
                 signature: entrypoint,
                 children: _,
             } => {
-                let struct_name = make_ident(&to_pascal_case(&entrypoint.name));
-                (None, entrypoint.name.as_str(), quote! { #struct_name })
+                let struct_name = make_ident(&to_pascal_case(entrypoint.name()));
+                (None, entrypoint.name(), quote! { #struct_name })
             }
         })
         .map(|(doc, name, ty)| {

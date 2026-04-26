@@ -4,10 +4,11 @@ mod hook_manager;
 use std::{
     fmt::Debug,
     mem::transmute,
+    ptr::NonNull,
     sync::{Arc, OnceLock},
 };
 
-use crate::hook_utils::hook_addr;
+use crate::hook_utils::{hook_addr, hook_near_target};
 use hook_manager::LmoHookManager;
 use windows::{
     Win32::{
@@ -20,7 +21,7 @@ use windows::{
     core::PCSTR,
 };
 
-pub use handle::{CreateFileAFn, LmoHandle};
+pub use handle::{CreateFileAFn, CurrentWeaponFn, LmoHandle};
 
 static LMO_HOOK_MANAGER: OnceLock<LmoHookManager> = OnceLock::new();
 
@@ -37,11 +38,24 @@ pub trait LmoDelegate: Debug {
         htemplatefile: HANDLE,
         original: CreateFileAFn,
     ) -> HANDLE;
+
+    #[allow(clippy::too_many_arguments)]
+    fn current_weapon_hook(
+        &self,
+        main_weapon: bool,
+        undefined_arg1: usize,
+        undefined_arg2: usize,
+        undefined_arg3: usize,
+        undefined_arg4: usize,
+        undefined_arg5: usize,
+        original: CurrentWeaponFn,
+    ) -> u8;
 }
 
 #[derive(Debug)]
 pub struct OriginalAddrs {
     create_file_a: CreateFileAFn,
+    current_weapon: CurrentWeaponFn,
 }
 
 pub fn install_hook(
@@ -52,6 +66,11 @@ pub fn install_hook(
         create_file_a: {
             let original = hook_addr(handle.create_file_a.cast(), create_file_a_hook as _)?;
             unsafe { transmute::<*const (), CreateFileAFn>(original) }
+        },
+        current_weapon: {
+            let addr = handle.process_memo.call_current_weapon;
+            let original = hook_near_target(addr, current_weapon_hook as _)?;
+            unsafe { transmute::<NonNull<_>, CurrentWeaponFn>(original) }
         },
     };
 
@@ -79,5 +98,25 @@ extern "system" fn create_file_a_hook(
         dwflagsandattributes,
         htemplatefile,
         mng.original_addrs.create_file_a,
+    )
+}
+
+extern "cdecl" fn current_weapon_hook(
+    main_weapon: bool,
+    undefined_arg1: usize,
+    undefined_arg2: usize,
+    undefined_arg3: usize,
+    undefined_arg4: usize,
+    undefined_arg5: usize,
+) -> u8 {
+    let mng = LMO_HOOK_MANAGER.get().unwrap();
+    mng.delegate.current_weapon_hook(
+        main_weapon,
+        undefined_arg1,
+        undefined_arg2,
+        undefined_arg3,
+        undefined_arg4,
+        undefined_arg5,
+        mng.original_addrs.current_weapon,
     )
 }

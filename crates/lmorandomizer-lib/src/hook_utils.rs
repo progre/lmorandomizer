@@ -17,8 +17,10 @@ pub fn hook_addr(addr: NonNull<()>, target: *const ()) -> windows::core::Result<
     Ok(old as _)
 }
 
-#[allow(dead_code)]
-pub fn hook_near_target(addr: NonNull<()>, target: *const ()) -> windows::core::Result<*const ()> {
+pub fn hook_near_target(
+    addr: NonNull<()>,
+    target: *const (),
+) -> windows::core::Result<NonNull<()>> {
     let mut old_flag = Default::default();
     unsafe { VirtualProtect(addr.as_ptr() as _, 5, PAGE_EXECUTE_WRITECOPY, &mut old_flag) }?;
 
@@ -26,7 +28,7 @@ pub fn hook_near_target(addr: NonNull<()>, target: *const ()) -> windows::core::
     let mut unuse = Default::default();
     unsafe { VirtualProtect(addr.as_ptr() as _, 5, old_flag, &mut unuse) }?;
 
-    Ok(old as _)
+    Ok(NonNull::new(old as _).unwrap())
 }
 
 unsafe fn assemble_addr(addr: NonNull<()>, target: *const ()) -> usize {

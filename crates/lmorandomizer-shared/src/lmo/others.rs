@@ -168,6 +168,7 @@ pub enum SubWeapon {
     SilverShield,
     AngelShield,
     Ammunition,
+    Unarmed = 0xff,
 }
 
 impl SubWeapon {
@@ -187,6 +188,7 @@ impl SubWeapon {
             SubWeapon::SilverShield => Some(698.try_into().unwrap()),
             SubWeapon::AngelShield => Some(699.try_into().unwrap()),
             SubWeapon::Ammunition => None,
+            SubWeapon::Unarmed => None,
         }
     }
 }

@@ -1,5 +1,3 @@
-use std::ffi::c_char;
-
 use addr_map_macro::addr_map;
 use lmorandomizer_shared::lmo::Flags;
 use windows::{
@@ -15,3 +13,5 @@ use windows::{
 
 #[addr_map("assets/addr_map.toml", extern "cdecl")]
 pub struct LmoHandle;
+
+pub type CurrentWeaponFn = extern "cdecl" fn(main_weapon: bool) -> u8;

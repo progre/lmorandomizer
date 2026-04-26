@@ -35,7 +35,7 @@ async fn sub_main() {
     let base_addr = unsafe { GetModuleHandleW(None) }.unwrap().0 as usize;
     let handle = LmoHandle::new(base_addr);
     let handle_ptr = &handle as *const LmoHandle;
-    let helper = Arc::new(LmoRandomizerHelper::new());
+    let helper = Arc::new(LmoRandomizerHelper::new(handle));
     let delegate = helper.clone();
     install_hook(unsafe { handle_ptr.as_ref() }.unwrap(), delegate).unwrap();
 

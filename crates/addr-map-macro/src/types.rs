@@ -55,12 +55,30 @@ impl SimpleEntry {
         }
     }
 
+    pub fn set_offset(&mut self, offset: usize) {
+        match self {
+            SimpleEntry::Label(Label { offset: o, .. })
+            | SimpleEntry::Static(Static { offset: o, .. })
+            | SimpleEntry::StaticFnPtr(StaticFnPtr { offset: o, .. })
+            | SimpleEntry::Function(Function { offset: o, .. }) => *o = offset,
+        }
+    }
+
     pub fn name(&self) -> &str {
         match self {
             SimpleEntry::Label(Label { name, .. })
             | SimpleEntry::Static(Static { name, .. })
             | SimpleEntry::StaticFnPtr(StaticFnPtr { name, .. })
             | SimpleEntry::Function(Function { name, .. }) => name,
+        }
+    }
+
+    pub fn set_name(&mut self, name: String) {
+        match self {
+            SimpleEntry::Label(Label { name: n, .. })
+            | SimpleEntry::Static(Static { name: n, .. })
+            | SimpleEntry::StaticFnPtr(StaticFnPtr { name: n, .. })
+            | SimpleEntry::Function(Function { name: n, .. }) => *n = name,
         }
     }
 
@@ -94,7 +112,7 @@ impl From<Function> for SimpleEntry {
 pub enum Entry {
     Simple(SimpleEntry),
     Nested {
-        signature: Function,
+        signature: SimpleEntry,
         children: Vec<SimpleEntry>,
     },
 }
@@ -103,10 +121,7 @@ impl Entry {
     pub fn offset(&self) -> usize {
         match self {
             Entry::Simple(entry) => entry.offset(),
-            Entry::Nested {
-                signature: entrypoint,
-                ..
-            } => entrypoint.offset,
+            Entry::Nested { signature, .. } => signature.offset(),
         }
     }
 }

@@ -1,5 +1,10 @@
 [text]
-0x03d740 = "fn shop_main(_: u32)"
+0x034fe0.------ = "fn process_stone_monument(_: NonZero<()>)"
+0x0379d0.------ = "fn process_rom(_: NonZero<()>)"
+0x037c80.------ = "fn process_treasure_box(_: NonZero<()>)" # maybe
+0x038720.------ = "fn process_memo(_: NonZero<()>)"
+0x038720.0x0095 = "'call_current_weapon" # fn current_weapon(main_weapon: bool) -> u8
+0x03d740.------ = "fn shop_main(_: u32)"
 
 0x0759e0 = "fn set_flag(flag: u32, value: bool) -> bool"
 0x07b100 = "fn reset_all_items()" # maybe
@@ -9,19 +14,25 @@
 0x07c2a0 = "fn acquire_rom(rom_id: u32)"
 0x07d620 = "fn reset_equipments()" # maybe
 
-0x080da0 = "'load_save_data" # unknown
-0x08deb0.------ = "fn game_tick(unknown: *const ()) -> *const ()"
-0x08deb0.0x0543 = "'call_unknown_for_on_game_tick" # func(param as *const ());
-0x08f940 = "fn reset_all_items_flags()" # maybe
+0x080da0.------ = "'load_save_data" # unknown
+0x082660.------ = "'process_main_weapon"
+0x0829b0.------ = "'process_sub_weapon"
+0x08deb0.------ = "fn game_main(unknown: *const ()) -> *const ()"
+0x08deb0.0x0543 = "'call_on_game_tick" # func(param as *const ());
+0x08f940.------ = "fn reset_all_items_flags()" # maybe
+0x090960.------ = "fn create_object(constructor: *const (), unknown1: u32, maybe_x: u32, maybe_y: u32, number: u32, unknown4: u32, unknown5: u32, unknown6: u32, unknown7: *const ())"
 0x091660.------ = "fn init(unconfirmed: *const ()) -> *const ()"
 0x091660.0x0007 = "'push_script_dat_ref_path"
-0x0b0f00 = "fn load_script(path: *const c_char)"
+0x0b0f00.------ = "fn load_script(path: *const c_char)"
+0x0b25c0.------ = "fn game_tick()"
+0x0b25c0.0x0096 = "'screen_change_sequence"
 0x0b797a.------ = "fn load_script_sub_routine(unconfirmed: *const ()) -> *const ()"
 0x0b797a.0x01ac = "'call_create_file_a"
 
 [data]
 0x0bb04c = 'create_file_a: *const extern "system" fn(lpfilename: PCSTR, dwdesiredaccess: u32, dwsharemode: FILE_SHARE_MODE, lpsecurityattributes: *const SECURITY_ATTRIBUTES, dwcreationdisposition: FILE_CREATION_DISPOSITION, dwflagsandattributes: FILE_FLAGS_AND_ATTRIBUTES, htemplatefile: HANDLE) -> HANDLE'
 0x0cc748 = "flags: *mut Flags"
+0x0cca8c = "sub_weapon: u8"
 
 0x0d9e61 = "f6: u8"
 0x0d9e62 = "f7: u8"
@@ -29,6 +40,7 @@
 0x0d9eb6 = "coin: u16"
 0x0d9eec = "shuriken: u16" # max 255
 
+0x0e5f00 = "main_weapon: u8"
 0x0e5f0c = "weight: u16"
 0x0e5f7c = "num_of_key_presses: u32"
 
