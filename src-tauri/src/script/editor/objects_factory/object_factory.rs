@@ -8,12 +8,12 @@ use crate::script::{
     data::{
         item::{ChestItem, Equipment, MainWeapon, Rom, Seal, SubWeapon},
         object::{
+            ChestObject, MainWeaponObject, Object, RomObject, SealObject, Start, SubWeaponObject,
+            UnknownObject,
             starts::{
                 starts_that_hide_when_startup_and_taken, starts_with_open_and_remove_flags,
                 starts_with_replaced_flag, starts_without_old_flag,
             },
-            ChestObject, MainWeaponObject, Object, RomObject, SealObject, Start, SubWeaponObject,
-            UnknownObject,
         },
     },
 };

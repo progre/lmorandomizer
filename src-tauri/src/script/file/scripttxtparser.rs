@@ -1,7 +1,7 @@
 use std::fmt::Write;
 
-use anyhow::{anyhow, bail, Result};
-use scraper::{node::Attributes, ElementRef, Html};
+use anyhow::{Result, anyhow, bail};
+use scraper::{ElementRef, Html, node::Attributes};
 
 use crate::script::{
     data::{

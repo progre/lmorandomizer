@@ -1,4 +1,4 @@
-use rand::{seq::SliceRandom, Rng};
+use rand::{Rng, seq::SliceRandom};
 
 use crate::randomizer::{spoiler::spots::SpotRef, storage::item::Item};
 

@@ -7,8 +7,8 @@ use crate::{
         spoiler::{items_pool::UnorderedItems, spots::Spots},
         spoiler_log::{CheckpointRef, SphereRef},
         storage::{
-            item::{Item, StrategyFlag},
             ShopRef,
+            item::{Item, StrategyFlag},
         },
     },
     script::enums::FieldNumber,

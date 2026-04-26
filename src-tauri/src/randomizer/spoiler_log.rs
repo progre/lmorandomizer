@@ -8,9 +8,9 @@ use crate::{
 use super::{
     spoiler::spots::SpotRef,
     storage::{
-        item::{Item, StrategyFlag},
         Chest, ChestRef, MainWeapon, MainWeaponRef, Rom, RomRef, Seal, SealRef, Shop, ShopRef,
         SubWeapon, SubWeaponRef, Talk, TalkRef,
+        item::{Item, StrategyFlag},
     },
 };
 

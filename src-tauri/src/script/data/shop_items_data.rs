@@ -1,11 +1,11 @@
-use anyhow::{anyhow, bail, Result};
+use anyhow::{Result, anyhow, bail};
 use num_traits::FromPrimitive;
 
 use crate::script::enums;
 
 use super::{
     item::{Equipment, Item, Rom, SubWeapon},
-    talk::{write_u16, Talk},
+    talk::{Talk, write_u16},
 };
 
 pub fn parse(talk: &Talk) -> Result<(ShopItem, ShopItem, ShopItem)> {

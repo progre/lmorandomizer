@@ -1,6 +1,6 @@
 use std::{collections::HashMap, ops::Deref};
 
-use anyhow::{anyhow, bail, Result};
+use anyhow::{Result, anyhow, bail};
 use log::warn;
 
 use crate::{
@@ -10,7 +10,7 @@ use crate::{
             item::Item,
             object::Shop,
             script::Script,
-            talk::{read_u16, write_u16, Talk},
+            talk::{Talk, read_u16, write_u16},
         },
         editor::script_editor::find_item_set_flag,
         enums::{Equipment, Rom, TalkItem},

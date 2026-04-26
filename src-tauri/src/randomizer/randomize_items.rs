@@ -10,10 +10,10 @@ use crate::{
 };
 
 use super::{
+    RandomizeOptions,
     spoiler::{make_rng, spoiler},
     spoiler_log::{CheckpointRef, SpoilerLogRef},
-    storage::{item::StrategyFlag, Storage},
-    RandomizeOptions,
+    storage::{Storage, item::StrategyFlag},
 };
 
 pub fn randomize_items<'a>(

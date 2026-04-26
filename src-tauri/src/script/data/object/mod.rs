@@ -3,7 +3,7 @@ mod shop_object;
 pub mod starts;
 mod weapon_objects;
 
-use anyhow::{anyhow, bail, Result};
+use anyhow::{Result, anyhow, bail};
 use num_traits::FromPrimitive;
 
 use crate::script::enums;

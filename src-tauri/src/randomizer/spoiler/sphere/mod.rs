@@ -9,7 +9,7 @@ use crate::{
     dataset::spot::{AnyOfAllRequirements, ShopSpot},
     randomizer::{
         spoiler_log::{CheckpointRef, SphereRef},
-        storage::{item::StrategyFlag, Event, ShopRef},
+        storage::{Event, ShopRef, item::StrategyFlag},
     },
 };
 

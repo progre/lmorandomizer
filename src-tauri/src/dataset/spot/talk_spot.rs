@@ -2,7 +2,7 @@ use std::fmt;
 
 use crate::script::enums::{FieldNumber, TalkItem};
 
-use super::{params::SpotParams, AnyOfAllRequirements, SpotName};
+use super::{AnyOfAllRequirements, SpotName, params::SpotParams};
 
 #[derive(Clone, Debug)]
 pub struct TalkSpot(SpotParams<TalkItem>);

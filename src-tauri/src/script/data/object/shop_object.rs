@@ -1,13 +1,13 @@
-use anyhow::{bail, Result};
+use anyhow::{Result, bail};
 
 const U16_MAX: i32 = u16::MAX as i32;
 
 use crate::script::data::{
     shop_items_data::ShopItem,
-    talk::{read_u16, Talk},
+    talk::{Talk, read_u16},
 };
 
-use super::{shop_items_data, Start};
+use super::{Start, shop_items_data};
 
 pub struct Storyteller {
     talk_number: u16,

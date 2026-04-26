@@ -3,16 +3,16 @@ use std::{
     mem::take,
 };
 
-use anyhow::{bail, Result};
+use anyhow::{Result, bail};
 
 use crate::{
     dataset::game_structure::GameStructure,
-    randomizer::{storage::Talk, RandomizeOptions},
+    randomizer::{RandomizeOptions, storage::Talk},
 };
 
 use super::{
-    item::{Item, StrategyFlag},
     Chest, Event, MainWeapon, Rom, Seal, Shop, Storage, SubWeapon,
+    item::{Item, StrategyFlag},
 };
 
 pub fn create_source(

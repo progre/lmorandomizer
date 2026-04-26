@@ -3,7 +3,7 @@ use std::collections::BTreeMap;
 use rand::Rng;
 
 use crate::{
-    randomizer::storage::{item::Item, Storage},
+    randomizer::storage::{Storage, item::Item},
     script::enums::FieldNumber,
 };
 

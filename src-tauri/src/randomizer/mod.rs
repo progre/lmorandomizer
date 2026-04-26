@@ -9,13 +9,13 @@ use anyhow::Result;
 use log::trace;
 use randomize_items::randomize_items;
 pub use spoiler_log::SpoilerLog;
-use storage::{create_source::create_source, Storage};
+use storage::{Storage, create_source::create_source};
 
 use crate::{
     dataset::{
-        game_structure::{GameStructure, GameStructureFiles},
         NIGHT_SURFACE_CHEST_COUNT, NIGHT_SURFACE_SEAL_COUNT, NIGHT_SURFACE_SUB_WEAPON_COUNT,
         TRUE_SHRINE_OF_THE_MOTHER_SEAL_COUNT,
+        game_structure::{GameStructure, GameStructureFiles},
     },
     script::{
         data::script::Script,

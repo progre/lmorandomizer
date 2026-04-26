@@ -4,7 +4,7 @@ use anyhow::bail;
 
 use crate::dataset::spot::{AnyOfAllRequirements, RequirementFlag};
 
-use super::{item::StrategyFlag, Storage};
+use super::{Storage, item::StrategyFlag};
 
 fn append<'a>(
     set: &mut HashSet<RequirementFlag>,

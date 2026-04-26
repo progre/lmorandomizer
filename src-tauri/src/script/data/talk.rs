@@ -1,7 +1,7 @@
 use core::fmt;
 use std::ops::Range;
 
-use anyhow::{anyhow, bail, Result};
+use anyhow::{Result, anyhow, bail};
 use num_traits::FromPrimitive;
 
 use crate::script::{

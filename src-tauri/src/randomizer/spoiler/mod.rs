@@ -11,7 +11,7 @@ use std::{
 };
 
 use log::{info, trace};
-use rand::{seq::SliceRandom, Rng};
+use rand::{Rng, seq::SliceRandom};
 use rand_seeder::Seeder;
 use rand_xoshiro::Xoshiro256PlusPlus;
 use spots::SpotRef;
@@ -19,9 +19,9 @@ use spots::SpotRef;
 use crate::script::enums::FieldNumber;
 
 use super::{
+    RandomizeOptions,
     spoiler_log::{CheckpointRef, SpoilerLogRef},
     storage::item::{Item, StrategyFlag},
-    RandomizeOptions,
 };
 
 use {items::Items, sphere::sphere, spots::Spots};
