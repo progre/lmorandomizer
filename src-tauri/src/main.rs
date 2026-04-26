@@ -16,6 +16,7 @@ fn main() {
     let version = version.as_ref().unwrap();
     app.windows[0].title = format!("La-Mulana Original Randomizer v{version}",);
     tauri::Builder::default()
+        .plugin(tauri_plugin_os::init())
         .plugin(tauri_plugin_opener::init())
         .plugin(
             tauri_plugin_log::Builder::new()
@@ -35,6 +36,8 @@ fn main() {
             app::set_absolutely_shuffle,
             app::launch,
             app::open_folder,
+            app::apply,
+            app::restore,
         ])
         .run(context)
         .expect("error while running tauri application");

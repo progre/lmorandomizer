@@ -32,6 +32,8 @@ const initialState = {
   absolutelyShuffle: false,
   snackbar: '',
   isProcessingLaunch: false,
+  isProcessingApply: false,
+  isProcessingRestore: false,
 };
 
 export default class Index extends React.Component<Props, typeof initialState> {
@@ -42,6 +44,8 @@ export default class Index extends React.Component<Props, typeof initialState> {
     this.onChangeDifficulty = this.onChangeDifficulty.bind(this);
     this.onClickLaunch = this.onClickLaunch.bind(this);
     this.onClickOpenFolder = this.onClickOpenFolder.bind(this);
+    this.onClickApply = this.onClickApply.bind(this);
+    this.onClickRestore = this.onClickRestore.bind(this);
     this.onCloseSnackbar = this.onCloseSnackbar.bind(this);
     this.state = {
       ...initialState,
@@ -97,12 +101,7 @@ export default class Index extends React.Component<Props, typeof initialState> {
     try {
       result = await invoke('launch', {
         installDirectory: this.state.installDirectory,
-        options: {
-          seed: this.state.seed,
-          shuffleSecretRoms: this.state.shuffleSecretRoms,
-          needGlitches: this.state.needGlitches,
-          absolutelyShuffle: this.state.absolutelyShuffle,
-        },
+        options: this.packAllOptions(),
       });
     } catch (err) {
       console.error(err);
@@ -125,10 +124,54 @@ export default class Index extends React.Component<Props, typeof initialState> {
       const snackbar = `${err}`;
       this.setState({
         ...this.state,
-        isProcessingLaunch: false,
         snackbar,
       });
     }
+  }
+
+  private async onClickApply() {
+    this.setState({
+      ...this.state,
+      isProcessingApply: true,
+      snackbar: '',
+    });
+    let result: string;
+    try {
+      result = await invoke('apply', {
+        installDirectory: this.state.installDirectory,
+        options: this.packAllOptions(),
+      });
+    } catch (err) {
+      console.error(err);
+      result = `${err}`;
+    }
+    this.setState({
+      ...this.state,
+      isProcessingApply: false,
+      snackbar: result,
+    });
+  }
+
+  private async onClickRestore() {
+    this.setState({
+      ...this.state,
+      isProcessingRestore: true,
+      snackbar: '',
+    });
+    let result: string;
+    try {
+      result = await invoke('restore', {
+        installDirectory: this.state.installDirectory,
+      });
+    } catch (err) {
+      console.error(err);
+      result = `${err}`;
+    }
+    this.setState({
+      ...this.state,
+      isProcessingRestore: false,
+      snackbar: result,
+    });
   }
 
   private onCloseSnackbar(
@@ -144,6 +187,15 @@ export default class Index extends React.Component<Props, typeof initialState> {
     });
   }
 
+  private packAllOptions() {
+    return {
+      seed: this.state.seed,
+      shuffleSecretRoms: this.state.shuffleSecretRoms,
+      needGlitches: this.state.needGlitches,
+      absolutelyShuffle: this.state.absolutelyShuffle,
+    };
+  }
+
   render() {
     return (
       <Component
@@ -154,6 +206,8 @@ export default class Index extends React.Component<Props, typeof initialState> {
         onChangeDifficulty={this.onChangeDifficulty}
         onClickLaunch={this.onClickLaunch}
         onClickOpenFolder={this.onClickOpenFolder}
+        onClickApply={this.onClickApply}
+        onClickRestore={this.onClickRestore}
         onCloseSnackbar={this.onCloseSnackbar}
       />
     );
