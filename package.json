@@ -26,7 +26,7 @@
     "@types/seedrandom": "^2.4.27",
     "@vitejs/plugin-react": "^4.2.1",
     "typescript": "^5.0.2",
-    "vite": "^5.0.0"
+    "vite": "^8.0.10"
   },
   "private": true,
   "scripts": {

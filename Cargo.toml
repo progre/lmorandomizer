@@ -21,21 +21,21 @@ lmorandomizer-shared = { path = "crates/lmorandomizer-shared" }
 log = "0.4.29"
 num-derive = "0.4.2"
 num-traits = "0.2.19"
-rand = "0.8.5"
+rand = "0.8.6"
 rand_seeder = "0.3.0"
 rand_xoshiro = "0.6.0"
 regex = "1.12.3"
 rmp-serde = "1.3.1"
-scraper = "0.25.0"
+scraper = "0.26.0"
 semver = "*"
 serde = { version = "1", features = ["derive"] }
 serde-big-array = "0.5.1"
 serde_json = "1"
 serde_yaml = "0.9.34"
-sha3 = "0.10.8"
+sha3 = "0.11.0"
 smol = "2.0.2"
 strum = { version = "0.28.0", features = ["derive"] }
-tokio = { version = "1.50.0", features = ["fs", "macros"] }
+tokio = { version = "1.52.1", features = ["fs", "macros"] }
 tracing = "0.1.44"
 tracing-subscriber = "0.3.23"
 vec1 = "1.12.1"
