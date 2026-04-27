@@ -1,0 +1,11 @@
+{
+  "lsp": {
+    "rust-analyzer": {
+      "initialization_options": {
+        "cargo": {
+          "target": "i686-pc-windows-msvc",
+        },
+      },
+    },
+  },
+}

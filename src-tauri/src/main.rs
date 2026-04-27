@@ -3,6 +3,7 @@
 
 mod app;
 mod dataset;
+#[cfg(target_os = "windows")]
 mod launcher;
 pub mod randomizer;
 mod script;

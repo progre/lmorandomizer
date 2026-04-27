@@ -3,9 +3,9 @@
   "version": "0.10.0",
   "identifier": "net.prgrssv.lmorandomizer",
   "build": {
-    "beforeDevCommand": "cargo build -p lmorandomizer-lib && npm run dev",
+    "beforeDevCommand": "cargo build --package lmorandomizer-lib --target i686-pc-windows-msvc && copy target\\i686-pc-windows-msvc\\debug\\hook.dll target\\debug && npm run dev",
     "devUrl": "http://localhost:1420",
-    "beforeBuildCommand": "cargo build -p lmorandomizer-lib --release && npm run build",
+    "beforeBuildCommand": "npm run build",
     "frontendDist": "../dist"
   },
   "app": {

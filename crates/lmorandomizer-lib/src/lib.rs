@@ -1,3 +1,4 @@
+#![cfg(target_os = "windows")]
 mod app;
 mod hook;
 mod hook_utils;
@@ -13,8 +14,11 @@ use windows::Win32::{
     System::{LibraryLoader::GetModuleHandleW, SystemServices::DLL_PROCESS_ATTACH},
 };
 
-use crate::{app::LmoRandomizerHelper, tracing_helper::init_tracing};
-use hook::{LmoHandle, install_hook};
+use crate::{
+    app::LmoRandomizerHelper,
+    hook::{LmoHandle, install_hook},
+    tracing_helper::init_tracing,
+};
 
 #[unsafe(no_mangle)]
 pub extern "stdcall" fn DllMain(_inst_dll: HINSTANCE, reason: u32, _reserved: u32) -> bool {

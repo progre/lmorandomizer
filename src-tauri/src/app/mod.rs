@@ -1,5 +1,6 @@
 mod file;
 mod initial_data;
+#[cfg(target_os = "windows")]
 mod launch;
 
 use log::error;
@@ -77,6 +78,7 @@ pub fn set_absolutely_shuffle(app_handle: AppHandle, value: bool) {
     set_initial_data_value(app_handle, |data| data.absolutely_shuffle = value);
 }
 
+#[cfg(target_os = "windows")]
 #[tauri::command]
 pub async fn launch(
     handle: AppHandle,
@@ -87,6 +89,16 @@ pub async fn launch(
         Ok(()) => "Succeeded.".to_owned(),
         Err(err) => format!("{err}"),
     }
+}
+
+#[cfg(not(target_os = "windows"))]
+#[tauri::command]
+pub async fn launch(
+    _handle: AppHandle,
+    _install_directory: String,
+    _options: RandomizeOptions,
+) -> String {
+    unreachable!()
 }
 
 #[tauri::command]

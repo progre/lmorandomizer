@@ -36,7 +36,7 @@ jobs:
             ~/.cargo/registry/index/
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
-            src-tauri/target/
+            target/
           key: ${{ runner.os }}-${{ matrix.cache_key }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
       - name: setup node
@@ -65,6 +65,12 @@ jobs:
           cd src-tauri/
           cargo test --release
 
+      - name: build lib (Windows only)
+        if: startsWith(github.ref, 'refs/tags/') && matrix.platform == 'windows-latest'
+        shell: bash
+        run: |
+          cargo build --package lmorandomizer-lib --target i686-pc-windows-msvc --release
+
       - if: startsWith(github.ref, 'refs/tags/')
         uses: tauri-apps/tauri-action@v0
         env:
@@ -83,8 +89,9 @@ jobs:
         run: |
           mkdir --parents artifact
           mv \
-            ./src-tauri/target/release/*.exe \
-            ./src-tauri/target/release/res \
+            ./target/i686-pc-windows-msvc/release/*.dll \
+            ./target/release/*.exe \
+            ./target/release/res \
             ./artifact/
           cp LICENSE README.md ./artifact/
       - if: startsWith(github.ref, 'refs/tags/') && matrix.platform == 'windows-latest'
@@ -92,4 +99,3 @@ jobs:
         with:
           name: artifact-windows
           path: ./artifact
-

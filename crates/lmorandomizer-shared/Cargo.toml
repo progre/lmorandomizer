@@ -12,4 +12,6 @@ serde-big-array.workspace = true
 smol.workspace = true
 strum.workspace = true
 tracing.workspace = true
+
+[target.'cfg(windows)'.dependencies]
 windows.workspace = true
