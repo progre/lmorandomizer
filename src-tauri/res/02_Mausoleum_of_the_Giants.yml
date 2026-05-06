@@ -1,13 +1,14 @@
-subWeapons:
-  touken:
-  ankhJewel:mausoleumOfTheGiants:
-chests:
-  map:mausoleumOfTheGiants:
-  sacredOrb:mausoleumOfTheGiants:
-shops:
-  toukenAmmo, sealOfElGiza, weights:
-roms:
-  frogger:
-  hyperOlympic2:
-  magicalTree:
-  gameCollection3:
+mausoleumOfTheGiants/main:
+  subWeapons:
+    touken:
+    ankhJewel:mausoleumOfTheGiants:
+  chests:
+    map:mausoleumOfTheGiants:
+    sacredOrb:mausoleumOfTheGiants:
+  shops:
+    toukenAmmo, sealOfElGiza, weights:
+  roms:
+    frogger:
+    hyperOlympic2:
+    magicalTree:
+    gameCollection3:

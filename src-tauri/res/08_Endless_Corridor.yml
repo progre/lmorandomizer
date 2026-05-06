@@ -1,25 +1,29 @@
-mainWeapons:
-  keySword:
-    - keyOfEternity
-chests:
-  map:endlessCorridor:
-  twinStatue:
-    - keyOfEternity, feather
-    - keyOfEternity, grappleClaw
-    - option:glitch, holyGrail # https://youtu.be/7_D0TQ7ZWk0?si=g1TK2_l7qHGtg2Dm&t=2368
-shops:
-  bombAmmo, toukenAmmo, weights:
-    - lifeSeal
-roms:
-  videoHustler:
-  konamiGolf:
-    - keyOfEternity
-  konamiBoxing:
-    - keyOfEternity, feather
-    - keyOfEternity, grappleClaw
-  yieArKungFu2:
-    - keyOfEternity, feather, spear, spearAmmo
-    - keyOfEternity, grappleClaw, spear, spearAmmo
-    - keyOfEternity, feather, touken, toukenAmmo
-    - keyOfEternity, grappleClaw, touken, toukenAmmo
+endlessCorridor/main:
+  chests:
+    map:endlessCorridor:
+  shops:
+    bombAmmo, toukenAmmo, weights:
+      - lifeSeal
+  roms:
+    videoHustler:
 
+endlessCorridor/basement:
+  mainWeapons:
+    keySword:
+      - keyOfEternity
+  chests:
+    twinStatue:
+      - keyOfEternity, feather
+      - keyOfEternity, grappleClaw
+      - option:glitch, holyGrail # https://youtu.be/7_D0TQ7ZWk0?si=g1TK2_l7qHGtg2Dm&t=2368
+  roms:
+    konamiGolf:
+      - keyOfEternity
+    konamiBoxing:
+      - keyOfEternity, feather
+      - keyOfEternity, grappleClaw
+    yieArKungFu2:
+      - keyOfEternity, feather, spear, spearAmmo
+      - keyOfEternity, grappleClaw, spear, spearAmmo
+      - keyOfEternity, feather, touken, toukenAmmo
+      - keyOfEternity, grappleClaw, touken, toukenAmmo

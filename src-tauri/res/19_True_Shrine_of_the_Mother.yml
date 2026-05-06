@@ -1,4 +1,7 @@
-roms:
-  sdSnatcher:
-    - event:reachedTrueShrineOfTheMother, feather
-    - event:reachedTrueShrineOfTheMother, grappleClaw
+trueShrineOfTheMother/main:
+  accessRules:
+    - event:reachedTrueShrineOfTheMother
+  roms:
+    sdSnatcher:
+      - feather
+      - grappleClaw

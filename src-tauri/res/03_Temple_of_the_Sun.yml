@@ -1,31 +1,32 @@
-mainWeapons:
-  knife:
-    - shuriken, shurikenAmmo
-    - pistol, ammunition # pistol can reach
-    - bomb, bombAmmo # bombs can reach
-subWeapons:
-  ankhJewel:templeOfTheSun:
-chests:
-  bronzeMirror:
-    - ankhJewel:templeOfTheSun, handScanner, glyphReader
-  map:templeOfTheSun:
-  talisman:
-    - event:defeatedViy
-  boots:
-    - event:floodedTempleOfTheSun
-    - feather
-  sacredOrb:templeOfTheSun:
-shops:
-  toukenAmmo, spearAmmo, flareGunAmmo:
-    - shuriken, shurikenAmmo
-    - pistol, ammunition # pistol can reach
-    - bomb, bombAmmo # bombs can reach
-    - feather
-  heatproofCase, divinerSensation, weights:
-  ammunition, bombAmmo, shurikenAmmo:
-    - deathSeal, feather # need feather
-roms:
-  superCobra:
-  yieArKungFu:
-  kingsValley:
-    - bomb, bombAmmo
+templeOfTheSun/main:
+  mainWeapons:
+    knife:
+      - shuriken, shurikenAmmo
+      - pistol, ammunition # pistol can reach
+      - bomb, bombAmmo # bombs can reach
+  subWeapons:
+    ankhJewel:templeOfTheSun:
+  chests:
+    bronzeMirror:
+      - ankhJewel:templeOfTheSun, handScanner, glyphReader
+    map:templeOfTheSun:
+    talisman:
+      - event:defeatedViy
+    boots:
+      - event:floodedTempleOfTheSun
+      - feather
+    sacredOrb:templeOfTheSun:
+  shops:
+    toukenAmmo, spearAmmo, flareGunAmmo:
+      - shuriken, shurikenAmmo
+      - pistol, ammunition # pistol can reach
+      - bomb, bombAmmo # bombs can reach
+      - feather
+    heatproofCase, divinerSensation, weights:
+    ammunition, bombAmmo, shurikenAmmo:
+      - deathSeal, feather # need feather
+  roms:
+    superCobra:
+    yieArKungFu:
+    kingsValley:
+      - bomb, bombAmmo

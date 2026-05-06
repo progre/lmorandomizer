@@ -1,20 +1,28 @@
-chests:
-  crystalSkull:
-    - event:reachedFrontOfShrineOfTheMother, mulanaTalisman, lifeSeal
-    - option:glitch, event:twinLabyrinthsGlitch, lifeSeal, twinStatue, knife, msx2, athleticLand, cabbagePatchKids # https://youtu.be/k4S4xUn8zFI
-  sacredOrb:shrineOfTheMother:
-    - event:reachedFrontOfShrineOfTheMother, originSeal, birthSeal, lifeSeal, deathSeal
-  diary:
-    - event:reachedFrontOfShrineOfTheMother, talisman, lifeSeal, lampOfTime, feather # need feather
-  map:shrineOfTheMother:
+shrineOfTheMother/main:
+  chests:
+    crystalSkull:
+      - event:reachedFrontOfShrineOfTheMother, mulanaTalisman, lifeSeal
+      - option:glitch, event:twinLabyrinthsGlitch, lifeSeal, twinStatue, knife, msx2, athleticLand, cabbagePatchKids # https://youtu.be/k4S4xUn8zFI
+    sacredOrb:shrineOfTheMother:
+      - event:reachedFrontOfShrineOfTheMother, originSeal, birthSeal, lifeSeal, deathSeal
+    diary:
+      - event:reachedFrontOfShrineOfTheMother, talisman, lifeSeal, lampOfTime, feather # need feather
+  roms:
+    konamiBaseball:
+      - event:reachedFrontOfShrineOfTheMother
+    breakShot:
+      - event:reachedFrontOfShrineOfTheMother
+    snatcher:
+      - event:reachedFrontOfShrineOfTheMother, holyGrail
+
+shrineOfTheMother/map:
+  accessRules:
     - event:reachedMapSpotOfShrineOfTheMother
-seals:
-  deathSeal:
+  chests:
+    map:shrineOfTheMother:
+
+shrineOfTheMother/seal:
+  accessRules:
     - event:reachedDeathSealSpot
-roms:
-  konamiBaseball:
-    - event:reachedFrontOfShrineOfTheMother
-  breakShot:
-    - event:reachedFrontOfShrineOfTheMother
-  snatcher:
-    - event:reachedFrontOfShrineOfTheMother, holyGrail
+  seals:
+    deathSeal:

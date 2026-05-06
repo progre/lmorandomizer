@@ -1,28 +1,29 @@
-mainWeapons:
-  katana:
-    - event:releasedTwins, flareGun, flareGunAmmo, knife
-    - event:twinLabyrinthsGlitch, twinStatue, knife
-chests:
-  ring:
+twinLabyrinthsLeft/main:
+  accessRules:
     - event:releasedTwins
     - event:twinLabyrinthsGlitch
-  map:twinLabyrinths:
-    - event:releasedTwins
-  sacredOrb:twinLabyrinths:
-    - event:releasedTwins
-    - event:twinLabyrinthsGlitch
-shops:
-  helmet, bombAmmo, fakeHandScanner:
-  lampOfTime, shurikenAmmo, toukenAmmo:
-    - event:releasedTwins, feather, boots # need feather and boots. puzzle is unsolvable so bombs not needed
-    - event:twinLabyrinthsGlitch
-roms:
-  circusCharlie:
-    - event:releasedTwins
-  comicBakery:
-    - event:releasedTwins
-    - event:twinLabyrinthsGlitch
-  penguinAdventure:
-    - event:releasedTwins, flareGun, flareGunAmmo, bomb, bombAmmo
-  gameCollection4:
-    - event:releasedTwins
+  mainWeapons:
+    katana:
+      - flareGun, flareGunAmmo, knife
+      - event:twinLabyrinthsGlitch, twinStatue, knife
+  chests:
+    ring:
+    map:twinLabyrinths:
+      - event:releasedTwins
+    sacredOrb:twinLabyrinths:
+  shops:
+    lampOfTime, shurikenAmmo, toukenAmmo:
+      - feather, boots # need feather and boots. puzzle is unsolvable so bombs not needed
+      - event:twinLabyrinthsGlitch
+  roms:
+    circusCharlie:
+      - event:releasedTwins
+    comicBakery:
+    penguinAdventure:
+      - event:releasedTwins, flareGun, flareGunAmmo, bomb, bombAmmo
+    gameCollection4:
+      - event:releasedTwins
+
+twinLabyrinthsLeft/loop:
+  shops:
+    helmet, bombAmmo, fakeHandScanner:

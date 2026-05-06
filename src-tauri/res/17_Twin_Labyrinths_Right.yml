@@ -1,19 +1,22 @@
-subWeapons:
-  ankhJewel:twinLabyrinths:
+twinLabyrinthsRight/main:
+  accessRules:
     - event:releasedTwins
-chests:
-shops:
-  scriptures, bombAmmo, spearAmmo:
-    - event:releasedTwins, feather
-  dragonBone, spearAmmo, flareGunAmmo:
-    - fakeHandScanner
-roms:
-  hyperSports2:
-    - event:releasedTwins
-  konamiPingPong:
-    - event:releasedTwins
-  ganbareGoemon:
-    - event:releasedTwins, feather
-  usas:
-    - event:releasedTwins, flareGun, flareGunAmmo
-  pennantRace:
+  subWeapons:
+    ankhJewel:twinLabyrinths:
+  shops:
+    scriptures, bombAmmo, spearAmmo:
+      - feather
+  roms:
+    hyperSports2:
+    konamiPingPong:
+    ganbareGoemon:
+      - feather
+    usas:
+      - flareGun, flareGunAmmo
+
+twinLabyrinthsRight/loop:
+  shops:
+    dragonBone, spearAmmo, flareGunAmmo:
+      - fakeHandScanner
+  roms:
+    pennantRace:

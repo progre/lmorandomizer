@@ -40,6 +40,8 @@ impl GameStructureFiles {
 #[serde(rename_all = "camelCase")]
 pub struct FieldYaml {
     #[serde(default)]
+    pub access_rules: Vec<String>,
+    #[serde(default)]
     pub main_weapons: BTreeMap<String, Vec<String>>,
     #[serde(default)]
     pub sub_weapons: BTreeMap<String, Vec<String>>,
@@ -57,8 +59,52 @@ pub struct FieldYaml {
 
 impl FieldYaml {
     fn new(raw_str: &str) -> serde_yaml::Result<Self> {
-        serde_yaml::from_str(raw_str)
+        let regions: BTreeMap<String, FieldYaml> = serde_yaml::from_str(raw_str)?;
+        Ok(regions.into_values().fold(FieldYaml::default(), |acc, x| {
+            let main_weapons = merge_access_rules_for_each_keys(x.main_weapons, &x.access_rules);
+            let sub_weapons = merge_access_rules_for_each_keys(x.sub_weapons, &x.access_rules);
+            let chests = merge_access_rules_for_each_keys(x.chests, &x.access_rules);
+            let seals = merge_access_rules_for_each_keys(x.seals, &x.access_rules);
+            let roms = merge_access_rules_for_each_keys(x.roms, &x.access_rules);
+            let shops = merge_access_rules_for_each_keys(x.shops, &x.access_rules);
+            let talks = merge_access_rules_for_each_keys(x.talks, &x.access_rules);
+            FieldYaml {
+                access_rules: vec![],
+                main_weapons: acc.main_weapons.into_iter().chain(main_weapons).collect(),
+                sub_weapons: acc.sub_weapons.into_iter().chain(sub_weapons).collect(),
+                chests: acc.chests.into_iter().chain(chests).collect(),
+                seals: acc.seals.into_iter().chain(seals).collect(),
+                roms: acc.roms.into_iter().chain(roms).collect(),
+                shops: acc.shops.into_iter().chain(shops).collect(),
+                talks: acc.talks.into_iter().chain(talks).collect(),
+            }
+        }))
     }
+}
+
+fn merge_access_rules_for_each_keys(
+    map: BTreeMap<String, Vec<String>>,
+    common: &[String],
+) -> BTreeMap<String, Vec<String>> {
+    map.into_iter()
+        .map(|(key, value)| (key, merge_access_rules(value, common)))
+        .collect()
+}
+
+fn merge_access_rules(a: Vec<String>, b: &[String]) -> Vec<String> {
+    if a.is_empty() {
+        return b.to_owned();
+    }
+    a.into_iter()
+        .flat_map(|x| {
+            if b.is_empty() {
+                return vec![x];
+            }
+            b.iter()
+                .map(|y| format!("{}, {}", x, y))
+                .collect::<Vec<_>>()
+        })
+        .collect()
 }
 
 #[derive(serde::Deserialize)]

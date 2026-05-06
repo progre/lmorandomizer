@@ -1,23 +1,25 @@
 # TODO: The upper side should be completely lightened before going
-chests:
-  sacredOrb:chamberOfExtinction:
-    - event:lightedUpChamberOfExtinction, feather # need a way out
-    - event:lightedUpChamberOfExtinction, originSeal # need a way out
-    - event:lightedUpChamberOfExtinction, holyGrail # need a way out
-  map:chamberOfExtinction:
+chamberOfExtinction/main:
+  accessRules:
     - event:lightedUpChamberOfExtinction
-seals:
-  lifeSeal:
-    - event:lightedUpChamberOfExtinction, birthSeal, axe # need axe to open wall
-shops:
-  spearAmmo, flareGunAmmo, bombAmmo:
+  chests:
+    sacredOrb:chamberOfExtinction:
+      - feather # need a way out
+      - originSeal # need a way out
+      - holyGrail # need a way out
+    map:chamberOfExtinction:
+  seals:
+    lifeSeal:
+      - birthSeal, axe # need axe to open wall
+  roms:
+    timePilot:
+    hyperOlympic1:
+    mazeOfGalious:
+      - msx2, qBert, divinerSensation
+    metalGear2: # not yet tested with initial status
+
+chamberOfExtinction/ankh:
+  accessRules:
     - event:reachedPalenque
-roms:
-  timePilot:
-    - event:lightedUpChamberOfExtinction
-  hyperOlympic1:
-    - event:lightedUpChamberOfExtinction
-  mazeOfGalious:
-    - event:lightedUpChamberOfExtinction, msx2, qBert, divinerSensation
-  metalGear2:
-    - event:lightedUpChamberOfExtinction # not yet tested with initial status
+  shops:
+    spearAmmo, flareGunAmmo, bombAmmo:

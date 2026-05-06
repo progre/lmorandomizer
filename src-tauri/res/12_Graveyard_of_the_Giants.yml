@@ -1,24 +1,37 @@
-subWeapons:
-  silverShield:
-    - event:reachedLiarOfGraveyardOfTheGiants, katana
-  bomb:
-    - event:reachedBackDoorOfGraveyardOfTheGiants
-chests:
-  contra:
+graveyardOfTheGiants/main:
+  accessRules:
     - event:reachedLiarOfGraveyardOfTheGiants
     - event:reachedFrontOfTempleOfMoonlight, shuriken, shurikenAmmo, katana, keySword, knife
-  map:graveyardOfTheGiants:
-    - event:reachedFrontOfGraveyardOfTheGiants, feather
-    - event:reachedFrontOfGraveyardOfTheGiants, boots
-  gauntlet:
-    - event:reachedFrontOfGraveyardOfTheGiants, birthSeal, grappleClaw
-shops:
-  spearAmmo, fakeSilverShield, weights:
-    - event:reachedLiarOfGraveyardOfTheGiants # need to reach Liar shop not just front door
-roms:
-  skyJaguar:
+  chests:
+    contra:
+
+graveyardOfTheGiants/west:
+  accessRules:
+    - event:reachedLiarOfGraveyardOfTheGiants
+  subWeapons:
+    silverShield:
+      - katana
+  shops:
+    spearAmmo, fakeSilverShield, weights:
+
+graveyardOfTheGiants/lower:
+  accessRules:
     - event:reachedFrontOfGraveyardOfTheGiants
-  mopiRanger:
+  chests:
+    map:graveyardOfTheGiants:
+      - feather
+      - boots
+    gauntlet:
+      - birthSeal, grappleClaw
+  roms:
+    skyJaguar:
+
+graveyardOfTheGiants/east:
+  accessRules:
     - event:reachedBackDoorOfGraveyardOfTheGiants
-  spaceManbow:
-    - event:reachedBackDoorOfGraveyardOfTheGiants, bomb, bombAmmo
+  subWeapons:
+    bomb:
+  roms:
+    mopiRanger:
+    spaceManbow:
+      - bomb, bombAmmo

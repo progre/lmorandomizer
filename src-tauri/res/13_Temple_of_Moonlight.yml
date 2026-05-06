@@ -1,30 +1,40 @@
-mainWeapons:
-  axe:
-    - event:reachedFrontOfTempleOfMoonlight, shuriken, shurikenAmmo, knife, boots
-chests:
-  bookOfTheDead:
-    - event:reachedFrontOfTempleOfMoonlight, event:surviveAnubis, birthSeal, feather # need a way out and survive anubis
-    - event:reachedFrontOfTempleOfMoonlight, event:surviveAnubis, birthSeal, grappleClaw
-    - event:reachedFrontOfTempleOfMoonlight, event:surviveAnubis, birthSeal, holyGrail
-  iceCape:
+templeOfMoonlight/main:
+  accessRules:
     - event:reachedGrailOfTempleOfMoonlight
-  map:TempleOfMoonlight:
-    - event:reachedGrailOfTempleOfMoonlight
-  ocarina:
-    - event:reachedFrontOfTempleOfMoonlight, event:escapeFromTempleOfMoonlight, flareGun, flareGunAmmo, womanStatue, feather # need a way out of moonlight
-    - event:reachedFrontOfTempleOfMoonlight, event:escapeFromTempleOfMoonlight, flareGun, flareGunAmmo, womanStatue, grappleClaw # Sperm can appear by moving from C-4 to D-4 outside of Moonlight's pyramid. This is a very confusing condition and you will have to check with the Editor to find out.
-    - option:glitch, event:escapeFromTempleOfMoonlight, flareGun, flareGunAmmo # https://youtu.be/7_D0TQ7ZWk0?si=ihOBzdfkrRGv06Pv&t=2302
-    - option:glitch, event:reachedFrontOfTempleOfMoonlight, shuriken, shurikenAmmo, axe # https://youtu.be/YVIJwPo2CQw
-  serpentStaff:
-    - event:reachedFrontOfTempleOfMoonlight, feather
-    - event:reachedFrontOfTempleOfMoonlight, grappleClaw
-shops:
-  bracelet, shurikenAmmo, ammunition:
-    - event:reachedFrontOfTempleOfMoonlight, event:surviveAnubis, bomb, bombAmmo # survive anubis
-roms:
-  twinbee:
+  chests:
+    iceCape:
+    map:TempleOfMoonlight:
+  roms:
+    pennantRace2:
+      - holyGrail
+
+templeOfMoonlight/pyramid:
+  chests:
+    ocarina:
+      - event:reachedFrontOfTempleOfMoonlight, event:escapeFromTempleOfMoonlight, flareGun, flareGunAmmo, womanStatue, feather # need a way out of moonlight
+      - event:reachedFrontOfTempleOfMoonlight, event:escapeFromTempleOfMoonlight, flareGun, flareGunAmmo, womanStatue, grappleClaw # Sperm can appear by moving from C-4 to D-4 outside of Moonlight's pyramid. This is a very confusing condition and you will have to check with the Editor to find out.
+      - option:glitch, event:escapeFromTempleOfMoonlight, flareGun, flareGunAmmo # https://youtu.be/7_D0TQ7ZWk0?si=ihOBzdfkrRGv06Pv&t=2302
+      - option:glitch, event:reachedFrontOfTempleOfMoonlight, shuriken, shurikenAmmo, axe # https://youtu.be/YVIJwPo2CQw
+  roms:
+    parodius:
+      - event:escapeFromTempleOfMoonlight, flareGun, flareGunAmmo
+
+templeOfMoonlight/lower:
+  accessRules:
     - event:reachedFrontOfTempleOfMoonlight
-  parodius:
-    - event:escapeFromTempleOfMoonlight, flareGun, flareGunAmmo
-  pennantRace2:
-    - event:reachedGrailOfTempleOfMoonlight, holyGrail
+  mainWeapons:
+    axe:
+      - shuriken, shurikenAmmo, knife, boots
+  chests:
+    bookOfTheDead:
+      - event:surviveAnubis, birthSeal, feather # need a way out and survive anubis
+      - event:surviveAnubis, birthSeal, grappleClaw
+      - event:surviveAnubis, birthSeal, holyGrail
+    serpentStaff:
+      - feather
+      - grappleClaw
+  shops:
+    bracelet, shurikenAmmo, ammunition:
+      - event:surviveAnubis, bomb, bombAmmo # survive anubis
+  roms:
+    twinbee:
