@@ -4,9 +4,12 @@ use std::{
     os::{raw::c_void, windows::ffi::OsStringExt},
     path::Path,
     ptr::null_mut,
+    thread::sleep,
+    time::Duration,
 };
 
 use anyhow::{Result, bail};
+use log::debug;
 use windows::{
     Win32::{
         Foundation::{GetLastError, HANDLE, HMODULE, MAX_PATH},
@@ -45,7 +48,20 @@ pub fn do_dll_injection(process_id: u32, dll_path: &Path) -> Result<bool> {
     let base_addr = remote_dll_path_wstr.addr;
     let buf = dll_path_hstr_range.start as _;
     unsafe { WriteProcessMemory(*process, base_addr, buf, dll_path_hstr_size, None) }.unwrap();
-    let load_library_w_addr = find_func_addr(process_id, "KERNEL32.DLL", "LoadLibraryW").unwrap();
+    let mut i = 0;
+    let load_library_w_addr = loop {
+        match find_func_addr(process_id, "KERNEL32.DLL", "LoadLibraryW") {
+            Ok(addr) => break addr,
+            Err(err) if i < 10 => {
+                debug!("Failed to find LoadLibraryW: {err}. Retrying...");
+                i += 1;
+                sleep(Duration::from_millis(100));
+            }
+            Err(err) => {
+                return Err(err);
+            }
+        }
+    };
 
     let start_addr = unsafe { transmute::<usize, LPTHREAD_START_ROUTINE>(load_library_w_addr) };
     let param: Option<*const c_void> = Some(remote_dll_path_wstr.addr);
