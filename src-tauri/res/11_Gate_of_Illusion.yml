@@ -1,15 +1,15 @@
-gateOfIllusion/main:
-  accessRules:
-    - event:reachedGrailOfGateOfIllusion
-  roms:
-    roadFighter:
-
 gateOfIllusion/upper:
   accessRules:
     - event:reachedBackDoorOfGateOfIllusion
   chests:
     cogOfTheSoul:
       - event:reachedElevatorOfGateOfIllusion, event:escapeShu, lampOfTime # need to kill Shu to open chest
+
+gateOfIllusion/main:
+  accessRules:
+    - event:reachedGrailOfGateOfIllusion
+  roms:
+    roadFighter:
 
 gateOfIllusion/middle:
   accessRules:

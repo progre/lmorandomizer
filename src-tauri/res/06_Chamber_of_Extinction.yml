@@ -1,3 +1,11 @@
+chamberOfExtinction/magatama:
+
+chamberOfExtinction/ankh:
+  accessRules:
+    - event:reachedPalenque
+  shops:
+    spearAmmo, flareGunAmmo, bombAmmo:
+
 # TODO: The upper side should be completely lightened before going
 chamberOfExtinction/main:
   accessRules:
@@ -17,9 +25,3 @@ chamberOfExtinction/main:
     mazeOfGalious:
       - msx2, qBert, divinerSensation
     metalGear2: # not yet tested with initial status
-
-chamberOfExtinction/ankh:
-  accessRules:
-    - event:reachedPalenque
-  shops:
-    spearAmmo, flareGunAmmo, bombAmmo:

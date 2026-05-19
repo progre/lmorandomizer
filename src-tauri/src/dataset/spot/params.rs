@@ -1,8 +1,34 @@
-use std::fmt;
+use std::fmt::{self, Display};
 
 use vec1::Vec1;
 
 use crate::script::enums::FieldNumber;
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct Region {
+    field_number: FieldNumber,
+    name: String,
+}
+
+impl Region {
+    pub fn new(field_number: FieldNumber, name: String) -> Self {
+        Self { field_number, name }
+    }
+
+    pub fn field_number(&self) -> FieldNumber {
+        self.field_number
+    }
+
+    pub fn get(&self) -> &str {
+        self.name.as_str()
+    }
+}
+
+impl Display for Region {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        self.name.fmt(f)
+    }
+}
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct SpotName(String);
@@ -57,7 +83,7 @@ pub struct AnyOfAllRequirements(pub Vec1<AllRequirements>);
 
 #[derive(Clone, Debug)]
 pub struct SpotParams<T> {
-    pub field_number: FieldNumber,
+    pub region: Region,
     pub name: SpotName,
     pub content: T,
     pub requirements: Option<AnyOfAllRequirements>,
@@ -65,13 +91,13 @@ pub struct SpotParams<T> {
 
 impl<T> SpotParams<T> {
     pub fn new(
-        field_number: FieldNumber,
+        region: Region,
         name: SpotName,
         content: T,
         requirements: Option<AnyOfAllRequirements>,
     ) -> Self {
         Self {
-            field_number,
+            region,
             name,
             content,
             requirements,
@@ -79,12 +105,6 @@ impl<T> SpotParams<T> {
     }
 
     pub fn fmt(&self, f: &mut fmt::Formatter<'_>, type_name: &str) -> fmt::Result {
-        write!(
-            f,
-            "{:?}_{}({})",
-            self.field_number,
-            type_name,
-            self.name.get()
-        )
+        write!(f, "{}/{}({})", self.region, type_name, self.name.get())
     }
 }

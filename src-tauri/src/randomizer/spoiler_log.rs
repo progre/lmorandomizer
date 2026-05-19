@@ -64,24 +64,18 @@ fn fmt_checkpoints(checkpoints: &[&Checkpoint], f: &mut fmt::Formatter<'_>) -> f
             }
         }
         match checkpoint {
-            Checkpoint::MainWeapon(checkpoint) => {
-                writeln!(f, "{} = {}", checkpoint.spot, checkpoint.item.name.get())?
+            Checkpoint::MainWeapon(MainWeapon { spot, item }) => {
+                writeln!(f, "{} = {}", spot, item.name.get())?
             }
-            Checkpoint::SubWeapon(checkpoint) => {
-                writeln!(f, "{} = {}", checkpoint.spot, checkpoint.item.name.get())?
+            Checkpoint::SubWeapon(SubWeapon { spot, item }) => {
+                writeln!(f, "{} = {}", spot, item.name.get())?
             }
-            Checkpoint::Chest(checkpoint) => {
-                writeln!(f, "{} = {}", checkpoint.spot, checkpoint.item.name.get())?
+            Checkpoint::Chest(Chest { spot, item }) => {
+                writeln!(f, "{} = {}", spot, item.name.get())?
             }
-            Checkpoint::Seal(checkpoint) => {
-                writeln!(f, "{} = {}", checkpoint.spot, checkpoint.item.name.get())?
-            }
-            Checkpoint::Rom(checkpoint) => {
-                writeln!(f, "{} = {}", checkpoint.spot, checkpoint.item.name.get())?
-            }
-            Checkpoint::Talk(checkpoint) => {
-                writeln!(f, "{} = {}", checkpoint.spot, checkpoint.item.name.get())?
-            }
+            Checkpoint::Seal(Seal { spot, item }) => writeln!(f, "{} = {}", spot, item.name.get())?,
+            Checkpoint::Rom(Rom { spot, item }) => writeln!(f, "{} = {}", spot, item.name.get())?,
+            Checkpoint::Talk(Talk { spot, item }) => writeln!(f, "{} = {}", spot, item.name.get())?,
             Checkpoint::Shop(checkpoint) => {
                 shop.push(checkpoint);
             }
@@ -155,9 +149,22 @@ impl<'a> CheckpointRef<'a> {
 }
 
 #[derive(Debug)]
-pub struct Sphere(pub Vec<Checkpoint>);
+pub struct Sphere(Vec<Checkpoint>);
+pub struct SphereRef<'a>(Vec<CheckpointRef<'a>>);
 
-pub struct SphereRef<'a>(pub Vec<CheckpointRef<'a>>);
+impl<'a> SphereRef<'a> {
+    pub fn new(checkpoints: Vec<CheckpointRef<'a>>) -> Self {
+        Self(checkpoints)
+    }
+
+    pub fn iter(&self) -> impl Iterator<Item = &CheckpointRef<'a>> {
+        self.0.iter()
+    }
+
+    pub fn into_inner(self) -> Vec<CheckpointRef<'a>> {
+        self.0
+    }
+}
 
 #[derive(Debug)]
 pub struct SpoilerLog {
@@ -189,24 +196,30 @@ impl fmt::Display for SpoilerLog {
                 .collect();
             checkpoints.sort_by_key(|checkpoint| {
                 let (field, type_num, src_idx) = match checkpoint {
-                    Checkpoint::MainWeapon(x) => {
-                        (x.spot.field_number(), 1, x.spot.main_weapon() as usize)
-                    }
-                    Checkpoint::SubWeapon(x) => {
-                        (x.spot.field_number(), 2, x.spot.sub_weapon() as usize)
-                    }
+                    Checkpoint::MainWeapon(x) => (
+                        x.spot.region().field_number(),
+                        1,
+                        x.spot.main_weapon() as usize,
+                    ),
+                    Checkpoint::SubWeapon(x) => (
+                        x.spot.region().field_number(),
+                        2,
+                        x.spot.sub_weapon() as usize,
+                    ),
                     Checkpoint::Chest(x) => {
                         let number = match x.spot.item() {
                             ChestItem::Equipment(equipment) => equipment as usize,
                             ChestItem::Rom(rom) => 100 + rom as usize,
                         };
-                        (x.spot.field_number(), 3, number)
+                        (x.spot.region().field_number(), 3, number)
                     }
-                    Checkpoint::Seal(x) => (x.spot.field_number(), 4, x.spot.seal() as usize),
-                    Checkpoint::Rom(x) => (x.spot.field_number(), 5, 0),
-                    Checkpoint::Talk(x) => (x.spot.field_number(), 6, 0),
+                    Checkpoint::Seal(x) => {
+                        (x.spot.region().field_number(), 4, x.spot.seal() as usize)
+                    }
+                    Checkpoint::Rom(x) => (x.spot.region().field_number(), 5, 0),
+                    Checkpoint::Talk(x) => (x.spot.region().field_number(), 6, 0),
                     Checkpoint::Shop(x) => (
-                        x.spot.field_number(),
+                        x.spot.region().field_number(),
                         7,
                         shop_list.iter().position(|&y| y == x.spot.items()).unwrap(),
                     ),

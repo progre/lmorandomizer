@@ -1,6 +1,6 @@
 use std::fmt;
 
-use crate::script::enums::{FieldNumber, ShopItem};
+use crate::{dataset::spot::params::Region, script::enums::ShopItem};
 
 use super::params::{AnyOfAllRequirements, SpotName, SpotParams};
 
@@ -9,7 +9,7 @@ pub struct ShopSpot(SpotParams<[Option<ShopItem>; 3]>);
 
 impl ShopSpot {
     pub fn new(
-        field_number: FieldNumber,
+        region: Region,
         name: SpotName,
         content: [Option<ShopItem>; 3],
         requirements: Option<AnyOfAllRequirements>,
@@ -18,11 +18,11 @@ impl ShopSpot {
             let names: Vec<_> = name.get().split(',').map(|x| x.trim()).collect();
             debug_assert_eq!(names.len(), 3);
         }
-        Self(SpotParams::new(field_number, name, content, requirements))
+        Self(SpotParams::new(region, name, content, requirements))
     }
 
-    pub fn field_number(&self) -> FieldNumber {
-        self.0.field_number
+    pub fn region(&self) -> &Region {
+        &self.0.region
     }
     pub fn name(&self) -> &SpotName {
         &self.0.name

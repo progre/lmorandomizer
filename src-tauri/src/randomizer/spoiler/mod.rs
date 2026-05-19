@@ -54,14 +54,14 @@ fn maps<'a>(
     let mut twin_labrynths_spots = Vec::new();
     for spot in &spots.field_item_spots {
         if matches!(
-            spot.field_number(),
+            spot.region().field_number(),
             FieldNumber::TwinLabyrinthsLeft | FieldNumber::TwinLabyrinthsRight
         ) {
             twin_labrynths_spots.push(*spot);
             continue;
         }
         spot_hash_map
-            .entry(spot.field_number())
+            .entry(spot.region().field_number())
             .or_default()
             .push(*spot);
     }

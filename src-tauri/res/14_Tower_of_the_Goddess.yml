@@ -1,3 +1,8 @@
+towerOfTheGoddess/upper:
+  chests:
+    planeModel:
+      - event:reachedTowerOfTheGoddess, feather, grappleClaw, boots, handScanner, glyphReader # need boots to climb tower. need to flood tower to open chest
+
 towerOfTheGoddess/main:
   mainWeapons:
     mace:
@@ -17,7 +22,4 @@ towerOfTheGoddess/main:
     pippols:
       - event:reachedLowerOfChamberOfBirth, lampOfTime
 
-towerOfTheGoddess/top:
-  chests:
-    planeModel:
-      - event:reachedTowerOfTheGoddess, feather, grappleClaw, boots, handScanner, glyphReader # need boots to climb tower. need to flood tower to open chest
+towerOfTheGoddess/passage:

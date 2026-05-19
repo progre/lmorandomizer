@@ -41,7 +41,7 @@ fn create_shuffled_storage(source: &Storage, spoiler_log: &SpoilerLogRef) -> Sto
     for checkpoint in spoiler_log
         .progression
         .iter()
-        .flat_map(|sphere| &sphere.0)
+        .flat_map(|sphere| sphere.iter())
         .chain(&spoiler_log.maps)
     {
         match checkpoint {
@@ -50,11 +50,14 @@ fn create_shuffled_storage(source: &Storage, spoiler_log: &SpoilerLogRef) -> Sto
                 storage.main_weapons.get_mut(&content).unwrap().item = main_weapon.item.clone();
             }
             CheckpointRef::SubWeapon(sub_weapon) => {
-                let key = (sub_weapon.spot.field_number(), sub_weapon.spot.sub_weapon());
+                let key = (
+                    sub_weapon.spot.region().field_number(),
+                    sub_weapon.spot.sub_weapon(),
+                );
                 storage.sub_weapons.get_mut(&key).unwrap().item = sub_weapon.item.clone();
             }
             CheckpointRef::Chest(chest) => {
-                let key = (chest.spot.field_number(), chest.spot.item());
+                let key = (chest.spot.region().field_number(), chest.spot.item());
                 storage.chests.get_mut(&key).unwrap().item = chest.item.clone();
             }
             CheckpointRef::Seal(seal) => {
@@ -202,12 +205,12 @@ mod tests {
 
         let shuffled_str = format!("{:?}", shuffled);
         let shuffled_hash = hex::encode(sha3::Sha3_512::digest(shuffled_str));
-        const EXPECTED_SHUFFLED_HASH: &str = "3b625a36e814ca5e270529bd69844374c28b67575fbbc34418a5f2ab981b4e2170307175235d40e7a11418ad589bdea1407c306a85e17565d5f957dbb05246ea";
+        const EXPECTED_SHUFFLED_HASH: &str = "851239d6194c3af4012bd875606d1b893e0fe5b0ff96da4cefbfb69cc25a8dd046c7d1292beaeb7bd7f4fb24230470d33a40f6601611ad3012bf5d9ae6dd5a7e";
         assert_eq!(shuffled_hash, EXPECTED_SHUFFLED_HASH);
 
         let spoiler_log_str = format!("{}", spoiler_log.to_owned());
         let spoiler_log_hash = hex::encode(sha3::Sha3_512::digest(spoiler_log_str));
-        const EXPECTED_SPOILER_LOG_HASH: &str = "1d55a19d714b363a5b52bb87fc00cf90ed72f196e85ec97cb880542a40b63b35f30c997ce2917dd3828f1aa7595d9403bedb0bafe947c53d84b844e3bdba54df";
+        const EXPECTED_SPOILER_LOG_HASH: &str = "ba8c846d62acbc089929a7ab5b34926ae842a799a1fe3d4d162ca33eae018f3020046184ef756571c9cb93ca6130d6c59b97f1297dd1e6c16571a352010de5b6";
         assert_eq!(spoiler_log_hash, EXPECTED_SPOILER_LOG_HASH);
 
         Ok(())

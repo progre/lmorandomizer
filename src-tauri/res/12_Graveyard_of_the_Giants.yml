@@ -1,11 +1,4 @@
-graveyardOfTheGiants/main:
-  accessRules:
-    - event:reachedLiarOfGraveyardOfTheGiants
-    - event:reachedFrontOfTempleOfMoonlight, shuriken, shurikenAmmo, katana, keySword, knife
-  chests:
-    contra:
-
-graveyardOfTheGiants/west:
+graveyardOfTheGiants/upper:
   accessRules:
     - event:reachedLiarOfGraveyardOfTheGiants
   subWeapons:
@@ -13,6 +6,23 @@ graveyardOfTheGiants/west:
       - katana
   shops:
     spearAmmo, fakeSilverShield, weights:
+
+graveyardOfTheGiants/main:
+  accessRules:
+    - event:reachedLiarOfGraveyardOfTheGiants
+    - event:reachedFrontOfTempleOfMoonlight, shuriken, shurikenAmmo, katana, keySword, knife
+  chests:
+    contra:
+
+graveyardOfTheGiants/east:
+  accessRules:
+    - event:reachedBackDoorOfGraveyardOfTheGiants
+  subWeapons:
+    bomb:
+  roms:
+    mopiRanger:
+    spaceManbow:
+      - bomb, bombAmmo
 
 graveyardOfTheGiants/lower:
   accessRules:
@@ -25,13 +35,3 @@ graveyardOfTheGiants/lower:
       - birthSeal, grappleClaw
   roms:
     skyJaguar:
-
-graveyardOfTheGiants/east:
-  accessRules:
-    - event:reachedBackDoorOfGraveyardOfTheGiants
-  subWeapons:
-    bomb:
-  roms:
-    mopiRanger:
-    spaceManbow:
-      - bomb, bombAmmo

@@ -1,10 +1,9 @@
 use crate::{
     dataset::spot::{
-        AnyOfAllRequirements, ChestSpot, MainWeaponSpot, RomSpot, SealSpot, ShopSpot,
+        AnyOfAllRequirements, ChestSpot, MainWeaponSpot, Region, RomSpot, SealSpot, ShopSpot,
         SubWeaponSpot, TalkSpot,
     },
     randomizer::storage::{Event, Storage},
-    script::enums::FieldNumber,
 };
 
 use super::sphere::ShopItemDisplay;
@@ -21,15 +20,15 @@ pub enum SpotRef<'a> {
 }
 
 impl SpotRef<'_> {
-    pub fn field_number(&self) -> FieldNumber {
+    pub fn region(&self) -> &Region {
         match self {
-            Self::MainWeapon(x) => x.field_number(),
-            Self::SubWeapon(x) => x.field_number(),
-            Self::Chest(x) => x.field_number(),
-            Self::Seal(x) => x.field_number(),
-            Self::Rom(x) => x.field_number(),
-            Self::Talk(x) => x.field_number(),
-            Self::Shop(x) => x.field_number(),
+            Self::MainWeapon(x) => x.region(),
+            Self::SubWeapon(x) => x.region(),
+            Self::Chest(x) => x.region(),
+            Self::Seal(x) => x.region(),
+            Self::Rom(x) => x.region(),
+            Self::Talk(x) => x.region(),
+            Self::Shop(x) => x.region(),
         }
     }
     pub fn requirements(&self) -> Option<&AnyOfAllRequirements> {

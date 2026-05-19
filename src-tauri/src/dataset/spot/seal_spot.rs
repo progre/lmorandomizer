@@ -1,6 +1,6 @@
 use std::fmt;
 
-use crate::script::enums::{FieldNumber, Seal};
+use crate::{dataset::spot::params::Region, script::enums::Seal};
 
 use super::params::{AnyOfAllRequirements, SpotName, SpotParams};
 
@@ -9,16 +9,16 @@ pub struct SealSpot(SpotParams<Seal>);
 
 impl SealSpot {
     pub fn new(
-        field_number: FieldNumber,
+        region: Region,
         name: SpotName,
         content: Seal,
         requirements: Option<AnyOfAllRequirements>,
     ) -> Self {
-        Self(SpotParams::new(field_number, name, content, requirements))
+        Self(SpotParams::new(region, name, content, requirements))
     }
 
-    pub fn field_number(&self) -> FieldNumber {
-        self.0.field_number
+    pub fn region(&self) -> &Region {
+        &self.0.region
     }
     pub fn name(&self) -> &SpotName {
         &self.0.name

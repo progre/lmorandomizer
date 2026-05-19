@@ -5,7 +5,7 @@ use strum::ParseError;
 use vec1::Vec1;
 
 use crate::{
-    dataset::spot::SpotName,
+    dataset::spot::{Region, SpotName},
     script::enums::{
         ChestItem, Equipment, FieldNumber, MainWeapon, Rom, Seal, ShopItem, SubWeapon, TalkItem,
     },
@@ -17,7 +17,7 @@ use super::spot::{
 };
 
 pub struct GameStructureFiles {
-    pub fields: Vec<(FieldNumber, FieldYaml)>,
+    pub fields: Vec<(Region, FieldTable)>,
     pub events: EventsYaml,
 }
 
@@ -27,10 +27,13 @@ impl GameStructureFiles {
             .into_iter()
             .map(|(field_logic_number, string)| {
                 let field_number = FieldNumber::from_logic_number(field_logic_number).unwrap();
-                let yaml = FieldYaml::new(&string)?;
-                Ok((field_number, yaml))
+                let field_tables = FieldTable::parse(field_number, &string)?;
+                Ok(field_tables)
             })
-            .collect::<Result<_>>()?;
+            .collect::<Result<Vec<_>>>()?
+            .into_iter()
+            .flatten()
+            .collect();
         let events = EventsYaml::new(&events)?;
         Ok(Self { fields, events })
     }
@@ -38,7 +41,7 @@ impl GameStructureFiles {
 
 #[derive(Default, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct FieldYaml {
+pub struct FieldTable {
     #[serde(default)]
     pub access_rules: Vec<String>,
     #[serde(default)]
@@ -57,28 +60,35 @@ pub struct FieldYaml {
     pub talks: BTreeMap<String, Vec<String>>,
 }
 
-impl FieldYaml {
-    fn new(raw_str: &str) -> serde_yaml::Result<Self> {
-        let regions: BTreeMap<String, FieldYaml> = serde_yaml::from_str(raw_str)?;
-        Ok(regions.into_values().fold(FieldYaml::default(), |acc, x| {
-            let main_weapons = merge_access_rules_for_each_keys(x.main_weapons, &x.access_rules);
-            let sub_weapons = merge_access_rules_for_each_keys(x.sub_weapons, &x.access_rules);
-            let chests = merge_access_rules_for_each_keys(x.chests, &x.access_rules);
-            let seals = merge_access_rules_for_each_keys(x.seals, &x.access_rules);
-            let roms = merge_access_rules_for_each_keys(x.roms, &x.access_rules);
-            let shops = merge_access_rules_for_each_keys(x.shops, &x.access_rules);
-            let talks = merge_access_rules_for_each_keys(x.talks, &x.access_rules);
-            FieldYaml {
-                access_rules: vec![],
-                main_weapons: acc.main_weapons.into_iter().chain(main_weapons).collect(),
-                sub_weapons: acc.sub_weapons.into_iter().chain(sub_weapons).collect(),
-                chests: acc.chests.into_iter().chain(chests).collect(),
-                seals: acc.seals.into_iter().chain(seals).collect(),
-                roms: acc.roms.into_iter().chain(roms).collect(),
-                shops: acc.shops.into_iter().chain(shops).collect(),
-                talks: acc.talks.into_iter().chain(talks).collect(),
-            }
-        }))
+impl FieldTable {
+    fn parse(field_number: FieldNumber, raw_str: &str) -> serde_yaml::Result<Vec<(Region, Self)>> {
+        let regions: BTreeMap<String, FieldTable> = serde_yaml::from_str(raw_str)?;
+        Ok(regions
+            .into_iter()
+            .map(|(region_name, x)| {
+                let main_weapons =
+                    merge_access_rules_for_each_keys(x.main_weapons, &x.access_rules);
+                let sub_weapons = merge_access_rules_for_each_keys(x.sub_weapons, &x.access_rules);
+                let chests = merge_access_rules_for_each_keys(x.chests, &x.access_rules);
+                let seals = merge_access_rules_for_each_keys(x.seals, &x.access_rules);
+                let roms = merge_access_rules_for_each_keys(x.roms, &x.access_rules);
+                let shops = merge_access_rules_for_each_keys(x.shops, &x.access_rules);
+                let talks = merge_access_rules_for_each_keys(x.talks, &x.access_rules);
+                (
+                    Region::new(field_number, region_name),
+                    FieldTable {
+                        access_rules: vec![],
+                        main_weapons,
+                        sub_weapons,
+                        chests,
+                        seals,
+                        roms,
+                        shops,
+                        talks,
+                    },
+                )
+            })
+            .collect())
     }
 }
 
@@ -181,13 +191,13 @@ impl GameStructure {
         let mut talks = Vec::new();
         game_structure_files
             .fields
-            .sort_by_key(|(field_number, _)| *field_number as u8);
-        for (field_number, field_data) in game_structure_files.fields {
+            .sort_by_key(|(region, _)| region.field_number() as u8);
+        for (region, field_data) in game_structure_files.fields {
             for (key, value) in field_data.main_weapons {
                 let main_weapon = MainWeapon::from_str(&to_pascal_case(&key))?;
                 let name = SpotName::new(key.clone());
                 let requirements = to_any_of_all_requirements(value)?;
-                let spot = MainWeaponSpot::new(field_number, name, main_weapon, requirements);
+                let spot = MainWeaponSpot::new(region.clone(), name, main_weapon, requirements);
                 main_weapon_shutters.push(spot);
             }
             for (key, value) in field_data.sub_weapons {
@@ -195,7 +205,7 @@ impl GameStructure {
                     SubWeapon::from_str(to_pascal_case(&key).split(":").next().unwrap())?;
                 let name = SpotName::new(key.clone());
                 let requirements = to_any_of_all_requirements(value)?;
-                let spot = SubWeaponSpot::new(field_number, name, sub_weapon, requirements);
+                let spot = SubWeaponSpot::new(region.clone(), name, sub_weapon, requirements);
                 sub_weapon_shutters.push(spot);
             }
             for (key, value) in field_data.chests {
@@ -206,14 +216,14 @@ impl GameStructure {
                     .or_else(|_| Rom::from_str(pascal_case).map(ChestItem::Rom))?;
                 let name = SpotName::new(key.clone());
                 let requirements = to_any_of_all_requirements(value)?;
-                let spot = ChestSpot::new(field_number, name, item, requirements);
+                let spot = ChestSpot::new(region.clone(), name, item, requirements);
                 chests.push(spot);
             }
             for (key, value) in field_data.seals {
                 let seal = Seal::from_str(&to_pascal_case(&key.replace("Seal", "")))?;
                 let name = SpotName::new(key.clone());
                 let requirements = to_any_of_all_requirements(value)?;
-                let spot = SealSpot::new(field_number, name, seal, requirements);
+                let spot = SealSpot::new(region.clone(), name, seal, requirements);
                 seals.push(spot);
             }
             for (key, value) in field_data.roms {
@@ -231,7 +241,7 @@ impl GameStructure {
                         let hand_scanner = RequirementFlag::new("handScanner".into());
                         AnyOfAllRequirements(Vec1::new(AllRequirements(Vec1::new(hand_scanner))))
                     });
-                roadside_roms.push(RomSpot::new(field_number, name, rom, requirements));
+                roadside_roms.push(RomSpot::new(region.clone(), name, rom, requirements));
             }
             for (key, value) in field_data.shops {
                 let items: Vec<_> = key
@@ -259,7 +269,7 @@ impl GameStructure {
                 let name = SpotName::new(key);
                 let any_of_all_requirements = to_any_of_all_requirements(value)?;
                 let items = [items[0], items[1], items[2]];
-                let spot = ShopSpot::new(field_number, name, items, any_of_all_requirements);
+                let spot = ShopSpot::new(region.clone(), name, items, any_of_all_requirements);
                 shops.push(spot)
             }
             for (key, value) in field_data.talks {
@@ -269,7 +279,7 @@ impl GameStructure {
                     .or_else(|_| Rom::from_str(&pascal_case).map(TalkItem::Rom))?;
                 let name = SpotName::new(key.clone());
                 let requirements = to_any_of_all_requirements(value)?;
-                let spot = TalkSpot::new(field_number, name, item, requirements);
+                let spot = TalkSpot::new(region.clone(), name, item, requirements);
                 talks.push(spot);
             }
         }

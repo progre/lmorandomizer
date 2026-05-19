@@ -1,6 +1,6 @@
 use std::fmt;
 
-use crate::script::enums::{ChestItem, FieldNumber};
+use crate::{dataset::spot::params::Region, script::enums::ChestItem};
 
 use super::params::{AnyOfAllRequirements, SpotName, SpotParams};
 
@@ -9,16 +9,16 @@ pub struct ChestSpot(SpotParams<ChestItem>);
 
 impl ChestSpot {
     pub fn new(
-        field_number: FieldNumber,
+        region: Region,
         name: SpotName,
         content: ChestItem,
         requirements: Option<AnyOfAllRequirements>,
     ) -> Self {
-        Self(SpotParams::new(field_number, name, content, requirements))
+        Self(SpotParams::new(region, name, content, requirements))
     }
 
-    pub fn field_number(&self) -> FieldNumber {
-        self.0.field_number
+    pub fn region(&self) -> &Region {
+        &self.0.region
     }
     pub fn name(&self) -> &SpotName {
         &self.0.name

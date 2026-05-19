@@ -3,6 +3,7 @@ use std::{collections::HashSet, ops::Deref};
 use rand::Rng;
 
 use crate::{
+    dataset::spot::Region,
     randomizer::{
         spoiler::{items_pool::UnorderedItems, spots::Spots},
         spoiler_log::{CheckpointRef, SphereRef},
@@ -21,28 +22,28 @@ fn explorer_neighborhood<'a>(
     strategy_flags: &HashSet<&'a StrategyFlag>,
 ) -> (Spots<'a>, Spots<'a>) {
     let (mut working, mut remainings) = explore(remaining_spots, strategy_flags);
-    let is_early = |field_number: FieldNumber| {
+    let is_early = |region: &Region| {
         matches!(
-            field_number,
+            region.field_number(),
             FieldNumber::Surface | FieldNumber::GateOfGuidance
         )
     };
     let (reachables, mut unreachables) = working
         .field_item_spots
         .into_iter()
-        .partition(|x| is_early(x.field_number()));
+        .partition(|x| is_early(x.region()));
     working.field_item_spots = reachables;
     remainings.field_item_spots.append(&mut unreachables);
     let (reachables, mut unreachables) = working
         .talk_spots
         .into_iter()
-        .partition(|x| is_early(x.field_number()));
+        .partition(|x| is_early(x.region()));
     working.talk_spots = reachables;
     remainings.talk_spots.append(&mut unreachables);
     let (reachables, mut unreachables) = working
         .shops
         .into_iter()
-        .partition(|x| is_early(x.spot.field_number()) && !x.name.is_consumable());
+        .partition(|x| is_early(x.spot.region()) && !x.name.is_consumable());
     working.shops = reachables;
     remainings.shops.append(&mut unreachables);
     (working, remainings)
@@ -94,18 +95,18 @@ pub fn pre_sphere<'a>(
         let (mut working, remainings) =
             explorer_neighborhood(remaining_spots.deref(), strategy_flags.deref());
         *remaining_spots = remainings;
-        let mut checkpoints = SphereRef(place_items(rng, [item].into_iter(), &mut working));
+        let checkpoints = SphereRef::new(place_items(rng, [item].into_iter(), &mut working));
         remaining_spots.extend(working);
         append_flags(strategy_flags, &checkpoints);
-        spheres.append(&mut checkpoints.0);
+        spheres.append(&mut checkpoints.into_inner());
     }
     let (mut working, remainings) =
         explorer_neighborhood(remaining_spots.deref(), strategy_flags.deref());
     *remaining_spots = remainings;
     let checkpoints: Vec<_> = place_items(rng, priority_items.iter().copied(), &mut working);
     remaining_spots.extend(working);
-    let mut checkpoints = SphereRef(checkpoints);
+    let checkpoints = SphereRef::new(checkpoints);
     append_flags(strategy_flags, &checkpoints);
-    spheres.append(&mut checkpoints.0);
-    SphereRef(spheres)
+    spheres.append(&mut checkpoints.into_inner());
+    SphereRef::new(spheres)
 }

@@ -1,6 +1,6 @@
 use std::fmt;
 
-use crate::script::enums::{FieldNumber, TalkItem};
+use crate::{dataset::spot::params::Region, script::enums::TalkItem};
 
 use super::{AnyOfAllRequirements, SpotName, params::SpotParams};
 
@@ -9,16 +9,16 @@ pub struct TalkSpot(SpotParams<TalkItem>);
 
 impl TalkSpot {
     pub fn new(
-        field_number: FieldNumber,
+        region: Region,
         name: SpotName,
         content: TalkItem,
         requirements: Option<AnyOfAllRequirements>,
     ) -> Self {
-        Self(SpotParams::new(field_number, name, content, requirements))
+        Self(SpotParams::new(region, name, content, requirements))
     }
 
-    pub fn field_number(&self) -> FieldNumber {
-        self.0.field_number
+    pub fn region(&self) -> &Region {
+        &self.0.region
     }
     pub fn name(&self) -> &SpotName {
         &self.0.name

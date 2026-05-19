@@ -1,3 +1,17 @@
+towerOfRuin/top:
+
+towerOfRuin/medicine:
+  accessRules:
+    - event:reachedBackDoorOfTowerOfRuin
+  chests:
+    djedPillar:
+      - mulanaTalisman, ocarina # need to talk to sage in spring. need mulana talisman to get item
+  roms:
+    badlands:
+      - keySword
+
+towerOfRuin/illusion:
+
 towerOfRuin/main:
   accessRules:
     - event:reachedFrontOfTowerOfRuin
@@ -19,12 +33,4 @@ towerOfRuin/main:
     shinSynthesizer:
       - spear, spearAmmo
 
-towerOfRuin/medicine:
-  accessRules:
-    - event:reachedBackDoorOfTowerOfRuin
-  chests:
-    djedPillar:
-      - mulanaTalisman, ocarina # need to talk to sage in spring. need mulana talisman to get item
-  roms:
-    badlands:
-      - keySword
+towerOfRuin/southWestDoor:

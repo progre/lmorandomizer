@@ -150,11 +150,11 @@ fn place_items<'a>(
         let idx = shop.idx;
         sphere.push(CheckpointRef::Shop(ShopRef { spot, idx, item }));
     }
-    Some(SphereRef(sphere))
+    Some(SphereRef::new(sphere))
 }
 
 fn append_flags<'a>(strategy_flags: &mut HashSet<&'a StrategyFlag>, sphere: &SphereRef<'a>) {
-    for checkpoint in &sphere.0 {
+    for checkpoint in sphere.iter() {
         match checkpoint {
             CheckpointRef::MainWeapon(checkpoint) => {
                 strategy_flags.insert(&checkpoint.item.name);
@@ -234,7 +234,6 @@ pub fn sphere<'a>(
     if let Some(priority_items) = items_pool.priority_items.take() {
         let sphere = pre_sphere(rng, priority_items, remaining_spots, strategy_flags);
         let shop_count = sphere
-            .0
             .iter()
             .filter(|x| match x {
                 CheckpointRef::MainWeapon(_)
@@ -271,7 +270,7 @@ pub fn sphere<'a>(
     let (field_items, talk_items, shop_items) =
         items_pool.pick_items_randomly(rng, &reachables, &unreachables);
 
-    let mut sphere = place_items(
+    let sphere = place_items(
         rng,
         field_items,
         talk_items,
@@ -283,9 +282,8 @@ pub fn sphere<'a>(
     *remaining_spots = unreachables;
 
     let checkpoints = achieve_events(&mut remaining_spots.events, strategy_flags);
-    sphere
-        .0
-        .append(&mut checkpoints.into_iter().map(CheckpointRef::Event).collect());
+    let mut sphere = sphere.into_inner();
+    sphere.append(&mut checkpoints.into_iter().map(CheckpointRef::Event).collect());
 
-    Some(sphere)
+    Some(SphereRef::new(sphere))
 }

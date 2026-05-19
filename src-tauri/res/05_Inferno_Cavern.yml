@@ -1,3 +1,9 @@
+infernoCavern/spikes:
+  accessRules:
+    - event:reachedBackDoorOfSurface
+  roms:
+    goonies:
+
 infernoCavern/main:
   mainWeapons:
     chainWhip:
@@ -19,8 +25,4 @@ infernoCavern/main:
     firebird:
     gameCollection2:
 
-infernoCavern/spikes:
-  accessRules:
-    - event:reachedBackDoorOfSurface
-  roms:
-    goonies:
+infernoCavern/viy:

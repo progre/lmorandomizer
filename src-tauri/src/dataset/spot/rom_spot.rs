@@ -1,12 +1,12 @@
 use std::fmt;
 
-use crate::script::enums::{FieldNumber, Rom};
+use crate::{dataset::spot::Region, script::enums::Rom};
 
 use super::params::{AnyOfAllRequirements, SpotName};
 
 #[derive(Clone, Debug)]
 pub struct RomSpot {
-    field_number: FieldNumber,
+    region: Region,
     name: SpotName,
     rom: Rom,
     requirements: AnyOfAllRequirements,
@@ -14,21 +14,21 @@ pub struct RomSpot {
 
 impl RomSpot {
     pub fn new(
-        field_number: FieldNumber,
+        region: Region,
         name: SpotName,
         content: Rom,
         requirements: AnyOfAllRequirements,
     ) -> Self {
         Self {
-            field_number,
+            region,
             name,
             rom: content,
             requirements,
         }
     }
 
-    pub fn field_number(&self) -> FieldNumber {
-        self.field_number
+    pub fn region(&self) -> &Region {
+        &self.region
     }
     pub fn name(&self) -> &SpotName {
         &self.name
@@ -43,7 +43,6 @@ impl RomSpot {
 
 impl fmt::Display for RomSpot {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let field_number = self.field_number();
-        write!(f, "{:?}_RomSpot({})", field_number, self.name().get())
+        write!(f, "{}/RomSpot({})", self.region, self.name().get())
     }
 }
