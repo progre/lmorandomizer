@@ -42,6 +42,14 @@ impl SpotRef<'_> {
             Self::Shop(x) => x.requirements(),
         }
     }
+    // /// requirements に含まれているか
+    // pub fn is_related_to(&self, item: &Item) -> bool {
+    //     self.requirements().is_some_and(|reqs| {
+    //         reqs.0
+    //             .iter()
+    //             .any(|all| all.0.iter().any(|req| req == &item.name))
+    //     })
+    // }
 }
 
 #[derive(Clone, Debug)]

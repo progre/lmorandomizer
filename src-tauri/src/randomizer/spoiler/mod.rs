@@ -3,12 +3,7 @@ mod items_pool;
 mod sphere;
 pub mod spots;
 
-use std::{
-    collections::{BTreeMap, HashSet},
-    hash::Hash,
-    ptr,
-    sync::LazyLock,
-};
+use std::{collections::BTreeMap, hash::Hash, ptr, sync::LazyLock};
 
 use log::{info, trace};
 use rand::{Rng, seq::SliceRandom};
@@ -16,7 +11,7 @@ use rand_seeder::Seeder;
 use rand_xoshiro::Xoshiro256PlusPlus;
 use spots::SpotRef;
 
-use crate::script::enums::FieldNumber;
+use crate::{randomizer::spoiler::sphere::State, script::enums::FieldNumber};
 
 use super::{
     RandomizeOptions,
@@ -97,20 +92,16 @@ pub fn spoiler<'a>(
     let mut remaining_spots = spots.clone();
     let maps = maps(&mut rng, items.maps(), &mut remaining_spots);
 
-    let mut strategy_flags: HashSet<&'a StrategyFlag> = Default::default();
+    let mut state = State::new();
     let mut progression = Vec::new();
 
     if options.need_glitches {
-        strategy_flags.insert(&GLITCH);
+        state.insert_flag(&GLITCH);
     }
 
     for i in 0..100 {
-        let Some(sphere) = sphere(
-            &mut rng,
-            &mut items_pool,
-            &mut remaining_spots,
-            &mut strategy_flags,
-        ) else {
+        let Some(sphere) = sphere(&mut rng, &mut items_pool, &mut remaining_spots, &mut state)
+        else {
             trace!("Retry (spheres: {}, time: {:?})", i, start.elapsed());
             return None;
         };

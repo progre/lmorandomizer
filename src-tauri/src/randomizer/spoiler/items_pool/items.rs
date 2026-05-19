@@ -16,6 +16,10 @@ pub fn move_one_required_item<'a>(
     src: &mut ShuffledItems<'a>,
     spots: &[&SpotRef<'a>],
 ) {
+    // let Some(pos) = src
+    //     .0
+    //     .iter()
+    //     .position(|item| spots.iter().any(|spot| spot.is_related_to(item)))
     let Some(pos) = src.0.iter().position(|item| item.is_required(spots)) else {
         return;
     };
