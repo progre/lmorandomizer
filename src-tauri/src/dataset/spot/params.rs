@@ -8,11 +8,20 @@ use crate::script::enums::FieldNumber;
 pub struct Region {
     field_number: FieldNumber,
     name: String,
+    access_rules: Option<AnyOfAllRequirements>,
 }
 
 impl Region {
-    pub fn new(field_number: FieldNumber, name: String) -> Self {
-        Self { field_number, name }
+    pub fn new(
+        field_number: FieldNumber,
+        name: String,
+        access_rules: Option<AnyOfAllRequirements>,
+    ) -> Self {
+        Self {
+            field_number,
+            name,
+            access_rules,
+        }
     }
 
     pub fn field_number(&self) -> FieldNumber {
@@ -21,6 +30,10 @@ impl Region {
 
     pub fn get(&self) -> &str {
         self.name.as_str()
+    }
+
+    pub fn access_rules(&self) -> Option<&AnyOfAllRequirements> {
+        self.access_rules.as_ref()
     }
 }
 

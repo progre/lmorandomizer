@@ -1,27 +1,41 @@
-use std::collections::HashSet;
+use std::{collections::HashSet, iter::once};
 
 use crate::{
-    dataset::spot::AnyOfAllRequirements,
+    dataset::spot::{AnyOfAllRequirements, Region},
     randomizer::{
+        spoiler::regions::Regions,
         spoiler_log::{CheckpointRef, SphereRef},
         storage::item::StrategyFlag,
     },
 };
 
 pub struct State<'a> {
+    reachable_regions: Vec<&'a Region>,
     strategy_flags: HashSet<&'a StrategyFlag>,
     sacred_orb_count: u8,
 }
 
 impl<'a> State<'a> {
-    pub fn new() -> Self {
+    pub fn new(all_regions: &Regions<'a>) -> Self {
         Self {
+            reachable_regions: all_regions
+                .iter()
+                .filter(|x| x.access_rules().is_none())
+                .collect(),
             strategy_flags: HashSet::default(),
             sacred_orb_count: 0,
         }
     }
 
-    pub fn is_reachable(&self, requirements: Option<&AnyOfAllRequirements>) -> bool {
+    pub fn is_reachable(
+        &self,
+        region: &Region,
+        requirements: Option<&AnyOfAllRequirements>,
+    ) -> bool {
+        self.reachable_regions.contains(&region) && self.is_reachable_without_region(requirements)
+    }
+
+    pub fn is_reachable_without_region(&self, requirements: Option<&AnyOfAllRequirements>) -> bool {
         let Some(any) = requirements else {
             return true;
         };
@@ -38,16 +52,17 @@ impl<'a> State<'a> {
         })
     }
 
-    pub fn insert_flag(&mut self, flag: &'a StrategyFlag) {
-        if flag.is_sacred_orb() {
-            self.sacred_orb_count += 1;
-        }
-        self.strategy_flags.insert(flag);
+    pub fn reachable_regions(&self) -> impl Iterator<Item = &'a Region> {
+        self.reachable_regions.iter().copied()
     }
 
-    pub fn append_flags(&mut self, sphere: &SphereRef<'a>) {
-        for checkpoint in sphere.iter() {
-            let flag = match checkpoint {
+    pub fn insert_flag(&mut self, flag: &'a StrategyFlag, all_regions: &Regions<'a>) {
+        self.append_flags_internal(once(flag), all_regions);
+    }
+
+    pub fn append_flags(&mut self, sphere: &SphereRef<'a>, all_regions: &Regions<'a>) {
+        self.append_flags_internal(
+            sphere.iter().map(|checkpoint| match checkpoint {
                 CheckpointRef::MainWeapon(checkpoint) => &checkpoint.item.name,
                 CheckpointRef::SubWeapon(checkpoint) => &checkpoint.item.name,
                 CheckpointRef::Chest(checkpoint) => &checkpoint.item.name,
@@ -56,8 +71,25 @@ impl<'a> State<'a> {
                 CheckpointRef::Rom(checkpoint) => &checkpoint.item.name,
                 CheckpointRef::Talk(checkpoint) => &checkpoint.item.name,
                 CheckpointRef::Event(flag) => flag,
-            };
-            self.insert_flag(flag);
+            }),
+            all_regions,
+        );
+    }
+
+    fn append_flags_internal(
+        &mut self,
+        flags: impl Iterator<Item = &'a StrategyFlag>,
+        all_regions: &Regions<'a>,
+    ) {
+        for flag in flags {
+            if flag.is_sacred_orb() {
+                self.sacred_orb_count += 1;
+            }
+            self.strategy_flags.insert(flag);
         }
+        self.reachable_regions = all_regions
+            .iter()
+            .filter(|region| self.is_reachable_without_region(region.access_rules()))
+            .collect();
     }
 }

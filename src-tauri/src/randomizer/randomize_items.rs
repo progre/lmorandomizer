@@ -5,7 +5,7 @@ use log::{info, trace};
 use rand::Rng;
 
 use crate::{
-    randomizer::spoiler::{items::Items, spots::Spots},
+    randomizer::spoiler::{items::Items, regions::Regions, spots::Spots},
     script::{data::script::Script, editor::apply_storage},
 };
 
@@ -97,6 +97,7 @@ fn random_spoiler<'a>(
     options: &RandomizeOptions,
 ) -> SpoilerLogRef<'a> {
     let start = std::time::Instant::now();
+    let regions = &Regions::new(source.regions.iter().collect());
     let items = &Items::new(source);
     let spots = &Spots::new(source);
     debug_assert_eq!(
@@ -122,7 +123,7 @@ fn random_spoiler<'a>(
         for i in 0..100000 {
             let handles: Vec<_> = (0..thread_count)
                 .map(|_| rng.next_u64())
-                .map(|seed| scope.spawn(move || spoiler(seed, options, items, spots)))
+                .map(|seed| scope.spawn(move || spoiler(seed, options, regions, items, spots)))
                 .collect();
             let Some(spoiler_log) = handles.into_iter().filter_map(|h| h.join().unwrap()).next()
             else {
@@ -205,7 +206,7 @@ mod tests {
 
         let shuffled_str = format!("{:?}", shuffled);
         let shuffled_hash = hex::encode(sha3::Sha3_512::digest(shuffled_str));
-        const EXPECTED_SHUFFLED_HASH: &str = "851239d6194c3af4012bd875606d1b893e0fe5b0ff96da4cefbfb69cc25a8dd046c7d1292beaeb7bd7f4fb24230470d33a40f6601611ad3012bf5d9ae6dd5a7e";
+        const EXPECTED_SHUFFLED_HASH: &str = "5b6832636715690797f94d576d28ed7562b8a30c13b1243c28bbdcacf84c0982c9dee8e92430ff9c16371128824d22ba36dfb6f8f81e5f8d632f223420dc2bb1";
         assert_eq!(shuffled_hash, EXPECTED_SHUFFLED_HASH);
 
         let spoiler_log_str = format!("{}", spoiler_log.to_owned());

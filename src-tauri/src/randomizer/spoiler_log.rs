@@ -1,7 +1,7 @@
 use std::fmt;
 
 use crate::{
-    dataset::spot::ShopSpot,
+    dataset::spot::{Region, ShopSpot},
     script::enums::{ChestItem, FieldNumber},
 };
 
@@ -149,20 +149,42 @@ impl<'a> CheckpointRef<'a> {
 }
 
 #[derive(Debug)]
-pub struct Sphere(Vec<Checkpoint>);
-pub struct SphereRef<'a>(Vec<CheckpointRef<'a>>);
+pub struct Sphere {
+    _regions: Vec<Region>,
+    checkpoints: Vec<Checkpoint>,
+}
+impl Sphere {
+    pub fn new(regions: Vec<Region>, checkpoints: Vec<Checkpoint>) -> Self {
+        Self {
+            _regions: regions,
+            checkpoints,
+        }
+    }
+}
+
+pub struct SphereRef<'a> {
+    regions: Vec<&'a Region>,
+    checkpoints: Vec<CheckpointRef<'a>>,
+}
 
 impl<'a> SphereRef<'a> {
-    pub fn new(checkpoints: Vec<CheckpointRef<'a>>) -> Self {
-        Self(checkpoints)
+    pub fn new(regions: Vec<&'a Region>, checkpoints: Vec<CheckpointRef<'a>>) -> Self {
+        Self {
+            regions,
+            checkpoints,
+        }
     }
 
     pub fn iter(&self) -> impl Iterator<Item = &CheckpointRef<'a>> {
-        self.0.iter()
+        self.checkpoints.iter()
     }
 
     pub fn into_inner(self) -> Vec<CheckpointRef<'a>> {
-        self.0
+        self.checkpoints
+    }
+
+    pub fn append_checkpoints(&mut self, mut checkpoints: Vec<CheckpointRef<'a>>) {
+        self.checkpoints.append(&mut checkpoints);
     }
 }
 
@@ -179,7 +201,7 @@ impl fmt::Display for SpoilerLog {
                 writeln!(f)?;
             }
             writeln!(f, "[Sphere {}]", i)?;
-            let mut checkpoints: Vec<_> = sphere.0.iter().collect();
+            let mut checkpoints: Vec<_> = sphere.checkpoints.iter().collect();
             let shop_list: Vec<_> = checkpoints
                 .iter()
                 .filter_map(|x| match x {
@@ -247,13 +269,19 @@ impl SpoilerLogRef<'_> {
                 .progression
                 .iter()
                 .map(|sphere| {
-                    sphere
-                        .0
-                        .iter()
-                        .map(|checkpoint| checkpoint.to_owned())
-                        .collect()
+                    Sphere::new(
+                        sphere
+                            .regions
+                            .iter()
+                            .map(|&region| region.to_owned())
+                            .collect(),
+                        sphere
+                            .checkpoints
+                            .iter()
+                            .map(|checkpoint| checkpoint.to_owned())
+                            .collect(),
+                    )
                 })
-                .map(Sphere)
                 .collect(),
             maps: self
                 .maps
@@ -267,7 +295,7 @@ impl SpoilerLogRef<'_> {
     pub fn count_checkpoints(&self) -> usize {
         self.progression
             .iter()
-            .map(|sphere| sphere.0.len())
+            .map(|sphere| sphere.checkpoints.len())
             .sum::<usize>()
             + self.maps.len()
     }

@@ -8,7 +8,7 @@ use anyhow::Result;
 
 use crate::{
     dataset::spot::{
-        AnyOfAllRequirements, ChestSpot, MainWeaponSpot, RomSpot, SealSpot, ShopSpot,
+        AnyOfAllRequirements, ChestSpot, MainWeaponSpot, Region, RomSpot, SealSpot, ShopSpot,
         SubWeaponSpot, TalkSpot,
     },
     script::enums::{self, FieldNumber},
@@ -106,6 +106,7 @@ pub struct Event {
 
 #[derive(Clone, Debug)]
 pub struct Storage {
+    pub regions: Vec<Region>,
     pub main_weapons: BTreeMap<enums::MainWeapon, MainWeapon>,
     pub sub_weapons: BTreeMap<(FieldNumber, enums::SubWeapon), SubWeapon>,
     pub chests: BTreeMap<(FieldNumber, enums::ChestItem), Chest>,
@@ -119,6 +120,7 @@ pub struct Storage {
 impl Storage {
     #[allow(clippy::too_many_arguments)]
     pub fn new(
+        regions: Vec<Region>,
         main_weapons: BTreeMap<enums::MainWeapon, MainWeapon>,
         sub_weapons: BTreeMap<(FieldNumber, enums::SubWeapon), SubWeapon>,
         chests: BTreeMap<(FieldNumber, enums::ChestItem), Chest>,
@@ -129,6 +131,7 @@ impl Storage {
         events: Vec<Event>,
     ) -> Result<Self> {
         let zelf = Self {
+            regions,
             main_weapons,
             sub_weapons,
             chests,

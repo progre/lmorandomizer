@@ -17,7 +17,7 @@ use super::spot::{
 };
 
 pub struct GameStructureFiles {
-    pub fields: Vec<(Region, FieldTable)>,
+    pub fields: Vec<(FieldNumber, FieldYaml)>,
     pub events: EventsYaml,
 }
 
@@ -27,98 +27,71 @@ impl GameStructureFiles {
             .into_iter()
             .map(|(field_logic_number, string)| {
                 let field_number = FieldNumber::from_logic_number(field_logic_number).unwrap();
-                let field_tables = FieldTable::parse(field_number, &string)?;
-                Ok(field_tables)
+                let field_tables = FieldYaml::new(&string)?;
+                Ok((field_number, field_tables))
             })
-            .collect::<Result<Vec<_>>>()?
-            .into_iter()
-            .flatten()
-            .collect();
+            .collect::<Result<Vec<_>>>()?;
         let events = EventsYaml::new(&events)?;
         Ok(Self { fields, events })
     }
 }
 
+#[derive(serde::Deserialize)]
+pub struct FieldYaml(pub BTreeMap<String, FieldYamlRegion>);
+
+impl FieldYaml {
+    fn new(raw_str: &str) -> serde_yaml::Result<Self> {
+        serde_yaml::from_str(raw_str)
+    }
+}
+
+#[derive(Default, serde::Deserialize)]
+pub struct FieldYamlAccessRule(Vec<String>);
+
+impl FieldYamlAccessRule {
+    pub fn into_any_of_all_requirements(self) -> Result<Option<AnyOfAllRequirements>> {
+        if self.0.is_empty() {
+            return Ok(None);
+        }
+        let requirements = self
+            .0
+            .into_iter()
+            .map(|y| {
+                y.split(',')
+                    .map(|z| RequirementFlag::new(z.trim().to_owned()))
+                    .collect::<Vec<_>>()
+            })
+            .map(|x| Ok(AllRequirements(x.try_into()?)))
+            .collect::<Result<Vec<_>>>()?
+            .try_into()?;
+        Ok(Some(AnyOfAllRequirements(requirements)))
+    }
+}
+
 #[derive(Default, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct FieldTable {
+pub struct FieldYamlRegion {
     #[serde(default)]
-    pub access_rules: Vec<String>,
+    #[serde(rename = "accessRules")]
+    pub access_rule: FieldYamlAccessRule,
     #[serde(default)]
-    pub main_weapons: BTreeMap<String, Vec<String>>,
+    pub main_weapons: BTreeMap<String, FieldYamlAccessRule>,
     #[serde(default)]
-    pub sub_weapons: BTreeMap<String, Vec<String>>,
+    pub sub_weapons: BTreeMap<String, FieldYamlAccessRule>,
     #[serde(default)]
-    pub chests: BTreeMap<String, Vec<String>>,
+    pub chests: BTreeMap<String, FieldYamlAccessRule>,
     #[serde(default)]
-    pub seals: BTreeMap<String, Vec<String>>,
+    pub seals: BTreeMap<String, FieldYamlAccessRule>,
     #[serde(default)]
-    pub roms: BTreeMap<String, Vec<String>>,
+    pub roms: BTreeMap<String, FieldYamlAccessRule>,
     #[serde(default)]
-    pub shops: BTreeMap<String, Vec<String>>,
+    pub shops: BTreeMap<String, FieldYamlAccessRule>,
     #[serde(default)]
-    pub talks: BTreeMap<String, Vec<String>>,
-}
-
-impl FieldTable {
-    fn parse(field_number: FieldNumber, raw_str: &str) -> serde_yaml::Result<Vec<(Region, Self)>> {
-        let regions: BTreeMap<String, FieldTable> = serde_yaml::from_str(raw_str)?;
-        Ok(regions
-            .into_iter()
-            .map(|(region_name, x)| {
-                let main_weapons =
-                    merge_access_rules_for_each_keys(x.main_weapons, &x.access_rules);
-                let sub_weapons = merge_access_rules_for_each_keys(x.sub_weapons, &x.access_rules);
-                let chests = merge_access_rules_for_each_keys(x.chests, &x.access_rules);
-                let seals = merge_access_rules_for_each_keys(x.seals, &x.access_rules);
-                let roms = merge_access_rules_for_each_keys(x.roms, &x.access_rules);
-                let shops = merge_access_rules_for_each_keys(x.shops, &x.access_rules);
-                let talks = merge_access_rules_for_each_keys(x.talks, &x.access_rules);
-                (
-                    Region::new(field_number, region_name),
-                    FieldTable {
-                        access_rules: vec![],
-                        main_weapons,
-                        sub_weapons,
-                        chests,
-                        seals,
-                        roms,
-                        shops,
-                        talks,
-                    },
-                )
-            })
-            .collect())
-    }
-}
-
-fn merge_access_rules_for_each_keys(
-    map: BTreeMap<String, Vec<String>>,
-    common: &[String],
-) -> BTreeMap<String, Vec<String>> {
-    map.into_iter()
-        .map(|(key, value)| (key, merge_access_rules(value, common)))
-        .collect()
-}
-
-fn merge_access_rules(a: Vec<String>, b: &[String]) -> Vec<String> {
-    if a.is_empty() {
-        return b.to_owned();
-    }
-    a.into_iter()
-        .flat_map(|x| {
-            if b.is_empty() {
-                return vec![x];
-            }
-            b.iter()
-                .map(|y| format!("{}, {}", x, y))
-                .collect::<Vec<_>>()
-        })
-        .collect()
+    pub talks: BTreeMap<String, FieldYamlAccessRule>,
 }
 
 #[derive(serde::Deserialize)]
-pub struct EventsYaml(pub BTreeMap<String, Vec<String>>);
+pub struct EventsYaml(pub BTreeMap<String, FieldYamlAccessRule>);
 
 impl EventsYaml {
     fn new(raw_str: &str) -> serde_yaml::Result<Self> {
@@ -126,30 +99,13 @@ impl EventsYaml {
     }
 }
 
-fn to_any_of_all_requirements(requirements: Vec<String>) -> Result<Option<AnyOfAllRequirements>> {
-    if requirements.is_empty() {
-        return Ok(None);
-    }
-    let requirements = requirements
-        .into_iter()
-        .map(|y| {
-            y.split(',')
-                .map(|z| RequirementFlag::new(z.trim().to_owned()))
-                .collect::<Vec<_>>()
-        })
-        .map(|x| Ok(AllRequirements(x.try_into()?)))
-        .collect::<Result<Vec<_>>>()?
-        .try_into()?;
-    Ok(Some(AnyOfAllRequirements(requirements)))
-}
-
-fn parse_event_requirements(items: BTreeMap<String, Vec<String>>) -> Result<Vec<Event>> {
+fn parse_event_requirements(items: BTreeMap<String, FieldYamlAccessRule>) -> Result<Vec<Event>> {
     items
         .into_iter()
-        .map(|(name, requirements)| {
+        .map(|(name, access_rule)| {
             Ok(Event {
                 name: SpotName::new(name),
-                requirements: to_any_of_all_requirements(requirements)?.unwrap(),
+                requirements: access_rule.into_any_of_all_requirements()?.unwrap(),
             })
         })
         .collect()
@@ -170,6 +126,7 @@ pub struct Event {
 }
 
 pub struct GameStructure {
+    pub regions: Vec<Region>,
     pub main_weapon_shutters: Vec<MainWeaponSpot>,
     pub sub_weapon_shutters: Vec<SubWeaponSpot>,
     pub chests: Vec<ChestSpot>,
@@ -191,101 +148,46 @@ impl GameStructure {
         let mut talks = Vec::new();
         game_structure_files
             .fields
-            .sort_by_key(|(region, _)| region.field_number() as u8);
-        for (region, field_data) in game_structure_files.fields {
-            for (key, value) in field_data.main_weapons {
-                let main_weapon = MainWeapon::from_str(&to_pascal_case(&key))?;
-                let name = SpotName::new(key.clone());
-                let requirements = to_any_of_all_requirements(value)?;
-                let spot = MainWeaponSpot::new(region.clone(), name, main_weapon, requirements);
-                main_weapon_shutters.push(spot);
-            }
-            for (key, value) in field_data.sub_weapons {
-                let sub_weapon =
-                    SubWeapon::from_str(to_pascal_case(&key).split(":").next().unwrap())?;
-                let name = SpotName::new(key.clone());
-                let requirements = to_any_of_all_requirements(value)?;
-                let spot = SubWeaponSpot::new(region.clone(), name, sub_weapon, requirements);
-                sub_weapon_shutters.push(spot);
-            }
-            for (key, value) in field_data.chests {
-                let pascal_case = to_pascal_case(&key);
-                let pascal_case = pascal_case.split(":").next().unwrap();
-                let item = Equipment::from_str(pascal_case)
-                    .map(ChestItem::Equipment)
-                    .or_else(|_| Rom::from_str(pascal_case).map(ChestItem::Rom))?;
-                let name = SpotName::new(key.clone());
-                let requirements = to_any_of_all_requirements(value)?;
-                let spot = ChestSpot::new(region.clone(), name, item, requirements);
-                chests.push(spot);
-            }
-            for (key, value) in field_data.seals {
-                let seal = Seal::from_str(&to_pascal_case(&key.replace("Seal", "")))?;
-                let name = SpotName::new(key.clone());
-                let requirements = to_any_of_all_requirements(value)?;
-                let spot = SealSpot::new(region.clone(), name, seal, requirements);
-                seals.push(spot);
-            }
-            for (key, value) in field_data.roms {
-                let rom = Rom::from_str(&to_pascal_case(&key))?;
-                let name = SpotName::new(key.clone());
-                let requirements = to_any_of_all_requirements(value)?
-                    .map(|mut any_of_all_requirements| {
-                        for all_requirements in &mut any_of_all_requirements.0 {
-                            let hand_scanner = RequirementFlag::new("handScanner".into());
-                            all_requirements.0.push(hand_scanner);
-                        }
-                        any_of_all_requirements
-                    })
-                    .unwrap_or_else(|| {
-                        let hand_scanner = RequirementFlag::new("handScanner".into());
-                        AnyOfAllRequirements(Vec1::new(AllRequirements(Vec1::new(hand_scanner))))
-                    });
-                roadside_roms.push(RomSpot::new(region.clone(), name, rom, requirements));
-            }
-            for (key, value) in field_data.shops {
-                let items: Vec<_> = key
-                    .split(',')
-                    .map(|x| {
-                        let name = x.trim();
-                        if name == "_" {
-                            return Ok(None);
-                        }
-                        let pascal_case = to_pascal_case(name);
-                        let pascal_case = pascal_case
-                            .split(":")
-                            .next()
-                            .unwrap()
-                            .split("Ammo")
-                            .next()
-                            .unwrap();
-                        let item = SubWeapon::from_str(pascal_case)
-                            .map(ShopItem::SubWeapon)
-                            .or_else(|_| Equipment::from_str(pascal_case).map(ShopItem::Equipment))
-                            .or_else(|_| Rom::from_str(pascal_case).map(ShopItem::Rom))?;
-                        Ok(Some(item))
-                    })
-                    .collect::<Result<_, ParseError>>()?;
-                let name = SpotName::new(key);
-                let any_of_all_requirements = to_any_of_all_requirements(value)?;
-                let items = [items[0], items[1], items[2]];
-                let spot = ShopSpot::new(region.clone(), name, items, any_of_all_requirements);
-                shops.push(spot)
-            }
-            for (key, value) in field_data.talks {
-                let pascal_case = to_pascal_case(&key);
-                let item = Equipment::from_str(&pascal_case)
-                    .map(TalkItem::Equipment)
-                    .or_else(|_| Rom::from_str(&pascal_case).map(TalkItem::Rom))?;
-                let name = SpotName::new(key.clone());
-                let requirements = to_any_of_all_requirements(value)?;
-                let spot = TalkSpot::new(region.clone(), name, item, requirements);
-                talks.push(spot);
+            .sort_by_key(|(field_number, _)| *field_number as u8);
+        let mut regions = vec![];
+        for (field_number, field_yaml) in game_structure_files.fields {
+            for (region_name, field_yaml_region) in field_yaml.0 {
+                let region = Region::new(
+                    field_number,
+                    region_name,
+                    field_yaml_region
+                        .access_rule
+                        .into_any_of_all_requirements()?,
+                );
+                for (item, access_rule) in field_yaml_region.main_weapons {
+                    let location = main_weapon_location(region.clone(), item, access_rule)?;
+                    main_weapon_shutters.push(location);
+                }
+                for (key, value) in field_yaml_region.sub_weapons {
+                    sub_weapon_shutters.push(sub_weapon_location(region.clone(), key, value)?);
+                }
+                for (key, value) in field_yaml_region.chests {
+                    chests.push(chest_location(region.clone(), key, value)?);
+                }
+                for (key, value) in field_yaml_region.seals {
+                    seals.push(seals_location(region.clone(), key, value)?);
+                }
+                for (key, value) in field_yaml_region.roms {
+                    roadside_roms.push(rom_location(region.clone(), key, value)?);
+                }
+                for (key, value) in field_yaml_region.shops {
+                    shops.push(shop_locations(region.clone(), key, value)?)
+                }
+                for (key, value) in field_yaml_region.talks {
+                    talks.push(talk_location(region.clone(), key, value)?);
+                }
+                regions.push(region);
             }
         }
         let events = parse_event_requirements(game_structure_files.events.0)?;
 
         Ok(Self {
+            regions,
             main_weapon_shutters,
             sub_weapon_shutters,
             chests,
@@ -296,4 +198,129 @@ impl GameStructure {
             events,
         })
     }
+}
+
+fn talk_location(
+    region: Region,
+    key: String,
+    value: FieldYamlAccessRule,
+) -> Result<TalkSpot, anyhow::Error> {
+    let pascal_case = to_pascal_case(&key);
+    let item = Equipment::from_str(&pascal_case)
+        .map(TalkItem::Equipment)
+        .or_else(|_| Rom::from_str(&pascal_case).map(TalkItem::Rom))?;
+    let name = SpotName::new(key.clone());
+    let requirements = value.into_any_of_all_requirements()?;
+    let spot = TalkSpot::new(region, name, item, requirements);
+    Ok(spot)
+}
+
+fn shop_locations(
+    region: Region,
+    key: String,
+    value: FieldYamlAccessRule,
+) -> Result<ShopSpot, anyhow::Error> {
+    let items: Vec<_> = key
+        .split(',')
+        .map(|x| {
+            let name = x.trim();
+            if name == "_" {
+                return Ok(None);
+            }
+            let pascal_case = to_pascal_case(name);
+            let pascal_case = pascal_case
+                .split(":")
+                .next()
+                .unwrap()
+                .split("Ammo")
+                .next()
+                .unwrap();
+            let item = SubWeapon::from_str(pascal_case)
+                .map(ShopItem::SubWeapon)
+                .or_else(|_| Equipment::from_str(pascal_case).map(ShopItem::Equipment))
+                .or_else(|_| Rom::from_str(pascal_case).map(ShopItem::Rom))?;
+            Ok(Some(item))
+        })
+        .collect::<Result<_, ParseError>>()?;
+    let name = SpotName::new(key);
+    let any_of_all_requirements = value.into_any_of_all_requirements()?;
+    let items = [items[0], items[1], items[2]];
+    let spot = ShopSpot::new(region, name, items, any_of_all_requirements);
+    Ok(spot)
+}
+
+fn rom_location(
+    region: Region,
+    key: String,
+    value: FieldYamlAccessRule,
+) -> Result<RomSpot, anyhow::Error> {
+    let rom = Rom::from_str(&to_pascal_case(&key))?;
+    let name = SpotName::new(key.clone());
+    let requirements = value
+        .into_any_of_all_requirements()?
+        .map(|mut any_of_all_requirements| {
+            for all_requirements in &mut any_of_all_requirements.0 {
+                let hand_scanner = RequirementFlag::new("handScanner".into());
+                all_requirements.0.push(hand_scanner);
+            }
+            any_of_all_requirements
+        })
+        .unwrap_or_else(|| {
+            let hand_scanner = RequirementFlag::new("handScanner".into());
+            AnyOfAllRequirements(Vec1::new(AllRequirements(Vec1::new(hand_scanner))))
+        });
+    let spot = RomSpot::new(region, name, rom, requirements);
+    Ok(spot)
+}
+
+fn seals_location(
+    region: Region,
+    key: String,
+    value: FieldYamlAccessRule,
+) -> Result<SealSpot, anyhow::Error> {
+    let seal = Seal::from_str(&to_pascal_case(&key.replace("Seal", "")))?;
+    let name = SpotName::new(key.clone());
+    let requirements = value.into_any_of_all_requirements()?;
+    let spot = SealSpot::new(region, name, seal, requirements);
+    Ok(spot)
+}
+
+fn chest_location(
+    region: Region,
+    key: String,
+    value: FieldYamlAccessRule,
+) -> Result<ChestSpot, anyhow::Error> {
+    let pascal_case = to_pascal_case(&key);
+    let pascal_case = pascal_case.split(":").next().unwrap();
+    let item = Equipment::from_str(pascal_case)
+        .map(ChestItem::Equipment)
+        .or_else(|_| Rom::from_str(pascal_case).map(ChestItem::Rom))?;
+    let name = SpotName::new(key.clone());
+    let requirements = value.into_any_of_all_requirements()?;
+    let spot = ChestSpot::new(region, name, item, requirements);
+    Ok(spot)
+}
+
+fn sub_weapon_location(
+    region: Region,
+    key: String,
+    value: FieldYamlAccessRule,
+) -> Result<SubWeaponSpot, anyhow::Error> {
+    let sub_weapon = SubWeapon::from_str(to_pascal_case(&key).split(":").next().unwrap())?;
+    let name = SpotName::new(key.clone());
+    let requirements = value.into_any_of_all_requirements()?;
+    let spot = SubWeaponSpot::new(region, name, sub_weapon, requirements);
+    Ok(spot)
+}
+
+fn main_weapon_location(
+    region: Region,
+    key: String,
+    value: FieldYamlAccessRule,
+) -> Result<MainWeaponSpot, anyhow::Error> {
+    let main_weapon = MainWeapon::from_str(&to_pascal_case(&key))?;
+    let name = SpotName::new(key.clone());
+    let requirements = value.into_any_of_all_requirements()?;
+    let spot = MainWeaponSpot::new(region, name, main_weapon, requirements);
+    Ok(spot)
 }

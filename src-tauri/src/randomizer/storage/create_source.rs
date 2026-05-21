@@ -117,6 +117,7 @@ pub fn create_source(
     }
 
     Storage::new(
+        game_structure.regions.clone(),
         main_weapons,
         sub_weapons,
         chests,

@@ -7,8 +7,9 @@ use pre_sphere::pre_sphere;
 use rand::Rng;
 
 use crate::{
-    dataset::spot::ShopSpot,
+    dataset::spot::{Region, ShopSpot},
     randomizer::{
+        spoiler::regions::Regions,
         spoiler_log::{CheckpointRef, SphereRef},
         storage::{Event, ShopRef, item::StrategyFlag},
     },
@@ -33,17 +34,19 @@ fn explore<'a>(remaining_spots: &Spots<'a>, state: &State<'a>) -> (Spots<'a>, Sp
         .field_item_spots
         .iter()
         .copied()
-        .partition::<Vec<_>, _>(|x| state.is_reachable(x.requirements()));
+        .partition::<Vec<_>, _>(|x| state.is_reachable(x.region(), x.requirements()));
     let (reachables_talk_spots, unreachables_talk_spots) = remaining_spots
         .talk_spots
         .iter()
         .copied()
-        .partition::<Vec<_>, _>(|x| state.is_reachable(x.requirements()));
+        .partition::<Vec<_>, _>(|x| state.is_reachable(x.region(), x.requirements()));
     let (reachables_shops, unreachable_shops) = remaining_spots
         .shops
         .iter()
         .cloned()
-        .partition::<Vec<_>, _>(|shop| state.is_reachable(shop.spot.requirements()));
+        .partition::<Vec<_>, _>(|shop| {
+            state.is_reachable(shop.spot.region(), shop.spot.requirements())
+        });
 
     let reachables = Spots {
         field_item_spots: reachables_field_item_spots,
@@ -66,6 +69,7 @@ fn place_items<'a>(
     mut talk_items: ShuffledItems<'a>,
     mut shop_items: ShuffledItems<'a>,
     consumable_items_pool: &mut UnorderedItems<'a>,
+    reachable_regions: Vec<&'a Region>,
     reachables: Spots<'a>,
 ) -> Option<SphereRef<'a>> {
     let mut sphere: Vec<_> = Default::default();
@@ -120,18 +124,22 @@ fn place_items<'a>(
         let idx = shop.idx;
         sphere.push(CheckpointRef::Shop(ShopRef { spot, idx, item }));
     }
-    Some(SphereRef::new(sphere))
+    Some(SphereRef::new(reachable_regions, sphere))
 }
 
 fn take_achieved<'a>(events: &mut Vec<&'a Event>, state: &State) -> Vec<&'a Event> {
     let (achieved, unachieved) = take(events)
         .into_iter()
-        .partition(|event| state.is_reachable(Some(&event.requirements)));
+        .partition(|event| state.is_reachable_without_region(Some(&event.requirements)));
     *events = unachieved;
     achieved
 }
 
-fn achieve_events<'a>(events: &mut Vec<&'a Event>, state: &mut State<'a>) -> Vec<&'a StrategyFlag> {
+fn achieve_events<'a>(
+    events: &mut Vec<&'a Event>,
+    state: &mut State<'a>,
+    regions: &Regions<'a>,
+) -> Vec<&'a StrategyFlag> {
     let mut checkpoints = vec![];
     while !events.is_empty() {
         let achieved = take_achieved(events, state);
@@ -139,7 +147,7 @@ fn achieve_events<'a>(events: &mut Vec<&'a Event>, state: &mut State<'a>) -> Vec
             return checkpoints;
         }
         achieved.into_iter().for_each(|event| {
-            state.insert_flag(&event.name);
+            state.insert_flag(&event.name, regions);
             checkpoints.push(&event.name);
         });
     }
@@ -151,6 +159,7 @@ pub fn sphere<'a>(
     items_pool: &mut ItemsPool<'a>,
     remaining_spots: &mut Spots<'a>,
     state: &mut State<'a>,
+    regions: &Regions<'a>,
 ) -> Option<SphereRef<'a>> {
     debug_assert_eq!(
         items_pool.shop_items.len() + items_pool.consumable_items.len(),
@@ -158,7 +167,7 @@ pub fn sphere<'a>(
     );
 
     if let Some(priority_items) = items_pool.priority_items.take() {
-        let sphere = pre_sphere(rng, priority_items, remaining_spots, state);
+        let sphere = pre_sphere(rng, priority_items, remaining_spots, state, regions);
         let shop_count = sphere
             .iter()
             .filter(|x| match x {
@@ -196,20 +205,20 @@ pub fn sphere<'a>(
     let (field_items, talk_items, shop_items) =
         items_pool.pick_items_randomly(rng, &reachables, &unreachables);
 
-    let sphere = place_items(
+    let mut sphere = place_items(
         rng,
         field_items,
         talk_items,
         shop_items,
         &mut items_pool.consumable_items,
+        state.reachable_regions().collect(),
         reachables,
     )?;
-    state.append_flags(&sphere);
+    state.append_flags(&sphere, regions);
     *remaining_spots = unreachables;
 
-    let checkpoints = achieve_events(&mut remaining_spots.events, state);
-    let mut sphere = sphere.into_inner();
-    sphere.append(&mut checkpoints.into_iter().map(CheckpointRef::Event).collect());
+    let checkpoints = achieve_events(&mut remaining_spots.events, state, regions);
+    sphere.append_checkpoints(checkpoints.into_iter().map(CheckpointRef::Event).collect());
 
-    Some(SphereRef::new(sphere))
+    Some(sphere)
 }

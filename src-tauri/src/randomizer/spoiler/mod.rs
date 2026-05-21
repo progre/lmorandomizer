@@ -1,5 +1,6 @@
 pub mod items;
 mod items_pool;
+pub mod regions;
 mod sphere;
 pub mod spots;
 
@@ -11,7 +12,10 @@ use rand_seeder::Seeder;
 use rand_xoshiro::Xoshiro256PlusPlus;
 use spots::SpotRef;
 
-use crate::{randomizer::spoiler::sphere::State, script::enums::FieldNumber};
+use crate::{
+    randomizer::spoiler::{regions::Regions, sphere::State},
+    script::enums::FieldNumber,
+};
 
 use super::{
     RandomizeOptions,
@@ -83,6 +87,7 @@ fn maps<'a>(
 pub fn spoiler<'a>(
     seed: u64,
     options: &RandomizeOptions,
+    regions: &Regions<'a>,
     items: &Items<'a>,
     spots: &Spots<'a>,
 ) -> Option<SpoilerLogRef<'a>> {
@@ -92,16 +97,21 @@ pub fn spoiler<'a>(
     let mut remaining_spots = spots.clone();
     let maps = maps(&mut rng, items.maps(), &mut remaining_spots);
 
-    let mut state = State::new();
+    let mut state = State::new(regions);
     let mut progression = Vec::new();
 
     if options.need_glitches {
-        state.insert_flag(&GLITCH);
+        state.insert_flag(&GLITCH, regions);
     }
 
     for i in 0..100 {
-        let Some(sphere) = sphere(&mut rng, &mut items_pool, &mut remaining_spots, &mut state)
-        else {
+        let Some(sphere) = sphere(
+            &mut rng,
+            &mut items_pool,
+            &mut remaining_spots,
+            &mut state,
+            regions,
+        ) else {
             trace!("Retry (spheres: {}, time: {:?})", i, start.elapsed());
             return None;
         };
