@@ -26,3 +26,9 @@ infernoCavern/main:
     gameCollection2:
 
 infernoCavern/viy:
+  accessRule:
+    - event:reachedFrontOfTowerOfRuin, event:defeatedBahamut
+  events:
+    event:defeatedViy:
+      - ankhJewel:towerOfRuin, iceCape, sacredOrb:3, bronzeMirror, gameMaster2, spear, spearAmmo # should have some health
+      - ankhJewel:towerOfRuin, iceCape, sacredOrb:3, bronzeMirror, gameMaster2, bomb, bombAmmo # can reach with bombs

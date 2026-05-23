@@ -30,3 +30,6 @@ templeOfTheSun/main:
     yieArKungFu:
     kingsValley:
       - bomb, bombAmmo
+  events:
+    event:defeatedEllmac:
+      - ankhJewel:templeOfTheSun, gameMaster2

@@ -128,9 +128,13 @@ fn place_items<'a>(
 }
 
 fn take_achieved<'a>(events: &mut Vec<&'a Event>, state: &State) -> Vec<&'a Event> {
-    let (achieved, unachieved) = take(events)
-        .into_iter()
-        .partition(|event| state.is_reachable_without_region(Some(&event.requirements)));
+    let (achieved, unachieved) = take(events).into_iter().partition(|event| {
+        if let Some(region) = &event.region {
+            state.is_reachable(region, Some(&event.requirements))
+        } else {
+            state.is_reachable_without_region(Some(&event.requirements))
+        }
+    });
     *events = unachieved;
     achieved
 }

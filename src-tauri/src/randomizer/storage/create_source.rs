@@ -90,6 +90,7 @@ pub fn create_source(
         .events
         .iter()
         .map(|x| Event {
+            region: x.region.clone(),
             name: x.name.clone().into(),
             requirements: x.requirements.clone(),
         })
@@ -104,6 +105,7 @@ pub fn create_source(
             &mut roms
                 .into_values()
                 .map(|x| Event {
+                    region: Some(x.spot.region().to_owned()),
                     name: x.spot.name().to_owned().into(),
                     requirements: x.spot.requirements().to_owned(),
                 })

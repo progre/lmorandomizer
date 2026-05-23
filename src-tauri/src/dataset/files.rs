@@ -55,6 +55,8 @@ pub struct FieldYamlRegion {
     pub shops: BTreeMap<String, FieldYamlAccessRule>,
     #[serde(default)]
     pub talks: BTreeMap<String, FieldYamlAccessRule>,
+    #[serde(default)]
+    pub events: BTreeMap<String, FieldYamlAccessRule>,
 }
 
 #[derive(serde::Deserialize)]

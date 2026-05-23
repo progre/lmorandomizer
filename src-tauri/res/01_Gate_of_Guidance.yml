@@ -21,5 +21,8 @@ gateOfGuidance/main:
     hyperRally:
     konamiTennis:
     gameCollectionEx:
+  events:
+    event:defeatedAmphisbaena:
+      - ankhJewel:gateOfGuidance, gameMaster2
 
 gateOfGuidance/door:

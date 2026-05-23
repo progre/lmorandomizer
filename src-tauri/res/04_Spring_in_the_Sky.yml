@@ -28,3 +28,20 @@ springInTheSky/main:
     quarth:
       - scalesphere
     gameCollection1: # not yet tested with initial status
+  events:
+    event:SpringElevator:
+      - helmet, sacredOrb:2, holyGrail
+      - helmet, scalesphere
+      - feather, grappleClaw, sacredOrb:4, holyGrail
+      - feather, grappleClaw, scalesphere
+    event:floodedSpringInTheSky:
+      - originSeal, helmet, sacredOrb:8
+      - originSeal, helmet, scalesphere
+      - originSeal, feather, grappleClaw, sacredOrb:8
+      - originSeal, feather, grappleClaw, scalesphere
+    event:floodedTempleOfTheSun:
+      - scalesphere
+      - knife, sacredOrb:6 # tested
+      # test how many Sacred Orbs it takes without knife
+    event:defeatedBahamut: # TODO: event:subWeaponWallForward いらなくね？
+      - event:floodedSpringInTheSky, event:subWeaponWallForward, ankhJewel:springInTheSky, gameMaster2 # deleted event escapefromspringinthesky. added sub weapons

@@ -12,3 +12,6 @@ mausoleumOfTheGiants/main:
     hyperOlympic2:
     magicalTree:
     gameCollection3:
+  events:
+    event:defeatedSakit:
+      - ankhJewel:mausoleumOfTheGiants, gameMaster2

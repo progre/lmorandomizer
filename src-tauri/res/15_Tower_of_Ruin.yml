@@ -2,7 +2,7 @@ towerOfRuin/top:
 
 towerOfRuin/medicine:
   accessRule:
-    - event:reachedBackDoorOfTowerOfRuin
+    - event:reachedBackDoorOfSurface, event:defeatedBaphomet # reachedBackDoorOfSurface already includes bronze mirror
   chests:
     djedPillar:
       - mulanaTalisman, ocarina # need to talk to sage in spring. need mulana talisman to get item

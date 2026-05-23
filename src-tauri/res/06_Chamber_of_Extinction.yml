@@ -2,9 +2,14 @@ chamberOfExtinction/magatama:
 
 chamberOfExtinction/ankh:
   accessRule:
-    - event:reachedPalenque
+    # this is to reach palenque, not fight him
+    - event:defeatedViy, feather
+    - msx2, qBert, divinerSensation, feather, bronzeMirror
   shops:
     spearAmmo, flareGunAmmo, bombAmmo:
+  events:
+    event:defeatedPalenque: # added sub weapon and sacred orb requirements # TODO: event:subWeaponWallForward いらなくね？
+      - event:reachedUpperOfChamberOfBirth, event:lightedUpChamberOfExtinction, event:subWeaponWallForward, pochetteKey, ankhJewel:chamberOfBirth, sacredOrb:4, gameMaster2
 
 # TODO: The upper side should be completely lightened before going
 chamberOfExtinction/main:

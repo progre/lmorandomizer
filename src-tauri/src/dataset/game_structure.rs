@@ -24,6 +24,7 @@ fn parse_event_requirements(items: BTreeMap<String, FieldYamlAccessRule>) -> Res
         .into_iter()
         .map(|(name, access_rule)| {
             Ok(Event {
+                region: None,
                 name: SpotName::new(name),
                 requirements: access_rule.into_any_of_all_requirements()?.unwrap(),
             })
@@ -41,6 +42,7 @@ fn to_pascal_case(camel_case: &str) -> String {
 
 #[derive(Clone, Debug)]
 pub struct Event {
+    pub region: Option<Region>,
     pub name: SpotName,
     pub requirements: AnyOfAllRequirements,
 }
@@ -69,6 +71,8 @@ impl GameStructure {
             .collect::<Result<Vec<_>>>()?;
         fields.sort_by_key(|(field_number, _)| *field_number as u8);
         let events = EventsYaml::new(&events)?;
+
+        let mut events = parse_event_requirements(events.0)?;
 
         let mut main_weapon_shutters = Vec::new();
         let mut sub_weapon_shutters = Vec::new();
@@ -109,10 +113,12 @@ impl GameStructure {
                 for (key, value) in field_yaml_region.talks {
                     talks.push(talk_location(region.clone(), key, value)?);
                 }
+                for (key, value) in field_yaml_region.events {
+                    events.push(event_location(region.clone(), key, value)?);
+                }
                 regions.push(region);
             }
         }
-        let events = parse_event_requirements(events.0)?;
 
         Ok(Self {
             regions,
@@ -128,11 +134,15 @@ impl GameStructure {
     }
 }
 
-fn talk_location(
-    region: Region,
-    key: String,
-    value: FieldYamlAccessRule,
-) -> Result<TalkSpot, anyhow::Error> {
+fn event_location(region: Region, key: String, value: FieldYamlAccessRule) -> Result<Event> {
+    Ok(Event {
+        region: Some(region),
+        name: SpotName::new(key),
+        requirements: value.into_any_of_all_requirements()?.unwrap(),
+    })
+}
+
+fn talk_location(region: Region, key: String, value: FieldYamlAccessRule) -> Result<TalkSpot> {
     let pascal_case = to_pascal_case(&key);
     let item = Equipment::from_str(&pascal_case)
         .map(TalkItem::Equipment)
@@ -143,11 +153,7 @@ fn talk_location(
     Ok(spot)
 }
 
-fn shop_locations(
-    region: Region,
-    key: String,
-    value: FieldYamlAccessRule,
-) -> Result<ShopSpot, anyhow::Error> {
+fn shop_locations(region: Region, key: String, value: FieldYamlAccessRule) -> Result<ShopSpot> {
     let items: Vec<_> = key
         .split(',')
         .map(|x| {
@@ -177,11 +183,7 @@ fn shop_locations(
     Ok(spot)
 }
 
-fn rom_location(
-    region: Region,
-    key: String,
-    value: FieldYamlAccessRule,
-) -> Result<RomSpot, anyhow::Error> {
+fn rom_location(region: Region, key: String, value: FieldYamlAccessRule) -> Result<RomSpot> {
     let rom = Rom::from_str(&to_pascal_case(&key))?;
     let name = SpotName::new(key.clone());
     let requirements = value
@@ -201,11 +203,7 @@ fn rom_location(
     Ok(spot)
 }
 
-fn seals_location(
-    region: Region,
-    key: String,
-    value: FieldYamlAccessRule,
-) -> Result<SealSpot, anyhow::Error> {
+fn seals_location(region: Region, key: String, value: FieldYamlAccessRule) -> Result<SealSpot> {
     let seal = Seal::from_str(&to_pascal_case(&key.replace("Seal", "")))?;
     let name = SpotName::new(key.clone());
     let requirements = value.into_any_of_all_requirements()?;
@@ -213,11 +211,7 @@ fn seals_location(
     Ok(spot)
 }
 
-fn chest_location(
-    region: Region,
-    key: String,
-    value: FieldYamlAccessRule,
-) -> Result<ChestSpot, anyhow::Error> {
+fn chest_location(region: Region, key: String, value: FieldYamlAccessRule) -> Result<ChestSpot> {
     let pascal_case = to_pascal_case(&key);
     let pascal_case = pascal_case.split(":").next().unwrap();
     let item = Equipment::from_str(pascal_case)
@@ -233,7 +227,7 @@ fn sub_weapon_location(
     region: Region,
     key: String,
     value: FieldYamlAccessRule,
-) -> Result<SubWeaponSpot, anyhow::Error> {
+) -> Result<SubWeaponSpot> {
     let sub_weapon = SubWeapon::from_str(to_pascal_case(&key).split(":").next().unwrap())?;
     let name = SpotName::new(key.clone());
     let requirements = value.into_any_of_all_requirements()?;
@@ -245,7 +239,7 @@ fn main_weapon_location(
     region: Region,
     key: String,
     value: FieldYamlAccessRule,
-) -> Result<MainWeaponSpot, anyhow::Error> {
+) -> Result<MainWeaponSpot> {
     let main_weapon = MainWeapon::from_str(&to_pascal_case(&key))?;
     let name = SpotName::new(key.clone());
     let requirements = value.into_any_of_all_requirements()?;

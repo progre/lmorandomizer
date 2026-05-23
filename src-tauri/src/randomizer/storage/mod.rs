@@ -100,6 +100,7 @@ pub struct TalkRef<'a> {
 
 #[derive(Clone, Debug)]
 pub struct Event {
+    pub region: Option<Region>,
     pub name: StrategyFlag,
     pub requirements: AnyOfAllRequirements,
 }

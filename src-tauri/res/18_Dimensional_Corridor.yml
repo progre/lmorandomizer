@@ -1,6 +1,7 @@
 dimensionalCorridor/main:
   accessRule:
-    - event:reachedDimensionalCorridor
+    - event:releasedTwins, crystalSkull, feather, bronzeMirror
+    - event:releasedTwins, crystalSkull, boots, grappleClaw, bronzeMirror # can get in with boots and grapple claw
   subWeapons:
     angelShield:
       - sacredOrb:2 # should have some health to beat bosses
@@ -16,3 +17,6 @@ dimensionalCorridor/main:
     gradius2:
     kingsValleyDisk:
     gradius2Beta:
+  events:
+    event:defeatedTiamat:
+      - ankhJewel:dimensionalCorridor, keySword, sacredOrb:4, gameMaster2 # added health requirement
