@@ -1,14 +1,14 @@
 chamberOfExtinction/magatama:
 
 chamberOfExtinction/ankh:
-  accessRules:
+  accessRule:
     - event:reachedPalenque
   shops:
     spearAmmo, flareGunAmmo, bombAmmo:
 
 # TODO: The upper side should be completely lightened before going
 chamberOfExtinction/main:
-  accessRules:
+  accessRule:
     - event:lightedUpChamberOfExtinction
   chests:
     sacredOrb:chamberOfExtinction:

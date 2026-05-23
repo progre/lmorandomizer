@@ -1,5 +1,5 @@
 dimensionalCorridor/main:
-  accessRules:
+  accessRule:
     - event:reachedDimensionalCorridor
   subWeapons:
     angelShield:

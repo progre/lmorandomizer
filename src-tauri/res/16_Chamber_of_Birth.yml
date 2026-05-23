@@ -1,5 +1,5 @@
 chamberOfBirth/main:
-  accessRules:
+  accessRule:
     - event:reachedUpperOfChamberOfBirth
   chests:
     vessel:
@@ -15,7 +15,7 @@ chamberOfBirth/main:
     konamiSoccer:
 
 chamberOfBirth/lower:
-  accessRules:
+  accessRule:
     - event:reachedLowerOfChamberOfBirth
   chests:
     map:chamberOfBirth:

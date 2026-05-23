@@ -1,5 +1,5 @@
 templeOfMoonlight/main:
-  accessRules:
+  accessRule:
     - event:reachedGrailOfTempleOfMoonlight
   chests:
     iceCape:
@@ -20,7 +20,7 @@ templeOfMoonlight/pyramid:
       - event:escapeFromTempleOfMoonlight, flareGun, flareGunAmmo
 
 templeOfMoonlight/lower:
-  accessRules:
+  accessRule:
     - event:reachedFrontOfTempleOfMoonlight
   mainWeapons:
     axe:

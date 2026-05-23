@@ -1,5 +1,5 @@
 graveyardOfTheGiants/upper:
-  accessRules:
+  accessRule:
     - event:reachedLiarOfGraveyardOfTheGiants
   subWeapons:
     silverShield:
@@ -8,14 +8,14 @@ graveyardOfTheGiants/upper:
     spearAmmo, fakeSilverShield, weights:
 
 graveyardOfTheGiants/main:
-  accessRules:
+  accessRule:
     - event:reachedLiarOfGraveyardOfTheGiants
     - event:reachedFrontOfTempleOfMoonlight, shuriken, shurikenAmmo, katana, keySword, knife
   chests:
     contra:
 
 graveyardOfTheGiants/east:
-  accessRules:
+  accessRule:
     - event:reachedBackDoorOfGraveyardOfTheGiants
   subWeapons:
     bomb:
@@ -25,7 +25,7 @@ graveyardOfTheGiants/east:
       - bomb, bombAmmo
 
 graveyardOfTheGiants/lower:
-  accessRules:
+  accessRule:
     - event:reachedFrontOfGraveyardOfTheGiants
   chests:
     map:graveyardOfTheGiants:

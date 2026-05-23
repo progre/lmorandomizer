@@ -1,5 +1,5 @@
 twinLabyrinthsRight/main:
-  accessRules:
+  accessRule:
     - event:releasedTwins
   subWeapons:
     ankhJewel:twinLabyrinths:

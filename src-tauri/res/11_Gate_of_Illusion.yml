@@ -1,18 +1,18 @@
 gateOfIllusion/upper:
-  accessRules:
+  accessRule:
     - event:reachedBackDoorOfGateOfIllusion
   chests:
     cogOfTheSoul:
       - event:reachedElevatorOfGateOfIllusion, event:escapeShu, lampOfTime # need to kill Shu to open chest
 
 gateOfIllusion/main:
-  accessRules:
+  accessRule:
     - event:reachedGrailOfGateOfIllusion
   roms:
     roadFighter:
 
 gateOfIllusion/middle:
-  accessRules:
+  accessRule:
     - event:reachedElevatorOfGateOfIllusion
   chests:
     keyOfEternity:
@@ -27,7 +27,7 @@ gateOfIllusion/middle:
     monkeyAcademy:
 
 gateOfIllusion/lower:
-  accessRules:
+  accessRule:
     - event:reachedFrontOfGateOfIllusion
   chests:
     map:gateOfIllusion:

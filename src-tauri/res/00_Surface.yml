@@ -39,7 +39,7 @@ surface/main:
       - feather, holyGrail
 
 surface/ruinPathUpper:
-  accessRules:
+  accessRule:
     - event:reachedBackDoorOfSurface
   subWeapons:
     pistol:

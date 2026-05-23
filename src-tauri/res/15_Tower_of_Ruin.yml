@@ -1,7 +1,7 @@
 towerOfRuin/top:
 
 towerOfRuin/medicine:
-  accessRules:
+  accessRule:
     - event:reachedBackDoorOfTowerOfRuin
   chests:
     djedPillar:
@@ -13,7 +13,7 @@ towerOfRuin/medicine:
 towerOfRuin/illusion:
 
 towerOfRuin/main:
-  accessRules:
+  accessRule:
     - event:reachedFrontOfTowerOfRuin
   subWeapons:
     ankhJewel:towerOfRuin:

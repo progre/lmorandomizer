@@ -18,13 +18,13 @@ shrineOfTheMother/main:
 shrineOfTheMother/lower:
 
 shrineOfTheMother/map:
-  accessRules:
+  accessRule:
     - event:reachedMapSpotOfShrineOfTheMother
   chests:
     map:shrineOfTheMother:
 
 shrineOfTheMother/seal:
-  accessRules:
+  accessRule:
     - event:reachedDeathSealSpot
   seals:
     deathSeal:

@@ -1,5 +1,5 @@
 trueShrineOfTheMother/main:
-  accessRules:
+  accessRule:
     - event:reachedTrueShrineOfTheMother
   roms:
     sdSnatcher:

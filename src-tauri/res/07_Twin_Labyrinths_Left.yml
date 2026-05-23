@@ -1,5 +1,5 @@
 twinLabyrinthsLeft/main:
-  accessRules:
+  accessRule:
     - event:releasedTwins
     - event:twinLabyrinthsGlitch
   mainWeapons:

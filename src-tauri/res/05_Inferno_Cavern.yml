@@ -1,5 +1,5 @@
 infernoCavern/spikes:
-  accessRules:
+  accessRule:
     - event:reachedBackDoorOfSurface
   roms:
     goonies:

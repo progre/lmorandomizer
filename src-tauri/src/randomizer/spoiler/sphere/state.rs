@@ -20,7 +20,7 @@ impl<'a> State<'a> {
         Self {
             reachable_regions: all_regions
                 .iter()
-                .filter(|x| x.access_rules().is_none())
+                .filter(|x| x.access_rule().is_none())
                 .collect(),
             strategy_flags: HashSet::default(),
             sacred_orb_count: 0,
@@ -89,7 +89,7 @@ impl<'a> State<'a> {
         }
         self.reachable_regions = all_regions
             .iter()
-            .filter(|region| self.is_reachable_without_region(region.access_rules()))
+            .filter(|region| self.is_reachable_without_region(region.access_rule()))
             .collect();
     }
 }

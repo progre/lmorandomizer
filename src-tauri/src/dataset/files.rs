@@ -40,7 +40,6 @@ impl FieldYamlAccessRule {
 #[serde(rename_all = "camelCase")]
 pub struct FieldYamlRegion {
     #[serde(default)]
-    #[serde(rename = "accessRules")]
     pub access_rule: FieldYamlAccessRule,
     #[serde(default)]
     pub main_weapons: BTreeMap<String, FieldYamlAccessRule>,
