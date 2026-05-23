@@ -14,8 +14,7 @@ use storage::{Storage, create_source::create_source};
 use crate::{
     dataset::{
         NIGHT_SURFACE_CHEST_COUNT, NIGHT_SURFACE_SEAL_COUNT, NIGHT_SURFACE_SUB_WEAPON_COUNT,
-        TRUE_SHRINE_OF_THE_MOTHER_SEAL_COUNT,
-        game_structure::{GameStructure, GameStructureFiles},
+        TRUE_SHRINE_OF_THE_MOTHER_SEAL_COUNT, game_structure::GameStructure,
     },
     script::{
         data::script::Script,
@@ -48,7 +47,7 @@ pub struct RandomizeOptions {
 
 pub fn randomize(
     script_dat: &[u8],
-    game_structure_files: GameStructureFiles,
+    game_structure: GameStructure,
     options: &RandomizeOptions,
 ) -> Result<(Vec<u8>, SpoilerLog)> {
     let start = std::time::Instant::now();
@@ -57,7 +56,6 @@ pub fn randomize(
 
     normalize_shuriken_sale(&mut script.talks);
 
-    let game_structure = GameStructure::new(game_structure_files)?;
     let source = create_source(&game_structure, options)?;
 
     if cfg!(debug_assertions) {

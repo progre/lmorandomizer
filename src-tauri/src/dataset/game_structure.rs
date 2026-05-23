@@ -5,7 +5,10 @@ use strum::ParseError;
 use vec1::Vec1;
 
 use crate::{
-    dataset::spot::{Region, SpotName},
+    dataset::{
+        files::{EventsYaml, FieldYaml, FieldYamlAccessRule},
+        spot::{Region, SpotName},
+    },
     script::enums::{
         ChestItem, Equipment, FieldNumber, MainWeapon, Rom, Seal, ShopItem, SubWeapon, TalkItem,
     },
@@ -15,89 +18,6 @@ use super::spot::{
     AllRequirements, AnyOfAllRequirements, ChestSpot, MainWeaponSpot, RequirementFlag, RomSpot,
     SealSpot, ShopSpot, SubWeaponSpot, TalkSpot,
 };
-
-pub struct GameStructureFiles {
-    pub fields: Vec<(FieldNumber, FieldYaml)>,
-    pub events: EventsYaml,
-}
-
-impl GameStructureFiles {
-    pub fn new(fields: BTreeMap<u8, String>, events: String) -> Result<GameStructureFiles> {
-        let fields = fields
-            .into_iter()
-            .map(|(field_logic_number, string)| {
-                let field_number = FieldNumber::from_logic_number(field_logic_number).unwrap();
-                let field_tables = FieldYaml::new(&string)?;
-                Ok((field_number, field_tables))
-            })
-            .collect::<Result<Vec<_>>>()?;
-        let events = EventsYaml::new(&events)?;
-        Ok(Self { fields, events })
-    }
-}
-
-#[derive(serde::Deserialize)]
-pub struct FieldYaml(pub BTreeMap<String, FieldYamlRegion>);
-
-impl FieldYaml {
-    fn new(raw_str: &str) -> serde_yaml::Result<Self> {
-        serde_yaml::from_str(raw_str)
-    }
-}
-
-#[derive(Default, serde::Deserialize)]
-pub struct FieldYamlAccessRule(Vec<String>);
-
-impl FieldYamlAccessRule {
-    pub fn into_any_of_all_requirements(self) -> Result<Option<AnyOfAllRequirements>> {
-        if self.0.is_empty() {
-            return Ok(None);
-        }
-        let requirements = self
-            .0
-            .into_iter()
-            .map(|y| {
-                y.split(',')
-                    .map(|z| RequirementFlag::new(z.trim().to_owned()))
-                    .collect::<Vec<_>>()
-            })
-            .map(|x| Ok(AllRequirements(x.try_into()?)))
-            .collect::<Result<Vec<_>>>()?
-            .try_into()?;
-        Ok(Some(AnyOfAllRequirements(requirements)))
-    }
-}
-
-#[derive(Default, serde::Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct FieldYamlRegion {
-    #[serde(default)]
-    #[serde(rename = "accessRules")]
-    pub access_rule: FieldYamlAccessRule,
-    #[serde(default)]
-    pub main_weapons: BTreeMap<String, FieldYamlAccessRule>,
-    #[serde(default)]
-    pub sub_weapons: BTreeMap<String, FieldYamlAccessRule>,
-    #[serde(default)]
-    pub chests: BTreeMap<String, FieldYamlAccessRule>,
-    #[serde(default)]
-    pub seals: BTreeMap<String, FieldYamlAccessRule>,
-    #[serde(default)]
-    pub roms: BTreeMap<String, FieldYamlAccessRule>,
-    #[serde(default)]
-    pub shops: BTreeMap<String, FieldYamlAccessRule>,
-    #[serde(default)]
-    pub talks: BTreeMap<String, FieldYamlAccessRule>,
-}
-
-#[derive(serde::Deserialize)]
-pub struct EventsYaml(pub BTreeMap<String, FieldYamlAccessRule>);
-
-impl EventsYaml {
-    fn new(raw_str: &str) -> serde_yaml::Result<Self> {
-        serde_yaml::from_str(raw_str)
-    }
-}
 
 fn parse_event_requirements(items: BTreeMap<String, FieldYamlAccessRule>) -> Result<Vec<Event>> {
     items
@@ -138,7 +58,18 @@ pub struct GameStructure {
 }
 
 impl GameStructure {
-    pub fn new(mut game_structure_files: GameStructureFiles) -> Result<Self> {
+    pub fn new(fields: BTreeMap<u8, String>, events: String) -> Result<Self> {
+        let mut fields = fields
+            .into_iter()
+            .map(|(field_logic_number, string)| {
+                let field_number = FieldNumber::from_logic_number(field_logic_number).unwrap();
+                let field_tables = FieldYaml::new(&string)?;
+                Ok((field_number, field_tables))
+            })
+            .collect::<Result<Vec<_>>>()?;
+        fields.sort_by_key(|(field_number, _)| *field_number as u8);
+        let events = EventsYaml::new(&events)?;
+
         let mut main_weapon_shutters = Vec::new();
         let mut sub_weapon_shutters = Vec::new();
         let mut chests = Vec::new();
@@ -146,11 +77,8 @@ impl GameStructure {
         let mut roadside_roms = Vec::new();
         let mut shops = Vec::new();
         let mut talks = Vec::new();
-        game_structure_files
-            .fields
-            .sort_by_key(|(field_number, _)| *field_number as u8);
         let mut regions = vec![];
-        for (field_number, field_yaml) in game_structure_files.fields {
+        for (field_number, field_yaml) in fields {
             for (region_name, field_yaml_region) in field_yaml.0 {
                 let region = Region::new(
                     field_number,
@@ -184,7 +112,7 @@ impl GameStructure {
                 regions.push(region);
             }
         }
-        let events = parse_event_requirements(game_structure_files.events.0)?;
+        let events = parse_event_requirements(events.0)?;
 
         Ok(Self {
             regions,

@@ -185,16 +185,14 @@ mod tests {
     use sha3::Digest;
 
     use crate::{
-        app::read_game_structure_files_debug, dataset::game_structure::GameStructure,
-        randomizer::storage::create_source::create_source,
+        app::read_game_structure_files_debug, randomizer::storage::create_source::create_source,
     };
 
     use super::*;
 
     #[tokio::test]
     async fn test_shuffle_hash() -> Result<()> {
-        let game_structure_files = read_game_structure_files_debug().await?;
-        let game_structure = GameStructure::new(game_structure_files)?;
+        let game_structure = read_game_structure_files_debug().await?;
         let opts = RandomizeOptions {
             seed: "test".to_owned(),
             shuffle_secret_roms: true,
@@ -219,8 +217,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_shuffle_multi_patterns() -> Result<()> {
-        let game_structure_files = read_game_structure_files_debug().await?;
-        let game_structure = GameStructure::new(game_structure_files)?;
+        let game_structure = read_game_structure_files_debug().await?;
         for i in 0..100 {
             let opts = RandomizeOptions {
                 seed: i.to_string(),

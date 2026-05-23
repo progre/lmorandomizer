@@ -12,7 +12,7 @@ use tokio::{
     io::{self, AsyncReadExt, AsyncWriteExt},
 };
 
-use crate::{dataset::game_structure::GameStructureFiles, randomizer::SpoilerLog};
+use crate::{dataset::game_structure::GameStructure, randomizer::SpoilerLog};
 
 pub async fn read_file(path: &Path) -> io::Result<Vec<u8>> {
     let mut file = File::open(path)
@@ -34,7 +34,7 @@ pub async fn write_file(path: &Path, contents: &[u8]) -> io::Result<()> {
 
 async fn read_game_structure_files_internal(
     resolve_path: impl Fn(&str) -> Result<PathBuf>,
-) -> anyhow::Result<GameStructureFiles> {
+) -> anyhow::Result<GameStructure> {
     let file_paths = [
         "res/00_Surface.yml",
         "res/01_Gate_of_Guidance.yml",
@@ -74,10 +74,10 @@ async fn read_game_structure_files_internal(
         .collect();
     let events = read_to_string(resolve_path("res/events.yml")?).await?;
 
-    GameStructureFiles::new(fields, events)
+    GameStructure::new(fields, events)
 }
 
-pub async fn read_game_structure_files(handle: &AppHandle) -> Result<GameStructureFiles> {
+pub async fn read_game_structure_files(handle: &AppHandle) -> Result<GameStructure> {
     let path = handle.path();
     read_game_structure_files_internal(|file_path| {
         Ok(path.resolve(file_path, BaseDirectory::Resource)?)
@@ -86,7 +86,7 @@ pub async fn read_game_structure_files(handle: &AppHandle) -> Result<GameStructu
 }
 
 #[cfg(test)]
-pub async fn read_game_structure_files_debug() -> Result<GameStructureFiles> {
+pub async fn read_game_structure_files_debug() -> Result<GameStructure> {
     read_game_structure_files_internal(|file_path| Ok(PathBuf::from(file_path))).await
 }
 

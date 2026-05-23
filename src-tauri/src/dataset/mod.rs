@@ -1,3 +1,4 @@
+mod files;
 pub mod game_structure;
 pub mod spot;
 
