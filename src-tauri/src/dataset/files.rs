@@ -5,7 +5,7 @@ use anyhow::Result;
 use super::spot::{AllRequirements, AnyOfAllRequirements, RequirementFlag};
 
 #[derive(serde::Deserialize)]
-pub struct FieldYaml(pub BTreeMap<String, FieldYamlRegion>);
+pub struct FieldYaml(pub BTreeMap<RegionName, FieldYamlRegion>);
 
 impl FieldYaml {
     pub fn new(raw_str: &str) -> serde_yaml::Result<Self> {
@@ -33,6 +33,18 @@ impl FieldYamlAccessRule {
             .collect::<Result<Vec<_>>>()?
             .try_into()?;
         Ok(Some(AnyOfAllRequirements(requirements)))
+    }
+}
+
+#[derive(Clone, Debug, Default, Eq, Ord, PartialEq, PartialOrd, serde::Deserialize)]
+pub struct RegionName(String);
+
+impl RegionName {
+    pub fn new(value: String) -> Self {
+        Self(value)
+    }
+    pub fn get(&self) -> &str {
+        self.0.as_str()
     }
 }
 

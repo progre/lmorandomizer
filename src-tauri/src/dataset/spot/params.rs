@@ -2,19 +2,19 @@ use std::fmt::{self, Display};
 
 use vec1::Vec1;
 
-use crate::script::enums::FieldNumber;
+use crate::{dataset::files::RegionName, script::enums::FieldNumber};
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Region {
     field_number: FieldNumber,
-    name: String,
+    name: RegionName,
     access_rule: Option<AnyOfAllRequirements>,
 }
 
 impl Region {
     pub fn new(
         field_number: FieldNumber,
-        name: String,
+        name: RegionName,
         access_rule: Option<AnyOfAllRequirements>,
     ) -> Self {
         Self {
@@ -28,8 +28,8 @@ impl Region {
         self.field_number
     }
 
-    pub fn get(&self) -> &str {
-        self.name.as_str()
+    pub fn name(&self) -> &RegionName {
+        &self.name
     }
 
     pub fn access_rule(&self) -> Option<&AnyOfAllRequirements> {
@@ -39,7 +39,7 @@ impl Region {
 
 impl Display for Region {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        self.name.fmt(f)
+        self.name.get().fmt(f)
     }
 }
 

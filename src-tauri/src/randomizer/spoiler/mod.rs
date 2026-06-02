@@ -87,7 +87,7 @@ fn maps<'a>(
 pub fn spoiler<'a>(
     seed: u64,
     options: &RandomizeOptions,
-    regions: &Regions<'a>,
+    all_regions: &Regions<'a>,
     items: &Items<'a>,
     spots: &Spots<'a>,
 ) -> Option<SpoilerLogRef<'a>> {
@@ -97,11 +97,11 @@ pub fn spoiler<'a>(
     let mut remaining_spots = spots.clone();
     let maps = maps(&mut rng, items.maps(), &mut remaining_spots);
 
-    let mut state = State::new(regions);
+    let mut state = State::new(all_regions);
     let mut progression = Vec::new();
 
     if options.need_glitches {
-        state.insert_flag(&GLITCH, regions);
+        state.insert_flag(&GLITCH);
     }
 
     for i in 0..100 {
@@ -110,7 +110,7 @@ pub fn spoiler<'a>(
             &mut items_pool,
             &mut remaining_spots,
             &mut state,
-            regions,
+            all_regions,
         ) else {
             trace!("Retry (spheres: {}, time: {:?})", i, start.elapsed());
             return None;

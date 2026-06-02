@@ -142,16 +142,17 @@ fn take_achieved<'a>(events: &mut Vec<&'a Event>, state: &State) -> Vec<&'a Even
 fn achieve_events<'a>(
     events: &mut Vec<&'a Event>,
     state: &mut State<'a>,
-    regions: &Regions<'a>,
+    all_regions: &Regions<'a>,
 ) -> Vec<&'a StrategyFlag> {
     let mut checkpoints = vec![];
     while !events.is_empty() {
+        state.explore_regions(all_regions);
         let achieved = take_achieved(events, state);
         if achieved.is_empty() {
             return checkpoints;
         }
         achieved.into_iter().for_each(|event| {
-            state.insert_flag(&event.name, regions);
+            state.insert_flag(&event.name);
             checkpoints.push(&event.name);
         });
     }
@@ -163,15 +164,17 @@ pub fn sphere<'a>(
     items_pool: &mut ItemsPool<'a>,
     remaining_spots: &mut Spots<'a>,
     state: &mut State<'a>,
-    regions: &Regions<'a>,
+    all_regions: &Regions<'a>,
 ) -> Option<SphereRef<'a>> {
     debug_assert_eq!(
         items_pool.shop_items.len() + items_pool.consumable_items.len(),
         remaining_spots.shops.len()
     );
 
+    state.explore_regions(all_regions);
+
     if let Some(priority_items) = items_pool.priority_items.take() {
-        let sphere = pre_sphere(rng, priority_items, remaining_spots, state, regions);
+        let sphere = pre_sphere(rng, priority_items, remaining_spots, state);
         let shop_count = sphere
             .iter()
             .filter(|x| match x {
@@ -218,10 +221,10 @@ pub fn sphere<'a>(
         state.reachable_regions().collect(),
         reachables,
     )?;
-    state.append_flags(&sphere, regions);
+    state.append_flags(&sphere);
     *remaining_spots = unreachables;
 
-    let checkpoints = achieve_events(&mut remaining_spots.events, state, regions);
+    let checkpoints = achieve_events(&mut remaining_spots.events, state, all_regions);
     sphere.append_checkpoints(checkpoints.into_iter().map(CheckpointRef::Event).collect());
 
     Some(sphere)

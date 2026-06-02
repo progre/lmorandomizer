@@ -56,40 +56,36 @@ impl<'a> State<'a> {
         self.reachable_regions.iter().copied()
     }
 
-    pub fn insert_flag(&mut self, flag: &'a StrategyFlag, all_regions: &Regions<'a>) {
-        self.append_flags_internal(once(flag), all_regions);
+    pub fn explore_regions(&mut self, all_regions: &Regions<'a>) {
+        self.reachable_regions = all_regions
+            .iter()
+            .filter(|region| self.is_reachable_without_region(region.access_rule()))
+            .collect();
     }
 
-    pub fn append_flags(&mut self, sphere: &SphereRef<'a>, all_regions: &Regions<'a>) {
-        self.append_flags_internal(
-            sphere.iter().map(|checkpoint| match checkpoint {
-                CheckpointRef::MainWeapon(checkpoint) => &checkpoint.item.name,
-                CheckpointRef::SubWeapon(checkpoint) => &checkpoint.item.name,
-                CheckpointRef::Chest(checkpoint) => &checkpoint.item.name,
-                CheckpointRef::Seal(checkpoint) => &checkpoint.item.name,
-                CheckpointRef::Shop(checkpoint) => &checkpoint.item.name,
-                CheckpointRef::Rom(checkpoint) => &checkpoint.item.name,
-                CheckpointRef::Talk(checkpoint) => &checkpoint.item.name,
-                CheckpointRef::Event(flag) => flag,
-            }),
-            all_regions,
-        );
+    pub fn insert_flag(&mut self, flag: &'a StrategyFlag) {
+        self.append_flags_internal(once(flag));
     }
 
-    fn append_flags_internal(
-        &mut self,
-        flags: impl Iterator<Item = &'a StrategyFlag>,
-        all_regions: &Regions<'a>,
-    ) {
+    pub fn append_flags(&mut self, sphere: &SphereRef<'a>) {
+        self.append_flags_internal(sphere.iter().map(|checkpoint| match checkpoint {
+            CheckpointRef::MainWeapon(checkpoint) => &checkpoint.item.name,
+            CheckpointRef::SubWeapon(checkpoint) => &checkpoint.item.name,
+            CheckpointRef::Chest(checkpoint) => &checkpoint.item.name,
+            CheckpointRef::Seal(checkpoint) => &checkpoint.item.name,
+            CheckpointRef::Shop(checkpoint) => &checkpoint.item.name,
+            CheckpointRef::Rom(checkpoint) => &checkpoint.item.name,
+            CheckpointRef::Talk(checkpoint) => &checkpoint.item.name,
+            CheckpointRef::Event(flag) => flag,
+        }));
+    }
+
+    fn append_flags_internal(&mut self, flags: impl Iterator<Item = &'a StrategyFlag>) {
         for flag in flags {
             if flag.is_sacred_orb() {
                 self.sacred_orb_count += 1;
             }
             self.strategy_flags.insert(flag);
         }
-        self.reachable_regions = all_regions
-            .iter()
-            .filter(|region| self.is_reachable_without_region(region.access_rule()))
-            .collect();
     }
 }

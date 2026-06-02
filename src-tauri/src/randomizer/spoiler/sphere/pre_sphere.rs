@@ -5,9 +5,7 @@ use rand::Rng;
 use crate::{
     dataset::spot::Region,
     randomizer::{
-        spoiler::{
-            items_pool::UnorderedItems, regions::Regions, sphere::state::State, spots::Spots,
-        },
+        spoiler::{items_pool::UnorderedItems, sphere::state::State, spots::Spots},
         spoiler_log::{CheckpointRef, SphereRef},
         storage::{
             ShopRef,
@@ -84,7 +82,6 @@ pub fn pre_sphere<'a>(
     priority_items: UnorderedItems<'a>,
     remaining_spots: &mut Spots<'a>,
     state: &mut State<'a>,
-    all_regions: &Regions<'a>,
 ) -> SphereRef<'a> {
     let mut priority_items = priority_items.into_inner();
     let mut spheres = Vec::new();
@@ -100,7 +97,7 @@ pub fn pre_sphere<'a>(
         let checkpoints = place_items(rng, [item].into_iter(), &mut working);
         let checkpoints = SphereRef::new(state.reachable_regions().collect(), checkpoints);
         remaining_spots.extend(working);
-        state.append_flags(&checkpoints, all_regions);
+        state.append_flags(&checkpoints);
         spheres.append(&mut checkpoints.into_inner());
     }
     let (mut working, remainings) = explorer_neighborhood(remaining_spots.deref(), state);
@@ -109,7 +106,7 @@ pub fn pre_sphere<'a>(
     remaining_spots.extend(working);
     let reachable_regions: Vec<_> = state.reachable_regions().collect();
     let checkpoints = SphereRef::new(reachable_regions.clone(), checkpoints);
-    state.append_flags(&checkpoints, all_regions);
+    state.append_flags(&checkpoints);
     spheres.append(&mut checkpoints.into_inner());
     SphereRef::new(reachable_regions, spheres)
 }

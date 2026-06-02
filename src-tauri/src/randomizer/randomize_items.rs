@@ -97,7 +97,7 @@ fn random_spoiler<'a>(
     options: &RandomizeOptions,
 ) -> SpoilerLogRef<'a> {
     let start = std::time::Instant::now();
-    let regions = &Regions::new(source.regions.iter().collect());
+    let all_regions = &Regions::new(source.regions.iter().collect());
     let items = &Items::new(source);
     let spots = &Spots::new(source);
     debug_assert_eq!(
@@ -123,7 +123,7 @@ fn random_spoiler<'a>(
         for i in 0..100000 {
             let handles: Vec<_> = (0..thread_count)
                 .map(|_| rng.next_u64())
-                .map(|seed| scope.spawn(move || spoiler(seed, options, regions, items, spots)))
+                .map(|seed| scope.spawn(move || spoiler(seed, options, all_regions, items, spots)))
                 .collect();
             let Some(spoiler_log) = handles.into_iter().filter_map(|h| h.join().unwrap()).next()
             else {
