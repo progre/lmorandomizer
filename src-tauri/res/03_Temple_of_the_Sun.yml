@@ -33,3 +33,7 @@ templeOfTheSun/main:
   events:
     event:defeatedEllmac:
       - ankhJewel:templeOfTheSun, gameMaster2
+
+templeOfTheSun/exitUpper:
+
+templeOfTheSun/exitLower:

@@ -4,12 +4,16 @@ chamberOfExtinction/ankh:
   accessRule:
     # this is to reach palenque, not fight him
     - event:defeatedViy, feather
-    - msx2, qBert, divinerSensation, feather, bronzeMirror
+    - msx2, qBert, divinerSensation, feather, bronzeMirror # reach from Maze of Gallious area
   shops:
     spearAmmo, flareGunAmmo, bombAmmo:
   events:
     event:defeatedPalenque: # added sub weapon and sacred orb requirements # TODO: event:subWeaponWallForward いらなくね？
       - event:reachedUpperOfChamberOfBirth, event:lightedUpChamberOfExtinction, event:subWeaponWallForward, pochetteKey, ankhJewel:chamberOfBirth, sacredOrb:4, gameMaster2
+
+chamberOfExtinction/exitUpper:
+
+chamberOfExtinction/exitLower:
 
 # TODO: The upper side should be completely lightened before going
 chamberOfExtinction/main:
@@ -30,3 +34,5 @@ chamberOfExtinction/main:
     mazeOfGalious:
       - msx2, qBert, divinerSensation
     metalGear2: # not yet tested with initial status
+
+mazeOfGalious:
