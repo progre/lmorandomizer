@@ -1,6 +1,11 @@
 twinLabyrinthsRight/main:
   accessRule:
     - event:releasedTwins
+  exits:
+    fixed.twinLabyrinthsLeft/main:
+    fixed.twinLabyrinthsRight/loop:
+    up.shrineOfTheMother/map:
+    down.templeOfMoonlight/main:
   subWeapons:
     ankhJewel:twinLabyrinths:
   shops:
@@ -15,6 +20,10 @@ twinLabyrinthsRight/main:
       - flareGun, flareGunAmmo
 
 twinLabyrinthsRight/loop:
+  exits:
+    up.dimensionalCorridor/main:
+    fixed.twinLabyrinthsRight/main:
+    fixed.twinLabyrinthsLeft/loop:
   shops:
     dragonBone, spearAmmo, flareGunAmmo:
       - fakeHandScanner

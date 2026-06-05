@@ -1,6 +1,10 @@
 templeOfMoonlight/main:
   accessRule:
     - event:reachedGrailOfTempleOfMoonlight
+  exits:
+    up.gateOfIllusion/lower:
+    up.twinLabyrinthsRight/main:
+    fixed.templeOfMoonlight/lower:
   chests:
     iceCape:
     map:TempleOfMoonlight:
@@ -9,6 +13,8 @@ templeOfMoonlight/main:
       - holyGrail
 
 templeOfMoonlight/pyramid:
+  exits:
+    fixed.templeOfMoonlight/main:
   chests:
     ocarina:
       - event:reachedFrontOfTempleOfMoonlight, event:escapeFromTempleOfMoonlight, flareGun, flareGunAmmo, womanStatue, feather # need a way out of moonlight
@@ -22,6 +28,10 @@ templeOfMoonlight/pyramid:
 templeOfMoonlight/lower:
   accessRule:
     - event:reachedFrontOfTempleOfMoonlight
+  exits:
+    fixed.templeOfMoonlight/main:
+    door.templeOfTheSun/main:
+    left.towerOfTheGoddess/passage:
   mainWeapons:
     axe:
       - shuriken, shurikenAmmo, knife, boots

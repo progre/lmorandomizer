@@ -1,4 +1,13 @@
 templeOfTheSun/main:
+  exits:
+    up.gateOfGuidance/main:
+    fixed.twinLabyrinthsLeft/main:
+    left.infernoCavern/main:
+    down.twinLabyrinthsLeft/main:
+    warp.templeOfMoonlight/pyramid:
+    door.templeOfMoonlight/lower:
+    fixed.templeOfTheSun/exitUpper:
+    fixed.templeOfTheSun/exitLower:
   mainWeapons:
     knife:
       - shuriken, shurikenAmmo
@@ -35,5 +44,11 @@ templeOfTheSun/main:
       - ankhJewel:templeOfTheSun, gameMaster2
 
 templeOfTheSun/exitUpper:
+  exits:
+    right.chamberOfExtinction/exitUpper:
+    fixed.templeOfTheSun/main:
 
 templeOfTheSun/exitLower:
+  exits:
+    right.chamberOfExtinction/exitLower:
+    fixed.templeOfTheSun/main:

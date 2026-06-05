@@ -13,7 +13,7 @@ impl FieldYaml {
     }
 }
 
-#[derive(Default, serde::Deserialize)]
+#[derive(Clone, Debug, Default, serde::Deserialize)]
 pub struct FieldYamlAccessRule(Vec<String>);
 
 impl FieldYamlAccessRule {
@@ -48,11 +48,70 @@ impl RegionName {
     }
 }
 
+#[derive(Clone, Debug, Default)]
+pub struct Exits {
+    pub up: BTreeMap<RegionName, FieldYamlAccessRule>,
+    pub down: BTreeMap<RegionName, FieldYamlAccessRule>,
+    pub left: BTreeMap<RegionName, FieldYamlAccessRule>,
+    pub right: BTreeMap<RegionName, FieldYamlAccessRule>,
+    pub door: BTreeMap<RegionName, FieldYamlAccessRule>,
+    pub warp: BTreeMap<RegionName, FieldYamlAccessRule>,
+    pub fixed: BTreeMap<RegionName, FieldYamlAccessRule>,
+}
+
+impl Exits {
+    pub fn all_exits(&self) -> impl Iterator<Item = (&RegionName, &FieldYamlAccessRule)> {
+        self.up
+            .iter()
+            .chain(self.down.iter())
+            .chain(self.left.iter())
+            .chain(self.right.iter())
+            .chain(self.door.iter())
+            .chain(self.warp.iter())
+            .chain(self.fixed.iter())
+    }
+}
+
+impl<'de> serde::Deserialize<'de> for Exits {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        let map = BTreeMap::<String, FieldYamlAccessRule>::deserialize(deserializer)?;
+        // up.name, down.name のような形式なので、up, down, left, right, door に分割する
+        let mut exits = Self::default();
+        for (key, value) in map {
+            let (direction, name) = key.split_once('.').ok_or_else(|| {
+                let msg = format!("invalid exit key: {key}, expected format is direction.name");
+                serde::de::Error::custom(msg)
+            })?;
+            match direction {
+                "up" => exits.up.insert(RegionName(name.to_owned()), value),
+                "down" => exits.down.insert(RegionName(name.to_owned()), value),
+                "left" => exits.left.insert(RegionName(name.to_owned()), value),
+                "right" => exits.right.insert(RegionName(name.to_owned()), value),
+                "door" => exits.door.insert(RegionName(name.to_owned()), value),
+                "warp" => exits.warp.insert(RegionName(name.to_owned()), value),
+                "fixed" => exits.fixed.insert(RegionName(name.to_owned()), value),
+                _ => {
+                    let msg = format!(
+                        "invalid exit direction: {direction}, expected one of up, down, left, right, door"
+                    );
+                    return Err(serde::de::Error::custom(msg));
+                }
+            };
+        }
+        Ok(exits)
+    }
+}
+
 #[derive(Default, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct FieldYamlRegion {
     #[serde(default)]
     pub access_rule: FieldYamlAccessRule,
+    #[serde(default)]
+    pub exits: Exits,
     #[serde(default)]
     pub main_weapons: BTreeMap<String, FieldYamlAccessRule>,
     #[serde(default)]

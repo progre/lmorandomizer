@@ -1,10 +1,17 @@
 infernoCavern/spikes:
   accessRule:
     - event:reachedBackDoorOfSurface
+  exits:
+    up.surface/ruinPathLower:
+    door.towerOfRuin/top:
   roms:
     goonies:
 
 infernoCavern/main:
+  exits:
+    left.templeOfTheSun/main:
+    up.twinLabyrinthsLeft/main:
+    fixed.infernoCavern/viy:
   mainWeapons:
     chainWhip:
       - birthSeal, grappleClaw
@@ -28,6 +35,10 @@ infernoCavern/main:
 infernoCavern/viy:
   accessRule:
     - event:reachedFrontOfTowerOfRuin, event:defeatedBahamut
+  exits:
+    fixed.infernoCavern/main:
+    door.towerOfRuin/southWestDoor:
+    fixed.chamberOfExtinction/ankh:
   events:
     event:defeatedViy:
       - ankhJewel:towerOfRuin, iceCape, sacredOrb:3, bronzeMirror, gameMaster2, spear, spearAmmo # should have some health

@@ -1,4 +1,10 @@
 gateOfGuidance/main:
+  exits:
+    left.surface/main:
+    fixed.gateOfGuidance/door:
+    down.mausoleumOfTheGiants/main:
+    down.templeOfTheSun/main:
+    up.springInTheSky/main:
   subWeapons:
     shuriken:
     ankhJewel:gateOfGuidance:
@@ -26,3 +32,6 @@ gateOfGuidance/main:
       - ankhJewel:gateOfGuidance, gameMaster2
 
 gateOfGuidance/door:
+  exits:
+    door.gateOfIllusion/main:
+    fixed.gateOfGuidance/main:

@@ -1,10 +1,15 @@
 chamberOfExtinction/magatama:
+  exits:
+    door.chamberOfBirth/main:
+    up.surface/ruinPathUpper:
 
 chamberOfExtinction/ankh:
   accessRule:
     # this is to reach palenque, not fight him
     - event:defeatedViy, feather
     - msx2, qBert, divinerSensation, feather, bronzeMirror # reach from Maze of Gallious area
+  exits:
+    up.infernoCavern/main:
   shops:
     spearAmmo, flareGunAmmo, bombAmmo:
   events:
@@ -12,13 +17,24 @@ chamberOfExtinction/ankh:
       - event:reachedUpperOfChamberOfBirth, event:lightedUpChamberOfExtinction, event:subWeaponWallForward, pochetteKey, ankhJewel:chamberOfBirth, sacredOrb:4, gameMaster2
 
 chamberOfExtinction/exitUpper:
+  exits:
+    left.templeOfTheSun/exitUpper:
+    fixed.chamberOfExtinction/main:
 
 chamberOfExtinction/exitLower:
+  exits:
+    left.templeOfTheSun/exitLower:
+    fixed.chamberOfExtinction/main:
 
 # TODO: The upper side should be completely lightened before going
 chamberOfExtinction/main:
   accessRule:
     - event:lightedUpChamberOfExtinction
+  exits:
+    up.shrineOfTheMother/lower:
+    fixed.chamberOfExtinction/exitUpper:
+    fixed.chamberOfExtinction/exitLower:
+    door.mazeOfGalious:
   chests:
     sacredOrb:chamberOfExtinction:
       - feather # need a way out
@@ -36,3 +52,5 @@ chamberOfExtinction/main:
     metalGear2: # not yet tested with initial status
 
 mazeOfGalious:
+  exits:
+    warp.chamberOfExtinction/ankh:

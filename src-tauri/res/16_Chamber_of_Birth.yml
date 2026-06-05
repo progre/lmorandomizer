@@ -1,6 +1,10 @@
 chamberOfBirth/main:
   accessRule:
     - event:reachedUpperOfChamberOfBirth
+  exits:
+    up.graveyardOfTheGiants/east:
+    door.chamberOfExtinction/magatama:
+    left.chamberOfBirth/lower:
   chests:
     vessel:
       - silverShield
@@ -17,6 +21,9 @@ chamberOfBirth/main:
 chamberOfBirth/lower:
   accessRule:
     - event:reachedLowerOfChamberOfBirth
+  exits:
+    down.towerOfTheGoddess/main:
+    right.chamberOfBirth/main:
   chests:
     map:chamberOfBirth:
     pochetteKey:

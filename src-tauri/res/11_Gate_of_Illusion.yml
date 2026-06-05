@@ -1,6 +1,9 @@
 gateOfIllusion/upper:
   accessRule:
     - event:reachedBackDoorOfGateOfIllusion
+  exits:
+    right.towerOfTheGoddess/upper:
+    fixed.gateOfIllusion/main:
   chests:
     cogOfTheSoul:
       - event:reachedElevatorOfGateOfIllusion, event:escapeShu, lampOfTime # need to kill Shu to open chest
@@ -8,12 +11,20 @@ gateOfIllusion/upper:
 gateOfIllusion/main:
   accessRule:
     - event:reachedGrailOfGateOfIllusion
+  exits:
+    fixed.gateOfIllusion/upper:
+    door.gateOfGuidance/door:
+    right.towerOfRuin/illusion:
+    fixed.gateOfIllusion/middle:
   roms:
     roadFighter:
 
 gateOfIllusion/middle:
   accessRule:
     - event:reachedElevatorOfGateOfIllusion
+  exits:
+    fixed.gateOfIllusion/main:
+    fixed.gateOfIllusion/lower:
   chests:
     keyOfEternity:
       - miniDoll, event:escapeShu # need mini doll and a way to get out from Shu area
@@ -29,6 +40,10 @@ gateOfIllusion/middle:
 gateOfIllusion/lower:
   accessRule:
     - event:reachedFrontOfGateOfIllusion
+  exits:
+    fixed.gateOfIllusion/middle:
+    down.graveyardOfTheGiants/upper:
+    down.templeOfMoonlight/main:
   chests:
     map:gateOfIllusion:
   roms:

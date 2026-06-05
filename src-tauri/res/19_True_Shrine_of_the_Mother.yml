@@ -1,6 +1,8 @@
 trueShrineOfTheMother/main:
   accessRule:
     - event:reachedMapSpotOfShrineOfTheMother, event:reachedDeathSealSpot, event:reachedFrontOfShrineOfTheMother, event:defeatedAmphisbaena, event:defeatedSakit, event:defeatedEllmac, event:defeatedBahamut, event:defeatedViy, event:defeatedPalenque, event:defeatedBaphomet, event:defeatedTiamat
+  exits:
+    fixed.shrineOfTheMother/main:
   roms:
     sdSnatcher:
       - feather

@@ -1,6 +1,10 @@
-use std::{collections::BTreeMap, str::FromStr};
+use std::{
+    collections::{BTreeMap, BTreeSet},
+    str::FromStr,
+};
 
 use anyhow::Result;
+use log::trace;
 use strum::ParseError;
 use vec1::Vec1;
 
@@ -18,6 +22,8 @@ use super::spot::{
     AllRequirements, AnyOfAllRequirements, ChestSpot, MainWeaponSpot, RequirementFlag, RomSpot,
     SealSpot, ShopSpot, SubWeaponSpot, TalkSpot,
 };
+
+pub use super::files::RegionName;
 
 fn parse_event_requirements(items: BTreeMap<String, FieldYamlAccessRule>) -> Result<Vec<Event>> {
     items
@@ -90,6 +96,7 @@ impl GameStructure {
                     field_yaml_region
                         .access_rule
                         .into_any_of_all_requirements()?,
+                    field_yaml_region.exits,
                 );
                 for (item, access_rule) in field_yaml_region.main_weapons {
                     let location = main_weapon_location(region.clone(), item, access_rule)?;
@@ -120,6 +127,10 @@ impl GameStructure {
             }
         }
 
+        if cfg!(debug_assertions) {
+            validate_exits(&regions);
+        }
+
         Ok(Self {
             regions,
             main_weapon_shutters,
@@ -131,6 +142,54 @@ impl GameStructure {
             talks,
             events,
         })
+    }
+}
+
+fn validate_exits(regions: &[super::spot::Region]) {
+    let all_region_names: BTreeSet<&RegionName> = regions.iter().map(|r| r.name()).collect();
+
+    // region name -> 自分へ向かってくる exit 元 region 名の集合
+    let exits_to: BTreeMap<&RegionName, BTreeSet<&RegionName>> = regions
+        .iter()
+        .map(|r| {
+            let targets: BTreeSet<_> = r.exits().all_exits().map(|(name, _)| name).collect();
+            (r.name(), targets)
+        })
+        .collect();
+
+    for region in regions {
+        let exits = region.exits();
+        let directions = [
+            ("up", &exits.up),
+            ("down", &exits.down),
+            ("left", &exits.left),
+            ("right", &exits.right),
+            ("door", &exits.door),
+            ("warp", &exits.warp),
+            ("fixed", &exits.fixed),
+        ];
+        for (dir, map) in directions {
+            for target_name in map.keys() {
+                if !all_region_names.contains(target_name) {
+                    trace!(
+                        "[validate] exit target not found: {} -({})-> {}",
+                        region.name().get(),
+                        dir,
+                        target_name.get()
+                    );
+                    continue;
+                }
+                let target_exits = &exits_to[target_name];
+                if !target_exits.contains(region.name()) {
+                    trace!(
+                        "[validate] no return exit: {} -({})-> {} (no exit back)",
+                        region.name().get(),
+                        dir,
+                        target_name.get()
+                    );
+                }
+            }
+        }
     }
 }
 

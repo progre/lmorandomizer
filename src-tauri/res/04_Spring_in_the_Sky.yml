@@ -1,4 +1,6 @@
 springInTheSky/main:
+  exits:
+    down.gateOfGuidance/main:
   subWeapons:
     ankhJewel:springInTheSky:
       - scalesphere

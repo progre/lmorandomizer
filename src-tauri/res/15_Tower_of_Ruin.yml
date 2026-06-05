@@ -1,8 +1,15 @@
 towerOfRuin/top:
+  exits:
+    door.infernoCavern/spikes:
+    fixed.towerOfRuin/medicine:
 
 towerOfRuin/medicine:
   accessRule:
     - event:reachedBackDoorOfSurface, event:defeatedBaphomet # reachedBackDoorOfSurface already includes bronze mirror
+  exits:
+    fixed.towerOfRuin/top:
+    right.towerOfTheGoddess/main:
+    fixed.towerOfRuin/main:
   chests:
     djedPillar:
       - mulanaTalisman, ocarina # need to talk to sage in spring. need mulana talisman to get item
@@ -11,10 +18,17 @@ towerOfRuin/medicine:
       - keySword
 
 towerOfRuin/illusion:
+  exits:
+    left.gateOfIllusion/main:
+    fixed.towerOfRuin/main:
 
 towerOfRuin/main:
   accessRule:
     - event:reachedFrontOfTowerOfRuin
+  exits:
+    fixed.towerOfRuin/illusion:
+    right.graveyardOfTheGiants/lower:
+    fixed.towerOfRuin/southWestDoor:
   subWeapons:
     ankhJewel:towerOfRuin:
     spear:
@@ -34,3 +48,6 @@ towerOfRuin/main:
       - spear, spearAmmo
 
 towerOfRuin/southWestDoor:
+  exits:
+    fixed.towerOfRuin/main:
+    door.infernoCavern/viy:

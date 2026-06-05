@@ -2,6 +2,11 @@ twinLabyrinthsLeft/main:
   accessRule:
     - event:releasedTwins
     - event:twinLabyrinthsGlitch
+  exits:
+    up.templeOfTheSun/main:
+    down.infernoCavern/main:
+    fixed.twinLabyrinthsLeft/loop:
+    fixed.twinLabyrinthsRight/main:
   mainWeapons:
     katana:
       - flareGun, flareGunAmmo, knife
@@ -25,5 +30,9 @@ twinLabyrinthsLeft/main:
       - event:releasedTwins
 
 twinLabyrinthsLeft/loop:
+  exits:
+    up.mausoleumOfTheGiants/main:
+    fixed.twinLabyrinthsLeft/main:
+    fixed.twinLabyrinthsRight/loop:
   shops:
     helmet, bombAmmo, fakeHandScanner:

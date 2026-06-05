@@ -1,4 +1,7 @@
 endlessCorridor/main:
+  exits:
+    right.mausoleumOfTheGiants/main:
+    fixed.endlessCorridor/basement:
   chests:
     map:endlessCorridor:
   shops:
@@ -8,6 +11,10 @@ endlessCorridor/main:
     videoHustler:
 
 endlessCorridor/basement:
+  exits:
+    fixed.endlessCorridor/main:
+    up.shrineOfTheMother/seal:
+    down.shrineOfTheMother/main:
   mainWeapons:
     keySword:
       - keyOfEternity

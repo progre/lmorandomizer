@@ -1,6 +1,10 @@
 graveyardOfTheGiants/upper:
   accessRule:
     - event:reachedLiarOfGraveyardOfTheGiants
+  exits:
+    up.gateOfIllusion/lower:
+    fixed.graveyardOfTheGiants/main:
+    fixed.graveyardOfTheGiants/lower:
   subWeapons:
     silverShield:
       - katana
@@ -11,12 +15,20 @@ graveyardOfTheGiants/main:
   accessRule:
     - event:reachedLiarOfGraveyardOfTheGiants
     - event:reachedFrontOfTempleOfMoonlight, shuriken, shurikenAmmo, katana, keySword, knife
+  exits:
+    fixed.graveyardOfTheGiants/upper:
+    right.towerOfTheGoddess/passage:
+    fixed.graveyardOfTheGiants/lower:
   chests:
     contra:
 
 graveyardOfTheGiants/east:
   accessRule:
     - event:reachedBackDoorOfGraveyardOfTheGiants
+  exits:
+    fixed.graveyardOfTheGiants/lower:
+    up.towerOfTheGoddess/upper:
+    down.chamberOfBirth/main:
   subWeapons:
     bomb:
   roms:
@@ -27,6 +39,12 @@ graveyardOfTheGiants/east:
 graveyardOfTheGiants/lower:
   accessRule:
     - event:reachedFrontOfGraveyardOfTheGiants
+  exits:
+    fixed.graveyardOfTheGiants/east:
+    fixed.graveyardOfTheGiants/upper:
+    fixed.graveyardOfTheGiants/main:
+    door.mausoleumOfTheGiants/main:
+    left.towerOfRuin/main:
   chests:
     map:graveyardOfTheGiants:
       - feather

@@ -1,4 +1,8 @@
 shrineOfTheMother/main:
+  exits:
+    up.endlessCorridor/basement:
+    fixed.shrineOfTheMother/lower:
+    fixed.trueShrineOfTheMother/main:
   chests:
     crystalSkull:
       - event:reachedFrontOfShrineOfTheMother, mulanaTalisman, lifeSeal
@@ -16,15 +20,21 @@ shrineOfTheMother/main:
       - event:reachedFrontOfShrineOfTheMother, holyGrail
 
 shrineOfTheMother/lower:
+  exits:
+    down.chamberOfExtinction/main:
 
 shrineOfTheMother/map:
   accessRule:
     - event:reachedMapSpotOfShrineOfTheMother
+  exits:
+    down.twinLabyrinthsRight/main:
   chests:
     map:shrineOfTheMother:
 
 shrineOfTheMother/seal:
   accessRule:
     - event:reachedDeathSealSpot
+  exits:
+    down.endlessCorridor/basement:
   seals:
     deathSeal:

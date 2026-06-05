@@ -2,13 +2,17 @@ use std::fmt::{self, Display};
 
 use vec1::Vec1;
 
-use crate::{dataset::files::RegionName, script::enums::FieldNumber};
+use crate::{
+    dataset::files::{Exits, RegionName},
+    script::enums::FieldNumber,
+};
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug)]
 pub struct Region {
     field_number: FieldNumber,
     name: RegionName,
     access_rule: Option<AnyOfAllRequirements>,
+    exits: Exits,
 }
 
 impl Region {
@@ -16,11 +20,13 @@ impl Region {
         field_number: FieldNumber,
         name: RegionName,
         access_rule: Option<AnyOfAllRequirements>,
+        exits: Exits,
     ) -> Self {
         Self {
             field_number,
             name,
             access_rule,
+            exits,
         }
     }
 
@@ -34,6 +40,10 @@ impl Region {
 
     pub fn access_rule(&self) -> Option<&AnyOfAllRequirements> {
         self.access_rule.as_ref()
+    }
+
+    pub fn exits(&self) -> &Exits {
+        &self.exits
     }
 }
 

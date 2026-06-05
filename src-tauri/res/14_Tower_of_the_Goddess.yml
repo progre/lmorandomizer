@@ -1,9 +1,18 @@
 towerOfTheGoddess/upper:
+  exits:
+    left.gateOfIllusion/upper:
+    down.graveyardOfTheGiants/east:
+    fixed.towerOfTheGoddess/main:
   chests:
     planeModel:
       - event:reachedTowerOfTheGoddess, feather, grappleClaw, boots, handScanner, glyphReader # need boots to climb tower. need to flood tower to open chest
 
 towerOfTheGoddess/main:
+  exits:
+    fixed.towerOfTheGoddess/upper:
+    up.chamberOfBirth/lower:
+    left.towerOfRuin/medicine:
+    door.surface/main:
   mainWeapons:
     mace:
       - event:reachedTowerOfTheGoddess
@@ -23,3 +32,6 @@ towerOfTheGoddess/main:
       - event:reachedLowerOfChamberOfBirth, lampOfTime
 
 towerOfTheGoddess/passage:
+  exits:
+    left.graveyardOfTheGiants/main:
+    right.templeOfMoonlight/lower:

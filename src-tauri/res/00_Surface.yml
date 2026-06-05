@@ -1,4 +1,7 @@
 surface/main:
+  exits:
+    right.gateOfGuidance/main:
+    door.towerOfTheGoddess/main:
   chests:
     feather:
       - serpentStaff, gauntlet
@@ -41,8 +44,14 @@ surface/main:
 surface/ruinPathUpper:
   accessRule:
     - event:reachedBackDoorOfSurface
+  exits:
+    fixed.surface/ruinPathLower:
+    down.chamberOfExtinction/magatama:
   subWeapons:
     pistol:
       - bomb, bombAmmo
 
 surface/ruinPathLower:
+  exits:
+    fixed.surface/ruinPathUpper:
+    down.infernoCavern/spikes:

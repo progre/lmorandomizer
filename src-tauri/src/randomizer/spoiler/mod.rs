@@ -97,7 +97,12 @@ pub fn spoiler<'a>(
     let mut remaining_spots = spots.clone();
     let maps = maps(&mut rng, items.maps(), &mut remaining_spots);
 
-    let mut state = State::new(all_regions);
+    let mut state = State::new(
+        all_regions
+            .iter()
+            .find(|x| matches!(x.name().get(), "surface/main"))
+            .unwrap(),
+    );
     let mut progression = Vec::new();
 
     if options.need_glitches {
@@ -112,7 +117,19 @@ pub fn spoiler<'a>(
             &mut state,
             all_regions,
         ) else {
-            trace!("Retry (spheres: {}, time: {:?})", i, start.elapsed());
+            let reachable_names: std::collections::HashSet<_> =
+                state.reachable_regions().map(|r| r.name().get()).collect();
+            let unreachable_regions: Vec<_> = all_regions
+                .iter()
+                .filter(|r| !reachable_names.contains(r.name().get()))
+                .map(|r| r.name().get())
+                .collect();
+            trace!(
+                "Retry (spheres: {}, time: {:?}) unreachable regions: {:?}",
+                i,
+                start.elapsed(),
+                unreachable_regions
+            );
             return None;
         };
         progression.push(sphere);

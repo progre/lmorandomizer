@@ -2,6 +2,8 @@ dimensionalCorridor/main:
   accessRule:
     - event:releasedTwins, crystalSkull, feather, bronzeMirror
     - event:releasedTwins, crystalSkull, boots, grappleClaw, bronzeMirror # can get in with boots and grapple claw
+  exits:
+    fixed.endlessCorridor/main:
   subWeapons:
     angelShield:
       - sacredOrb:2 # should have some health to beat bosses

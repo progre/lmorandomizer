@@ -1,7 +1,10 @@
 use std::{collections::HashSet, iter::once};
 
 use crate::{
-    dataset::spot::{AnyOfAllRequirements, Region},
+    dataset::{
+        game_structure::RegionName,
+        spot::{AnyOfAllRequirements, Region},
+    },
     randomizer::{
         spoiler::regions::Regions,
         spoiler_log::{CheckpointRef, SphereRef},
@@ -16,12 +19,9 @@ pub struct State<'a> {
 }
 
 impl<'a> State<'a> {
-    pub fn new(all_regions: &Regions<'a>) -> Self {
+    pub fn new(initial_region: &'a Region) -> Self {
         Self {
-            reachable_regions: all_regions
-                .iter()
-                .filter(|x| x.access_rule().is_none())
-                .collect(),
+            reachable_regions: vec![initial_region],
             strategy_flags: HashSet::default(),
             sacred_orb_count: 0,
         }
@@ -32,7 +32,10 @@ impl<'a> State<'a> {
         region: &Region,
         requirements: Option<&AnyOfAllRequirements>,
     ) -> bool {
-        self.reachable_regions.contains(&region) && self.is_reachable_without_region(requirements)
+        self.reachable_regions
+            .iter()
+            .any(|x| x.name() == region.name())
+            && self.is_reachable_without_region(requirements)
     }
 
     pub fn is_reachable_without_region(&self, requirements: Option<&AnyOfAllRequirements>) -> bool {
@@ -56,11 +59,39 @@ impl<'a> State<'a> {
         self.reachable_regions.iter().copied()
     }
 
-    pub fn explore_regions(&mut self, all_regions: &Regions<'a>) {
-        self.reachable_regions = all_regions
+    fn new_exit_names(&self, regions: &[&'a Region]) -> impl Iterator<Item = &'a RegionName> {
+        regions
             .iter()
-            .filter(|region| self.is_reachable_without_region(region.access_rule()))
-            .collect();
+            .flat_map(|x| x.exits().all_exits())
+            .map(|(name, _)| name)
+            .filter(|&region_name| {
+                self.reachable_regions
+                    .iter()
+                    .all(|x| x.name() != region_name)
+            })
+    }
+
+    pub fn explore_regions(&mut self, all_regions: &Regions<'a>) {
+        let mut searching_regions = self.reachable_regions.clone();
+        loop {
+            let found_regions: Vec<_> = self
+                .new_exit_names(&searching_regions)
+                .map(|region_name| {
+                    all_regions
+                        .iter()
+                        .find(|x| x.name() == region_name)
+                        .unwrap_or_else(|| {
+                            panic!("Region '{}' is not found in all_regions", region_name.get())
+                        })
+                })
+                .filter(|region| self.is_reachable_without_region(region.access_rule()))
+                .collect();
+            if found_regions.is_empty() {
+                break;
+            }
+            self.reachable_regions.append(&mut found_regions.clone());
+            searching_regions = found_regions;
+        }
     }
 
     pub fn insert_flag(&mut self, flag: &'a StrategyFlag) {

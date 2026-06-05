@@ -1,4 +1,9 @@
 mausoleumOfTheGiants/main:
+  exits:
+    up.gateOfGuidance/main:
+    down.twinLabyrinthsLeft/loop:
+    left.endlessCorridor/main:
+    door.graveyardOfTheGiants/lower:
   subWeapons:
     touken:
     ankhJewel:mausoleumOfTheGiants:
