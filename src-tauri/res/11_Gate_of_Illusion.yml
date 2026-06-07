@@ -1,27 +1,47 @@
+#       U.U.
+#     M.M.U.U.
+# D.D.DMMT
+# D.  D.M.  L.
+#     L.L.L.L.
+#           L.L.
+
 gateOfIllusion/upper:
-  accessRule:
-    - event:reachedBackDoorOfGateOfIllusion
   exits:
     right.towerOfTheGoddess/upper:
     fixed.gateOfIllusion/main:
   chests:
     cogOfTheSoul:
       - event:reachedElevatorOfGateOfIllusion, event:escapeShu, lampOfTime # need to kill Shu to open chest
+  events:
+    event:brokeAngel:
+      - feather
 
 gateOfIllusion/main:
-  accessRule:
-    - event:reachedGrailOfGateOfIllusion
   exits:
     fixed.gateOfIllusion/upper:
+      - event:brokeAngel
     door.gateOfGuidance/door:
-    right.towerOfRuin/illusion:
+      - event:defeatedAmphisbaena, bronzeMirror
+    fixed.gateOfIllusion/towerOfRuinExit:
+      - miniDoll
+      - event:openedGateOfIllusionTowerOfRuinShortcut
     fixed.gateOfIllusion/middle:
+      - event:reachedElevatorOfGateOfIllusion
   roms:
     roadFighter:
+  events:
+    event:reachedGrailOfGateOfIllusion:
+
+gateOfIllusion/towerOfRuinExit:
+  exits:
+    right.towerOfRuin/illusion:
+    fixed.gateOfIllusion/main:
+      - event:openedGateOfIllusionTowerOfRuinShortcut
+  events:
+    event:openedGateOfIllusionTowerOfRuinShortcut:
+      - lifeSeal
 
 gateOfIllusion/middle:
-  accessRule:
-    - event:reachedElevatorOfGateOfIllusion
   exits:
     fixed.gateOfIllusion/main:
     fixed.gateOfIllusion/lower:
@@ -36,12 +56,19 @@ gateOfIllusion/middle:
     f1Spirit, f1Spirit3D, weights:
   roms:
     monkeyAcademy:
+  events:
+    event:reachedElevatorOfGateOfIllusion:
+    event:escapeShu: # this is for escaping the fight with Shu
+      - axe
+      - lifeSeal
+      - holyGrail
 
 gateOfIllusion/lower:
-  accessRule:
-    - event:reachedFrontOfGateOfIllusion
   exits:
     fixed.gateOfIllusion/middle:
+      - anchor, knife, sacredOrb:1 # need health to survive water
+      - anchor, knife, scalesphere
+      - option:glitch # https://youtu.be/VQ3e1CJxx5c
     down.graveyardOfTheGiants/upper:
     down.templeOfMoonlight/main:
   chests:

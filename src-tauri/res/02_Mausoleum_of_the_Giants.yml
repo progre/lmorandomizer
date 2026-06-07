@@ -4,6 +4,7 @@ mausoleumOfTheGiants/main:
     down.twinLabyrinthsLeft/loop:
     left.endlessCorridor/main:
     door.graveyardOfTheGiants/lower:
+      - event:defeatedSakit, bronzeMirror
   subWeapons:
     touken:
     ankhJewel:mausoleumOfTheGiants:
@@ -18,5 +19,6 @@ mausoleumOfTheGiants/main:
     magicalTree:
     gameCollection3:
   events:
+    event:reachedMausoleumOfTheGiants:
     event:defeatedSakit:
       - ankhJewel:mausoleumOfTheGiants, gameMaster2

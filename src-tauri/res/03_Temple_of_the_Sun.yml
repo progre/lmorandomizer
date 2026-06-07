@@ -1,11 +1,15 @@
 templeOfTheSun/main:
   exits:
     up.gateOfGuidance/main:
-    fixed.twinLabyrinthsLeft/main:
+    fixed.twinLabyrinthsLeft/entrance:
+      - event:defeatedEllmac
     left.infernoCavern/main:
     down.twinLabyrinthsLeft/main:
-    warp.templeOfMoonlight/pyramid:
+    warp.templeOfMoonlight/pyramidEntrance:
+      - flareGun, flareGunAmmo
     door.templeOfMoonlight/lower:
+      - event:defeatedEllmac, bronzeMirror
+
     fixed.templeOfTheSun/exitUpper:
     fixed.templeOfTheSun/exitLower:
   mainWeapons:

@@ -1,7 +1,15 @@
+#     M.M.
+#       M.M.M.M.
+# D.M.M.M.
+#   M.M.M.M.
+#   M.M.M.M.
+# M.M.
+
 gateOfGuidance/main:
   exits:
     left.surface/main:
     fixed.gateOfGuidance/door:
+      - event:reachedGateOfGuidanceDoor
     down.mausoleumOfTheGiants/main:
     down.templeOfTheSun/main:
     up.springInTheSky/main:
@@ -16,7 +24,7 @@ gateOfGuidance/main:
       - flareGun, flareGunAmmo,birthSeal
     map:gateOfGuidance:
     gameMaster2:
-      - event:reachedGrailOfGateOfIllusion, event:defeatedAmphisbaena, bronzeMirror
+      - event:reachedGateOfGuidanceDoor
     holyGrail:
   shops:
     shurikenAmmo, finder, weights:
@@ -34,4 +42,7 @@ gateOfGuidance/main:
 gateOfGuidance/door:
   exits:
     door.gateOfIllusion/main:
+      - event:defeatedAmphisbaena, bronzeMirror
     fixed.gateOfGuidance/main:
+  events:
+    event:reachedGateOfGuidanceDoor:

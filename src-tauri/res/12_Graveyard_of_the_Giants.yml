@@ -1,6 +1,11 @@
+# U.U.U.
+# U.U.L.M.
+#     L.L.E.E.
+#       L.E.E.E.
+#   L.L.L.E.
+#       L.
+
 graveyardOfTheGiants/upper:
-  accessRule:
-    - event:reachedLiarOfGraveyardOfTheGiants
   exits:
     up.gateOfIllusion/lower:
     fixed.graveyardOfTheGiants/main:
@@ -10,24 +15,21 @@ graveyardOfTheGiants/upper:
       - katana
   shops:
     spearAmmo, fakeSilverShield, weights:
+  events:
+    event:reachedLiarOfGraveyardOfTheGiants:
 
 graveyardOfTheGiants/main:
-  accessRule:
-    - event:reachedLiarOfGraveyardOfTheGiants
-    - event:reachedFrontOfTempleOfMoonlight, shuriken, shurikenAmmo, katana, keySword, knife
   exits:
-    fixed.graveyardOfTheGiants/upper:
     right.towerOfTheGoddess/passage:
     fixed.graveyardOfTheGiants/lower:
   chests:
     contra:
 
 graveyardOfTheGiants/east:
-  accessRule:
-    - event:reachedBackDoorOfGraveyardOfTheGiants
   exits:
     fixed.graveyardOfTheGiants/lower:
-    up.towerOfTheGoddess/upper:
+      - event:breaksBombWallInGraveyardOfTheGiants
+    up.towerOfTheGoddess/upperEntrance:
     down.chamberOfBirth/main:
   subWeapons:
     bomb:
@@ -35,15 +37,22 @@ graveyardOfTheGiants/east:
     mopiRanger:
     spaceManbow:
       - bomb, bombAmmo
+  events:
+    event:reachedBackDoorOfGraveyardOfTheGiants:
+    event:breaksBombWallInGraveyardOfTheGiants:
+      - bomb, bombAmmo
 
 graveyardOfTheGiants/lower:
-  accessRule:
-    - event:reachedFrontOfGraveyardOfTheGiants
+  accessRule: # BUG: upper (gateOfIllusion) から来た時にも銅鏡を要求しているが、これらの accessRule は不要
+    - event:defeatedSakit, bronzeMirror
+    - event:reachedBackDoorOfGraveyardOfTheGiants
   exits:
     fixed.graveyardOfTheGiants/east:
+      - event:breaksBombWallInGraveyardOfTheGiants
     fixed.graveyardOfTheGiants/upper:
-    fixed.graveyardOfTheGiants/main:
+      - feather
     door.mausoleumOfTheGiants/main:
+      - event:defeatedSakit, bronzeMirror
     left.towerOfRuin/main:
   chests:
     map:graveyardOfTheGiants:
@@ -53,3 +62,6 @@ graveyardOfTheGiants/lower:
       - birthSeal, grappleClaw
   roms:
     skyJaguar:
+  events:
+    event:breaksBombWallInGraveyardOfTheGiants:
+      - bomb, bombAmmo, sacredOrb:3 # can open bomb wall from left side

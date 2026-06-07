@@ -1,10 +1,16 @@
+# M.M.
+# M.M.M.M.
+#   M.MPPPL.
+#     L.P.L.L.
+#   L.L.L.L.
+#     L.L.
+
 templeOfMoonlight/main:
-  accessRule:
-    - event:reachedGrailOfTempleOfMoonlight
   exits:
     up.gateOfIllusion/lower:
     up.twinLabyrinthsRight/main:
     fixed.templeOfMoonlight/lower:
+      - event:openedCeiling
   chests:
     iceCape:
     map:TempleOfMoonlight:
@@ -15,26 +21,37 @@ templeOfMoonlight/main:
 templeOfMoonlight/pyramid:
   exits:
     fixed.templeOfMoonlight/main:
+      - feather
+      - grappleClaw
   chests:
     ocarina:
-      - event:reachedFrontOfTempleOfMoonlight, event:escapeFromTempleOfMoonlight, flareGun, flareGunAmmo, womanStatue, feather # need a way out of moonlight
-      - event:reachedFrontOfTempleOfMoonlight, event:escapeFromTempleOfMoonlight, flareGun, flareGunAmmo, womanStatue, grappleClaw # Sperm can appear by moving from C-4 to D-4 outside of Moonlight's pyramid. This is a very confusing condition and you will have to check with the Editor to find out.
-      - option:glitch, event:escapeFromTempleOfMoonlight, flareGun, flareGunAmmo # https://youtu.be/7_D0TQ7ZWk0?si=ihOBzdfkrRGv06Pv&t=2302
-      - option:glitch, event:reachedFrontOfTempleOfMoonlight, shuriken, shurikenAmmo, axe # https://youtu.be/YVIJwPo2CQw
+      - event:conceived, feather # need a way out of moonlight
+      - event:conceived, grappleClaw # Sperm can appear by moving from C-4 to D-4 outside of Moonlight's pyramid. This is a very confusing condition and you will have to check with the Editor to find out.
+      - option:glitch, knife # https://youtu.be/7_D0TQ7ZWk0?si=ihOBzdfkrRGv06Pv&t=2302
+      - option:glitch, axe # https://youtu.be/YVIJwPo2CQw
+  events:
+    event:alsedana:
+      - ocarina
+
+templeOfMoonlight/pyramidEntrance:
+  exits:
+    fixed.templeOfMoonlight/pyramid:
   roms:
     parodius:
-      - event:escapeFromTempleOfMoonlight, flareGun, flareGunAmmo
 
 templeOfMoonlight/lower:
-  accessRule:
-    - event:reachedFrontOfTempleOfMoonlight
   exits:
     fixed.templeOfMoonlight/main:
+      - event:openedCeiling
+    fixed.templeOfMoonlight/pyramid:
+      - option:glitch, event:openedCeiling, axe # https://youtu.be/YVIJwPo2CQw
     door.templeOfTheSun/main:
+      - event:defeatedEllmac, bronzeMirror
     left.towerOfTheGoddess/passage:
+      - shuriken, shurikenAmmo, katana, keySword, knife
   mainWeapons:
     axe:
-      - shuriken, shurikenAmmo, knife, boots
+      - event:openedCeiling, knife, boots
   chests:
     bookOfTheDead:
       - event:surviveAnubis, birthSeal, feather # need a way out and survive anubis
@@ -48,3 +65,11 @@ templeOfMoonlight/lower:
       - event:surviveAnubis, bomb, bombAmmo # survive anubis
   roms:
     twinbee:
+  events:
+    event:openedCeiling:
+      - shuriken, shurikenAmmo
+    event:conceived:
+      - womanStatue
+    event:surviveAnubis: # need to survive anubis
+      - bookOfTheDead
+      - sacredOrb:4

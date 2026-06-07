@@ -1,7 +1,7 @@
 dimensionalCorridor/main:
   accessRule:
-    - event:releasedTwins, crystalSkull, feather, bronzeMirror
-    - event:releasedTwins, crystalSkull, boots, grappleClaw, bronzeMirror # can get in with boots and grapple claw
+    - crystalSkull, bronzeMirror, feather
+    - crystalSkull, bronzeMirror, boots, grappleClaw # can get in with boots and grapple claw
   exits:
     fixed.endlessCorridor/main:
   subWeapons:

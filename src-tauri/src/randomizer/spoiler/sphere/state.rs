@@ -63,12 +63,18 @@ impl<'a> State<'a> {
         regions
             .iter()
             .flat_map(|x| x.exits().all_exits())
-            .map(|(name, _)| name)
-            .filter(|&region_name| {
-                self.reachable_regions
-                    .iter()
-                    .all(|x| x.name() != region_name)
+            .filter(|&(region_name, access_rule)| {
+                let access_rule = access_rule
+                    .clone()
+                    .try_into_any_of_all_requirements()
+                    .unwrap();
+                self.is_reachable_without_region(access_rule.as_ref())
+                    && self
+                        .reachable_regions
+                        .iter()
+                        .all(|x| x.name() != region_name)
             })
+            .map(|(name, _)| name)
     }
 
     pub fn explore_regions(&mut self, all_regions: &Regions<'a>) {

@@ -1,20 +1,28 @@
+#     G.G.G.G.
+# E.M.        A.A.
+#   M.M.        A.A.
+#     M.M.M.M.
+#           M.M.M.M.
+
 chamberOfExtinction/magatama:
   exits:
     door.chamberOfBirth/main:
+      - event:defeatedPalenque, bronzeMirror
     up.surface/ruinPathUpper:
+      - feather
 
 chamberOfExtinction/ankh:
   accessRule:
     # this is to reach palenque, not fight him
-    - event:defeatedViy, feather
-    - msx2, qBert, divinerSensation, feather, bronzeMirror # reach from Maze of Gallious area
+    # BUG: 羽根は必要ではなさそう
+    - feather
   exits:
     up.infernoCavern/main:
   shops:
     spearAmmo, flareGunAmmo, bombAmmo:
   events:
     event:defeatedPalenque: # added sub weapon and sacred orb requirements # TODO: event:subWeaponWallForward いらなくね？
-      - event:reachedUpperOfChamberOfBirth, event:lightedUpChamberOfExtinction, event:subWeaponWallForward, pochetteKey, ankhJewel:chamberOfBirth, sacredOrb:4, gameMaster2
+      - event:lightedUpChamberOfExtinction, event:subWeaponWallForward, pochetteKey, ankhJewel:chamberOfBirth, sacredOrb:4, gameMaster2
 
 chamberOfExtinction/exitUpper:
   exits:
@@ -35,6 +43,7 @@ chamberOfExtinction/main:
     fixed.chamberOfExtinction/exitUpper:
     fixed.chamberOfExtinction/exitLower:
     door.mazeOfGalious:
+      - msx2, qBert, divinerSensation, bronzeMirror
   chests:
     sacredOrb:chamberOfExtinction:
       - feather # need a way out

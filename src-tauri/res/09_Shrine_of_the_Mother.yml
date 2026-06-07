@@ -1,23 +1,33 @@
+#     M.M.
+#   M.M.M.M.
+# S.  M.M.  P.
+#   M.M.M.M.
+#   M.M.M.M.
+#   M.    L.
+
 shrineOfTheMother/main:
+  accessRule:
+    - dragonBone, keyOfEternity, handScanner, glyphReader, feather, spear, spearAmmo, glove # boots not necessary
+    - option:glitch, event:twinLabyrinthsGlitch, twinStatue, knife # https://youtu.be/HxWC093flfI
   exits:
     up.endlessCorridor/basement:
     fixed.shrineOfTheMother/lower:
     fixed.trueShrineOfTheMother/main:
   chests:
     crystalSkull:
-      - event:reachedFrontOfShrineOfTheMother, mulanaTalisman, lifeSeal
-      - option:glitch, event:twinLabyrinthsGlitch, lifeSeal, twinStatue, knife, msx2, athleticLand, cabbagePatchKids # https://youtu.be/k4S4xUn8zFI
+      - lifeSeal, mulanaTalisman
+      - lifeSeal, option:glitch, event:twinLabyrinthsGlitch, twinStatue, knife, msx2, athleticLand, cabbagePatchKids # https://youtu.be/k4S4xUn8zFI
     sacredOrb:shrineOfTheMother:
-      - event:reachedFrontOfShrineOfTheMother, originSeal, birthSeal, lifeSeal, deathSeal
+      - originSeal, birthSeal, lifeSeal, deathSeal
     diary:
-      - event:reachedFrontOfShrineOfTheMother, talisman, lifeSeal, lampOfTime, feather # need feather
+      - talisman, lifeSeal, lampOfTime, feather # need feather
   roms:
     konamiBaseball:
-      - event:reachedFrontOfShrineOfTheMother
     breakShot:
-      - event:reachedFrontOfShrineOfTheMother
     snatcher:
-      - event:reachedFrontOfShrineOfTheMother, holyGrail
+      - holyGrail
+  events:
+    event:reachedFrontOfShrineOfTheMother:
 
 shrineOfTheMother/lower:
   exits:
@@ -25,16 +35,21 @@ shrineOfTheMother/lower:
 
 shrineOfTheMother/map:
   accessRule:
-    - event:reachedMapSpotOfShrineOfTheMother
+    - dragonBone
   exits:
     down.twinLabyrinthsRight/main:
   chests:
     map:shrineOfTheMother:
+  events:
+    event:reachedMapSpotOfShrineOfTheMother:
 
 shrineOfTheMother/seal:
   accessRule:
-    - event:reachedDeathSealSpot
+    - dragonBone
   exits:
     down.endlessCorridor/basement:
   seals:
     deathSeal:
+      - bomb, bombAmmo
+  events:
+    event:reachedDeathSealSpot:

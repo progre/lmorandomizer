@@ -107,7 +107,7 @@ pub fn create_source(
                 .map(|x| Event {
                     region: Some(x.spot.region().to_owned()),
                     name: x.spot.name().to_owned().into(),
-                    requirements: x.spot.requirements().to_owned(),
+                    requirements: Some(x.spot.requirements().to_owned()),
                 })
                 .collect::<Vec<_>>(),
         );

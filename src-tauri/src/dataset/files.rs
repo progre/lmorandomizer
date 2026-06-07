@@ -17,7 +17,7 @@ impl FieldYaml {
 pub struct FieldYamlAccessRule(Vec<String>);
 
 impl FieldYamlAccessRule {
-    pub fn into_any_of_all_requirements(self) -> Result<Option<AnyOfAllRequirements>> {
+    pub fn try_into_any_of_all_requirements(self) -> Result<Option<AnyOfAllRequirements>> {
         if self.0.is_empty() {
             return Ok(None);
         }

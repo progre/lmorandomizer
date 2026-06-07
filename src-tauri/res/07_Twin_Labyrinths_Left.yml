@@ -1,3 +1,19 @@
+#   M.M.E.M.
+# L.M.M.M.
+# L.M.M.M.
+# L.M.M.M.
+#   M.M.M.M.
+
+twinLabyrinthsLeft/entrance:
+  exits:
+    fixed.twinLabyrinthsLeft/main:
+      - event:releasedTwins
+    fixed.twinLabyrinthsRight/entrance:
+      - twinStatue
+  events:
+    event:releasedTwins:
+      - twinStatue
+
 twinLabyrinthsLeft/main:
   accessRule:
     - event:releasedTwins
@@ -5,6 +21,7 @@ twinLabyrinthsLeft/main:
   exits:
     up.templeOfTheSun/main:
     down.infernoCavern/main:
+    fixed.twinLabyrinthsLeft/entrance:
     fixed.twinLabyrinthsLeft/loop:
     fixed.twinLabyrinthsRight/main:
   mainWeapons:
@@ -28,6 +45,9 @@ twinLabyrinthsLeft/main:
       - event:releasedTwins, flareGun, flareGunAmmo, bomb, bombAmmo
     gameCollection4:
       - event:releasedTwins
+  events:
+    event:defeatedBaphomet:
+      - event:releasedTwins, flareGun, flareGunAmmo, ankhJewel:twinLabyrinths, sacredOrb:4, gameMaster2 # with just flares, fight is insanely hard without some health
 
 twinLabyrinthsLeft/loop:
   exits:

@@ -37,7 +37,7 @@ pub fn ware_missing_requirements(storage: &Storage) -> anyhow::Result<()> {
         .chain(storage.seals.values().map(|x| x.spot.requirements()))
         .chain(storage.shops.iter().map(|x| x.spot.requirements()))
         .chain(storage.talks.iter().map(|x| x.spot.requirements()))
-        .chain(storage.events.iter().map(|x| Some(&x.requirements)));
+        .chain(storage.events.iter().map(|x| x.requirements.as_ref()));
     append(&mut set, iter);
     let mut vec: Vec<_> = set
         .iter()

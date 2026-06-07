@@ -1,9 +1,15 @@
+#   S.S.  M.
+#       M.M.M.M.
+# M.M.M.M.
+#     M.M.M.M.
+#       V.M.M.M.
+#       V.
+
 infernoCavern/spikes:
-  accessRule:
-    - event:reachedBackDoorOfSurface
   exits:
     up.surface/ruinPathLower:
     door.towerOfRuin/top:
+      - event:defeatedBaphomet, bronzeMirror
   roms:
     goonies:
 
@@ -12,6 +18,7 @@ infernoCavern/main:
     left.templeOfTheSun/main:
     up.twinLabyrinthsLeft/main:
     fixed.infernoCavern/viy:
+      - event:reachedInfernoCavernViy
   mainWeapons:
     chainWhip:
       - birthSeal, grappleClaw
@@ -31,15 +38,18 @@ infernoCavern/main:
     hyperOlympic3:
     firebird:
     gameCollection2:
+  events:
+    event:twinLabyrinthsGlitch:
+      - option:glitch, feather, grappleClaw # https://youtu.be/JcKnq1GcZD4
 
 infernoCavern/viy:
-  accessRule:
-    - event:reachedFrontOfTowerOfRuin, event:defeatedBahamut
   exits:
     fixed.infernoCavern/main:
     door.towerOfRuin/southWestDoor:
+      - event:defeatedBahamut, bronzeMirror
     fixed.chamberOfExtinction/ankh:
+      - event:defeatedViy
   events:
+    event:reachedInfernoCavernViy:
     event:defeatedViy:
-      - ankhJewel:towerOfRuin, iceCape, sacredOrb:3, bronzeMirror, gameMaster2, spear, spearAmmo # should have some health
-      - ankhJewel:towerOfRuin, iceCape, sacredOrb:3, bronzeMirror, gameMaster2, bomb, bombAmmo # can reach with bombs
+      - ankhJewel:towerOfRuin, iceCape, sacredOrb:3, gameMaster2 # should have some health

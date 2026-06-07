@@ -1,7 +1,21 @@
+# M.E.M.M.
+#   M.M.M.L.
+#   M.M.M.L.
+#   M.M.M.L.
+# M.M.M.M.
+
+twinLabyrinthsRight/entrance:
+  exits:
+    fixed.twinLabyrinthsRight/main:
+      - event:releasedTwins
+    fixed.twinLabyrinthsLeft/entrance:
+      - twinStatue
+
 twinLabyrinthsRight/main:
   accessRule:
     - event:releasedTwins
   exits:
+    fixed.twinLabyrinthsRight/entrance:
     fixed.twinLabyrinthsLeft/main:
     fixed.twinLabyrinthsRight/loop:
     up.shrineOfTheMother/map:

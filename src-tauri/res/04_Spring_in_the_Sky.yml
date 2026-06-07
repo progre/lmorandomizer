@@ -1,6 +1,8 @@
 springInTheSky/main:
   exits:
     down.gateOfGuidance/main:
+    fixed.templeOfTheSun/main:
+      - event:floodedTempleOfTheSun
   subWeapons:
     ankhJewel:springInTheSky:
       - scalesphere
