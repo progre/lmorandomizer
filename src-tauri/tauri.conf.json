@@ -1,6 +1,6 @@
 {
   "productName": "lmorandomizer",
-  "version": "0.10.0",
+  "version": "0.10.1",
   "identifier": "net.prgrssv.lmorandomizer",
   "build": {
     "beforeDevCommand": "cargo build --package lmorandomizer-lib --target i686-pc-windows-msvc && copy target\\i686-pc-windows-msvc\\debug\\hook.dll target\\debug && npm run dev",
