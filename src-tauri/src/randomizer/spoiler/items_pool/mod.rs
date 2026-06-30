@@ -2,7 +2,7 @@ mod items;
 
 use std::mem::take;
 
-use rand::Rng;
+use rand::{Rng, RngExt};
 
 use super::spots::{SpotRef, Spots};
 
@@ -67,7 +67,7 @@ impl<'a> ItemsPool<'a> {
         let mut shop_items = Default::default();
         let mut talk_items = Default::default();
         // 少なくとも一つは行動を広げるアイテムを配置する
-        let dice = rng.gen_range(0..(req_f_items + req_t_items + req_s_items));
+        let dice = rng.random_range(0..(req_f_items + req_t_items + req_s_items));
         let (dst, src) = match dice {
             dice if (0..req_f_items).contains(&dice) => (&mut field_items, &mut self.field_items),
             dice if (req_f_items..(req_f_items + req_t_items)).contains(&dice) => {

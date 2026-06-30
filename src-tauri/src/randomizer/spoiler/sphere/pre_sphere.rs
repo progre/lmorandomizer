@@ -1,6 +1,6 @@
 use std::ops::Deref;
 
-use rand::Rng;
+use rand::{Rng, RngExt};
 
 use crate::{
     dataset::spot::Region,
@@ -56,7 +56,7 @@ fn place_items<'a>(
 ) -> Vec<CheckpointRef<'a>> {
     priority_items
         .map(|item| {
-            let dice = rng.gen_range(
+            let dice = rng.random_range(
                 0..(working.field_item_spots.len()
                     + working.talk_spots.len()
                     + working.shops.len()),

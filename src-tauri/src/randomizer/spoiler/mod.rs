@@ -7,7 +7,7 @@ pub mod spots;
 use std::{collections::BTreeMap, hash::Hash, ptr, sync::LazyLock};
 
 use log::{info, trace};
-use rand::{Rng, seq::SliceRandom};
+use rand::{Rng, prelude::IndexedRandom};
 use rand_seeder::Seeder;
 use rand_xoshiro::Xoshiro256PlusPlus;
 use spots::SpotRef;
@@ -28,7 +28,8 @@ use {items::Items, sphere::sphere, spots::Spots};
 static GLITCH: LazyLock<StrategyFlag> = LazyLock::new(|| StrategyFlag::new("option:glitch".into()));
 
 pub fn make_rng<H: Hash>(seed: H) -> Xoshiro256PlusPlus {
-    Seeder::from(seed).make_rng()
+    let mut seeder = Seeder::from(seed);
+    seeder.into_rng()
 }
 
 fn ptr_eq<'a>(a: SpotRef<'a>, b: &CheckpointRef<'a>) -> bool {
