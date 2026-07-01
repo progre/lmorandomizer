@@ -1,11 +1,13 @@
 use std::collections::HashMap;
 
 use anyhow::{Result, anyhow, bail};
+use lmorandomizer_shared::lmo::Equipment as LmoEquipment;
 use log::debug;
 
 use crate::{
     randomizer::storage::Storage,
     script::{
+        consts::DEFEATED_BIG_MAN_FLAG_NO,
         data::{
             item::{ChestItem, Equipment, Item, Rom},
             object::{Object, Shop, Start, UnknownObject},
@@ -239,24 +241,44 @@ fn new_objs(
                 1 | 13 | 14 | 32 | 71 | 77 => unreachable!(),
                 // 59: Map rewrite
                 59 => {
-                    if field_number == enums::FieldNumber::GateOfIllusion {
-                        // apply ROMs replacement and mini doll
-                        let mut replace_flag_map = replace_flag_map.clone();
-                        let mini_doll = enums::TalkItem::Equipment(enums::Equipment::MiniDoll);
-                        let old_flag = find_item_set_flag(script, mini_doll)?
-                            .ok_or_else(|| anyhow!("talk not found: {:?}", mini_doll))?;
-                        let new_flag = find_new_item_flag(shuffled, script, mini_doll)?;
-                        replace_flag_map.insert(old_flag, new_flag);
-                        Ok(vec![Object::Unknown(map_rewrite_with_flags_replaced(
-                            unknown_obj,
-                            &replace_flag_map,
-                        )?)])
-                    } else {
-                        // apply only ROMs replacement
-                        Ok(vec![Object::Unknown(map_rewrite_with_flags_replaced(
-                            unknown_obj,
-                            replace_flag_map,
-                        )?)])
+                    match field_number {
+                        enums::FieldNumber::GateOfIllusion => {
+                            // apply ROMs replacement and mini doll
+                            let mut replace_flag_map = replace_flag_map.clone();
+                            let mini_doll = enums::TalkItem::Equipment(enums::Equipment::MiniDoll);
+                            let old_flag = find_item_set_flag(script, mini_doll)?
+                                .ok_or_else(|| anyhow!("talk not found: {:?}", mini_doll))?;
+                            let new_flag = find_new_item_flag(shuffled, script, mini_doll)?;
+                            replace_flag_map.insert(old_flag, new_flag);
+                            let replace_flag_map = &replace_flag_map;
+
+                            Ok(vec![Object::Unknown(map_rewrite_with_flags_replaced(
+                                unknown_obj,
+                                replace_flag_map,
+                            )?)])
+                        }
+                        enums::FieldNumber::ChamberOfBirth => {
+                            // ビッグマンの扉の右側フラグを、ポシェットキーから左と共通のビッグマン撃破(612)にする
+                            let mut replace_flag_map = replace_flag_map.clone();
+                            let pochette_key_flag =
+                                LmoEquipment::PochetteKey.related_flag().unwrap().get();
+                            if unknown_obj.op3 == i32::from(pochette_key_flag) {
+                                replace_flag_map
+                                    .insert(pochette_key_flag, DEFEATED_BIG_MAN_FLAG_NO);
+                            }
+
+                            Ok(vec![Object::Unknown(map_rewrite_with_flags_replaced(
+                                unknown_obj,
+                                &replace_flag_map,
+                            )?)])
+                        }
+                        _ => {
+                            // apply only ROMs replacement
+                            Ok(vec![Object::Unknown(map_rewrite_with_flags_replaced(
+                                unknown_obj,
+                                replace_flag_map,
+                            )?)])
+                        }
                     }
                 }
                 // Trap object for the Ankh Jewel Treasure Chest in Mausoleum of the Giants.

@@ -4,3 +4,5 @@ pub const BLANK_TALK_NUMBER: i32 = 772;
 
 pub const ALWAYS_ON_FLAG_NO: u16 = 40;
 pub const UNUSED_PR3_FLAG_NO: u16 = 114;
+
+pub const DEFEATED_BIG_MAN_FLAG_NO: u16 = 612;
