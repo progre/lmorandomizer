@@ -11,7 +11,7 @@ use windows::{
     core::PCSTR,
 };
 
-#[addr_map("assets/addr_map.toml", extern "cdecl")]
+#[addr_map("assets/addr_map.toml", extern "C")]
 pub struct LmoHandle;
 
-pub type CurrentWeaponFn = extern "cdecl" fn(main_weapon: bool) -> u8;
+pub type CurrentWeaponFn = extern "C" fn(main_weapon: bool) -> u8;

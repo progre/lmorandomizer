@@ -21,7 +21,7 @@ use crate::{
 };
 
 #[unsafe(no_mangle)]
-pub extern "stdcall" fn DllMain(_inst_dll: HINSTANCE, reason: u32, _reserved: u32) -> bool {
+pub extern "system" fn DllMain(_inst_dll: HINSTANCE, reason: u32, _reserved: u32) -> bool {
     if reason == DLL_PROCESS_ATTACH {
         thread::spawn(|| block_on(sub_main()));
     }

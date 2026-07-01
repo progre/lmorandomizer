@@ -101,7 +101,7 @@ extern "system" fn create_file_a_hook(
     )
 }
 
-extern "cdecl" fn current_weapon_hook(
+extern "C" fn current_weapon_hook(
     main_weapon: bool,
     undefined_arg1: usize,
     undefined_arg2: usize,
