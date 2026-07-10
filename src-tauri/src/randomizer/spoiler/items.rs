@@ -7,7 +7,10 @@ use crate::{
     script::enums::FieldNumber,
 };
 
-use super::items_pool::{ItemsPool, UnorderedItems};
+use super::{
+    consts::INITIAL_PRIORITY_ITEM_NAMES,
+    items_pool::{ItemsPool, UnorderedItems},
+};
 
 pub struct Items<'a> {
     priority_items: Vec<&'a Item>,
@@ -37,16 +40,8 @@ impl<'a> Items<'a> {
             .chain(source.shops.iter().map(|x| &x.item))
             .chain(source.roms.values().map(|x| &x.item))
             .chain(source.talks.iter().map(|x| &x.item));
-        let (priority_items, remaining_items) = items.partition::<Vec<_>, _>(|item| {
-            [
-                "handScanner",
-                "shellHorn",
-                "holyGrail",
-                "gameMaster",
-                "glyphReader",
-            ]
-            .contains(&item.name.get())
-        });
+        let (priority_items, remaining_items) = items
+            .partition::<Vec<_>, _>(|item| INITIAL_PRIORITY_ITEM_NAMES.contains(&item.name.get()));
         let (consumable_items, general_items): (Vec<_>, Vec<_>) = remaining_items
             .into_iter()
             .partition(|x| x.can_display_in_shop() && x.name.is_consumable());
