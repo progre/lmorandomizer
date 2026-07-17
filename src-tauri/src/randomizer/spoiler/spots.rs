@@ -1,7 +1,7 @@
 use crate::{
     dataset::spot::{
-        AnyOfAllRequirements, ChestSpot, MainWeaponSpot, Region, RomSpot, SealSpot, ShopSpot,
-        SubWeaponSpot, TalkSpot,
+        AnyOfAllRequirements, ChestSpot, MainWeaponSpot, Region, RomSpot, SealSpot, SubWeaponSpot,
+        TalkSpot,
     },
     randomizer::storage::{Event, Storage},
 };
@@ -16,7 +16,6 @@ pub enum SpotRef<'a> {
     Seal(&'a SealSpot),
     Rom(&'a RomSpot),
     Talk(&'a TalkSpot),
-    Shop(&'a ShopSpot),
 }
 
 impl SpotRef<'_> {
@@ -28,7 +27,6 @@ impl SpotRef<'_> {
             Self::Seal(x) => x.region(),
             Self::Rom(x) => x.region(),
             Self::Talk(x) => x.region(),
-            Self::Shop(x) => x.region(),
         }
     }
     pub fn requirements(&self) -> Option<&AnyOfAllRequirements> {
@@ -39,17 +37,8 @@ impl SpotRef<'_> {
             Self::Seal(x) => x.requirements(),
             Self::Rom(x) => Some(x.requirements()),
             Self::Talk(x) => x.requirements(),
-            Self::Shop(x) => x.requirements(),
         }
     }
-    // /// requirements に含まれているか
-    // pub fn is_related_to(&self, item: &Item) -> bool {
-    //     self.requirements().is_some_and(|reqs| {
-    //         reqs.0
-    //             .iter()
-    //             .any(|all| all.0.iter().any(|req| req == &item.name))
-    //     })
-    // }
 }
 
 #[derive(Clone, Debug)]

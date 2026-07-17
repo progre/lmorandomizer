@@ -12,6 +12,7 @@ use crate::{
     },
 };
 
+#[derive(Clone)]
 pub struct State<'a> {
     reachable_regions: Vec<&'a Region>,
     strategy_flags: HashSet<&'a StrategyFlag>,

@@ -1,9 +1,11 @@
 mod pre_sphere;
+mod progression;
 mod state;
 
 use std::{collections::HashSet, mem::take, ops::Deref};
 
 use pre_sphere::pre_sphere;
+use progression::{is_event_achievable, progression_flags};
 use rand::Rng;
 
 use crate::{
@@ -27,6 +29,14 @@ pub struct ShopItemDisplay<'a> {
     pub spot: &'a ShopSpot,
     pub idx: usize,
     pub name: &'a StrategyFlag,
+}
+
+fn item_shop_spot_count(spots: &Spots<'_>) -> usize {
+    spots
+        .shops
+        .iter()
+        .map(|shop| (!shop.name.is_consumable()) as usize)
+        .sum::<usize>()
 }
 
 fn explore<'a>(remaining_spots: &Spots<'a>, state: &State<'a>) -> (Spots<'a>, Spots<'a>) {
@@ -85,7 +95,7 @@ fn place_items<'a>(
                 let item = field_items.pop().unwrap();
                 sphere.push(CheckpointRef::from_field_spot_item(spot, item));
             }
-            SpotRef::Talk(_) | SpotRef::Shop(_) => unreachable!(),
+            SpotRef::Talk(_) => unreachable!(),
         });
     reachables.talk_spots.into_iter().for_each(|spot| {
         let item = talk_items.pop().unwrap();
@@ -128,13 +138,9 @@ fn place_items<'a>(
 }
 
 fn take_achieved<'a>(events: &mut Vec<&'a Event>, state: &State) -> Vec<&'a Event> {
-    let (achieved, unachieved) = take(events).into_iter().partition(|event| {
-        if let Some(region) = &event.region {
-            state.is_reachable(region, event.requirements.as_ref())
-        } else {
-            state.is_reachable_without_region(event.requirements.as_ref())
-        }
-    });
+    let (achieved, unachieved) = take(events)
+        .into_iter()
+        .partition(|event| is_event_achievable(state, event));
     *events = unachieved;
     achieved
 }
@@ -209,8 +215,15 @@ pub fn sphere<'a>(
         return None;
     }
 
-    let (field_items, talk_items, shop_items) =
-        items_pool.pick_items_randomly(rng, &reachables, &unreachables);
+    // 「進行候補を少なくとも1つ含む」という条件付きで一様に item 群を選ぶ
+    let progression = progression_flags(items_pool, state, &unreachables, all_regions);
+    let (field_items, talk_items, shop_items) = items_pool.pick_items_with_retry(
+        rng,
+        reachables.field_item_spots.len(),
+        reachables.talk_spots.len(),
+        item_shop_spot_count(&reachables),
+        |item| progression.contains(&item.name),
+    )?;
 
     let mut sphere = place_items(
         rng,

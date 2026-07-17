@@ -1,41 +1,13 @@
 use rand::{Rng, seq::SliceRandom};
 
-use crate::randomizer::{spoiler::spots::SpotRef, storage::item::Item};
+use crate::randomizer::storage::item::Item;
 
-pub fn fill_items_from<'a>(
-    dst: &mut UnorderedItems<'a>,
-    target_len: usize,
-    src: &mut ShuffledItems<'a>,
-) {
-    debug_assert!(target_len <= src.len() + dst.len());
-    dst.append_count(src, target_len - dst.len());
-}
-
-pub fn move_one_required_item<'a>(
-    dst: &mut UnorderedItems<'a>,
-    src: &mut ShuffledItems<'a>,
-    spots: &[&SpotRef<'a>],
-) {
-    // let Some(pos) = src
-    //     .0
-    //     .iter()
-    //     .position(|item| spots.iter().any(|spot| spot.is_related_to(item)))
-    let Some(pos) = src.0.iter().position(|item| item.is_required(spots)) else {
-        return;
-    };
-    dst.0.push(src.0.swap_remove(pos));
-}
-
-#[derive(Default)]
+#[derive(Clone, Default)]
 pub struct UnorderedItems<'a>(Vec<&'a Item>);
 
 impl<'a> UnorderedItems<'a> {
     pub fn new(items: Vec<&'a Item>) -> Self {
         UnorderedItems(items)
-    }
-
-    fn append_count(&mut self, other: &mut ShuffledItems<'a>, cnt: usize) {
-        self.0.append(&mut other.split_off(other.len() - cnt).0);
     }
 
     pub fn into_inner(self) -> Vec<&'a Item> {
@@ -52,10 +24,14 @@ impl<'a> UnorderedItems<'a> {
     }
 }
 
-#[derive(Default, Debug)]
+#[derive(Clone, Default, Debug)]
 pub struct ShuffledItems<'a>(Vec<&'a Item>);
 
 impl<'a> ShuffledItems<'a> {
+    pub fn as_slice(&self) -> &[&'a Item] {
+        &self.0
+    }
+
     pub fn into_inner(self) -> Vec<&'a Item> {
         self.0
     }
@@ -71,6 +47,10 @@ impl<'a> ShuffledItems<'a> {
 
     pub fn pop(&mut self) -> Option<&'a Item> {
         self.0.pop()
+    }
+
+    pub fn shuffle(&mut self, rng: &mut impl Rng) {
+        self.0.shuffle(rng);
     }
 
     pub fn split_off(&mut self, at: usize) -> ShuffledItems<'a> {

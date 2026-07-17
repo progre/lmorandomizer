@@ -1,6 +1,5 @@
 use crate::{
     dataset::spot::{RequirementFlag, SpotName},
-    randomizer::spoiler::spots::SpotRef,
     script::enums::{
         ChestItem, Equipment, FieldNumber, MainWeapon, Rom, Seal, ShopItem, SubWeapon, TalkItem,
     },
@@ -151,17 +150,5 @@ impl Item {
             | ItemSource::Chest((_, ChestItem::Rom(_)))
             | ItemSource::Talk(_) => true,
         }
-    }
-
-    /// 与えられたスポット一覧のいずれかから必要とされているか
-    pub fn is_required(&self, spots: &[&SpotRef]) -> bool {
-        spots
-            .iter()
-            .flat_map(|spot| spot.requirements())
-            .any(|reqs| {
-                reqs.0
-                    .iter()
-                    .any(|all| all.0.iter().any(|req| req == &self.name))
-            })
     }
 }

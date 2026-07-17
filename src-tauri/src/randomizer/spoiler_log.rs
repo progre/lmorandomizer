@@ -108,7 +108,6 @@ impl<'a> CheckpointRef<'a> {
             SpotRef::Seal(spot) => Self::Seal(SealRef { spot, item }),
             SpotRef::Rom(spot) => Self::Rom(RomRef { spot, item }),
             SpotRef::Talk(spot) => Self::Talk(TalkRef { spot, item }),
-            SpotRef::Shop(_) => unreachable!(),
         }
     }
 
