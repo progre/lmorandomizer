@@ -15,7 +15,7 @@ use crate::{
 #[derive(Clone)]
 pub struct State<'a> {
     reachable_regions: Vec<&'a Region>,
-    strategy_flags: HashSet<&'a StrategyFlag>,
+    strategy_flags: HashSet<&'a str>,
     sacred_orb_count: u8,
 }
 
@@ -43,15 +43,10 @@ impl<'a> State<'a> {
         let Some(any) = requirements else {
             return true;
         };
-        let strategy_flag_strings: HashSet<_> = self
-            .strategy_flags
-            .iter()
-            .map(|x| x.get().to_owned())
-            .collect();
         any.0.iter().any(|all| {
             all.0.iter().all(|x| {
                 x.is_sacred_orb() && x.sacred_orb_count() <= self.sacred_orb_count
-                    || strategy_flag_strings.contains(x.get())
+                    || self.strategy_flags.contains(x.get())
             })
         })
     }
@@ -63,19 +58,15 @@ impl<'a> State<'a> {
     fn new_exit_names(&self, regions: &[&'a Region]) -> impl Iterator<Item = &'a RegionName> {
         regions
             .iter()
-            .flat_map(|x| x.exits().all_exits())
-            .filter(|&(region_name, access_rule)| {
-                let access_rule = access_rule
-                    .clone()
-                    .try_into_any_of_all_requirements()
-                    .unwrap();
-                self.is_reachable_without_region(access_rule.as_ref())
+            .flat_map(|x| x.exits())
+            .filter(|exit| {
+                self.is_reachable_without_region(exit.requirements.as_ref())
                     && self
                         .reachable_regions
                         .iter()
-                        .all(|x| x.name() != region_name)
+                        .all(|x| x.name() != &exit.target)
             })
-            .map(|(name, _)| name)
+            .map(|exit| &exit.target)
     }
 
     pub fn explore_regions(&mut self, all_regions: &Regions<'a>) {
@@ -123,7 +114,7 @@ impl<'a> State<'a> {
             if flag.is_sacred_orb() {
                 self.sacred_orb_count += 1;
             }
-            self.strategy_flags.insert(flag);
+            self.strategy_flags.insert(flag.get());
         }
     }
 }

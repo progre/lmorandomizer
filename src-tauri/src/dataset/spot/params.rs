@@ -2,17 +2,23 @@ use std::fmt::{self, Display};
 
 use vec1::Vec1;
 
-use crate::{
-    dataset::files::{Exits, RegionName},
-    script::enums::FieldNumber,
-};
+use crate::{dataset::files::RegionName, script::enums::FieldNumber};
+
+/// パース済みの exit。access rule を到達判定のたびにパースしなくて済むよう、
+/// ロード時に一度だけ変換して保持する
+#[derive(Clone, Debug)]
+pub struct RegionExit {
+    pub direction: &'static str,
+    pub target: RegionName,
+    pub requirements: Option<AnyOfAllRequirements>,
+}
 
 #[derive(Clone, Debug)]
 pub struct Region {
     field_number: FieldNumber,
     name: RegionName,
     access_rule: Option<AnyOfAllRequirements>,
-    exits: Exits,
+    exits: Vec<RegionExit>,
 }
 
 impl Region {
@@ -20,7 +26,7 @@ impl Region {
         field_number: FieldNumber,
         name: RegionName,
         access_rule: Option<AnyOfAllRequirements>,
-        exits: Exits,
+        exits: Vec<RegionExit>,
     ) -> Self {
         Self {
             field_number,
@@ -42,7 +48,7 @@ impl Region {
         self.access_rule.as_ref()
     }
 
-    pub fn exits(&self) -> &Exits {
+    pub fn exits(&self) -> &[RegionExit] {
         &self.exits
     }
 }

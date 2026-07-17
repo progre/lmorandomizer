@@ -46,12 +46,8 @@ impl RequirementNames {
         }
         for region in all_regions.iter() {
             result.add(region.access_rule());
-            for (_, access_rule) in region.exits().all_exits() {
-                let requirements = access_rule
-                    .clone()
-                    .try_into_any_of_all_requirements()
-                    .unwrap();
-                result.add(requirements.as_ref());
+            for exit in region.exits() {
+                result.add(exit.requirements.as_ref());
             }
         }
         result

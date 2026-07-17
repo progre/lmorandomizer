@@ -11,7 +11,7 @@ use vec1::Vec1;
 use crate::{
     dataset::{
         files::{EventsYaml, FieldYaml, FieldYamlAccessRule},
-        spot::{Region, SpotName},
+        spot::{Region, RegionExit, SpotName},
     },
     script::enums::{
         ChestItem, Equipment, FieldNumber, MainWeapon, Rom, Seal, ShopItem, SubWeapon, TalkItem,
@@ -90,13 +90,24 @@ impl GameStructure {
         let mut regions = vec![];
         for (field_number, field_yaml) in fields {
             for (region_name, field_yaml_region) in field_yaml.0 {
+                let exits = field_yaml_region
+                    .exits
+                    .into_all_exits()
+                    .map(|(direction, target, access_rule)| {
+                        Ok(RegionExit {
+                            direction,
+                            target,
+                            requirements: access_rule.try_into_any_of_all_requirements()?,
+                        })
+                    })
+                    .collect::<Result<Vec<_>>>()?;
                 let region = Region::new(
                     field_number,
                     region_name,
                     field_yaml_region
                         .access_rule
                         .try_into_any_of_all_requirements()?,
-                    field_yaml_region.exits,
+                    exits,
                 );
                 for (item, access_rule) in field_yaml_region.main_weapons {
                     let location = main_weapon_location(region.clone(), item, access_rule)?;
@@ -152,42 +163,31 @@ fn validate_exits(regions: &[super::spot::Region]) {
     let exits_to: BTreeMap<&RegionName, BTreeSet<&RegionName>> = regions
         .iter()
         .map(|r| {
-            let targets: BTreeSet<_> = r.exits().all_exits().map(|(name, _)| name).collect();
+            let targets: BTreeSet<_> = r.exits().iter().map(|exit| &exit.target).collect();
             (r.name(), targets)
         })
         .collect();
 
     for region in regions {
-        let exits = region.exits();
-        let directions = [
-            ("up", &exits.up),
-            ("down", &exits.down),
-            ("left", &exits.left),
-            ("right", &exits.right),
-            ("door", &exits.door),
-            ("warp", &exits.warp),
-            ("fixed", &exits.fixed),
-        ];
-        for (dir, map) in directions {
-            for target_name in map.keys() {
-                if !all_region_names.contains(target_name) {
-                    trace!(
-                        "[validate] exit target not found: {} -({})-> {}",
-                        region.name().get(),
-                        dir,
-                        target_name.get()
-                    );
-                    continue;
-                }
-                let target_exits = &exits_to[target_name];
-                if !target_exits.contains(region.name()) {
-                    trace!(
-                        "[validate] no return exit: {} -({})-> {} (no exit back)",
-                        region.name().get(),
-                        dir,
-                        target_name.get()
-                    );
-                }
+        for exit in region.exits() {
+            let (dir, target_name) = (exit.direction, &exit.target);
+            if !all_region_names.contains(target_name) {
+                trace!(
+                    "[validate] exit target not found: {} -({})-> {}",
+                    region.name().get(),
+                    dir,
+                    target_name.get()
+                );
+                continue;
+            }
+            let target_exits = &exits_to[target_name];
+            if !target_exits.contains(region.name()) {
+                trace!(
+                    "[validate] no return exit: {} -({})-> {} (no exit back)",
+                    region.name().get(),
+                    dir,
+                    target_name.get()
+                );
             }
         }
     }

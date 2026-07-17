@@ -60,15 +60,23 @@ pub struct Exits {
 }
 
 impl Exits {
-    pub fn all_exits(&self) -> impl Iterator<Item = (&RegionName, &FieldYamlAccessRule)> {
-        self.up
-            .iter()
-            .chain(self.down.iter())
-            .chain(self.left.iter())
-            .chain(self.right.iter())
-            .chain(self.door.iter())
-            .chain(self.warp.iter())
-            .chain(self.fixed.iter())
+    pub fn into_all_exits(
+        self,
+    ) -> impl Iterator<Item = (&'static str, RegionName, FieldYamlAccessRule)> {
+        [
+            ("up", self.up),
+            ("down", self.down),
+            ("left", self.left),
+            ("right", self.right),
+            ("door", self.door),
+            ("warp", self.warp),
+            ("fixed", self.fixed),
+        ]
+        .into_iter()
+        .flat_map(|(direction, map)| {
+            map.into_iter()
+                .map(move |(name, access_rule)| (direction, name, access_rule))
+        })
     }
 }
 
