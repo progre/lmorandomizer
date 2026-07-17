@@ -110,10 +110,10 @@ mod tests {
         Item::main_weapon(MainWeapon::Whip, StrategyFlag::new(name.to_owned()))
     }
 
-    fn items_pool<'a>(field_items: Vec<&'a Item>) -> ItemsPool<'a> {
+    fn items_pool<'a>(rng: &mut impl Rng, field_items: Vec<&'a Item>) -> ItemsPool<'a> {
         ItemsPool {
             priority_items: None,
-            field_items: UnorderedItems::new(field_items).shuffle(&mut make_rng("pool")),
+            field_items: UnorderedItems::new(field_items).shuffle(rng),
             talk_items: Default::default(),
             shop_items: Default::default(),
             consumable_items: Default::default(),
@@ -135,7 +135,7 @@ mod tests {
         let mut counts: BTreeMap<String, u32> = BTreeMap::new();
         const TRIALS: u32 = 7000;
         for _ in 0..TRIALS {
-            let mut pool = items_pool(items.iter().collect());
+            let mut pool = items_pool(&mut rng, items.iter().collect());
             let (field, talk, shop) = pool
                 .pick_items_with_retry(&mut rng, 2, 0, 0, is_progression)
                 .unwrap();
@@ -176,7 +176,7 @@ mod tests {
             .map(|name| item(name))
             .collect();
         let mut rng = make_rng("test");
-        let mut pool = items_pool(items.iter().collect());
+        let mut pool = items_pool(&mut rng, items.iter().collect());
         let picked = pool.pick_items_with_retry(&mut rng, 2, 0, 0, |_| false);
         assert_eq!(picked.unwrap().0.len(), 2);
         assert_eq!(pool.field_items.len(), 1);
