@@ -4,7 +4,8 @@ templeOfTheSun/main:
     fixed.twinLabyrinthsLeft/entrance:
       - event:defeatedEllmac
     left.infernoCavern/main:
-    down.twinLabyrinthsLeft/main:
+    down.twinLabyrinthsLeft/entrance:
+      - event:defeatedEllmac
     warp.templeOfMoonlight/pyramidEntrance:
       - flareGun, flareGunAmmo
     door.templeOfMoonlight/lower:

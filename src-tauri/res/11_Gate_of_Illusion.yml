@@ -27,6 +27,7 @@ gateOfIllusion/main:
       - event:openedGateOfIllusionTowerOfRuinShortcut
     fixed.gateOfIllusion/middle:
       - event:reachedElevatorOfGateOfIllusion
+    fixed.gateOfIllusion/lower:
   roms:
     roadFighter:
   events:

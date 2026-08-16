@@ -1,8 +1,8 @@
 #   M.M.E.M.
-# L.M.M.M.
-# L.M.M.M.
-# L.M.M.M.
-#   M.M.M.M.
+# P.M.M.M.
+# P.L.L.L.
+# P.L.L.L.
+#   L.L.L.L.
 
 twinLabyrinthsLeft/entrance:
   exits:
@@ -10,6 +10,7 @@ twinLabyrinthsLeft/entrance:
       - event:releasedTwins
     fixed.twinLabyrinthsRight/entrance:
       - twinStatue
+    up.templeOfTheSun/main:
   events:
     event:releasedTwins:
       - twinStatue
@@ -19,19 +20,37 @@ twinLabyrinthsLeft/main:
     - event:releasedTwins
     - event:twinLabyrinthsGlitch
   exits:
-    up.templeOfTheSun/main:
-    down.infernoCavern/main:
     fixed.twinLabyrinthsLeft/entrance:
     fixed.twinLabyrinthsLeft/loop:
     fixed.twinLabyrinthsRight/main:
-  mainWeapons:
-    katana:
-      - flareGun, flareGunAmmo, knife
-      - event:twinLabyrinthsGlitch, twinStatue, knife
+      - twinStatue
   chests:
     ring:
     map:twinLabyrinths:
       - event:releasedTwins
+  roms:
+    comicBakery:
+    gameCollection4:
+      - event:releasedTwins
+
+twinLabyrinthsLeft/loop:
+  exits:
+    up.mausoleumOfTheGiants/main:
+    fixed.twinLabyrinthsLeft/main:
+    fixed.twinLabyrinthsLeft/lower:
+    fixed.twinLabyrinthsRight/loop:
+  shops:
+    helmet, bombAmmo, fakeHandScanner:
+
+twinLabyrinthsLeft/lower:
+  accessRule:
+    - event:releasedTwins
+  exits:
+    fixed.twinLabyrinthsLeft/loop:
+    fixed.twinLabyrinthsRight/lower:
+      - twinStatue
+    down.infernoCavern/main:
+  chests:
     sacredOrb:twinLabyrinths:
   shops:
     lampOfTime, shurikenAmmo, toukenAmmo:
@@ -39,20 +58,8 @@ twinLabyrinthsLeft/main:
       - event:twinLabyrinthsGlitch
   roms:
     circusCharlie:
-      - event:releasedTwins
-    comicBakery:
     penguinAdventure:
-      - event:releasedTwins, flareGun, flareGunAmmo, bomb, bombAmmo
-    gameCollection4:
-      - event:releasedTwins
+      - flareGun, flareGunAmmo, bomb, bombAmmo
   events:
     event:defeatedBaphomet:
-      - event:releasedTwins, flareGun, flareGunAmmo, ankhJewel:twinLabyrinths, sacredOrb:4, gameMaster2 # with just flares, fight is insanely hard without some health
-
-twinLabyrinthsLeft/loop:
-  exits:
-    up.mausoleumOfTheGiants/main:
-    fixed.twinLabyrinthsLeft/main:
-    fixed.twinLabyrinthsRight/loop:
-  shops:
-    helmet, bombAmmo, fakeHandScanner:
+      - event:meditation, ankhJewel:twinLabyrinths, sacredOrb:4, gameMaster2 # c

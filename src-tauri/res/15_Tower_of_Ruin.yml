@@ -13,8 +13,13 @@ towerOfRuin/top:
   chests:
     djedPillar:
       - mulanaTalisman, ocarina # need to talk to sage in spring. need mulana talisman to get item
+  events:
+    event:medicine:
+      - deathSeal
 
 towerOfRuin/medicine:
+  accessRules:
+    - event:medicine
   exits:
     right.towerOfTheGoddess/main:
     fixed.towerOfRuin/main:
@@ -51,6 +56,7 @@ towerOfRuin/main:
   roms:
     ruinsRam16K:
       - event:reachedGrailOfGateOfIllusion, miniDoll
+      - handScanner, gryphReader, holyGrail, antarcticAdventure, comicBakery
     hyperSports3:
       - iceCape
     shinSynthesizer:

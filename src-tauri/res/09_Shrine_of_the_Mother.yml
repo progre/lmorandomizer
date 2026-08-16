@@ -10,7 +10,7 @@ shrineOfTheMother/main:
     - dragonBone, keyOfEternity, handScanner, glyphReader, feather, spear, spearAmmo, glove # boots not necessary
     - option:glitch, event:twinLabyrinthsGlitch, twinStatue, knife # https://youtu.be/HxWC093flfI
   exits:
-    up.endlessCorridor/basement:
+    up.endlessCorridor/lower:
     fixed.shrineOfTheMother/lower:
     fixed.trueShrineOfTheMother/main:
   chests:
@@ -37,7 +37,7 @@ shrineOfTheMother/map:
   accessRule:
     - dragonBone
   exits:
-    down.twinLabyrinthsRight/main:
+    down.twinLabyrinthsRight/entrance:
   chests:
     map:shrineOfTheMother:
   events:
@@ -47,7 +47,7 @@ shrineOfTheMother/seal:
   accessRule:
     - dragonBone
   exits:
-    down.endlessCorridor/basement:
+    down.endlessCorridor/basement1:
   seals:
     deathSeal:
       - bomb, bombAmmo

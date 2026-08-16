@@ -16,7 +16,7 @@ infernoCavern/spikes:
 infernoCavern/main:
   exits:
     left.templeOfTheSun/main:
-    up.twinLabyrinthsLeft/main:
+    up.twinLabyrinthsLeft/lower:
     fixed.infernoCavern/viy:
       - event:reachedInfernoCavernViy
   mainWeapons:

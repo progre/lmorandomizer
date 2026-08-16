@@ -1,8 +1,8 @@
 # M.E.M.M.
-#   M.M.M.L.
-#   M.M.M.L.
-#   M.M.M.L.
-# M.M.M.M.
+#   M.M.M.P.
+#   D.D.D.P.
+#   L.L.L.P.
+# L.L.L.L.
 
 twinLabyrinthsRight/entrance:
   exits:
@@ -10,36 +10,60 @@ twinLabyrinthsRight/entrance:
       - event:releasedTwins
     fixed.twinLabyrinthsLeft/entrance:
       - twinStatue
+    up.shrineOfTheMother/map:
 
 twinLabyrinthsRight/main:
   accessRule:
     - event:releasedTwins
   exits:
     fixed.twinLabyrinthsRight/entrance:
-    fixed.twinLabyrinthsLeft/main:
     fixed.twinLabyrinthsRight/loop:
-    up.shrineOfTheMother/map:
-    down.templeOfMoonlight/main:
+    fixed.twinLabyrinthsLeft/main:
+      - twinStatue
+  mainWeapons:
+    katana:
+      - event:releasedTwins, event:meditation, knife
+      - event:twinLabyrinthsGlitch, twinStatue, knife
   subWeapons:
     ankhJewel:twinLabyrinths:
-  shops:
-    scriptures, bombAmmo, spearAmmo:
-      - feather
   roms:
-    hyperSports2:
-    konamiPingPong:
     ganbareGoemon:
       - feather
-    usas:
-      - flareGun, flareGunAmmo
 
 twinLabyrinthsRight/loop:
   exits:
     up.dimensionalCorridor/main:
+      - event:releasedTwins
     fixed.twinLabyrinthsRight/main:
+    fixed.twinLabyrinthsRight/lower:
     fixed.twinLabyrinthsLeft/loop:
   shops:
     dragonBone, spearAmmo, flareGunAmmo:
       - fakeHandScanner
   roms:
     pennantRace:
+
+twinLabyrinthsRight/meditation:
+  exits:
+    fixed.twinLabyrinthsRight/lower:
+  roms:
+    usas:
+  events:
+    event:meditation:
+
+twinLabyrinthsRight/lower:
+  accessRule:
+    - event:releasedTwins
+  exits:
+    fixed.twinLabyrinthsRight/loop:
+    fixed.twinLabyrinthsRight/meditation:
+      - flareGun, flareGunAmmo
+    fixed.twinLabyrinthsLeft/lower:
+      - twinStatue
+    down.templeOfMoonlight/main:
+  roms:
+    hyperSports2:
+    konamiPingPong:
+  shops:
+    scriptures, bombAmmo, spearAmmo:
+      - feather

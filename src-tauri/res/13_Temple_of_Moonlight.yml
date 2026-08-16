@@ -8,7 +8,7 @@
 templeOfMoonlight/main:
   exits:
     up.gateOfIllusion/lower:
-    up.twinLabyrinthsRight/main:
+    up.twinLabyrinthsRight/lower:
     fixed.templeOfMoonlight/lower:
       - event:openedCeiling
   chests:

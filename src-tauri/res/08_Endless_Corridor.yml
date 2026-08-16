@@ -1,13 +1,14 @@
 # M.M.M.M.
-#   B.B.B.B.
-# B.B.B.B.
-#   B.B.B.B.
-# B.B.B.B.
+#   1.1.1.1.
+# 2.2.2.2.
+#   L.L.2.2.
+# L.L.L.L.
 
 endlessCorridor/main:
   exits:
     right.mausoleumOfTheGiants/main:
-    fixed.endlessCorridor/basement:
+    fixed.endlessCorridor/basement1:
+      - keyOfEternity
   chests:
     map:endlessCorridor:
   shops:
@@ -16,29 +17,34 @@ endlessCorridor/main:
   roms:
     videoHustler:
 
-endlessCorridor/basement:
+endlessCorridor/basement1:
   exits:
     fixed.endlessCorridor/main:
+    fixed.endlessCorridor/basement2:
+      - keyOfEternity, feather
+      - keyOfEternity, grappleClaw
     up.shrineOfTheMother/seal:
-      - keyOfEternity, event:alsedana
-    down.shrineOfTheMother/main:
-      - keyOfEternity
+      - event:alsedana
   mainWeapons:
     keySword:
-      - keyOfEternity
-  chests:
-    twinStatue:
-      - keyOfEternity, feather
-      - keyOfEternity, grappleClaw
-      - option:glitch, holyGrail # https://youtu.be/7_D0TQ7ZWk0?si=g1TK2_l7qHGtg2Dm&t=2368
   roms:
     konamiGolf:
-      - keyOfEternity
+
+endlessCorridor/basement2:
+  exits:
+    fixed.endlessCorridor/basement1:
+    fixed.endlessCorridor/lower:
+      - keyOfEternity, glove, spear, spearAmmo
+      - keyOfEternity, glove, touken, toukenAmmo
+  chests:
+    twinStatue:
+  roms:
     konamiBoxing:
-      - keyOfEternity, feather
-      - keyOfEternity, grappleClaw
+
+endlessCorridor/lower:
+  exits:
+    fixed.endlessCorridor/basement2:
+    down.shrineOfTheMother/main:
+      - keyOfEternity
+  roms:
     yieArKungFu2:
-      - keyOfEternity, feather, spear, spearAmmo
-      - keyOfEternity, grappleClaw, spear, spearAmmo
-      - keyOfEternity, feather, touken, toukenAmmo
-      - keyOfEternity, grappleClaw, touken, toukenAmmo
