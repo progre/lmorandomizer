@@ -171,7 +171,7 @@ fn assert_unique(storage: &Storage) {
                 ]
                 .contains(&item.name)
             {
-                let key = format!("{}:{:?}", item_type, &item.name);
+                let key = format!("{}:{:?}", item_type, item.name);
                 if names.contains(&key) {
                     panic!("Duplicate item: {}", key);
                 }
