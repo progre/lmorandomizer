@@ -10,7 +10,9 @@ mod talk_spot;
 pub use {
     chest_spot::ChestSpot,
     main_weapon_spot::MainWeaponSpot,
-    params::{AllRequirements, AnyOfAllRequirements, Region, RegionExit, RequirementFlag, SpotName},
+    params::{
+        AllRequirements, AnyOfAllRequirements, Region, RegionExit, RequirementFlag, SpotName,
+    },
     rom_spot::RomSpot,
     seal_spot::SealSpot,
     shop_spot::ShopSpot,
