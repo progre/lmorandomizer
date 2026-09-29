@@ -1,7 +1,7 @@
 use std::fmt;
 
 use crate::{
-    dataset::spot::{Region, ShopSpot},
+    dataset::spot::ShopSpot,
     script::enums::{ChestItem, FieldNumber},
 };
 
@@ -149,29 +149,21 @@ impl<'a> CheckpointRef<'a> {
 
 #[derive(Debug)]
 pub struct Sphere {
-    _regions: Vec<Region>,
     checkpoints: Vec<Checkpoint>,
 }
 impl Sphere {
-    pub fn new(regions: Vec<Region>, checkpoints: Vec<Checkpoint>) -> Self {
-        Self {
-            _regions: regions,
-            checkpoints,
-        }
+    pub fn new(checkpoints: Vec<Checkpoint>) -> Self {
+        Self { checkpoints }
     }
 }
 
 pub struct SphereRef<'a> {
-    regions: Vec<&'a Region>,
     checkpoints: Vec<CheckpointRef<'a>>,
 }
 
 impl<'a> SphereRef<'a> {
-    pub fn new(regions: Vec<&'a Region>, checkpoints: Vec<CheckpointRef<'a>>) -> Self {
-        Self {
-            regions,
-            checkpoints,
-        }
+    pub fn new(checkpoints: Vec<CheckpointRef<'a>>) -> Self {
+        Self { checkpoints }
     }
 
     pub fn iter(&self) -> impl Iterator<Item = &CheckpointRef<'a>> {
@@ -269,11 +261,6 @@ impl SpoilerLogRef<'_> {
                 .iter()
                 .map(|sphere| {
                     Sphere::new(
-                        sphere
-                            .regions
-                            .iter()
-                            .map(|&region| region.to_owned())
-                            .collect(),
                         sphere
                             .checkpoints
                             .iter()

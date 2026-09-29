@@ -95,7 +95,7 @@ pub fn pre_sphere<'a>(
         let (mut working, remainings) = explorer_neighborhood(remaining_spots.deref(), state);
         *remaining_spots = remainings;
         let checkpoints = place_items(rng, [item].into_iter(), &mut working);
-        let checkpoints = SphereRef::new(state.reachable_regions().collect(), checkpoints);
+        let checkpoints = SphereRef::new(checkpoints);
         remaining_spots.extend(working);
         state.append_flags(&checkpoints);
         spheres.append(&mut checkpoints.into_inner());
@@ -104,9 +104,8 @@ pub fn pre_sphere<'a>(
     *remaining_spots = remainings;
     let checkpoints: Vec<_> = place_items(rng, priority_items.iter().copied(), &mut working);
     remaining_spots.extend(working);
-    let reachable_regions: Vec<_> = state.reachable_regions().collect();
-    let checkpoints = SphereRef::new(reachable_regions.clone(), checkpoints);
+    let checkpoints = SphereRef::new(checkpoints);
     state.append_flags(&checkpoints);
     spheres.append(&mut checkpoints.into_inner());
-    SphereRef::new(reachable_regions, spheres)
+    SphereRef::new(spheres)
 }

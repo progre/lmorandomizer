@@ -9,7 +9,7 @@ use progression::{is_event_achievable, progression_flags};
 use rand::Rng;
 
 use crate::{
-    dataset::spot::{Region, ShopSpot},
+    dataset::spot::ShopSpot,
     randomizer::{
         spoiler::regions::Regions,
         spoiler_log::{CheckpointRef, SphereRef},
@@ -79,7 +79,6 @@ fn place_items<'a>(
     mut talk_items: ShuffledItems<'a>,
     mut shop_items: ShuffledItems<'a>,
     consumable_items_pool: &mut UnorderedItems<'a>,
-    reachable_regions: Vec<&'a Region>,
     reachables: Spots<'a>,
 ) -> Option<SphereRef<'a>> {
     let mut sphere: Vec<_> = Default::default();
@@ -134,7 +133,7 @@ fn place_items<'a>(
         let idx = shop.idx;
         sphere.push(CheckpointRef::Shop(ShopRef { spot, idx, item }));
     }
-    Some(SphereRef::new(reachable_regions, sphere))
+    Some(SphereRef::new(sphere))
 }
 
 fn take_achieved<'a>(events: &mut Vec<&'a Event>, state: &State) -> Vec<&'a Event> {
@@ -231,7 +230,6 @@ pub fn sphere<'a>(
         talk_items,
         shop_items,
         &mut items_pool.consumable_items,
-        state.reachable_regions().collect(),
         reachables,
     )?;
     state.append_flags(&sphere);
