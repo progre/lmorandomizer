@@ -9,7 +9,7 @@ use anyhow::Result;
 use log::trace;
 use randomize_items::randomize_items;
 pub use spoiler_log::SpoilerLog;
-use storage::{Storage, create_source::create_source};
+use storage::{Storage, apply_options::apply_options, create_source::create_source};
 
 use crate::{
     dataset::{
@@ -56,7 +56,8 @@ pub fn randomize(
 
     normalize_shuriken_sale(&mut script.talks);
 
-    let source = create_source(&game_structure, options)?;
+    let mut source = create_source(&game_structure)?;
+    apply_options(&mut source, options);
 
     if cfg!(debug_assertions) {
         let start = std::time::Instant::now();

@@ -1,6 +1,8 @@
 mod files;
 pub mod game_structure;
 pub mod spot;
+mod spot_locations;
+mod validate_exits;
 
 pub const NIGHT_SURFACE_SUB_WEAPON_COUNT: usize = 1;
 pub const NIGHT_SURFACE_CHEST_COUNT: usize = 3;

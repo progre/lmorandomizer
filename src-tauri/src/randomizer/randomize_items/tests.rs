@@ -4,7 +4,7 @@ use sha3::Digest;
 
 use crate::{
     app::read_game_structure_files_debug,
-    randomizer::storage::{create_source::create_source, item::Item},
+    randomizer::storage::{apply_options::apply_options, create_source::create_source, item::Item},
 };
 
 use super::*;
@@ -73,7 +73,8 @@ async fn test_shuffle_hash() -> Result<()> {
         need_glitches: false,
         absolutely_shuffle: false,
     };
-    let source = create_source(&game_structure, &opts)?;
+    let mut source = create_source(&game_structure)?;
+    apply_options(&mut source, &opts);
     let (shuffled, spoiler_log) = shuffle(&source, &opts);
 
     let placement_str = placement_text(&source, &shuffled);
@@ -99,7 +100,8 @@ async fn test_shuffle_multi_patterns() -> Result<()> {
             need_glitches: true,
             absolutely_shuffle: false,
         };
-        let source = create_source(&game_structure, &opts)?;
+        let mut source = create_source(&game_structure)?;
+        apply_options(&mut source, &opts);
         let (_, spoiler_log) = shuffle(&source, &opts);
         assert_eq!(
             spoiler_log.count_checkpoints(),

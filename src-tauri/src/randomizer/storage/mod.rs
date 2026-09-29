@@ -1,3 +1,4 @@
+pub mod apply_options;
 mod assertions;
 pub mod create_source;
 pub mod item;
