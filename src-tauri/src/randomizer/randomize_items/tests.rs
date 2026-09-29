@@ -1,10 +1,68 @@
+use std::collections::HashMap;
+
 use sha3::Digest;
 
 use crate::{
-    app::read_game_structure_files_debug, randomizer::storage::create_source::create_source,
+    app::read_game_structure_files_debug,
+    randomizer::storage::{create_source::create_source, item::Item},
 };
 
 use super::*;
+
+fn spot_items(storage: &Storage) -> impl Iterator<Item = (String, &Item)> {
+    storage
+        .main_weapons
+        .values()
+        .map(|x| (x.spot.to_string(), &x.item))
+        .chain(
+            storage
+                .sub_weapons
+                .values()
+                .map(|x| (x.spot.to_string(), &x.item)),
+        )
+        .chain(
+            storage
+                .chests
+                .values()
+                .map(|x| (x.spot.to_string(), &x.item)),
+        )
+        .chain(
+            storage
+                .seals
+                .values()
+                .map(|x| (x.spot.to_string(), &x.item)),
+        )
+        .chain(storage.roms.values().map(|x| (x.spot.to_string(), &x.item)))
+        .chain(storage.talks.iter().map(|x| (x.spot.to_string(), &x.item)))
+        .chain(
+            storage
+                .shops
+                .iter()
+                .map(|x| (format!("{}[{}]", x.spot, x.idx), &x.item)),
+        )
+}
+
+/// 配置結果を `spot = item 名 (item が元々あった spot)` の行で表す。
+/// `Storage` の構造や並び順を変えても同じ配置なら同じテキストになるよう、表示名だけで組み立ててソートする。
+/// 同名の消耗品が別の枠と入れ替わったことも検出するため、item の元の spot も書く。
+fn placement_text(source: &Storage, shuffled: &Storage) -> String {
+    let origins: HashMap<_, _> = spot_items(source)
+        .map(|(spot, item)| (format!("{:?}", item.src), spot))
+        .collect();
+    assert_eq!(origins.len(), spot_items(source).count());
+
+    let mut lines: Vec<_> = spot_items(shuffled)
+        .map(|(spot, item)| {
+            let origin = &origins[&format!("{:?}", item.src)];
+            format!("{spot} = {} ({origin})", item.name.get())
+        })
+        .collect();
+    lines.sort();
+    let line_count = lines.len();
+    lines.dedup();
+    assert_eq!(lines.len(), line_count);
+    lines.join("\n")
+}
 
 #[tokio::test]
 async fn test_shuffle_hash() -> Result<()> {
@@ -18,10 +76,10 @@ async fn test_shuffle_hash() -> Result<()> {
     let source = create_source(&game_structure, &opts)?;
     let (shuffled, spoiler_log) = shuffle(&source, &opts);
 
-    let shuffled_str = format!("{:?}", shuffled);
-    let shuffled_hash = hex::encode(sha3::Sha3_512::digest(shuffled_str));
-    const EXPECTED_SHUFFLED_HASH: &str = "08db6ede6565f6888eb3ea4cd77a4b51c96200aea6664dd8eeab292147af1a666c99432234e0e1da0938a9001f00b1ba1d12def0aec6a47e340c15c014c96b80";
-    assert_eq!(shuffled_hash, EXPECTED_SHUFFLED_HASH);
+    let placement_str = placement_text(&source, &shuffled);
+    let placement_hash = hex::encode(sha3::Sha3_512::digest(placement_str));
+    const EXPECTED_PLACEMENT_HASH: &str = "1bc118059e4413924cd70eb92cf86ce0dd844d9111618b6b7434228d81bf25062cd72213c35b530f578cb1da33dfefb28aa488f52d9795a56bd95f4ecf3fad2d";
+    assert_eq!(placement_hash, EXPECTED_PLACEMENT_HASH);
 
     let spoiler_log_str = format!("{}", spoiler_log.to_owned());
     let spoiler_log_hash = hex::encode(sha3::Sha3_512::digest(spoiler_log_str));
