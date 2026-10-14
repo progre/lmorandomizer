@@ -1,5 +1,5 @@
-/// location（item を 1 つ置く場所）の ID。
-/// spot（YAML の 1 項目）とは別の概念で、shop の spot には枠ごとに 3 つまで location がある
+/// location の ID。location は、item を 1 つ置く場所である。
+/// spot（YAML の 1 項目）とは別の概念である。shop の spot 1 つには、location が枠ごとに最大 3 つある
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub struct LocationId(usize);
 
@@ -9,8 +9,9 @@ impl LocationId {
     }
 }
 
-/// 個々の item の ID。値は、item が元々置かれていた location の `LocationId` と同じ。
-/// 同名の消耗品が複数あっても、それぞれ別の ID になる（種類を表す ID ではない）
+/// item の ID。種類ではなく、item の 1 個 1 個を区別する。
+/// 値には、item が元々置かれていた location の `LocationId` を使う。
+/// そのため、同名の消耗品が複数あっても、それぞれ別の ID になる
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub struct ItemId(usize);
 
