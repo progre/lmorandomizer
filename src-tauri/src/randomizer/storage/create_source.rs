@@ -10,6 +10,7 @@ use super::{
 };
 
 pub fn create_source(game_structure: &GameStructure) -> Result<Storage> {
+    let field_number = |region| game_structure.regions.get(region).field_number();
     let mut main_weapons = BTreeMap::new();
     for spot in game_structure.main_weapon_shutters.iter().cloned() {
         let item = Item::main_weapon(spot.main_weapon(), spot.name().clone().into());
@@ -18,8 +19,8 @@ pub fn create_source(game_structure: &GameStructure) -> Result<Storage> {
     let mut sub_weapons = BTreeMap::new();
     for spot in game_structure.sub_weapon_shutters.iter().cloned() {
         let name = spot.name().clone().into();
-        let item = Item::sub_weapon(spot.region().field_number(), spot.sub_weapon(), name);
-        let key = (spot.region().field_number(), spot.sub_weapon());
+        let item = Item::sub_weapon(field_number(spot.region()), spot.sub_weapon(), name);
+        let key = (field_number(spot.region()), spot.sub_weapon());
         if sub_weapons.contains_key(&key) {
             bail!("duplicate sub weapon: {:?}", key);
         }
@@ -28,11 +29,11 @@ pub fn create_source(game_structure: &GameStructure) -> Result<Storage> {
     let mut chests = BTreeMap::new();
     for spot in game_structure.chests.iter().cloned() {
         let item = Item::chest_item(
-            spot.region().field_number(),
+            field_number(spot.region()),
             spot.item(),
             spot.name().clone().into(),
         );
-        let key = (spot.region().field_number(), spot.item());
+        let key = (field_number(spot.region()), spot.item());
         if chests.contains_key(&key) {
             bail!("duplicate chest: {:?}", key);
         }
@@ -81,7 +82,7 @@ pub fn create_source(game_structure: &GameStructure) -> Result<Storage> {
         .events
         .iter()
         .map(|x| Event {
-            region: x.region.clone(),
+            region: x.region,
             name: x.name.clone().into(),
             requirements: x.requirements.clone(),
         })

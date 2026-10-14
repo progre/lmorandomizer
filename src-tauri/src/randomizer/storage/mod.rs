@@ -8,9 +8,12 @@ use std::collections::BTreeMap;
 use anyhow::Result;
 
 use crate::{
-    dataset::spot::{
-        AnyOfAllRequirements, ChestSpot, MainWeaponSpot, Region, RomSpot, SealSpot, ShopSpot,
-        SubWeaponSpot, TalkSpot,
+    dataset::{
+        regions::{RegionId, Regions},
+        spot::{
+            AnyOfAllRequirements, ChestSpot, MainWeaponSpot, RomSpot, SealSpot, ShopSpot,
+            SubWeaponSpot, TalkSpot,
+        },
     },
     script::enums::{self, FieldNumber},
 };
@@ -101,14 +104,14 @@ pub struct TalkRef<'a> {
 
 #[derive(Clone, Debug)]
 pub struct Event {
-    pub region: Option<Region>,
+    pub region: Option<RegionId>,
     pub name: StrategyFlag,
     pub requirements: Option<AnyOfAllRequirements>,
 }
 
 #[derive(Clone, Debug)]
 pub struct Storage {
-    pub regions: Vec<Region>,
+    pub regions: Regions,
     pub main_weapons: BTreeMap<enums::MainWeapon, MainWeapon>,
     pub sub_weapons: BTreeMap<(FieldNumber, enums::SubWeapon), SubWeapon>,
     pub chests: BTreeMap<(FieldNumber, enums::ChestItem), Chest>,
@@ -122,7 +125,7 @@ pub struct Storage {
 impl Storage {
     #[allow(clippy::too_many_arguments)]
     pub fn new(
-        regions: Vec<Region>,
+        regions: Regions,
         main_weapons: BTreeMap<enums::MainWeapon, MainWeapon>,
         sub_weapons: BTreeMap<(FieldNumber, enums::SubWeapon), SubWeapon>,
         chests: BTreeMap<(FieldNumber, enums::ChestItem), Chest>,

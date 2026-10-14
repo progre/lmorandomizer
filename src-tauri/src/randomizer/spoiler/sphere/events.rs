@@ -1,8 +1,8 @@
 use std::mem::take;
 
-use crate::randomizer::{
-    spoiler::regions::Regions,
-    storage::{Event, item::StrategyFlag},
+use crate::{
+    dataset::regions::Regions,
+    randomizer::storage::{Event, item::StrategyFlag},
 };
 
 use super::{State, progression::is_event_achievable};
@@ -18,7 +18,7 @@ fn take_achieved<'a>(events: &mut Vec<&'a Event>, state: &State) -> Vec<&'a Even
 pub fn achieve_events<'a>(
     events: &mut Vec<&'a Event>,
     state: &mut State<'a>,
-    all_regions: &Regions<'a>,
+    all_regions: &'a Regions,
 ) -> Vec<&'a StrategyFlag> {
     let mut checkpoints = vec![];
     while !events.is_empty() {

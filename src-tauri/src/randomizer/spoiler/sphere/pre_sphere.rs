@@ -3,7 +3,7 @@ use std::ops::Deref;
 use rand::{Rng, RngExt};
 
 use crate::{
-    dataset::spot::Region,
+    dataset::regions::{RegionId, Regions},
     randomizer::{
         spoiler::{items_pool::UnorderedItems, sphere::state::State, spots::Spots},
         spoiler_log::{CheckpointRef, SphereRef},
@@ -20,11 +20,12 @@ use super::explore;
 fn explorer_neighborhood<'a>(
     remaining_spots: &Spots<'a>,
     state: &State<'a>,
+    all_regions: &Regions,
 ) -> (Spots<'a>, Spots<'a>) {
     let (mut working, mut remainings) = explore(remaining_spots, state);
-    let is_early = |region: &Region| {
+    let is_early = |region: RegionId| {
         matches!(
-            region.field_number(),
+            all_regions.get(region).field_number(),
             FieldNumber::Surface | FieldNumber::GateOfGuidance
         )
     };
@@ -82,6 +83,7 @@ pub fn pre_sphere<'a>(
     priority_items: UnorderedItems<'a>,
     remaining_spots: &mut Spots<'a>,
     state: &mut State<'a>,
+    all_regions: &Regions,
 ) -> SphereRef<'a> {
     let mut priority_items = priority_items.into_inner();
     let mut spheres = Vec::new();
@@ -92,7 +94,8 @@ pub fn pre_sphere<'a>(
         .position(|x| x.name == StrategyFlag::new("handScanner".into()))
     {
         let item = priority_items.swap_remove(idx);
-        let (mut working, remainings) = explorer_neighborhood(remaining_spots.deref(), state);
+        let (mut working, remainings) =
+            explorer_neighborhood(remaining_spots.deref(), state, all_regions);
         *remaining_spots = remainings;
         let checkpoints = place_items(rng, [item].into_iter(), &mut working);
         let checkpoints = SphereRef::new(checkpoints);
@@ -100,7 +103,8 @@ pub fn pre_sphere<'a>(
         state.append_flags(&checkpoints);
         spheres.append(&mut checkpoints.into_inner());
     }
-    let (mut working, remainings) = explorer_neighborhood(remaining_spots.deref(), state);
+    let (mut working, remainings) =
+        explorer_neighborhood(remaining_spots.deref(), state, all_regions);
     *remaining_spots = remainings;
     let checkpoints: Vec<_> = place_items(rng, priority_items.iter().copied(), &mut working);
     remaining_spots.extend(working);

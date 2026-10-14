@@ -1,9 +1,9 @@
 use std::collections::HashSet;
 
 use crate::{
-    dataset::spot::AnyOfAllRequirements,
+    dataset::{regions::Regions, spot::AnyOfAllRequirements},
     randomizer::{
-        spoiler::{items_pool::ItemsPool, regions::Regions, spots::Spots},
+        spoiler::{items_pool::ItemsPool, spots::Spots},
         storage::{
             Event,
             item::{Item, StrategyFlag},
@@ -14,7 +14,7 @@ use crate::{
 use super::state::State;
 
 pub fn is_event_achievable(state: &State, event: &Event) -> bool {
-    if let Some(region) = &event.region {
+    if let Some(region) = event.region {
         state.is_reachable(region, event.requirements.as_ref())
     } else {
         state.is_reachable_without_region(event.requirements.as_ref())
@@ -80,7 +80,7 @@ fn expands_reachability<'a>(
     item: &'a Item,
     unreachables: &Spots<'a>,
     pending_events: &[&'a Event],
-    all_regions: &Regions<'a>,
+    all_regions: &'a Regions,
     baseline_region_count: usize,
 ) -> bool {
     let mut state = state.clone();
@@ -110,7 +110,7 @@ pub fn progression_flags<'a>(
     items_pool: &ItemsPool<'a>,
     state: &State<'a>,
     unreachables: &Spots<'a>,
-    all_regions: &Regions<'a>,
+    all_regions: &'a Regions,
 ) -> HashSet<&'a StrategyFlag> {
     // どの requirement にも名前が現れない item は到達可能範囲を変えられないため、
     // 事前に除外して到達可能性の再計算回数を減らす

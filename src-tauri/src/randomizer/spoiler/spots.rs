@@ -1,7 +1,10 @@
 use crate::{
-    dataset::spot::{
-        AnyOfAllRequirements, ChestSpot, MainWeaponSpot, Region, RomSpot, SealSpot, SubWeaponSpot,
-        TalkSpot,
+    dataset::{
+        regions::RegionId,
+        spot::{
+            AnyOfAllRequirements, ChestSpot, MainWeaponSpot, RomSpot, SealSpot, SubWeaponSpot,
+            TalkSpot,
+        },
     },
     randomizer::storage::{Event, Storage},
 };
@@ -19,7 +22,7 @@ pub enum SpotRef<'a> {
 }
 
 impl SpotRef<'_> {
-    pub fn region(&self) -> &Region {
+    pub fn region(&self) -> RegionId {
         match self {
             Self::MainWeapon(x) => x.region(),
             Self::SubWeapon(x) => x.region(),

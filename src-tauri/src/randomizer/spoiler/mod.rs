@@ -1,7 +1,6 @@
 mod consts;
 pub mod items;
 mod items_pool;
-pub mod regions;
 mod sphere;
 pub mod spots;
 
@@ -14,8 +13,7 @@ use rand_xoshiro::Xoshiro256PlusPlus;
 use spots::SpotRef;
 
 use crate::{
-    randomizer::spoiler::{regions::Regions, sphere::State},
-    script::enums::FieldNumber,
+    dataset::regions::Regions, randomizer::spoiler::sphere::State, script::enums::FieldNumber,
 };
 
 use super::{
@@ -49,21 +47,20 @@ fn maps<'a>(
     rng: &mut impl Rng,
     maps: &BTreeMap<FieldNumber, &'a Item>,
     spots: &mut Spots<'a>,
+    all_regions: &Regions,
 ) -> Vec<CheckpointRef<'a>> {
     let mut spot_hash_map: BTreeMap<FieldNumber, Vec<SpotRef<'a>>> = Default::default();
     let mut twin_labrynths_spots = Vec::new();
     for spot in &spots.field_item_spots {
+        let field_number = all_regions.get(spot.region()).field_number();
         if matches!(
-            spot.region().field_number(),
+            field_number,
             FieldNumber::TwinLabyrinthsLeft | FieldNumber::TwinLabyrinthsRight
         ) {
             twin_labrynths_spots.push(*spot);
             continue;
         }
-        spot_hash_map
-            .entry(spot.region().field_number())
-            .or_default()
-            .push(*spot);
+        spot_hash_map.entry(field_number).or_default().push(*spot);
     }
     maps.iter()
         .map(|(field_number, item)| {
@@ -88,7 +85,7 @@ fn maps<'a>(
 pub fn spoiler<'a>(
     seed: u64,
     options: &RandomizeOptions,
-    all_regions: &Regions<'a>,
+    all_regions: &'a Regions,
     items: &Items<'a>,
     spots: &Spots<'a>,
 ) -> Option<SpoilerLogRef<'a>> {
@@ -96,7 +93,7 @@ pub fn spoiler<'a>(
     let mut rng = make_rng(seed);
     let mut items_pool = items.to_items_pool(&mut rng, spots.talk_spots.len(), spots.shops.len());
     let mut remaining_spots = spots.clone();
-    let maps = maps(&mut rng, items.maps(), &mut remaining_spots);
+    let maps = maps(&mut rng, items.maps(), &mut remaining_spots, all_regions);
 
     let mut state = State::new(
         all_regions

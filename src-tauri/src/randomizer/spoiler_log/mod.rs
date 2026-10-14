@@ -1,6 +1,8 @@
 mod checkpoint;
 mod display;
 
+use crate::dataset::regions::Regions;
+
 pub use checkpoint::{Checkpoint, CheckpointRef};
 
 #[derive(Debug)]
@@ -39,6 +41,7 @@ impl<'a> SphereRef<'a> {
 pub struct SpoilerLog {
     progression: Vec<Sphere>,
     maps: Vec<Checkpoint>,
+    regions: Regions,
 }
 
 pub struct SpoilerLogRef<'a> {
@@ -47,7 +50,7 @@ pub struct SpoilerLogRef<'a> {
 }
 
 impl SpoilerLogRef<'_> {
-    pub fn to_owned(&self) -> SpoilerLog {
+    pub fn to_owned(&self, regions: &Regions) -> SpoilerLog {
         SpoilerLog {
             progression: self
                 .progression
@@ -67,6 +70,7 @@ impl SpoilerLogRef<'_> {
                 .iter()
                 .map(|checkpoint| checkpoint.to_owned())
                 .collect(),
+            regions: regions.clone(),
         }
     }
 

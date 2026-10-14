@@ -15,9 +15,8 @@ use progression::progression_flags;
 use rand::Rng;
 
 use crate::{
-    dataset::spot::ShopSpot,
+    dataset::{regions::Regions, spot::ShopSpot},
     randomizer::{
-        spoiler::regions::Regions,
         spoiler_log::{CheckpointRef, SphereRef},
         storage::item::StrategyFlag,
     },
@@ -47,7 +46,7 @@ pub fn sphere<'a>(
     items_pool: &mut ItemsPool<'a>,
     remaining_spots: &mut Spots<'a>,
     state: &mut State<'a>,
-    all_regions: &Regions<'a>,
+    all_regions: &'a Regions,
 ) -> Option<SphereRef<'a>> {
     debug_assert_eq!(
         items_pool.shop_items.len() + items_pool.consumable_items.len(),
@@ -57,7 +56,7 @@ pub fn sphere<'a>(
     state.explore_regions(all_regions);
 
     if let Some(priority_items) = items_pool.priority_items.take() {
-        let sphere = pre_sphere(rng, priority_items, remaining_spots, state);
+        let sphere = pre_sphere(rng, priority_items, remaining_spots, state, all_regions);
         let shop_count = sphere
             .iter()
             .filter(|x| match x {

@@ -1,5 +1,7 @@
 mod files;
 pub mod game_structure;
+mod region_ids;
+pub mod regions;
 pub mod spot;
 mod spot_locations;
 mod validate_exits;

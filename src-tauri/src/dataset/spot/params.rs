@@ -2,62 +2,7 @@ use std::fmt::{self, Display};
 
 use vec1::Vec1;
 
-use crate::{dataset::files::RegionName, script::enums::FieldNumber};
-
-/// パース済みの exit。access rule を到達判定のたびにパースしなくて済むよう、
-/// ロード時に一度だけ変換して保持する
-#[derive(Clone, Debug)]
-pub struct RegionExit {
-    pub direction: &'static str,
-    pub target: RegionName,
-    pub requirements: Option<AnyOfAllRequirements>,
-}
-
-#[derive(Clone, Debug)]
-pub struct Region {
-    field_number: FieldNumber,
-    name: RegionName,
-    access_rule: Option<AnyOfAllRequirements>,
-    exits: Vec<RegionExit>,
-}
-
-impl Region {
-    pub fn new(
-        field_number: FieldNumber,
-        name: RegionName,
-        access_rule: Option<AnyOfAllRequirements>,
-        exits: Vec<RegionExit>,
-    ) -> Self {
-        Self {
-            field_number,
-            name,
-            access_rule,
-            exits,
-        }
-    }
-
-    pub fn field_number(&self) -> FieldNumber {
-        self.field_number
-    }
-
-    pub fn name(&self) -> &RegionName {
-        &self.name
-    }
-
-    pub fn access_rule(&self) -> Option<&AnyOfAllRequirements> {
-        self.access_rule.as_ref()
-    }
-
-    pub fn exits(&self) -> &[RegionExit] {
-        &self.exits
-    }
-}
-
-impl Display for Region {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        self.name.get().fmt(f)
-    }
-}
+use crate::dataset::regions::{Region, RegionId, Regions};
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct SpotName(String);
@@ -110,9 +55,32 @@ pub struct AllRequirements(pub Vec1<RequirementFlag>);
 #[derive(Clone, Debug, PartialEq)]
 pub struct AnyOfAllRequirements(pub Vec1<AllRequirements>);
 
+/// spot を `region/種類(名前)` の形で表示する
+pub struct SpotDisplay<'a> {
+    region: &'a Region,
+    type_name: &'static str,
+    name: &'a SpotName,
+}
+
+impl<'a> SpotDisplay<'a> {
+    pub fn new(region: &'a Region, type_name: &'static str, name: &'a SpotName) -> Self {
+        Self {
+            region,
+            type_name,
+            name,
+        }
+    }
+}
+
+impl Display for SpotDisplay<'_> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}/{}({})", self.region, self.type_name, self.name.get())
+    }
+}
+
 #[derive(Clone, Debug)]
 pub struct SpotParams<T> {
-    pub region: Region,
+    pub region: RegionId,
     pub name: SpotName,
     pub content: T,
     pub requirements: Option<AnyOfAllRequirements>,
@@ -120,7 +88,7 @@ pub struct SpotParams<T> {
 
 impl<T> SpotParams<T> {
     pub fn new(
-        region: Region,
+        region: RegionId,
         name: SpotName,
         content: T,
         requirements: Option<AnyOfAllRequirements>,
@@ -133,7 +101,7 @@ impl<T> SpotParams<T> {
         }
     }
 
-    pub fn fmt(&self, f: &mut fmt::Formatter<'_>, type_name: &str) -> fmt::Result {
-        write!(f, "{}/{}({})", self.region, type_name, self.name.get())
+    pub fn display<'a>(&'a self, regions: &'a Regions, type_name: &'static str) -> SpotDisplay<'a> {
+        SpotDisplay::new(regions.get(self.region), type_name, &self.name)
     }
 }
