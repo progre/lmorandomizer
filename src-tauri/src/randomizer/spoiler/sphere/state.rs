@@ -13,7 +13,6 @@ use crate::{
 
 #[derive(Clone)]
 pub struct State<'a> {
-    reachable_regions: Vec<&'a Region>,
     reachable_region_ids: HashSet<RegionId>,
     strategy_flags: HashSet<&'a str>,
     /// flag の接頭辞（`sacredOrb:surface` なら `sacredOrb`）ごとの個数
@@ -23,7 +22,6 @@ pub struct State<'a> {
 impl<'a> State<'a> {
     pub fn new(initial_region: &'a Region) -> Self {
         Self {
-            reachable_regions: vec![initial_region],
             reachable_region_ids: HashSet::from([initial_region.id()]),
             strategy_flags: HashSet::from([initial_region.flag().get()]),
             counts: HashMap::default(),
@@ -43,38 +41,41 @@ impl<'a> State<'a> {
         })
     }
 
-    pub fn reachable_regions(&self) -> impl Iterator<Item = &'a Region> {
-        self.reachable_regions.iter().copied()
+    pub fn is_region_reachable(&self, region: RegionId) -> bool {
+        self.reachable_region_ids.contains(&region)
     }
 
-    fn new_exit_targets(&self, regions: &[&'a Region]) -> impl Iterator<Item = RegionId> {
-        regions
-            .iter()
-            .flat_map(|x| x.exits())
-            .filter(|exit| {
-                self.is_satisfied(exit.requirements.as_ref())
-                    && !self.reachable_region_ids.contains(&exit.target_id)
-            })
-            .map(|exit| exit.target_id)
+    pub fn reachable_region_count(&self) -> usize {
+        self.reachable_region_ids.len()
     }
 
+    /// 要求を満たす region がなくなるまで、到達した region を足す。
+    /// 2 周目以降は、前の周で到達した region の flag で要求を満たしうる region だけを調べる
     pub fn explore_regions(&mut self, all_regions: &'a Regions) {
-        let mut searching_regions = self.reachable_regions.clone();
+        let mut candidates: Vec<_> = all_regions.iter().map(|region| region.id()).collect();
         loop {
-            let found_regions: Vec<_> = self
-                .new_exit_targets(&searching_regions)
-                .map(|region_id| all_regions.get(region_id))
-                .filter(|region| self.is_satisfied(region.access_rule()))
+            let found_regions: Vec<_> = candidates
+                .iter()
+                .copied()
+                .filter(|&id| !self.is_region_reachable(id))
+                .filter(|&id| {
+                    all_regions
+                        .requirements(id)
+                        .is_some_and(|x| self.is_satisfied(Some(x)))
+                })
                 .collect();
             if found_regions.is_empty() {
                 break;
             }
-            self.reachable_region_ids
-                .extend(found_regions.iter().map(|region| region.id()));
-            self.strategy_flags
-                .extend(found_regions.iter().map(|region| region.flag().get()));
-            self.reachable_regions.append(&mut found_regions.clone());
-            searching_regions = found_regions;
+            for &id in &found_regions {
+                self.reachable_region_ids.insert(id);
+                self.strategy_flags.insert(all_regions.get(id).flag().get());
+            }
+            candidates = found_regions
+                .iter()
+                .flat_map(|&id| all_regions.dependents(id))
+                .copied()
+                .collect();
         }
     }
 

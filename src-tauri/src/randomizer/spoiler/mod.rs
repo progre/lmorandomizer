@@ -105,11 +105,9 @@ pub fn spoiler<'a>(
             &mut state,
             all_regions,
         ) else {
-            let reachable_names: std::collections::HashSet<_> =
-                state.reachable_regions().map(|r| r.name().get()).collect();
             let unreachable_regions: Vec<_> = all_regions
                 .iter()
-                .filter(|r| !reachable_names.contains(r.name().get()))
+                .filter(|r| !state.is_region_reachable(r.id()))
                 .map(|r| r.name().get())
                 .collect();
             trace!(

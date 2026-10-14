@@ -42,10 +42,7 @@ impl RequirementNames {
             result.add(event.requirements.as_ref());
         }
         for region in all_regions.iter() {
-            result.add(region.access_rule());
-            for exit in region.exits() {
-                result.add(exit.requirements.as_ref());
-            }
+            result.add(all_regions.requirements(region.id()));
         }
         result
     }
@@ -86,7 +83,7 @@ fn expands_reachability<'a>(
     let mut state = state.clone();
     state.insert_flag(&item.name);
     state.explore_regions(all_regions);
-    state.reachable_regions().count() > baseline_region_count
+    state.reachable_region_count() > baseline_region_count
         || unreachables
             .field_item_spots
             .iter()
@@ -115,7 +112,7 @@ pub fn progression_flags<'a>(
     // どの requirement にも名前が現れない item は到達可能範囲を変えられないため、
     // 事前に除外して到達可能性の再計算回数を減らす
     let requirement_names = RequirementNames::collect(unreachables, all_regions);
-    let baseline_region_count = state.reachable_regions().count();
+    let baseline_region_count = state.reachable_region_count();
     // 既に達成可能な event は「新たに」達成可能になるわけではないため除外する
     let pending_events: Vec<_> = unreachables
         .events
