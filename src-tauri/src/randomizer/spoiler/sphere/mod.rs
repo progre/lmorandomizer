@@ -15,29 +15,22 @@ use progression::progression_flags;
 use rand::Rng;
 
 use crate::{
-    dataset::{regions::Regions, spot::ShopSpot},
-    randomizer::{
-        spoiler_log::{CheckpointRef, SphereRef},
-        storage::item::StrategyFlag,
-    },
+    dataset::regions::Regions,
+    randomizer::spoiler_log::{CheckpointRef, SphereRef},
 };
 
-use super::{items_pool::ItemsPool, spots::Spots};
+use super::{
+    items_pool::ItemsPool,
+    spots::{SpotRef, Spots},
+};
 
 pub use state::State;
-
-#[derive(Clone, Debug)]
-pub struct ShopItemDisplay<'a> {
-    pub spot: &'a ShopSpot,
-    pub idx: usize,
-    pub name: &'a StrategyFlag,
-}
 
 fn item_shop_spot_count(spots: &Spots<'_>) -> usize {
     spots
         .shops
         .iter()
-        .map(|shop| (!shop.name.is_consumable()) as usize)
+        .map(|shop| (!shop.item.name.is_consumable()) as usize)
         .sum::<usize>()
 }
 
@@ -59,15 +52,14 @@ pub fn sphere<'a>(
         let sphere = pre_sphere(rng, priority_items, remaining_spots, state, all_regions);
         let shop_count = sphere
             .iter()
-            .filter(|x| match x {
-                CheckpointRef::MainWeapon(_)
-                | CheckpointRef::SubWeapon(_)
-                | CheckpointRef::Chest(_)
-                | CheckpointRef::Seal(_)
-                | CheckpointRef::Rom(_)
-                | CheckpointRef::Talk(_)
-                | CheckpointRef::Event(_) => false,
-                CheckpointRef::Shop(_) => true,
+            .filter(|x| {
+                matches!(
+                    x,
+                    CheckpointRef::Item {
+                        spot: SpotRef::Shop(_),
+                        ..
+                    }
+                )
             })
             .count();
         items_pool.move_shop_items_to_field_items(rng, shop_count);

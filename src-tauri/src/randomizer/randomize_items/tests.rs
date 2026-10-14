@@ -57,13 +57,13 @@ fn spot_items(storage: &Storage) -> impl Iterator<Item = (String, &Item)> {
 /// 同名の消耗品が別の枠と入れ替わったことも検出するため、item の元の spot も書く。
 fn placement_text(source: &Storage, shuffled: &Storage) -> String {
     let origins: HashMap<_, _> = spot_items(source)
-        .map(|(spot, item)| (format!("{:?}", item.src), spot))
+        .map(|(spot, item)| (item.id, spot))
         .collect();
     assert_eq!(origins.len(), spot_items(source).count());
 
     let mut lines: Vec<_> = spot_items(shuffled)
         .map(|(spot, item)| {
-            let origin = &origins[&format!("{:?}", item.src)];
+            let origin = &origins[&item.id];
             format!("{spot} = {} ({origin})", item.name.get())
         })
         .collect();

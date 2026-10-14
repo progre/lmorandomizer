@@ -12,7 +12,7 @@ pub fn explore<'a>(remaining_spots: &Spots<'a>, state: &State<'a>) -> (Spots<'a>
         .talk_spots
         .iter()
         .copied()
-        .partition::<Vec<_>, _>(|x| state.is_reachable(x.region(), x.requirements()));
+        .partition::<Vec<_>, _>(|x| state.is_reachable(x.spot.region(), x.spot.requirements()));
     let (reachables_shops, unreachable_shops) = remaining_spots
         .shops
         .iter()

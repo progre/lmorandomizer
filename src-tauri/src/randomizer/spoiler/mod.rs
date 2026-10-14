@@ -4,7 +4,7 @@ mod items_pool;
 mod sphere;
 pub mod spots;
 
-use std::{collections::BTreeMap, hash::Hash, ptr, sync::LazyLock};
+use std::{collections::BTreeMap, hash::Hash, sync::LazyLock};
 
 use log::{info, trace};
 use rand::{Rng, prelude::IndexedRandom};
@@ -31,18 +31,6 @@ pub fn make_rng<H: Hash>(seed: H) -> Xoshiro256PlusPlus {
     seeder.into_rng()
 }
 
-fn ptr_eq<'a>(a: SpotRef<'a>, b: &CheckpointRef<'a>) -> bool {
-    match (a, b) {
-        (SpotRef::MainWeapon(a), CheckpointRef::MainWeapon(b)) => ptr::eq(a, b.spot),
-        (SpotRef::SubWeapon(a), CheckpointRef::SubWeapon(b)) => ptr::eq(a, b.spot),
-        (SpotRef::Chest(a), CheckpointRef::Chest(b)) => ptr::eq(a, b.spot),
-        (SpotRef::Seal(a), CheckpointRef::Seal(b)) => ptr::eq(a, b.spot),
-        (SpotRef::Rom(a), CheckpointRef::Rom(b)) => ptr::eq(a, b.spot),
-        (SpotRef::Talk(a), CheckpointRef::Talk(b)) => ptr::eq(a, b.spot),
-        _ => false,
-    }
-}
-
 fn maps<'a>(
     rng: &mut impl Rng,
     maps: &BTreeMap<FieldNumber, &'a Item>,
@@ -66,19 +54,20 @@ fn maps<'a>(
         .map(|(field_number, item)| {
             if *field_number == FieldNumber::TwinLabyrinthsLeft {
                 let spot = *twin_labrynths_spots.choose(rng).unwrap();
-                return CheckpointRef::from_field_spot_item(spot, item);
+                return (spot, *item);
             }
-            let spot = spot_hash_map[field_number].choose(rng).unwrap();
-            CheckpointRef::from_field_spot_item(*spot, item)
+            let spot = *spot_hash_map[field_number].choose(rng).unwrap();
+            (spot, *item)
         })
-        .inspect(|checkpoint| {
+        .inspect(|(spot, _)| {
             let idx = spots
                 .field_item_spots
                 .iter()
-                .position(|&x| ptr_eq(x, checkpoint))
+                .position(|x| x.id() == spot.id())
                 .unwrap();
             spots.field_item_spots.swap_remove(idx);
         })
+        .map(|(spot, item)| CheckpointRef::Item { spot, item })
         .collect()
 }
 

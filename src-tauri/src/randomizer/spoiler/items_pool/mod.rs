@@ -99,7 +99,10 @@ mod tests {
     use crate::{
         randomizer::{
             spoiler::make_rng,
-            storage::item::{Item, StrategyFlag},
+            storage::{
+                ids::SpotId,
+                item::{Item, StrategyFlag},
+            },
         },
         script::enums::MainWeapon,
     };
@@ -107,7 +110,8 @@ mod tests {
     use super::*;
 
     fn item(name: &str) -> Item {
-        Item::main_weapon(MainWeapon::Whip, StrategyFlag::new(name.to_owned()))
+        let id = SpotId::new(0).into();
+        Item::main_weapon(id, MainWeapon::Whip, StrategyFlag::new(name.to_owned()))
     }
 
     fn items_pool<'a>(rng: &mut impl Rng, field_items: Vec<&'a Item>) -> ItemsPool<'a> {

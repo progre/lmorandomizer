@@ -5,12 +5,13 @@ use rand::{Rng, RngExt};
 use crate::{
     dataset::regions::{RegionId, Regions},
     randomizer::{
-        spoiler::{items_pool::UnorderedItems, sphere::state::State, spots::Spots},
-        spoiler_log::{CheckpointRef, SphereRef},
-        storage::{
-            ShopRef,
-            item::{Item, StrategyFlag},
+        spoiler::{
+            items_pool::UnorderedItems,
+            sphere::state::State,
+            spots::{SpotRef, Spots},
         },
+        spoiler_log::{CheckpointRef, SphereRef},
+        storage::item::{Item, StrategyFlag},
     },
     script::enums::FieldNumber,
 };
@@ -38,13 +39,13 @@ fn explorer_neighborhood<'a>(
     let (reachables, mut unreachables) = working
         .talk_spots
         .into_iter()
-        .partition(|x| is_early(x.region()));
+        .partition(|x| is_early(x.spot.region()));
     working.talk_spots = reachables;
     remainings.talk_spots.append(&mut unreachables);
     let (reachables, mut unreachables) = working
         .shops
         .into_iter()
-        .partition(|x| is_early(x.spot.region()) && !x.name.is_consumable());
+        .partition(|x| is_early(x.spot.region()) && !x.item.name.is_consumable());
     working.shops = reachables;
     remainings.shops.append(&mut unreachables);
     (working, remainings)
@@ -64,15 +65,13 @@ fn place_items<'a>(
             );
             if dice < working.field_item_spots.len() {
                 let spot = working.field_item_spots.swap_remove(dice);
-                CheckpointRef::from_field_spot_item(spot, item)
+                CheckpointRef::Item { spot, item }
             } else if dice < working.field_item_spots.len() + working.talk_spots.len() {
                 unreachable!()
             } else {
                 let idx = dice - working.field_item_spots.len() - working.talk_spots.len();
-                let item_spot = working.shops.swap_remove(idx);
-                let spot = &item_spot.spot;
-                let idx = item_spot.idx;
-                CheckpointRef::Shop(ShopRef { spot, idx, item })
+                let spot = SpotRef::Shop(working.shops.swap_remove(idx));
+                CheckpointRef::Item { spot, item }
             }
         })
         .collect()

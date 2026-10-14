@@ -13,7 +13,11 @@ use super::{
     RandomizeOptions,
     spoiler::{make_rng, spoiler},
     spoiler_log::{CheckpointRef, SpoilerLogRef},
-    storage::{Storage, item::StrategyFlag},
+    storage::{
+        Storage,
+        ids::SpotTable,
+        item::{Item, StrategyFlag},
+    },
 };
 
 pub fn randomize_items<'a>(
@@ -37,54 +41,20 @@ pub fn randomize_items<'a>(
 }
 
 fn create_shuffled_storage(source: &Storage, spoiler_log: &SpoilerLogRef) -> Storage {
-    let mut storage = source.clone();
-    for checkpoint in spoiler_log
+    let placed: SpotTable<&Item> = spoiler_log
         .progression
         .iter()
         .flat_map(|sphere| sphere.iter())
         .chain(&spoiler_log.maps)
-    {
-        match checkpoint {
-            CheckpointRef::MainWeapon(main_weapon) => {
-                let content = main_weapon.spot.main_weapon();
-                storage.main_weapons.get_mut(&content).unwrap().item = main_weapon.item.clone();
-            }
-            CheckpointRef::SubWeapon(sub_weapon) => {
-                let region = source.regions.get(sub_weapon.spot.region());
-                let key = (region.field_number(), sub_weapon.spot.sub_weapon());
-                storage.sub_weapons.get_mut(&key).unwrap().item = sub_weapon.item.clone();
-            }
-            CheckpointRef::Chest(chest) => {
-                let region = source.regions.get(chest.spot.region());
-                let key = (region.field_number(), chest.spot.item());
-                storage.chests.get_mut(&key).unwrap().item = chest.item.clone();
-            }
-            CheckpointRef::Seal(seal) => {
-                let content = seal.spot.seal();
-                storage.seals.get_mut(&content).unwrap().item = seal.item.clone();
-            }
-            CheckpointRef::Shop(shop) => {
-                let spot = &mut storage
-                    .shops
-                    .iter_mut()
-                    .find(|x| x.spot.items() == shop.spot.items() && x.idx == shop.idx)
-                    .unwrap();
-                spot.item = shop.item.clone();
-            }
-            CheckpointRef::Rom(rom) => {
-                let content = rom.spot.rom();
-                storage.roms.get_mut(&content).unwrap().item = rom.item.clone();
-            }
-            CheckpointRef::Talk(talk) => {
-                let item = talk.spot.item();
-                storage
-                    .talks
-                    .iter_mut()
-                    .find(|x| x.spot.item() == item)
-                    .unwrap()
-                    .item = talk.item.clone();
-            }
-            CheckpointRef::Event(_) => {}
+        .filter_map(|checkpoint| match checkpoint {
+            CheckpointRef::Item { spot, item } => Some((spot.id(), *item)),
+            CheckpointRef::Event(_) => None,
+        })
+        .collect();
+    let mut storage = source.clone();
+    for (id, item) in storage.items_mut() {
+        if let Some(placed) = placed.get(id) {
+            *item = (*placed).clone();
         }
     }
     storage
@@ -104,14 +74,14 @@ fn random_spoiler<'a>(
         spots
             .shops
             .iter()
-            .map(|spot| (!spot.name.is_consumable()) as usize)
+            .map(|shop| (!shop.item.name.is_consumable()) as usize)
             .sum::<usize>(),
     );
     debug_assert_eq!(
         spots
             .shops
             .iter()
-            .map(|spot| spot.name.is_consumable() as usize)
+            .map(|shop| shop.item.name.is_consumable() as usize)
             .sum::<usize>(),
         items.consumable_items().len()
     );

@@ -1,6 +1,7 @@
 pub mod apply_options;
 mod assertions;
 pub mod create_source;
+pub mod ids;
 pub mod item;
 
 use std::collections::BTreeMap;
@@ -20,35 +21,41 @@ use crate::{
 
 use {
     assertions::ware_missing_requirements,
+    ids::SpotId,
     item::{Item, StrategyFlag},
 };
 
 #[derive(Clone, Debug)]
 pub struct MainWeapon {
+    pub id: SpotId,
     pub spot: MainWeaponSpot,
     pub item: Item,
 }
 
 #[derive(Clone, Debug)]
 pub struct SubWeapon {
+    pub id: SpotId,
     pub spot: SubWeaponSpot,
     pub item: Item,
 }
 
 #[derive(Clone, Debug)]
 pub struct Chest {
+    pub id: SpotId,
     pub spot: ChestSpot,
     pub item: Item,
 }
 
 #[derive(Clone, Debug)]
 pub struct Seal {
+    pub id: SpotId,
     pub spot: SealSpot,
     pub item: Item,
 }
 
 #[derive(Clone, Debug)]
 pub struct Shop {
+    pub id: SpotId,
     pub spot: ShopSpot,
     pub idx: usize,
     pub item: Item,
@@ -56,50 +63,16 @@ pub struct Shop {
 
 #[derive(Clone, Debug)]
 pub struct Rom {
+    pub id: SpotId,
     pub spot: RomSpot,
     pub item: Item,
 }
 
 #[derive(Clone, Debug)]
 pub struct Talk {
+    pub id: SpotId,
     pub spot: TalkSpot,
     pub item: Item,
-}
-
-pub struct MainWeaponRef<'a> {
-    pub spot: &'a MainWeaponSpot,
-    pub item: &'a Item,
-}
-
-pub struct SubWeaponRef<'a> {
-    pub spot: &'a SubWeaponSpot,
-    pub item: &'a Item,
-}
-
-pub struct ChestRef<'a> {
-    pub spot: &'a ChestSpot,
-    pub item: &'a Item,
-}
-
-pub struct SealRef<'a> {
-    pub spot: &'a SealSpot,
-    pub item: &'a Item,
-}
-
-pub struct ShopRef<'a> {
-    pub spot: &'a ShopSpot,
-    pub idx: usize,
-    pub item: &'a Item,
-}
-
-pub struct RomRef<'a> {
-    pub spot: &'a RomSpot,
-    pub item: &'a Item,
-}
-
-pub struct TalkRef<'a> {
-    pub spot: &'a TalkSpot,
-    pub item: &'a Item,
 }
 
 #[derive(Clone, Debug)]
@@ -162,5 +135,23 @@ impl Storage {
             .chain(self.shops.iter().map(|x| &x.item))
             .chain(self.roms.values().map(|x| &x.item))
             .chain(self.talks.iter().map(|x| &x.item))
+    }
+
+    /// 全 spot の ID と、そこに置かれている item
+    pub fn items_mut(&mut self) -> impl Iterator<Item = (SpotId, &mut Item)> {
+        let main_weapons = self.main_weapons.values_mut().map(|x| (x.id, &mut x.item));
+        let sub_weapons = self.sub_weapons.values_mut().map(|x| (x.id, &mut x.item));
+        let chests = self.chests.values_mut().map(|x| (x.id, &mut x.item));
+        let seals = self.seals.values_mut().map(|x| (x.id, &mut x.item));
+        let shops = self.shops.iter_mut().map(|x| (x.id, &mut x.item));
+        let roms = self.roms.values_mut().map(|x| (x.id, &mut x.item));
+        let talks = self.talks.iter_mut().map(|x| (x.id, &mut x.item));
+        main_weapons
+            .chain(sub_weapons)
+            .chain(chests)
+            .chain(seals)
+            .chain(shops)
+            .chain(roms)
+            .chain(talks)
     }
 }

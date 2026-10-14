@@ -35,8 +35,8 @@ impl RequirementNames {
         for spot in &unreachables.field_item_spots {
             result.add(spot.requirements());
         }
-        for spot in &unreachables.talk_spots {
-            result.add(spot.requirements());
+        for talk in &unreachables.talk_spots {
+            result.add(talk.spot.requirements());
         }
         for shop in &unreachables.shops {
             result.add(shop.spot.requirements());
@@ -94,7 +94,7 @@ fn expands_reachability<'a>(
         || unreachables
             .talk_spots
             .iter()
-            .any(|x| state.is_reachable(x.region(), x.requirements()))
+            .any(|x| state.is_reachable(x.spot.region(), x.spot.requirements()))
         || unreachables
             .shops
             .iter()

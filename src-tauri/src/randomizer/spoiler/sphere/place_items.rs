@@ -8,7 +8,6 @@ use crate::randomizer::{
         spots::{SpotRef, Spots},
     },
     spoiler_log::{CheckpointRef, SphereRef},
-    storage::ShopRef,
 };
 
 pub fn place_items<'a>(
@@ -30,32 +29,29 @@ pub fn place_items<'a>(
             | SpotRef::Seal(_)
             | SpotRef::Rom(_) => {
                 let item = field_items.pop().unwrap();
-                sphere.push(CheckpointRef::from_field_spot_item(spot, item));
+                sphere.push(CheckpointRef::Item { spot, item });
             }
-            SpotRef::Talk(_) => unreachable!(),
+            SpotRef::Talk(_) | SpotRef::Shop(_) => unreachable!(),
         });
     reachables.talk_spots.into_iter().for_each(|spot| {
         let item = talk_items.pop().unwrap();
         let spot = SpotRef::Talk(spot);
-        sphere.push(CheckpointRef::from_field_spot_item(spot, item));
+        sphere.push(CheckpointRef::Item { spot, item });
     });
     for shop in reachables.shops {
-        let item = if shop.name.is_consumable() {
+        let item = if shop.item.name.is_consumable() {
             // Do not sell the same item to the same store
             let placed_items: HashSet<_> = sphere
                 .iter()
                 .filter_map(|x| match x {
-                    CheckpointRef::Shop(x) => Some(x),
-                    CheckpointRef::MainWeapon(_)
-                    | CheckpointRef::SubWeapon(_)
-                    | CheckpointRef::Chest(_)
-                    | CheckpointRef::Seal(_)
-                    | CheckpointRef::Rom(_)
-                    | CheckpointRef::Talk(_)
-                    | CheckpointRef::Event(_) => None,
+                    CheckpointRef::Item {
+                        spot: SpotRef::Shop(spot),
+                        item,
+                    } => Some((spot, item)),
+                    CheckpointRef::Item { .. } | CheckpointRef::Event(_) => None,
                 })
-                .filter(|x| x.spot.items() == shop.spot.items())
-                .map(|x| &x.item.name)
+                .filter(|(spot, _)| spot.spot.items() == shop.spot.items())
+                .map(|(_, item)| &item.name)
                 .collect();
             let mut items_pool = take(consumable_items_pool).shuffle(rng).into_inner();
             let idx = items_pool
@@ -67,9 +63,8 @@ pub fn place_items<'a>(
         } else {
             shop_items.pop().unwrap()
         };
-        let spot = &shop.spot;
-        let idx = shop.idx;
-        sphere.push(CheckpointRef::Shop(ShopRef { spot, idx, item }));
+        let spot = SpotRef::Shop(shop);
+        sphere.push(CheckpointRef::Item { spot, item });
     }
     Some(SphereRef::new(sphere))
 }
