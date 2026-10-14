@@ -88,7 +88,6 @@ pub fn create_source(game_structure: &GameStructure) -> Result<Storage> {
         .events
         .iter()
         .map(|x| Event {
-            region: x.region,
             name: x.name.clone().into(),
             requirements: x.requirements.clone(),
         })

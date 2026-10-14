@@ -15,7 +15,6 @@ pub fn apply_options(storage: &mut Storage, options: &RandomizeOptions) {
     }
     let roms = take(&mut storage.roms);
     storage.events.extend(roms.into_values().map(|x| Event {
-        region: Some(x.spot.region()),
         name: x.spot.name().to_owned().into(),
         requirements: Some(x.spot.requirements().to_owned()),
     }));

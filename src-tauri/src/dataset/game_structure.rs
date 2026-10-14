@@ -6,11 +6,11 @@ use crate::{
     dataset::{
         files::{EventsYaml, FieldYaml, FieldYamlAccessRule},
         region_ids::region_ids,
-        regions::{Region, RegionExit, RegionId, Regions},
+        regions::{Region, RegionExit, Regions},
         spot::SpotName,
         spot_locations::{
-            chest_location, main_weapon_location, rom_location, seals_location, shop_locations,
-            sub_weapon_location, talk_location,
+            chest_location, main_weapon_location, requirements_in_region, rom_location,
+            seals_location, shop_locations, sub_weapon_location, talk_location,
         },
         validate_exits::validate_exits,
     },
@@ -27,7 +27,6 @@ fn parse_event_requirements(items: BTreeMap<String, FieldYamlAccessRule>) -> Res
         .into_iter()
         .map(|(name, access_rule)| {
             Ok(Event {
-                region: None,
                 name: SpotName::new(name),
                 requirements: access_rule.try_into_any_of_all_requirements()?,
             })
@@ -37,7 +36,6 @@ fn parse_event_requirements(items: BTreeMap<String, FieldYamlAccessRule>) -> Res
 
 #[derive(Clone, Debug)]
 pub struct Event {
-    pub region: Option<RegionId>,
     pub name: SpotName,
     pub requirements: Option<AnyOfAllRequirements>,
 }
@@ -106,29 +104,29 @@ impl GameStructure {
                     exits,
                 );
                 for (item, access_rule) in field_yaml_region.main_weapons {
-                    let location = main_weapon_location(region_id, item, access_rule)?;
+                    let location = main_weapon_location(&region, item, access_rule)?;
                     main_weapon_shutters.push(location);
                 }
                 for (key, value) in field_yaml_region.sub_weapons {
-                    sub_weapon_shutters.push(sub_weapon_location(region_id, key, value)?);
+                    sub_weapon_shutters.push(sub_weapon_location(&region, key, value)?);
                 }
                 for (key, value) in field_yaml_region.chests {
-                    chests.push(chest_location(region_id, key, value)?);
+                    chests.push(chest_location(&region, key, value)?);
                 }
                 for (key, value) in field_yaml_region.seals {
-                    seals.push(seals_location(region_id, key, value)?);
+                    seals.push(seals_location(&region, key, value)?);
                 }
                 for (key, value) in field_yaml_region.roms {
-                    roadside_roms.push(rom_location(region_id, key, value)?);
+                    roadside_roms.push(rom_location(&region, key, value)?);
                 }
                 for (key, value) in field_yaml_region.shops {
-                    shops.push(shop_locations(region_id, key, value)?)
+                    shops.push(shop_locations(&region, key, value)?)
                 }
                 for (key, value) in field_yaml_region.talks {
-                    talks.push(talk_location(region_id, key, value)?);
+                    talks.push(talk_location(&region, key, value)?);
                 }
                 for (key, value) in field_yaml_region.events {
-                    events.push(event_location(region_id, key, value)?);
+                    events.push(event_location(&region, key, value)?);
                 }
                 regions.push(region);
             }
@@ -152,10 +150,9 @@ impl GameStructure {
     }
 }
 
-fn event_location(region: RegionId, key: String, value: FieldYamlAccessRule) -> Result<Event> {
+fn event_location(region: &Region, key: String, value: FieldYamlAccessRule) -> Result<Event> {
     Ok(Event {
-        region: Some(region),
         name: SpotName::new(key),
-        requirements: value.try_into_any_of_all_requirements()?,
+        requirements: Some(requirements_in_region(region, value)?),
     })
 }

@@ -14,11 +14,7 @@ use crate::{
 use super::state::State;
 
 pub fn is_event_achievable(state: &State, event: &Event) -> bool {
-    if let Some(region) = event.region {
-        state.is_reachable(region, event.requirements.as_ref())
-    } else {
-        state.is_reachable_without_region(event.requirements.as_ref())
-    }
+    state.is_satisfied(event.requirements.as_ref())
 }
 
 struct RequirementNames {
@@ -94,15 +90,15 @@ fn expands_reachability<'a>(
         || unreachables
             .field_item_spots
             .iter()
-            .any(|x| state.is_reachable(x.region(), x.requirements()))
+            .any(|x| state.is_satisfied(x.requirements()))
         || unreachables
             .talk_spots
             .iter()
-            .any(|x| state.is_reachable(x.spot.region(), x.spot.requirements()))
+            .any(|x| state.is_satisfied(x.spot.requirements()))
         || unreachables
             .shops
             .iter()
-            .any(|x| state.is_reachable(x.spot.region(), x.spot.requirements()))
+            .any(|x| state.is_satisfied(x.spot.requirements()))
         || pending_events
             .iter()
             .any(|&event| is_event_achievable(&state, event))

@@ -46,6 +46,19 @@ pub struct AllRequirements(pub Vec1<RequirementFlag>);
 #[derive(Clone, Debug, PartialEq)]
 pub struct AnyOfAllRequirements(pub Vec1<AllRequirements>);
 
+impl AnyOfAllRequirements {
+    /// 全ての要求セットに `flag` を足す。要求が無ければ `flag` だけの要求にする
+    pub fn require(flag: RequirementFlag, requirements: Option<Self>) -> Self {
+        let Some(mut any) = requirements else {
+            return Self(Vec1::new(AllRequirements(Vec1::new(flag))));
+        };
+        for all in &mut any.0 {
+            all.0.push(flag.clone());
+        }
+        any
+    }
+}
+
 /// spot を `region/種類(名前)` の形で表示する
 pub struct SpotDisplay<'a> {
     region: &'a Region,

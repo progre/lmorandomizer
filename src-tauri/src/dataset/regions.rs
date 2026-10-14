@@ -1,7 +1,10 @@
 use std::fmt::{self, Display};
 
 use crate::{
-    dataset::{files::RegionName, spot::AnyOfAllRequirements},
+    dataset::{
+        files::RegionName,
+        spot::{AnyOfAllRequirements, RequirementFlag},
+    },
     script::enums::FieldNumber,
 };
 
@@ -30,6 +33,7 @@ pub struct Region {
     id: RegionId,
     field_number: FieldNumber,
     name: RegionName,
+    flag: RequirementFlag,
     access_rule: Option<AnyOfAllRequirements>,
     exits: Vec<RegionExit>,
 }
@@ -42,13 +46,21 @@ impl Region {
         access_rule: Option<AnyOfAllRequirements>,
         exits: Vec<RegionExit>,
     ) -> Self {
+        // lmo には ROM と同名の region（`mazeOfGalious`）があるため、接頭辞を付けて区別する
+        let flag = RequirementFlag::new(format!("region:{}", name.get()));
         Self {
             id,
             field_number,
             name,
+            flag,
             access_rule,
             exits,
         }
+    }
+
+    /// この region に到達したことを表す flag
+    pub fn flag(&self) -> &RequirementFlag {
+        &self.flag
     }
 
     pub fn id(&self) -> RegionId {

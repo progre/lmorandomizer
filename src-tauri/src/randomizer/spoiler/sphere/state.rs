@@ -25,21 +25,13 @@ impl<'a> State<'a> {
         Self {
             reachable_regions: vec![initial_region],
             reachable_region_ids: HashSet::from([initial_region.id()]),
-            strategy_flags: HashSet::default(),
+            strategy_flags: HashSet::from([initial_region.flag().get()]),
             counts: HashMap::default(),
         }
     }
 
-    pub fn is_reachable(
-        &self,
-        region: RegionId,
-        requirements: Option<&AnyOfAllRequirements>,
-    ) -> bool {
-        self.reachable_region_ids.contains(&region)
-            && self.is_reachable_without_region(requirements)
-    }
-
-    pub fn is_reachable_without_region(&self, requirements: Option<&AnyOfAllRequirements>) -> bool {
+    /// 到達した region の名前も flag として持つので、spot や event の到達もこれで判定できる
+    pub fn is_satisfied(&self, requirements: Option<&AnyOfAllRequirements>) -> bool {
         let Some(any) = requirements else {
             return true;
         };
@@ -60,7 +52,7 @@ impl<'a> State<'a> {
             .iter()
             .flat_map(|x| x.exits())
             .filter(|exit| {
-                self.is_reachable_without_region(exit.requirements.as_ref())
+                self.is_satisfied(exit.requirements.as_ref())
                     && !self.reachable_region_ids.contains(&exit.target_id)
             })
             .map(|exit| exit.target_id)
@@ -72,13 +64,15 @@ impl<'a> State<'a> {
             let found_regions: Vec<_> = self
                 .new_exit_targets(&searching_regions)
                 .map(|region_id| all_regions.get(region_id))
-                .filter(|region| self.is_reachable_without_region(region.access_rule()))
+                .filter(|region| self.is_satisfied(region.access_rule()))
                 .collect();
             if found_regions.is_empty() {
                 break;
             }
             self.reachable_region_ids
                 .extend(found_regions.iter().map(|region| region.id()));
+            self.strategy_flags
+                .extend(found_regions.iter().map(|region| region.flag().get()));
             self.reachable_regions.append(&mut found_regions.clone());
             searching_regions = found_regions;
         }
