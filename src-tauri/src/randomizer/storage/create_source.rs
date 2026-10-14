@@ -6,7 +6,7 @@ use crate::{dataset::game_structure::GameStructure, randomizer::storage::Talk};
 
 use super::{
     Chest, Event, MainWeapon, Rom, Seal, Shop, Storage, SubWeapon,
-    ids::SpotId,
+    ids::LocationId,
     item::{Item, StrategyFlag},
 };
 
@@ -14,7 +14,7 @@ pub fn create_source(game_structure: &GameStructure) -> Result<Storage> {
     let field_number = |region| game_structure.regions.get(region).field_number();
     let mut next_index = 0;
     let mut next_id = || {
-        let id = SpotId::new(next_index);
+        let id = LocationId::new(next_index);
         next_index += 1;
         id
     };

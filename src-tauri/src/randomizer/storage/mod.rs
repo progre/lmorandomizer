@@ -21,41 +21,41 @@ use crate::{
 
 use {
     assertions::ware_missing_requirements,
-    ids::SpotId,
+    ids::LocationId,
     item::{Item, StrategyFlag},
 };
 
 #[derive(Clone, Debug)]
 pub struct MainWeapon {
-    pub id: SpotId,
+    pub id: LocationId,
     pub spot: MainWeaponSpot,
     pub item: Item,
 }
 
 #[derive(Clone, Debug)]
 pub struct SubWeapon {
-    pub id: SpotId,
+    pub id: LocationId,
     pub spot: SubWeaponSpot,
     pub item: Item,
 }
 
 #[derive(Clone, Debug)]
 pub struct Chest {
-    pub id: SpotId,
+    pub id: LocationId,
     pub spot: ChestSpot,
     pub item: Item,
 }
 
 #[derive(Clone, Debug)]
 pub struct Seal {
-    pub id: SpotId,
+    pub id: LocationId,
     pub spot: SealSpot,
     pub item: Item,
 }
 
 #[derive(Clone, Debug)]
 pub struct Shop {
-    pub id: SpotId,
+    pub id: LocationId,
     pub spot: ShopSpot,
     pub idx: usize,
     pub item: Item,
@@ -63,14 +63,14 @@ pub struct Shop {
 
 #[derive(Clone, Debug)]
 pub struct Rom {
-    pub id: SpotId,
+    pub id: LocationId,
     pub spot: RomSpot,
     pub item: Item,
 }
 
 #[derive(Clone, Debug)]
 pub struct Talk {
-    pub id: SpotId,
+    pub id: LocationId,
     pub spot: TalkSpot,
     pub item: Item,
 }
@@ -137,8 +137,8 @@ impl Storage {
             .chain(self.talks.iter().map(|x| &x.item))
     }
 
-    /// 全 spot の ID と、そこに置かれている item
-    pub fn items_mut(&mut self) -> impl Iterator<Item = (SpotId, &mut Item)> {
+    /// 全 location の ID と、そこに置かれている item
+    pub fn items_mut(&mut self) -> impl Iterator<Item = (LocationId, &mut Item)> {
         let main_weapons = self.main_weapons.values_mut().map(|x| (x.id, &mut x.item));
         let sub_weapons = self.sub_weapons.values_mut().map(|x| (x.id, &mut x.item));
         let chests = self.chests.values_mut().map(|x| (x.id, &mut x.item));

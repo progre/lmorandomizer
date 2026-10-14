@@ -1,12 +1,12 @@
 use crate::{
     dataset::{regions::RegionId, spot::AnyOfAllRequirements},
     randomizer::storage::{
-        Chest, Event, MainWeapon, Rom, Seal, Shop, Storage, SubWeapon, Talk, ids::SpotId,
+        Chest, Event, MainWeapon, Rom, Seal, Shop, Storage, SubWeapon, Talk, ids::LocationId,
     },
 };
 
 #[derive(Clone, Copy, Debug)]
-pub enum SpotRef<'a> {
+pub enum LocationRef<'a> {
     MainWeapon(&'a MainWeapon),
     SubWeapon(&'a SubWeapon),
     Chest(&'a Chest),
@@ -16,8 +16,8 @@ pub enum SpotRef<'a> {
     Shop(&'a Shop),
 }
 
-impl SpotRef<'_> {
-    pub fn id(&self) -> SpotId {
+impl LocationRef<'_> {
+    pub fn id(&self) -> LocationId {
         match self {
             Self::MainWeapon(x) => x.id,
             Self::SubWeapon(x) => x.id,
@@ -53,40 +53,40 @@ impl SpotRef<'_> {
 }
 
 #[derive(Clone, Debug)]
-pub struct Spots<'a> {
-    pub field_item_spots: Vec<SpotRef<'a>>,
-    pub talk_spots: Vec<&'a Talk>,
+pub struct Locations<'a> {
+    pub field_item_locations: Vec<LocationRef<'a>>,
+    pub talk_locations: Vec<&'a Talk>,
     pub shops: Vec<&'a Shop>,
     pub events: Vec<&'a Event>,
 }
 
-impl<'a> Spots<'a> {
+impl<'a> Locations<'a> {
     pub fn new(source: &'a Storage) -> Self {
         Self {
-            field_item_spots: source
+            field_item_locations: source
                 .main_weapons
                 .values()
-                .map(SpotRef::MainWeapon)
-                .chain(source.sub_weapons.values().map(SpotRef::SubWeapon))
-                .chain(source.chests.values().map(SpotRef::Chest))
-                .chain(source.seals.values().map(SpotRef::Seal))
-                .chain(source.roms.values().map(SpotRef::Rom))
+                .map(LocationRef::MainWeapon)
+                .chain(source.sub_weapons.values().map(LocationRef::SubWeapon))
+                .chain(source.chests.values().map(LocationRef::Chest))
+                .chain(source.seals.values().map(LocationRef::Seal))
+                .chain(source.roms.values().map(LocationRef::Rom))
                 .collect(),
-            talk_spots: source.talks.iter().collect(),
+            talk_locations: source.talks.iter().collect(),
             shops: source.shops.iter().collect(),
             events: source.events.iter().collect(),
         }
     }
 
     pub fn is_empty(&self) -> bool {
-        self.field_item_spots.is_empty()
-            && self.talk_spots.is_empty()
+        self.field_item_locations.is_empty()
+            && self.talk_locations.is_empty()
             && self.shops.iter().all(|shop| shop.item.name.is_consumable())
     }
 
     pub fn extend(&mut self, other: Self) {
-        self.field_item_spots.extend(other.field_item_spots);
-        self.talk_spots.extend(other.talk_spots);
+        self.field_item_locations.extend(other.field_item_locations);
+        self.talk_locations.extend(other.talk_locations);
         self.shops.extend(other.shops);
         self.events.extend(other.events);
     }

@@ -100,7 +100,7 @@ mod tests {
         randomizer::{
             spoiler::make_rng,
             storage::{
-                ids::SpotId,
+                ids::LocationId,
                 item::{Item, StrategyFlag},
             },
         },
@@ -110,7 +110,7 @@ mod tests {
     use super::*;
 
     fn item(name: &str) -> Item {
-        let id = SpotId::new(0).into();
+        let id = LocationId::new(0).into();
         Item::main_weapon(id, MainWeapon::Whip, StrategyFlag::new(name.to_owned()))
     }
 

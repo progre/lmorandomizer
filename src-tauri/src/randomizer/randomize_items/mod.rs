@@ -5,7 +5,7 @@ use log::{info, trace};
 use rand::Rng;
 
 use crate::{
-    randomizer::spoiler::{items::Items, spots::Spots},
+    randomizer::spoiler::{items::Items, locations::Locations},
     script::{data::script::Script, editor::apply_storage},
 };
 
@@ -15,7 +15,7 @@ use super::{
     spoiler_log::{CheckpointRef, SpoilerLogRef},
     storage::{
         Storage,
-        ids::SpotTable,
+        ids::LocationTable,
         item::{Item, StrategyFlag},
     },
 };
@@ -41,13 +41,13 @@ pub fn randomize_items<'a>(
 }
 
 fn create_shuffled_storage(source: &Storage, spoiler_log: &SpoilerLogRef) -> Storage {
-    let placed: SpotTable<&Item> = spoiler_log
+    let placed: LocationTable<&Item> = spoiler_log
         .progression
         .iter()
         .flat_map(|sphere| sphere.iter())
         .chain(&spoiler_log.maps)
         .filter_map(|checkpoint| match checkpoint {
-            CheckpointRef::Item { spot, item } => Some((spot.id(), *item)),
+            CheckpointRef::Item { location, item } => Some((location.id(), *item)),
             CheckpointRef::Event(_) => None,
         })
         .collect();
@@ -68,31 +68,33 @@ fn random_spoiler<'a>(
     let start = std::time::Instant::now();
     let all_regions = &source.regions;
     let items = &Items::new(source);
-    let spots = &Spots::new(source);
+    let locations = &Locations::new(source);
     debug_assert_eq!(
-        spots.shops.len() - items.consumable_items().len(),
-        spots
+        locations.shops.len() - items.consumable_items().len(),
+        locations
             .shops
             .iter()
             .map(|shop| (!shop.item.name.is_consumable()) as usize)
             .sum::<usize>(),
     );
     debug_assert_eq!(
-        spots
+        locations
             .shops
             .iter()
             .map(|shop| shop.item.name.is_consumable() as usize)
             .sum::<usize>(),
         items.consumable_items().len()
     );
-    trace!("Prepared items and spots in {:?}", start.elapsed());
+    trace!("Prepared items and locations in {:?}", start.elapsed());
 
     let thread_count = std::thread::available_parallelism().unwrap().get();
     std::thread::scope(|scope| {
         for i in 0..100000 {
             let handles: Vec<_> = (0..thread_count)
                 .map(|_| rng.next_u64())
-                .map(|seed| scope.spawn(move || spoiler(seed, options, all_regions, items, spots)))
+                .map(|seed| {
+                    scope.spawn(move || spoiler(seed, options, all_regions, items, locations))
+                })
                 .collect();
             let Some(spoiler_log) = handles.into_iter().filter_map(|h| h.join().unwrap()).next()
             else {

@@ -3,7 +3,7 @@ use std::collections::HashSet;
 use crate::{
     dataset::{regions::Regions, spot::AnyOfAllRequirements},
     randomizer::{
-        spoiler::{items_pool::ItemsPool, spots::Spots},
+        spoiler::{items_pool::ItemsPool, locations::Locations},
         storage::{
             Event,
             item::{Item, StrategyFlag},
@@ -27,15 +27,15 @@ struct RequirementNames {
 }
 
 impl RequirementNames {
-    fn collect(unreachables: &Spots, all_regions: &Regions) -> Self {
+    fn collect(unreachables: &Locations, all_regions: &Regions) -> Self {
         let mut result = Self {
             names: HashSet::new(),
             includes_sacred_orb: false,
         };
-        for spot in &unreachables.field_item_spots {
-            result.add(spot.requirements());
+        for location in &unreachables.field_item_locations {
+            result.add(location.requirements());
         }
-        for talk in &unreachables.talk_spots {
+        for talk in &unreachables.talk_locations {
             result.add(talk.spot.requirements());
         }
         for shop in &unreachables.shops {
@@ -73,12 +73,12 @@ impl RequirementNames {
     }
 }
 
-/// state に item を単体で追加したとき、未到達の spot / event / region の
+/// state に item を単体で追加したとき、未到達の location / event / region の
 /// いずれかが新たに到達可能になるか
 fn expands_reachability<'a>(
     state: &State<'a>,
     item: &'a Item,
-    unreachables: &Spots<'a>,
+    unreachables: &Locations<'a>,
     pending_events: &[&'a Event],
     all_regions: &'a Regions,
     baseline_region_count: usize,
@@ -88,11 +88,11 @@ fn expands_reachability<'a>(
     state.explore_regions(all_regions);
     state.reachable_regions().count() > baseline_region_count
         || unreachables
-            .field_item_spots
+            .field_item_locations
             .iter()
             .any(|x| state.is_reachable(x.region(), x.requirements()))
         || unreachables
-            .talk_spots
+            .talk_locations
             .iter()
             .any(|x| state.is_reachable(x.spot.region(), x.spot.requirements()))
         || unreachables
@@ -105,11 +105,11 @@ fn expands_reachability<'a>(
 }
 
 /// items_pool のうち、現在の state に単体で追加すると未到達の
-/// spot / event / region を新たに到達可能にする item 名の集合
+/// location / event / region を新たに到達可能にする item 名の集合
 pub fn progression_flags<'a>(
     items_pool: &ItemsPool<'a>,
     state: &State<'a>,
-    unreachables: &Spots<'a>,
+    unreachables: &Locations<'a>,
     all_regions: &'a Regions,
 ) -> HashSet<&'a StrategyFlag> {
     // どの requirement にも名前が現れない item は到達可能範囲を変えられないため、
