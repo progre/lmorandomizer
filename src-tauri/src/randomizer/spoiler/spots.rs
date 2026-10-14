@@ -1,7 +1,12 @@
 use crate::{
-    dataset::{regions::RegionId, spot::AnyOfAllRequirements},
+    dataset::{
+        regions::{RegionId, Regions},
+        spot::{AnyOfAllRequirements, SpotDisplay},
+    },
     randomizer::storage::{
-        Chest, Event, MainWeapon, Rom, Seal, Shop, Storage, SubWeapon, Talk, ids::SpotId,
+        Chest, Event, MainWeapon, Rom, Seal, Shop, Storage, SubWeapon, Talk,
+        ids::{SpotId, SpotTable},
+        item::Item,
     },
 };
 
@@ -16,7 +21,30 @@ pub enum SpotRef<'a> {
     Shop(&'a Shop),
 }
 
-impl SpotRef<'_> {
+impl<'a> SpotRef<'a> {
+    /// この spot に元々置かれている item
+    pub fn item(&self) -> &'a Item {
+        match self {
+            Self::MainWeapon(x) => &x.item,
+            Self::SubWeapon(x) => &x.item,
+            Self::Chest(x) => &x.item,
+            Self::Seal(x) => &x.item,
+            Self::Rom(x) => &x.item,
+            Self::Talk(x) => &x.item,
+            Self::Shop(x) => &x.item,
+        }
+    }
+    pub fn display(&self, regions: &'a Regions) -> SpotDisplay<'a> {
+        match self {
+            Self::MainWeapon(x) => x.spot.display(regions),
+            Self::SubWeapon(x) => x.spot.display(regions),
+            Self::Chest(x) => x.spot.display(regions),
+            Self::Seal(x) => x.spot.display(regions),
+            Self::Rom(x) => x.spot.display(regions),
+            Self::Talk(x) => x.spot.display(regions),
+            Self::Shop(x) => x.spot.display(regions),
+        }
+    }
     pub fn id(&self) -> SpotId {
         match self {
             Self::MainWeapon(x) => x.id,
@@ -76,6 +104,16 @@ impl<'a> Spots<'a> {
             shops: source.shops.iter().collect(),
             events: source.events.iter().collect(),
         }
+    }
+
+    pub fn to_table(&self) -> SpotTable<SpotRef<'a>> {
+        self.field_item_spots
+            .iter()
+            .copied()
+            .chain(self.talk_spots.iter().map(|&x| SpotRef::Talk(x)))
+            .chain(self.shops.iter().map(|&x| SpotRef::Shop(x)))
+            .map(|spot| (spot.id(), spot))
+            .collect()
     }
 
     pub fn is_empty(&self) -> bool {

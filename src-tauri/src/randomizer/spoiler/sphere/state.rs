@@ -5,10 +5,7 @@ use crate::{
         regions::{Region, RegionId, Regions},
         spot::AnyOfAllRequirements,
     },
-    randomizer::{
-        spoiler_log::{CheckpointRef, SphereRef},
-        storage::item::StrategyFlag,
-    },
+    randomizer::storage::item::StrategyFlag,
 };
 
 #[derive(Clone)]
@@ -84,17 +81,10 @@ impl<'a> State<'a> {
     }
 
     pub fn insert_flag(&mut self, flag: &'a StrategyFlag) {
-        self.append_flags_internal(once(flag));
+        self.append_flags(once(flag));
     }
 
-    pub fn append_flags(&mut self, sphere: &SphereRef<'a>) {
-        self.append_flags_internal(sphere.iter().map(|checkpoint| match checkpoint {
-            CheckpointRef::Item { item, .. } => &item.name,
-            CheckpointRef::Event(flag) => flag,
-        }));
-    }
-
-    fn append_flags_internal(&mut self, flags: impl Iterator<Item = &'a StrategyFlag>) {
+    pub fn append_flags(&mut self, flags: impl Iterator<Item = &'a StrategyFlag>) {
         for flag in flags {
             if flag.is_sacred_orb() {
                 self.sacred_orb_count += 1;

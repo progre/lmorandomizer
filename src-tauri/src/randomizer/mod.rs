@@ -1,3 +1,4 @@
+mod placement;
 mod randomize_items;
 mod spoiler;
 mod spoiler_log;
@@ -66,7 +67,7 @@ pub fn randomize(
     }
 
     let start = std::time::Instant::now();
-    let spoiler_log = randomize_items(&mut script, &source, options)?;
+    let placement = randomize_items(&mut script, &source, options)?;
     if false {
         let worlds = take(&mut script.worlds);
         script.worlds = add_starting_items(
@@ -90,5 +91,5 @@ pub fn randomize(
     let dat = build_script_dat(&script);
     trace!("Built script.dat in {:?}", start.elapsed());
 
-    Ok((dat, spoiler_log.to_owned(&source.regions)))
+    Ok((dat, SpoilerLog::new(&placement, &source)))
 }

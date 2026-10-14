@@ -11,12 +11,12 @@ use crate::{
 
 use super::{
     RandomizeOptions,
+    placement::Placement,
     spoiler::{make_rng, spoiler},
-    spoiler_log::{CheckpointRef, SpoilerLogRef},
     storage::{
         Storage,
-        ids::SpotTable,
-        item::{Item, StrategyFlag},
+        ids::{ItemId, SpotTable},
+        item::StrategyFlag,
     },
 };
 
@@ -24,37 +24,29 @@ pub fn randomize_items<'a>(
     script: &mut Script,
     source: &'a Storage,
     options: &RandomizeOptions,
-) -> Result<SpoilerLogRef<'a>> {
+) -> Result<Placement<'a>> {
     let start = std::time::Instant::now();
     assert_unique(source);
     trace!("Assertion in {:?}", start.elapsed());
 
     let start = std::time::Instant::now();
-    let (shuffled, spoiler_log) = shuffle(source, options);
+    let (shuffled, placement) = shuffle(source, options);
     trace!("Randomized items in {:?}", start.elapsed());
 
     let start = std::time::Instant::now();
     assert_unique(&shuffled);
     apply_storage(script, &shuffled)?;
     trace!("Replaced items in {:?}", start.elapsed());
-    Ok(spoiler_log)
+    Ok(placement)
 }
 
-fn create_shuffled_storage(source: &Storage, spoiler_log: &SpoilerLogRef) -> Storage {
-    let placed: SpotTable<&Item> = spoiler_log
-        .progression
-        .iter()
-        .flat_map(|sphere| sphere.iter())
-        .chain(&spoiler_log.maps)
-        .filter_map(|checkpoint| match checkpoint {
-            CheckpointRef::Item { spot, item } => Some((spot.id(), *item)),
-            CheckpointRef::Event(_) => None,
-        })
-        .collect();
+fn create_shuffled_storage(source: &Storage, placement: &Placement) -> Storage {
+    let spots = Spots::new(source).to_table();
+    let placed: SpotTable<ItemId> = placement.all_items().copied().collect();
     let mut storage = source.clone();
     for (id, item) in storage.items_mut() {
-        if let Some(placed) = placed.get(id) {
-            *item = (*placed).clone();
+        if let Some(item_id) = placed.get(id) {
+            *item = spots.get(item_id.origin()).unwrap().item().clone();
         }
     }
     storage
@@ -64,7 +56,7 @@ fn random_spoiler<'a>(
     rng: &mut impl Rng,
     source: &'a Storage,
     options: &RandomizeOptions,
-) -> SpoilerLogRef<'a> {
+) -> Placement<'a> {
     let start = std::time::Instant::now();
     let all_regions = &source.regions;
     let items = &Items::new(source);
@@ -94,22 +86,22 @@ fn random_spoiler<'a>(
                 .map(|_| rng.next_u64())
                 .map(|seed| scope.spawn(move || spoiler(seed, options, all_regions, items, spots)))
                 .collect();
-            let Some(spoiler_log) = handles.into_iter().filter_map(|h| h.join().unwrap()).next()
+            let Some(placement) = handles.into_iter().filter_map(|h| h.join().unwrap()).next()
             else {
                 continue;
             };
             info!("Shuffle was tried: {} times", (i + 1) * thread_count);
-            return spoiler_log;
+            return placement;
         }
         unreachable!();
     })
 }
 
-fn shuffle<'a>(source: &'a Storage, options: &RandomizeOptions) -> (Storage, SpoilerLogRef<'a>) {
+fn shuffle<'a>(source: &'a Storage, options: &RandomizeOptions) -> (Storage, Placement<'a>) {
     let mut rng = make_rng(&options.seed);
-    let spoiler_log = random_spoiler(&mut rng, source, options);
-    let storage = create_shuffled_storage(source, &spoiler_log);
-    (storage, spoiler_log)
+    let placement = random_spoiler(&mut rng, source, options);
+    let storage = create_shuffled_storage(source, &placement);
+    (storage, placement)
 }
 
 fn assert_unique(storage: &Storage) {
