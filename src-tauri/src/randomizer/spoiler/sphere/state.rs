@@ -1,4 +1,7 @@
-use std::{collections::HashSet, iter::once};
+use std::{
+    collections::{HashMap, HashSet},
+    iter::once,
+};
 
 use crate::{
     dataset::{
@@ -13,7 +16,8 @@ pub struct State<'a> {
     reachable_regions: Vec<&'a Region>,
     reachable_region_ids: HashSet<RegionId>,
     strategy_flags: HashSet<&'a str>,
-    sacred_orb_count: u8,
+    /// flag の接頭辞（`sacredOrb:surface` なら `sacredOrb`）ごとの個数
+    counts: HashMap<&'a str, u8>,
 }
 
 impl<'a> State<'a> {
@@ -22,7 +26,7 @@ impl<'a> State<'a> {
             reachable_regions: vec![initial_region],
             reachable_region_ids: HashSet::from([initial_region.id()]),
             strategy_flags: HashSet::default(),
-            sacred_orb_count: 0,
+            counts: HashMap::default(),
         }
     }
 
@@ -40,9 +44,9 @@ impl<'a> State<'a> {
             return true;
         };
         any.0.iter().any(|all| {
-            all.0.iter().all(|x| {
-                x.is_sacred_orb() && x.sacred_orb_count() <= self.sacred_orb_count
-                    || self.strategy_flags.contains(x.get())
+            all.0.iter().all(|x| match x.at_least() {
+                Some((prefix, count)) => self.counts.get(prefix).is_some_and(|&x| x >= count),
+                None => self.strategy_flags.contains(x.get()),
             })
         })
     }
@@ -86,8 +90,8 @@ impl<'a> State<'a> {
 
     pub fn append_flags(&mut self, flags: impl Iterator<Item = &'a StrategyFlag>) {
         for flag in flags {
-            if flag.is_sacred_orb() {
-                self.sacred_orb_count += 1;
+            if let Some((prefix, _)) = flag.get().split_once(':') {
+                *self.counts.entry(prefix).or_default() += 1;
             }
             self.strategy_flags.insert(flag.get());
         }

@@ -23,14 +23,15 @@ pub fn is_event_achievable(state: &State, event: &Event) -> bool {
 
 struct RequirementNames {
     names: HashSet<String>,
-    includes_sacred_orb: bool,
+    /// 「N 個以上」の要求に現れる接頭辞
+    counted_prefixes: HashSet<String>,
 }
 
 impl RequirementNames {
     fn collect(unreachables: &Spots, all_regions: &Regions) -> Self {
         let mut result = Self {
             names: HashSet::new(),
-            includes_sacred_orb: false,
+            counted_prefixes: HashSet::new(),
         };
         for spot in &unreachables.field_item_spots {
             result.add(spot.requirements());
@@ -59,17 +60,20 @@ impl RequirementNames {
         };
         for all in &any.0 {
             for requirement in &all.0 {
-                if requirement.is_sacred_orb() {
-                    self.includes_sacred_orb = true;
-                } else {
-                    self.names.insert(requirement.get().to_owned());
-                }
+                match requirement.at_least() {
+                    Some((prefix, _)) => self.counted_prefixes.insert(prefix.to_owned()),
+                    None => self.names.insert(requirement.get().to_owned()),
+                };
             }
         }
     }
 
     fn contains(&self, name: &StrategyFlag) -> bool {
-        self.names.contains(name.get()) || self.includes_sacred_orb && name.is_sacred_orb()
+        self.names.contains(name.get())
+            || name
+                .get()
+                .split_once(':')
+                .is_some_and(|(prefix, _)| self.counted_prefixes.contains(prefix))
     }
 }
 

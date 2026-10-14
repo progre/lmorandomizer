@@ -26,22 +26,13 @@ pub struct RequirementFlag(String);
 
 impl RequirementFlag {
     pub fn new(requirement: String) -> Self {
-        debug_assert!(
-            !requirement.starts_with("sacredOrb:")
-                || requirement
-                    .split(':')
-                    .nth(1)
-                    .is_some_and(|x| x.parse::<u8>().is_ok())
-        );
         Self(requirement)
     }
 
-    pub fn is_sacred_orb(&self) -> bool {
-        self.0.starts_with("sacredOrb:")
-    }
-
-    pub fn sacred_orb_count(&self) -> u8 {
-        self.0.split(':').nth(1).unwrap().parse().unwrap()
+    /// `sacredOrb:3` のような「接頭辞を持つ flag を N 個以上」の要求を (接頭辞, N) に分ける
+    pub fn at_least(&self) -> Option<(&str, u8)> {
+        let (prefix, count) = self.0.split_once(':')?;
+        Some((prefix, count.parse().ok()?))
     }
 
     pub fn get(&self) -> &str {

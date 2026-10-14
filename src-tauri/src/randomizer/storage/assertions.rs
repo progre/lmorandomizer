@@ -42,7 +42,7 @@ pub fn ware_missing_requirements(storage: &Storage) -> anyhow::Result<()> {
     let mut vec: Vec<_> = set
         .iter()
         .filter(|&x| all_items.iter().all(|&name| name != x))
-        .filter(|x| !x.is_sacred_orb())
+        .filter(|x| x.at_least().is_none())
         .collect();
     vec.sort();
     if !vec.is_empty() {
