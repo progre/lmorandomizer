@@ -5,7 +5,7 @@ use log::{info, trace};
 use rand::Rng;
 
 use crate::{
-    randomizer::spoiler::{items::Items, spots::Spots},
+    randomizer::spoiler::{items::Items, locations::Locations},
     script::{data::script::Script, editor::apply_storage},
 };
 
@@ -13,7 +13,11 @@ use super::{
     RandomizeOptions,
     spoiler::{make_rng, spoiler},
     spoiler_log::{CheckpointRef, SpoilerLogRef},
-    storage::{Storage, item::StrategyFlag},
+    storage::{
+        Storage,
+        ids::LocationTable,
+        item::{Item, StrategyFlag},
+    },
 };
 
 pub fn randomize_items<'a>(
@@ -37,54 +41,20 @@ pub fn randomize_items<'a>(
 }
 
 fn create_shuffled_storage(source: &Storage, spoiler_log: &SpoilerLogRef) -> Storage {
-    let mut storage = source.clone();
-    for checkpoint in spoiler_log
+    let placed: LocationTable<&Item> = spoiler_log
         .progression
         .iter()
         .flat_map(|sphere| sphere.iter())
         .chain(&spoiler_log.maps)
-    {
-        match checkpoint {
-            CheckpointRef::MainWeapon(main_weapon) => {
-                let content = main_weapon.spot.main_weapon();
-                storage.main_weapons.get_mut(&content).unwrap().item = main_weapon.item.clone();
-            }
-            CheckpointRef::SubWeapon(sub_weapon) => {
-                let region = source.regions.get(sub_weapon.spot.region());
-                let key = (region.field_number(), sub_weapon.spot.sub_weapon());
-                storage.sub_weapons.get_mut(&key).unwrap().item = sub_weapon.item.clone();
-            }
-            CheckpointRef::Chest(chest) => {
-                let region = source.regions.get(chest.spot.region());
-                let key = (region.field_number(), chest.spot.item());
-                storage.chests.get_mut(&key).unwrap().item = chest.item.clone();
-            }
-            CheckpointRef::Seal(seal) => {
-                let content = seal.spot.seal();
-                storage.seals.get_mut(&content).unwrap().item = seal.item.clone();
-            }
-            CheckpointRef::Shop(shop) => {
-                let spot = &mut storage
-                    .shops
-                    .iter_mut()
-                    .find(|x| x.spot.items() == shop.spot.items() && x.idx == shop.idx)
-                    .unwrap();
-                spot.item = shop.item.clone();
-            }
-            CheckpointRef::Rom(rom) => {
-                let content = rom.spot.rom();
-                storage.roms.get_mut(&content).unwrap().item = rom.item.clone();
-            }
-            CheckpointRef::Talk(talk) => {
-                let item = talk.spot.item();
-                storage
-                    .talks
-                    .iter_mut()
-                    .find(|x| x.spot.item() == item)
-                    .unwrap()
-                    .item = talk.item.clone();
-            }
-            CheckpointRef::Event(_) => {}
+        .filter_map(|checkpoint| match checkpoint {
+            CheckpointRef::Item { location, item } => Some((location.id(), *item)),
+            CheckpointRef::Event(_) => None,
+        })
+        .collect();
+    let mut storage = source.clone();
+    for (id, item) in storage.items_mut() {
+        if let Some(placed) = placed.get(id) {
+            *item = (*placed).clone();
         }
     }
     storage
@@ -98,31 +68,33 @@ fn random_spoiler<'a>(
     let start = std::time::Instant::now();
     let all_regions = &source.regions;
     let items = &Items::new(source);
-    let spots = &Spots::new(source);
+    let locations = &Locations::new(source);
     debug_assert_eq!(
-        spots.shops.len() - items.consumable_items().len(),
-        spots
+        locations.shops.len() - items.consumable_items().len(),
+        locations
             .shops
             .iter()
-            .map(|spot| (!spot.name.is_consumable()) as usize)
+            .map(|shop| (!shop.item.name.is_consumable()) as usize)
             .sum::<usize>(),
     );
     debug_assert_eq!(
-        spots
+        locations
             .shops
             .iter()
-            .map(|spot| spot.name.is_consumable() as usize)
+            .map(|shop| shop.item.name.is_consumable() as usize)
             .sum::<usize>(),
         items.consumable_items().len()
     );
-    trace!("Prepared items and spots in {:?}", start.elapsed());
+    trace!("Prepared items and locations in {:?}", start.elapsed());
 
     let thread_count = std::thread::available_parallelism().unwrap().get();
     std::thread::scope(|scope| {
         for i in 0..100000 {
             let handles: Vec<_> = (0..thread_count)
                 .map(|_| rng.next_u64())
-                .map(|seed| scope.spawn(move || spoiler(seed, options, all_regions, items, spots)))
+                .map(|seed| {
+                    scope.spawn(move || spoiler(seed, options, all_regions, items, locations))
+                })
                 .collect();
             let Some(spoiler_log) = handles.into_iter().filter_map(|h| h.join().unwrap()).next()
             else {

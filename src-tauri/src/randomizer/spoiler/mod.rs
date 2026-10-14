@@ -1,16 +1,16 @@
 mod consts;
 pub mod items;
 mod items_pool;
+pub mod locations;
 mod sphere;
-pub mod spots;
 
-use std::{collections::BTreeMap, hash::Hash, ptr, sync::LazyLock};
+use std::{collections::BTreeMap, hash::Hash, sync::LazyLock};
 
+use locations::LocationRef;
 use log::{info, trace};
 use rand::{Rng, prelude::IndexedRandom};
 use rand_seeder::Seeder;
 use rand_xoshiro::Xoshiro256PlusPlus;
-use spots::SpotRef;
 
 use crate::{
     dataset::regions::Regions, randomizer::spoiler::sphere::State, script::enums::FieldNumber,
@@ -22,7 +22,7 @@ use super::{
     storage::item::{Item, StrategyFlag},
 };
 
-use {items::Items, sphere::sphere, spots::Spots};
+use {items::Items, locations::Locations, sphere::sphere};
 
 static GLITCH: LazyLock<StrategyFlag> = LazyLock::new(|| StrategyFlag::new("option:glitch".into()));
 
@@ -31,54 +31,46 @@ pub fn make_rng<H: Hash>(seed: H) -> Xoshiro256PlusPlus {
     seeder.into_rng()
 }
 
-fn ptr_eq<'a>(a: SpotRef<'a>, b: &CheckpointRef<'a>) -> bool {
-    match (a, b) {
-        (SpotRef::MainWeapon(a), CheckpointRef::MainWeapon(b)) => ptr::eq(a, b.spot),
-        (SpotRef::SubWeapon(a), CheckpointRef::SubWeapon(b)) => ptr::eq(a, b.spot),
-        (SpotRef::Chest(a), CheckpointRef::Chest(b)) => ptr::eq(a, b.spot),
-        (SpotRef::Seal(a), CheckpointRef::Seal(b)) => ptr::eq(a, b.spot),
-        (SpotRef::Rom(a), CheckpointRef::Rom(b)) => ptr::eq(a, b.spot),
-        (SpotRef::Talk(a), CheckpointRef::Talk(b)) => ptr::eq(a, b.spot),
-        _ => false,
-    }
-}
-
 fn maps<'a>(
     rng: &mut impl Rng,
     maps: &BTreeMap<FieldNumber, &'a Item>,
-    spots: &mut Spots<'a>,
+    locations: &mut Locations<'a>,
     all_regions: &Regions,
 ) -> Vec<CheckpointRef<'a>> {
-    let mut spot_hash_map: BTreeMap<FieldNumber, Vec<SpotRef<'a>>> = Default::default();
-    let mut twin_labrynths_spots = Vec::new();
-    for spot in &spots.field_item_spots {
-        let field_number = all_regions.get(spot.region()).field_number();
+    let mut location_hash_map: BTreeMap<FieldNumber, Vec<LocationRef<'a>>> = Default::default();
+    let mut twin_labrynths_locations = Vec::new();
+    for location in &locations.field_item_locations {
+        let field_number = all_regions.get(location.region()).field_number();
         if matches!(
             field_number,
             FieldNumber::TwinLabyrinthsLeft | FieldNumber::TwinLabyrinthsRight
         ) {
-            twin_labrynths_spots.push(*spot);
+            twin_labrynths_locations.push(*location);
             continue;
         }
-        spot_hash_map.entry(field_number).or_default().push(*spot);
+        location_hash_map
+            .entry(field_number)
+            .or_default()
+            .push(*location);
     }
     maps.iter()
         .map(|(field_number, item)| {
             if *field_number == FieldNumber::TwinLabyrinthsLeft {
-                let spot = *twin_labrynths_spots.choose(rng).unwrap();
-                return CheckpointRef::from_field_spot_item(spot, item);
+                let location = *twin_labrynths_locations.choose(rng).unwrap();
+                return (location, *item);
             }
-            let spot = spot_hash_map[field_number].choose(rng).unwrap();
-            CheckpointRef::from_field_spot_item(*spot, item)
+            let location = *location_hash_map[field_number].choose(rng).unwrap();
+            (location, *item)
         })
-        .inspect(|checkpoint| {
-            let idx = spots
-                .field_item_spots
+        .inspect(|(location, _)| {
+            let idx = locations
+                .field_item_locations
                 .iter()
-                .position(|&x| ptr_eq(x, checkpoint))
+                .position(|x| x.id() == location.id())
                 .unwrap();
-            spots.field_item_spots.swap_remove(idx);
+            locations.field_item_locations.swap_remove(idx);
         })
+        .map(|(location, item)| CheckpointRef::Item { location, item })
         .collect()
 }
 
@@ -87,13 +79,22 @@ pub fn spoiler<'a>(
     options: &RandomizeOptions,
     all_regions: &'a Regions,
     items: &Items<'a>,
-    spots: &Spots<'a>,
+    locations: &Locations<'a>,
 ) -> Option<SpoilerLogRef<'a>> {
     let start = std::time::Instant::now();
     let mut rng = make_rng(seed);
-    let mut items_pool = items.to_items_pool(&mut rng, spots.talk_spots.len(), spots.shops.len());
-    let mut remaining_spots = spots.clone();
-    let maps = maps(&mut rng, items.maps(), &mut remaining_spots, all_regions);
+    let mut items_pool = items.to_items_pool(
+        &mut rng,
+        locations.talk_locations.len(),
+        locations.shops.len(),
+    );
+    let mut remaining_locations = locations.clone();
+    let maps = maps(
+        &mut rng,
+        items.maps(),
+        &mut remaining_locations,
+        all_regions,
+    );
 
     let mut state = State::new(
         all_regions
@@ -111,7 +112,7 @@ pub fn spoiler<'a>(
         let Some(sphere) = sphere(
             &mut rng,
             &mut items_pool,
-            &mut remaining_spots,
+            &mut remaining_locations,
             &mut state,
             all_regions,
         ) else {
@@ -132,17 +133,17 @@ pub fn spoiler<'a>(
         };
         progression.push(sphere);
 
-        if !remaining_spots.is_empty() {
+        if !remaining_locations.is_empty() {
             debug_assert_eq!(
-                remaining_spots.field_item_spots.len(),
+                remaining_locations.field_item_locations.len(),
                 items_pool.field_items.len(),
             );
             debug_assert_eq!(
-                remaining_spots.talk_spots.len(),
+                remaining_locations.talk_locations.len(),
                 items_pool.talk_items.len(),
             );
             debug_assert_eq!(
-                remaining_spots.shops.len(),
+                remaining_locations.shops.len(),
                 items_pool.shop_items.len() + items_pool.consumable_items.len(),
             );
             continue;

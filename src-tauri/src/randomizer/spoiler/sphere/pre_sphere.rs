@@ -5,12 +5,13 @@ use rand::{Rng, RngExt};
 use crate::{
     dataset::regions::{RegionId, Regions},
     randomizer::{
-        spoiler::{items_pool::UnorderedItems, sphere::state::State, spots::Spots},
-        spoiler_log::{CheckpointRef, SphereRef},
-        storage::{
-            ShopRef,
-            item::{Item, StrategyFlag},
+        spoiler::{
+            items_pool::UnorderedItems,
+            locations::{LocationRef, Locations},
+            sphere::state::State,
         },
+        spoiler_log::{CheckpointRef, SphereRef},
+        storage::item::{Item, StrategyFlag},
     },
     script::enums::FieldNumber,
 };
@@ -18,11 +19,11 @@ use crate::{
 use super::explore;
 
 fn explorer_neighborhood<'a>(
-    remaining_spots: &Spots<'a>,
+    remaining_locations: &Locations<'a>,
     state: &State<'a>,
     all_regions: &Regions,
-) -> (Spots<'a>, Spots<'a>) {
-    let (mut working, mut remainings) = explore(remaining_spots, state);
+) -> (Locations<'a>, Locations<'a>) {
+    let (mut working, mut remainings) = explore(remaining_locations, state);
     let is_early = |region: RegionId| {
         matches!(
             all_regions.get(region).field_number(),
@@ -30,21 +31,21 @@ fn explorer_neighborhood<'a>(
         )
     };
     let (reachables, mut unreachables) = working
-        .field_item_spots
+        .field_item_locations
         .into_iter()
         .partition(|x| is_early(x.region()));
-    working.field_item_spots = reachables;
-    remainings.field_item_spots.append(&mut unreachables);
+    working.field_item_locations = reachables;
+    remainings.field_item_locations.append(&mut unreachables);
     let (reachables, mut unreachables) = working
-        .talk_spots
+        .talk_locations
         .into_iter()
-        .partition(|x| is_early(x.region()));
-    working.talk_spots = reachables;
-    remainings.talk_spots.append(&mut unreachables);
+        .partition(|x| is_early(x.spot.region()));
+    working.talk_locations = reachables;
+    remainings.talk_locations.append(&mut unreachables);
     let (reachables, mut unreachables) = working
         .shops
         .into_iter()
-        .partition(|x| is_early(x.spot.region()) && !x.name.is_consumable());
+        .partition(|x| is_early(x.spot.region()) && !x.item.name.is_consumable());
     working.shops = reachables;
     remainings.shops.append(&mut unreachables);
     (working, remainings)
@@ -53,26 +54,24 @@ fn explorer_neighborhood<'a>(
 fn place_items<'a>(
     rng: &mut impl Rng,
     priority_items: impl Iterator<Item = &'a Item>,
-    working: &mut Spots<'a>,
+    working: &mut Locations<'a>,
 ) -> Vec<CheckpointRef<'a>> {
     priority_items
         .map(|item| {
             let dice = rng.random_range(
-                0..(working.field_item_spots.len()
-                    + working.talk_spots.len()
+                0..(working.field_item_locations.len()
+                    + working.talk_locations.len()
                     + working.shops.len()),
             );
-            if dice < working.field_item_spots.len() {
-                let spot = working.field_item_spots.swap_remove(dice);
-                CheckpointRef::from_field_spot_item(spot, item)
-            } else if dice < working.field_item_spots.len() + working.talk_spots.len() {
+            if dice < working.field_item_locations.len() {
+                let location = working.field_item_locations.swap_remove(dice);
+                CheckpointRef::Item { location, item }
+            } else if dice < working.field_item_locations.len() + working.talk_locations.len() {
                 unreachable!()
             } else {
-                let idx = dice - working.field_item_spots.len() - working.talk_spots.len();
-                let item_spot = working.shops.swap_remove(idx);
-                let spot = &item_spot.spot;
-                let idx = item_spot.idx;
-                CheckpointRef::Shop(ShopRef { spot, idx, item })
+                let idx = dice - working.field_item_locations.len() - working.talk_locations.len();
+                let location = LocationRef::Shop(working.shops.swap_remove(idx));
+                CheckpointRef::Item { location, item }
             }
         })
         .collect()
@@ -81,7 +80,7 @@ fn place_items<'a>(
 pub fn pre_sphere<'a>(
     rng: &mut impl Rng,
     priority_items: UnorderedItems<'a>,
-    remaining_spots: &mut Spots<'a>,
+    remaining_locations: &mut Locations<'a>,
     state: &mut State<'a>,
     all_regions: &Regions,
 ) -> SphereRef<'a> {
@@ -95,19 +94,19 @@ pub fn pre_sphere<'a>(
     {
         let item = priority_items.swap_remove(idx);
         let (mut working, remainings) =
-            explorer_neighborhood(remaining_spots.deref(), state, all_regions);
-        *remaining_spots = remainings;
+            explorer_neighborhood(remaining_locations.deref(), state, all_regions);
+        *remaining_locations = remainings;
         let checkpoints = place_items(rng, [item].into_iter(), &mut working);
         let checkpoints = SphereRef::new(checkpoints);
-        remaining_spots.extend(working);
+        remaining_locations.extend(working);
         state.append_flags(&checkpoints);
         spheres.append(&mut checkpoints.into_inner());
     }
     let (mut working, remainings) =
-        explorer_neighborhood(remaining_spots.deref(), state, all_regions);
-    *remaining_spots = remainings;
+        explorer_neighborhood(remaining_locations.deref(), state, all_regions);
+    *remaining_locations = remainings;
     let checkpoints: Vec<_> = place_items(rng, priority_items.iter().copied(), &mut working);
-    remaining_spots.extend(working);
+    remaining_locations.extend(working);
     let checkpoints = SphereRef::new(checkpoints);
     state.append_flags(&checkpoints);
     spheres.append(&mut checkpoints.into_inner());

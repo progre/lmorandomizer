@@ -5,10 +5,9 @@ use rand::Rng;
 use crate::randomizer::{
     spoiler::{
         items_pool::{ShuffledItems, UnorderedItems},
-        spots::{SpotRef, Spots},
+        locations::{LocationRef, Locations},
     },
     spoiler_log::{CheckpointRef, SphereRef},
-    storage::ShopRef,
 };
 
 pub fn place_items<'a>(
@@ -17,45 +16,42 @@ pub fn place_items<'a>(
     mut talk_items: ShuffledItems<'a>,
     mut shop_items: ShuffledItems<'a>,
     consumable_items_pool: &mut UnorderedItems<'a>,
-    reachables: Spots<'a>,
+    reachables: Locations<'a>,
 ) -> Option<SphereRef<'a>> {
     let mut sphere: Vec<_> = Default::default();
     reachables
-        .field_item_spots
+        .field_item_locations
         .into_iter()
-        .for_each(|spot| match spot {
-            SpotRef::MainWeapon(_)
-            | SpotRef::SubWeapon(_)
-            | SpotRef::Chest(_)
-            | SpotRef::Seal(_)
-            | SpotRef::Rom(_) => {
+        .for_each(|location| match location {
+            LocationRef::MainWeapon(_)
+            | LocationRef::SubWeapon(_)
+            | LocationRef::Chest(_)
+            | LocationRef::Seal(_)
+            | LocationRef::Rom(_) => {
                 let item = field_items.pop().unwrap();
-                sphere.push(CheckpointRef::from_field_spot_item(spot, item));
+                sphere.push(CheckpointRef::Item { location, item });
             }
-            SpotRef::Talk(_) => unreachable!(),
+            LocationRef::Talk(_) | LocationRef::Shop(_) => unreachable!(),
         });
-    reachables.talk_spots.into_iter().for_each(|spot| {
+    reachables.talk_locations.into_iter().for_each(|location| {
         let item = talk_items.pop().unwrap();
-        let spot = SpotRef::Talk(spot);
-        sphere.push(CheckpointRef::from_field_spot_item(spot, item));
+        let location = LocationRef::Talk(location);
+        sphere.push(CheckpointRef::Item { location, item });
     });
     for shop in reachables.shops {
-        let item = if shop.name.is_consumable() {
+        let item = if shop.item.name.is_consumable() {
             // Do not sell the same item to the same store
             let placed_items: HashSet<_> = sphere
                 .iter()
                 .filter_map(|x| match x {
-                    CheckpointRef::Shop(x) => Some(x),
-                    CheckpointRef::MainWeapon(_)
-                    | CheckpointRef::SubWeapon(_)
-                    | CheckpointRef::Chest(_)
-                    | CheckpointRef::Seal(_)
-                    | CheckpointRef::Rom(_)
-                    | CheckpointRef::Talk(_)
-                    | CheckpointRef::Event(_) => None,
+                    CheckpointRef::Item {
+                        location: LocationRef::Shop(location),
+                        item,
+                    } => Some((location, item)),
+                    CheckpointRef::Item { .. } | CheckpointRef::Event(_) => None,
                 })
-                .filter(|x| x.spot.items() == shop.spot.items())
-                .map(|x| &x.item.name)
+                .filter(|(location, _)| location.spot.items() == shop.spot.items())
+                .map(|(_, item)| &item.name)
                 .collect();
             let mut items_pool = take(consumable_items_pool).shuffle(rng).into_inner();
             let idx = items_pool
@@ -67,9 +63,8 @@ pub fn place_items<'a>(
         } else {
             shop_items.pop().unwrap()
         };
-        let spot = &shop.spot;
-        let idx = shop.idx;
-        sphere.push(CheckpointRef::Shop(ShopRef { spot, idx, item }));
+        let location = LocationRef::Shop(shop);
+        sphere.push(CheckpointRef::Item { location, item });
     }
     Some(SphereRef::new(sphere))
 }

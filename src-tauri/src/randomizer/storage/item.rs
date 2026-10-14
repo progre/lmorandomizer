@@ -5,6 +5,8 @@ use crate::{
     },
 };
 
+use super::ids::ItemId;
+
 #[derive(Clone, Debug, Hash, Eq, Ord, PartialEq, PartialOrd)]
 pub struct StrategyFlag(pub String);
 
@@ -77,42 +79,54 @@ pub enum ItemSource {
 
 #[derive(Clone, Debug)]
 pub struct Item {
+    pub id: ItemId,
     pub src: ItemSource,
     pub name: StrategyFlag,
 }
 
 impl Item {
-    pub fn main_weapon(main_weapon: MainWeapon, name: StrategyFlag) -> Self {
+    pub fn main_weapon(id: ItemId, main_weapon: MainWeapon, name: StrategyFlag) -> Self {
         let src = ItemSource::MainWeapon(main_weapon);
-        Self { src, name }
+        Self { id, src, name }
     }
     pub fn sub_weapon(
+        id: ItemId,
         field_number: FieldNumber,
         sub_weapon: SubWeapon,
         name: StrategyFlag,
     ) -> Self {
         let src = ItemSource::SubWeapon((field_number, sub_weapon));
-        Self { src, name }
+        Self { id, src, name }
     }
-    pub fn chest_item(field_number: FieldNumber, item: ChestItem, name: StrategyFlag) -> Self {
+    pub fn chest_item(
+        id: ItemId,
+        field_number: FieldNumber,
+        item: ChestItem,
+        name: StrategyFlag,
+    ) -> Self {
         let src = ItemSource::Chest((field_number, item));
-        Self { src, name }
+        Self { id, src, name }
     }
-    pub fn seal(seal: Seal, name: StrategyFlag) -> Self {
+    pub fn seal(id: ItemId, seal: Seal, name: StrategyFlag) -> Self {
         let src = ItemSource::Seal(seal);
-        Self { src, name }
+        Self { id, src, name }
     }
-    pub fn rom(rom: Rom, name: StrategyFlag) -> Self {
+    pub fn rom(id: ItemId, rom: Rom, name: StrategyFlag) -> Self {
         let src = ItemSource::Rom(rom);
-        Self { src, name }
+        Self { id, src, name }
     }
-    pub fn talk(item: TalkItem, name: StrategyFlag) -> Self {
+    pub fn talk(id: ItemId, item: TalkItem, name: StrategyFlag) -> Self {
         let src = ItemSource::Talk(item);
-        Self { src, name }
+        Self { id, src, name }
     }
-    pub fn shop_item(items: [Option<ShopItem>; 3], item_idx: usize, name: StrategyFlag) -> Self {
+    pub fn shop_item(
+        id: ItemId,
+        items: [Option<ShopItem>; 3],
+        item_idx: usize,
+        name: StrategyFlag,
+    ) -> Self {
         let src = ItemSource::Shop(items, item_idx);
-        Self { src, name }
+        Self { id, src, name }
     }
 
     // chests -> equipments / rom

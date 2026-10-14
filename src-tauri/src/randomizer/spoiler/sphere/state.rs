@@ -89,13 +89,7 @@ impl<'a> State<'a> {
 
     pub fn append_flags(&mut self, sphere: &SphereRef<'a>) {
         self.append_flags_internal(sphere.iter().map(|checkpoint| match checkpoint {
-            CheckpointRef::MainWeapon(checkpoint) => &checkpoint.item.name,
-            CheckpointRef::SubWeapon(checkpoint) => &checkpoint.item.name,
-            CheckpointRef::Chest(checkpoint) => &checkpoint.item.name,
-            CheckpointRef::Seal(checkpoint) => &checkpoint.item.name,
-            CheckpointRef::Shop(checkpoint) => &checkpoint.item.name,
-            CheckpointRef::Rom(checkpoint) => &checkpoint.item.name,
-            CheckpointRef::Talk(checkpoint) => &checkpoint.item.name,
+            CheckpointRef::Item { item, .. } => &item.name,
             CheckpointRef::Event(flag) => flag,
         }));
     }

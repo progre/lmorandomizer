@@ -57,22 +57,22 @@ fn fmt_checkpoints(
             }
         }
         match checkpoint {
-            Checkpoint::MainWeapon(MainWeapon { spot, item }) => {
+            Checkpoint::MainWeapon(MainWeapon { spot, item, .. }) => {
                 writeln!(f, "{} = {}", spot.display(regions), item.name.get())?
             }
-            Checkpoint::SubWeapon(SubWeapon { spot, item }) => {
+            Checkpoint::SubWeapon(SubWeapon { spot, item, .. }) => {
                 writeln!(f, "{} = {}", spot.display(regions), item.name.get())?
             }
-            Checkpoint::Chest(Chest { spot, item }) => {
+            Checkpoint::Chest(Chest { spot, item, .. }) => {
                 writeln!(f, "{} = {}", spot.display(regions), item.name.get())?
             }
-            Checkpoint::Seal(Seal { spot, item }) => {
+            Checkpoint::Seal(Seal { spot, item, .. }) => {
                 writeln!(f, "{} = {}", spot.display(regions), item.name.get())?
             }
-            Checkpoint::Rom(Rom { spot, item }) => {
+            Checkpoint::Rom(Rom { spot, item, .. }) => {
                 writeln!(f, "{} = {}", spot.display(regions), item.name.get())?
             }
-            Checkpoint::Talk(Talk { spot, item }) => {
+            Checkpoint::Talk(Talk { spot, item, .. }) => {
                 writeln!(f, "{} = {}", spot.display(regions), item.name.get())?
             }
             Checkpoint::Shop(checkpoint) => {
