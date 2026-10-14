@@ -16,7 +16,13 @@ use rand::Rng;
 
 use crate::{
     dataset::regions::Regions,
-    randomizer::spoiler_log::{CheckpointRef, SphereRef},
+    randomizer::{
+        placement::Sphere,
+        storage::{
+            ids::{ItemId, SpotId},
+            item::Item,
+        },
+    },
 };
 
 use super::{
@@ -25,6 +31,13 @@ use super::{
 };
 
 pub use state::State;
+
+fn to_ids(placed: &[(SpotRef, &Item)]) -> Vec<(SpotId, ItemId)> {
+    placed
+        .iter()
+        .map(|(spot, item)| (spot.id(), item.id))
+        .collect()
+}
 
 fn item_shop_spot_count(spots: &Spots<'_>) -> usize {
     spots
@@ -40,7 +53,7 @@ pub fn sphere<'a>(
     remaining_spots: &mut Spots<'a>,
     state: &mut State<'a>,
     all_regions: &'a Regions,
-) -> Option<SphereRef<'a>> {
+) -> Option<Sphere<'a>> {
     debug_assert_eq!(
         items_pool.shop_items.len() + items_pool.consumable_items.len(),
         remaining_spots.shops.len()
@@ -49,18 +62,10 @@ pub fn sphere<'a>(
     state.explore_regions(all_regions);
 
     if let Some(priority_items) = items_pool.priority_items.take() {
-        let sphere = pre_sphere(rng, priority_items, remaining_spots, state, all_regions);
-        let shop_count = sphere
+        let placed = pre_sphere(rng, priority_items, remaining_spots, state, all_regions);
+        let shop_count = placed
             .iter()
-            .filter(|x| {
-                matches!(
-                    x,
-                    CheckpointRef::Item {
-                        spot: SpotRef::Shop(_),
-                        ..
-                    }
-                )
-            })
+            .filter(|(spot, _)| matches!(spot, SpotRef::Shop(_)))
             .count();
         items_pool.move_shop_items_to_field_items(rng, shop_count);
         debug_assert_eq!(
@@ -75,7 +80,11 @@ pub fn sphere<'a>(
             remaining_spots.shops.len(),
             items_pool.shop_items.len() + items_pool.consumable_items.len(),
         );
-        return Some(sphere);
+        let items = to_ids(&placed);
+        return Some(Sphere {
+            items,
+            events: vec![],
+        });
     }
     let (reachables, unreachables) = explore(remaining_spots.deref(), state.deref());
 
@@ -93,7 +102,7 @@ pub fn sphere<'a>(
         |item| progression.contains(&item.name),
     )?;
 
-    let mut sphere = place_items(
+    let placed = place_items(
         rng,
         field_items,
         talk_items,
@@ -101,11 +110,10 @@ pub fn sphere<'a>(
         &mut items_pool.consumable_items,
         reachables,
     )?;
-    state.append_flags(&sphere);
+    state.append_flags(placed.iter().map(|(_, item)| &item.name));
     *remaining_spots = unreachables;
 
-    let checkpoints = achieve_events(&mut remaining_spots.events, state, all_regions);
-    sphere.append_checkpoints(checkpoints.into_iter().map(CheckpointRef::Event).collect());
-
-    Some(sphere)
+    let events = achieve_events(&mut remaining_spots.events, state, all_regions);
+    let items = to_ids(&placed);
+    Some(Sphere { items, events })
 }

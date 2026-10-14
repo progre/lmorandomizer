@@ -4,7 +4,10 @@ use sha3::Digest;
 
 use crate::{
     app::read_game_structure_files_debug,
-    randomizer::storage::{apply_options::apply_options, create_source::create_source, item::Item},
+    randomizer::{
+        SpoilerLog,
+        storage::{apply_options::apply_options, create_source::create_source, item::Item},
+    },
 };
 
 use super::*;
@@ -85,14 +88,14 @@ async fn test_shuffle_hash() -> Result<()> {
     };
     let mut source = create_source(&game_structure)?;
     apply_options(&mut source, &opts);
-    let (shuffled, spoiler_log) = shuffle(&source, &opts);
+    let (shuffled, placement) = shuffle(&source, &opts);
 
     let placement_str = placement_text(&source, &shuffled);
     let placement_hash = hex::encode(sha3::Sha3_512::digest(placement_str));
     const EXPECTED_PLACEMENT_HASH: &str = "1bc118059e4413924cd70eb92cf86ce0dd844d9111618b6b7434228d81bf25062cd72213c35b530f578cb1da33dfefb28aa488f52d9795a56bd95f4ecf3fad2d";
     assert_eq!(placement_hash, EXPECTED_PLACEMENT_HASH);
 
-    let spoiler_log_str = format!("{}", spoiler_log.to_owned(&source.regions));
+    let spoiler_log_str = format!("{}", SpoilerLog::new(&placement, &source));
     let spoiler_log_hash = hex::encode(sha3::Sha3_512::digest(spoiler_log_str));
     const EXPECTED_SPOILER_LOG_HASH: &str = "a785f4bf760e45c53cf76992a75fd5dbd986e0299a9438c738cbcb21cb75333b340ba781cb480f7f8f232accddc5d92e489bb87621d2c5819da616f688f16200";
     assert_eq!(spoiler_log_hash, EXPECTED_SPOILER_LOG_HASH);
@@ -112,9 +115,9 @@ async fn test_shuffle_multi_patterns() -> Result<()> {
         };
         let mut source = create_source(&game_structure)?;
         apply_options(&mut source, &opts);
-        let (_, spoiler_log) = shuffle(&source, &opts);
+        let (_, placement) = shuffle(&source, &opts);
         assert_eq!(
-            spoiler_log.count_checkpoints(),
+            placement.count_checkpoints(),
             source.all_items().count() + source.events.len()
         );
     }

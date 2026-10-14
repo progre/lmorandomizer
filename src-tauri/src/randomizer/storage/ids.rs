@@ -12,6 +12,13 @@ impl SpotId {
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub struct ItemId(usize);
 
+impl ItemId {
+    /// item が元々置かれていた spot
+    pub fn origin(self) -> SpotId {
+        SpotId(self.0)
+    }
+}
+
 impl From<SpotId> for ItemId {
     fn from(spot_id: SpotId) -> Self {
         Self(spot_id.0)

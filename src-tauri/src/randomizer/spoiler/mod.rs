@@ -18,7 +18,8 @@ use crate::{
 
 use super::{
     RandomizeOptions,
-    spoiler_log::{CheckpointRef, SpoilerLogRef},
+    placement::Placement,
+    storage::ids::{ItemId, SpotId},
     storage::item::{Item, StrategyFlag},
 };
 
@@ -36,7 +37,7 @@ fn maps<'a>(
     maps: &BTreeMap<FieldNumber, &'a Item>,
     spots: &mut Spots<'a>,
     all_regions: &Regions,
-) -> Vec<CheckpointRef<'a>> {
+) -> Vec<(SpotId, ItemId)> {
     let mut spot_hash_map: BTreeMap<FieldNumber, Vec<SpotRef<'a>>> = Default::default();
     let mut twin_labrynths_spots = Vec::new();
     for spot in &spots.field_item_spots {
@@ -67,7 +68,7 @@ fn maps<'a>(
                 .unwrap();
             spots.field_item_spots.swap_remove(idx);
         })
-        .map(|(spot, item)| CheckpointRef::Item { spot, item })
+        .map(|(spot, item)| (spot.id(), item.id))
         .collect()
 }
 
@@ -77,7 +78,7 @@ pub fn spoiler<'a>(
     all_regions: &'a Regions,
     items: &Items<'a>,
     spots: &Spots<'a>,
-) -> Option<SpoilerLogRef<'a>> {
+) -> Option<Placement<'a>> {
     let start = std::time::Instant::now();
     let mut rng = make_rng(seed);
     let mut items_pool = items.to_items_pool(&mut rng, spots.talk_spots.len(), spots.shops.len());
@@ -137,7 +138,7 @@ pub fn spoiler<'a>(
             continue;
         }
         info!("Sphere: {}, time: {:?}", i, start.elapsed());
-        return Some(SpoilerLogRef { progression, maps });
+        return Some(Placement { progression, maps });
     }
     unreachable!();
 }
