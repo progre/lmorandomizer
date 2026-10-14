@@ -5,7 +5,7 @@ use log::{info, trace};
 use rand::Rng;
 
 use crate::{
-    randomizer::spoiler::{items::Items, regions::Regions, spots::Spots},
+    randomizer::spoiler::{items::Items, spots::Spots},
     script::{data::script::Script, editor::apply_storage},
 };
 
@@ -50,14 +50,13 @@ fn create_shuffled_storage(source: &Storage, spoiler_log: &SpoilerLogRef) -> Sto
                 storage.main_weapons.get_mut(&content).unwrap().item = main_weapon.item.clone();
             }
             CheckpointRef::SubWeapon(sub_weapon) => {
-                let key = (
-                    sub_weapon.spot.region().field_number(),
-                    sub_weapon.spot.sub_weapon(),
-                );
+                let region = source.regions.get(sub_weapon.spot.region());
+                let key = (region.field_number(), sub_weapon.spot.sub_weapon());
                 storage.sub_weapons.get_mut(&key).unwrap().item = sub_weapon.item.clone();
             }
             CheckpointRef::Chest(chest) => {
-                let key = (chest.spot.region().field_number(), chest.spot.item());
+                let region = source.regions.get(chest.spot.region());
+                let key = (region.field_number(), chest.spot.item());
                 storage.chests.get_mut(&key).unwrap().item = chest.item.clone();
             }
             CheckpointRef::Seal(seal) => {
@@ -97,7 +96,7 @@ fn random_spoiler<'a>(
     options: &RandomizeOptions,
 ) -> SpoilerLogRef<'a> {
     let start = std::time::Instant::now();
-    let all_regions = &Regions::new(source.regions.iter().collect());
+    let all_regions = &source.regions;
     let items = &Items::new(source);
     let spots = &Spots::new(source);
     debug_assert_eq!(

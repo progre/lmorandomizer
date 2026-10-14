@@ -1,15 +1,16 @@
-use std::fmt;
+use crate::{
+    dataset::regions::{RegionId, Regions},
+    script::enums::SubWeapon,
+};
 
-use crate::{dataset::spot::params::Region, script::enums::SubWeapon};
-
-use super::params::{AnyOfAllRequirements, SpotName, SpotParams};
+use super::params::{AnyOfAllRequirements, SpotDisplay, SpotName, SpotParams};
 
 #[derive(Clone, Debug)]
 pub struct SubWeaponSpot(SpotParams<SubWeapon>);
 
 impl SubWeaponSpot {
     pub fn new(
-        region: Region,
+        region: RegionId,
         name: SpotName,
         content: SubWeapon,
         requirements: Option<AnyOfAllRequirements>,
@@ -17,8 +18,8 @@ impl SubWeaponSpot {
         Self(SpotParams::new(region, name, content, requirements))
     }
 
-    pub fn region(&self) -> &Region {
-        &self.0.region
+    pub fn region(&self) -> RegionId {
+        self.0.region
     }
     pub fn name(&self) -> &SpotName {
         &self.0.name
@@ -29,10 +30,8 @@ impl SubWeaponSpot {
     pub fn requirements(&self) -> Option<&AnyOfAllRequirements> {
         self.0.requirements.as_ref()
     }
-}
 
-impl fmt::Display for SubWeaponSpot {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        self.0.fmt(f, "SubWeaponSpot")
+    pub fn display<'a>(&'a self, regions: &'a Regions) -> SpotDisplay<'a> {
+        self.0.display(regions, "SubWeaponSpot")
     }
 }

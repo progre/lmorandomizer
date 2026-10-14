@@ -1,15 +1,19 @@
-use std::fmt;
+use crate::{
+    dataset::regions::{RegionId, Regions},
+    script::enums::TalkItem,
+};
 
-use crate::{dataset::spot::params::Region, script::enums::TalkItem};
-
-use super::{AnyOfAllRequirements, SpotName, params::SpotParams};
+use super::{
+    AnyOfAllRequirements, SpotName,
+    params::{SpotDisplay, SpotParams},
+};
 
 #[derive(Clone, Debug)]
 pub struct TalkSpot(SpotParams<TalkItem>);
 
 impl TalkSpot {
     pub fn new(
-        region: Region,
+        region: RegionId,
         name: SpotName,
         content: TalkItem,
         requirements: Option<AnyOfAllRequirements>,
@@ -17,8 +21,8 @@ impl TalkSpot {
         Self(SpotParams::new(region, name, content, requirements))
     }
 
-    pub fn region(&self) -> &Region {
-        &self.0.region
+    pub fn region(&self) -> RegionId {
+        self.0.region
     }
     pub fn name(&self) -> &SpotName {
         &self.0.name
@@ -29,10 +33,8 @@ impl TalkSpot {
     pub fn requirements(&self) -> Option<&AnyOfAllRequirements> {
         self.0.requirements.as_ref()
     }
-}
 
-impl fmt::Display for TalkSpot {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        self.0.fmt(f, "Talk")
+    pub fn display<'a>(&'a self, regions: &'a Regions) -> SpotDisplay<'a> {
+        self.0.display(regions, "Talk")
     }
 }

@@ -1,12 +1,13 @@
-use std::fmt;
+use crate::{
+    dataset::regions::{RegionId, Regions},
+    script::enums::Rom,
+};
 
-use crate::{dataset::spot::Region, script::enums::Rom};
-
-use super::params::{AnyOfAllRequirements, SpotName};
+use super::params::{AnyOfAllRequirements, SpotDisplay, SpotName};
 
 #[derive(Clone, Debug)]
 pub struct RomSpot {
-    region: Region,
+    region: RegionId,
     name: SpotName,
     rom: Rom,
     requirements: AnyOfAllRequirements,
@@ -14,7 +15,7 @@ pub struct RomSpot {
 
 impl RomSpot {
     pub fn new(
-        region: Region,
+        region: RegionId,
         name: SpotName,
         content: Rom,
         requirements: AnyOfAllRequirements,
@@ -27,8 +28,8 @@ impl RomSpot {
         }
     }
 
-    pub fn region(&self) -> &Region {
-        &self.region
+    pub fn region(&self) -> RegionId {
+        self.region
     }
     pub fn name(&self) -> &SpotName {
         &self.name
@@ -39,10 +40,8 @@ impl RomSpot {
     pub fn requirements(&self) -> &AnyOfAllRequirements {
         &self.requirements
     }
-}
 
-impl fmt::Display for RomSpot {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}/RomSpot({})", self.region, self.name().get())
+    pub fn display<'a>(&'a self, regions: &'a Regions) -> SpotDisplay<'a> {
+        SpotDisplay::new(regions.get(self.region), "RomSpot", &self.name)
     }
 }

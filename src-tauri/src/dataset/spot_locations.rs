@@ -7,9 +7,10 @@ use vec1::Vec1;
 use crate::{
     dataset::{
         files::FieldYamlAccessRule,
+        regions::RegionId,
         spot::{
-            AllRequirements, AnyOfAllRequirements, ChestSpot, MainWeaponSpot, Region,
-            RequirementFlag, RomSpot, SealSpot, ShopSpot, SpotName, SubWeaponSpot, TalkSpot,
+            AllRequirements, AnyOfAllRequirements, ChestSpot, MainWeaponSpot, RequirementFlag,
+            RomSpot, SealSpot, ShopSpot, SpotName, SubWeaponSpot, TalkSpot,
         },
     },
     script::enums::{ChestItem, Equipment, MainWeapon, Rom, Seal, ShopItem, SubWeapon, TalkItem},
@@ -23,7 +24,11 @@ fn to_pascal_case(camel_case: &str) -> String {
         .collect()
 }
 
-pub fn talk_location(region: Region, key: String, value: FieldYamlAccessRule) -> Result<TalkSpot> {
+pub fn talk_location(
+    region: RegionId,
+    key: String,
+    value: FieldYamlAccessRule,
+) -> Result<TalkSpot> {
     let pascal_case = to_pascal_case(&key);
     let item = Equipment::from_str(&pascal_case)
         .map(TalkItem::Equipment)
@@ -34,7 +39,11 @@ pub fn talk_location(region: Region, key: String, value: FieldYamlAccessRule) ->
     Ok(spot)
 }
 
-pub fn shop_locations(region: Region, key: String, value: FieldYamlAccessRule) -> Result<ShopSpot> {
+pub fn shop_locations(
+    region: RegionId,
+    key: String,
+    value: FieldYamlAccessRule,
+) -> Result<ShopSpot> {
     let items: Vec<_> = key
         .split(',')
         .map(|x| {
@@ -64,7 +73,7 @@ pub fn shop_locations(region: Region, key: String, value: FieldYamlAccessRule) -
     Ok(spot)
 }
 
-pub fn rom_location(region: Region, key: String, value: FieldYamlAccessRule) -> Result<RomSpot> {
+pub fn rom_location(region: RegionId, key: String, value: FieldYamlAccessRule) -> Result<RomSpot> {
     let rom = Rom::from_str(&to_pascal_case(&key))?;
     let name = SpotName::new(key.clone());
     let requirements = value
@@ -84,7 +93,11 @@ pub fn rom_location(region: Region, key: String, value: FieldYamlAccessRule) -> 
     Ok(spot)
 }
 
-pub fn seals_location(region: Region, key: String, value: FieldYamlAccessRule) -> Result<SealSpot> {
+pub fn seals_location(
+    region: RegionId,
+    key: String,
+    value: FieldYamlAccessRule,
+) -> Result<SealSpot> {
     let seal = Seal::from_str(&to_pascal_case(&key.replace("Seal", "")))?;
     let name = SpotName::new(key.clone());
     let requirements = value.try_into_any_of_all_requirements()?;
@@ -93,7 +106,7 @@ pub fn seals_location(region: Region, key: String, value: FieldYamlAccessRule) -
 }
 
 pub fn chest_location(
-    region: Region,
+    region: RegionId,
     key: String,
     value: FieldYamlAccessRule,
 ) -> Result<ChestSpot> {
@@ -109,7 +122,7 @@ pub fn chest_location(
 }
 
 pub fn sub_weapon_location(
-    region: Region,
+    region: RegionId,
     key: String,
     value: FieldYamlAccessRule,
 ) -> Result<SubWeaponSpot> {
@@ -121,7 +134,7 @@ pub fn sub_weapon_location(
 }
 
 pub fn main_weapon_location(
-    region: Region,
+    region: RegionId,
     key: String,
     value: FieldYamlAccessRule,
 ) -> Result<MainWeaponSpot> {

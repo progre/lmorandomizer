@@ -2,7 +2,7 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use log::trace;
 
-use super::{files::RegionName, spot::Region};
+use super::{files::RegionName, regions::Region};
 
 pub fn validate_exits(regions: &[Region]) {
     let all_region_names: BTreeSet<&RegionName> = regions.iter().map(|r| r.name()).collect();

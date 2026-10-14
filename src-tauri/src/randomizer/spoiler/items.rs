@@ -27,7 +27,7 @@ impl<'a> Items<'a> {
             .partition::<Vec<_>, _>(|x| x.item.name.is_map());
         let maps: BTreeMap<FieldNumber, &Item> = maps
             .into_iter()
-            .map(|x| (x.spot.region().field_number(), &x.item))
+            .map(|x| (source.regions.get(x.spot.region()).field_number(), &x.item))
             .collect();
 
         let items = source

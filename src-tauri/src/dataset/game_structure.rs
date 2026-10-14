@@ -1,11 +1,13 @@
 use std::collections::BTreeMap;
 
-use anyhow::Result;
+use anyhow::{Result, bail};
 
 use crate::{
     dataset::{
         files::{EventsYaml, FieldYaml, FieldYamlAccessRule},
-        spot::{Region, RegionExit, SpotName},
+        region_ids::region_ids,
+        regions::{Region, RegionExit, RegionId, Regions},
+        spot::SpotName,
         spot_locations::{
             chest_location, main_weapon_location, rom_location, seals_location, shop_locations,
             sub_weapon_location, talk_location,
@@ -19,8 +21,6 @@ use super::spot::{
     AnyOfAllRequirements, ChestSpot, MainWeaponSpot, RomSpot, SealSpot, ShopSpot, SubWeaponSpot,
     TalkSpot,
 };
-
-pub use super::files::RegionName;
 
 fn parse_event_requirements(items: BTreeMap<String, FieldYamlAccessRule>) -> Result<Vec<Event>> {
     items
@@ -37,13 +37,13 @@ fn parse_event_requirements(items: BTreeMap<String, FieldYamlAccessRule>) -> Res
 
 #[derive(Clone, Debug)]
 pub struct Event {
-    pub region: Option<Region>,
+    pub region: Option<RegionId>,
     pub name: SpotName,
     pub requirements: Option<AnyOfAllRequirements>,
 }
 
 pub struct GameStructure {
-    pub regions: Vec<Region>,
+    pub regions: Regions,
     pub main_weapon_shutters: Vec<MainWeaponSpot>,
     pub sub_weapon_shutters: Vec<SubWeaponSpot>,
     pub chests: Vec<ChestSpot>,
@@ -76,6 +76,7 @@ impl GameStructure {
         let mut roadside_roms = Vec::new();
         let mut shops = Vec::new();
         let mut talks = Vec::new();
+        let region_ids = region_ids(&fields)?;
         let mut regions = vec![];
         for (field_number, field_yaml) in fields {
             for (region_name, field_yaml_region) in field_yaml.0 {
@@ -83,14 +84,20 @@ impl GameStructure {
                     .exits
                     .into_all_exits()
                     .map(|(direction, target, access_rule)| {
+                        let Some(&target_id) = region_ids.get(&target) else {
+                            bail!("exit target not found: {}", target.get());
+                        };
                         Ok(RegionExit {
                             direction,
                             target,
+                            target_id,
                             requirements: access_rule.try_into_any_of_all_requirements()?,
                         })
                     })
                     .collect::<Result<Vec<_>>>()?;
+                let region_id = region_ids[&region_name];
                 let region = Region::new(
+                    region_id,
                     field_number,
                     region_name,
                     field_yaml_region
@@ -99,29 +106,29 @@ impl GameStructure {
                     exits,
                 );
                 for (item, access_rule) in field_yaml_region.main_weapons {
-                    let location = main_weapon_location(region.clone(), item, access_rule)?;
+                    let location = main_weapon_location(region_id, item, access_rule)?;
                     main_weapon_shutters.push(location);
                 }
                 for (key, value) in field_yaml_region.sub_weapons {
-                    sub_weapon_shutters.push(sub_weapon_location(region.clone(), key, value)?);
+                    sub_weapon_shutters.push(sub_weapon_location(region_id, key, value)?);
                 }
                 for (key, value) in field_yaml_region.chests {
-                    chests.push(chest_location(region.clone(), key, value)?);
+                    chests.push(chest_location(region_id, key, value)?);
                 }
                 for (key, value) in field_yaml_region.seals {
-                    seals.push(seals_location(region.clone(), key, value)?);
+                    seals.push(seals_location(region_id, key, value)?);
                 }
                 for (key, value) in field_yaml_region.roms {
-                    roadside_roms.push(rom_location(region.clone(), key, value)?);
+                    roadside_roms.push(rom_location(region_id, key, value)?);
                 }
                 for (key, value) in field_yaml_region.shops {
-                    shops.push(shop_locations(region.clone(), key, value)?)
+                    shops.push(shop_locations(region_id, key, value)?)
                 }
                 for (key, value) in field_yaml_region.talks {
-                    talks.push(talk_location(region.clone(), key, value)?);
+                    talks.push(talk_location(region_id, key, value)?);
                 }
                 for (key, value) in field_yaml_region.events {
-                    events.push(event_location(region.clone(), key, value)?);
+                    events.push(event_location(region_id, key, value)?);
                 }
                 regions.push(region);
             }
@@ -132,7 +139,7 @@ impl GameStructure {
         }
 
         Ok(Self {
-            regions,
+            regions: Regions::new(regions),
             main_weapon_shutters,
             sub_weapon_shutters,
             chests,
@@ -145,7 +152,7 @@ impl GameStructure {
     }
 }
 
-fn event_location(region: Region, key: String, value: FieldYamlAccessRule) -> Result<Event> {
+fn event_location(region: RegionId, key: String, value: FieldYamlAccessRule) -> Result<Event> {
     Ok(Event {
         region: Some(region),
         name: SpotName::new(key),

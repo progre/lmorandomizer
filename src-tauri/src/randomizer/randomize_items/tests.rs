@@ -13,33 +13,43 @@ fn spot_items(storage: &Storage) -> impl Iterator<Item = (String, &Item)> {
     storage
         .main_weapons
         .values()
-        .map(|x| (x.spot.to_string(), &x.item))
+        .map(|x| (x.spot.display(&storage.regions).to_string(), &x.item))
         .chain(
             storage
                 .sub_weapons
                 .values()
-                .map(|x| (x.spot.to_string(), &x.item)),
+                .map(|x| (x.spot.display(&storage.regions).to_string(), &x.item)),
         )
         .chain(
             storage
                 .chests
                 .values()
-                .map(|x| (x.spot.to_string(), &x.item)),
+                .map(|x| (x.spot.display(&storage.regions).to_string(), &x.item)),
         )
         .chain(
             storage
                 .seals
                 .values()
-                .map(|x| (x.spot.to_string(), &x.item)),
+                .map(|x| (x.spot.display(&storage.regions).to_string(), &x.item)),
         )
-        .chain(storage.roms.values().map(|x| (x.spot.to_string(), &x.item)))
-        .chain(storage.talks.iter().map(|x| (x.spot.to_string(), &x.item)))
         .chain(
             storage
-                .shops
-                .iter()
-                .map(|x| (format!("{}[{}]", x.spot, x.idx), &x.item)),
+                .roms
+                .values()
+                .map(|x| (x.spot.display(&storage.regions).to_string(), &x.item)),
         )
+        .chain(
+            storage
+                .talks
+                .iter()
+                .map(|x| (x.spot.display(&storage.regions).to_string(), &x.item)),
+        )
+        .chain(storage.shops.iter().map(|x| {
+            (
+                format!("{}[{}]", x.spot.display(&storage.regions), x.idx),
+                &x.item,
+            )
+        }))
 }
 
 /// 配置結果を `spot = item 名 (item が元々あった spot)` の行で表す。
@@ -82,7 +92,7 @@ async fn test_shuffle_hash() -> Result<()> {
     const EXPECTED_PLACEMENT_HASH: &str = "1bc118059e4413924cd70eb92cf86ce0dd844d9111618b6b7434228d81bf25062cd72213c35b530f578cb1da33dfefb28aa488f52d9795a56bd95f4ecf3fad2d";
     assert_eq!(placement_hash, EXPECTED_PLACEMENT_HASH);
 
-    let spoiler_log_str = format!("{}", spoiler_log.to_owned());
+    let spoiler_log_str = format!("{}", spoiler_log.to_owned(&source.regions));
     let spoiler_log_hash = hex::encode(sha3::Sha3_512::digest(spoiler_log_str));
     const EXPECTED_SPOILER_LOG_HASH: &str = "a785f4bf760e45c53cf76992a75fd5dbd986e0299a9438c738cbcb21cb75333b340ba781cb480f7f8f232accddc5d92e489bb87621d2c5819da616f688f16200";
     assert_eq!(spoiler_log_hash, EXPECTED_SPOILER_LOG_HASH);
