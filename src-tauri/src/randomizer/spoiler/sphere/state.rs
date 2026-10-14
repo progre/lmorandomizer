@@ -49,8 +49,8 @@ impl<'a> State<'a> {
         self.reachable_region_ids.len()
     }
 
-    /// 要求を満たす region がなくなるまで、到達した region を足す。
-    /// 2 周目以降は、前の周で到達した region の flag で要求を満たしうる region だけを調べる
+    /// 要求を満たした region を、到達済みの集合に繰り返し足す。新しく足す region がなくなったら終える。
+    /// 1 周目は全 region を調べる。2 周目以降に調べるのは、前の周で足した region の依存先だけである
     pub fn explore_regions(&mut self, all_regions: &'a Regions) {
         let mut candidates: Vec<_> = all_regions.iter().map(|region| region.id()).collect();
         loop {
