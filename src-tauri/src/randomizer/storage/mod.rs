@@ -10,7 +10,7 @@ use anyhow::Result;
 
 use crate::{
     dataset::{
-        regions::{RegionId, Regions},
+        regions::Regions,
         spot::{
             AnyOfAllRequirements, ChestSpot, MainWeaponSpot, RomSpot, SealSpot, ShopSpot,
             SubWeaponSpot, TalkSpot,
@@ -77,7 +77,6 @@ pub struct Talk {
 
 #[derive(Clone, Debug)]
 pub struct Event {
-    pub region: Option<RegionId>,
     pub name: StrategyFlag,
     pub requirements: Option<AnyOfAllRequirements>,
 }

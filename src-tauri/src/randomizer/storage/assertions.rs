@@ -4,7 +4,7 @@ use anyhow::bail;
 
 use crate::dataset::spot::{AnyOfAllRequirements, RequirementFlag};
 
-use super::{Storage, item::StrategyFlag};
+use super::Storage;
 
 fn append<'a>(
     set: &mut HashSet<RequirementFlag>,
@@ -20,12 +20,12 @@ fn append<'a>(
 }
 
 pub fn ware_missing_requirements(storage: &Storage) -> anyhow::Result<()> {
-    let glitch = StrategyFlag::new("option:glitch".into());
-    let all_items: Vec<_> = storage
+    let known_names: HashSet<_> = storage
         .all_items()
-        .map(|x| &x.name)
-        .chain(storage.events.iter().map(|y| &y.name))
-        .chain([&glitch])
+        .map(|x| x.name.get())
+        .chain(storage.events.iter().map(|y| y.name.get()))
+        .chain(storage.regions.iter().map(|x| x.flag().get()))
+        .chain(["option:glitch"])
         .collect();
     let mut set = HashSet::new();
     let iter = storage
@@ -41,8 +41,8 @@ pub fn ware_missing_requirements(storage: &Storage) -> anyhow::Result<()> {
     append(&mut set, iter);
     let mut vec: Vec<_> = set
         .iter()
-        .filter(|&x| all_items.iter().all(|&name| name != x))
-        .filter(|x| !x.is_sacred_orb())
+        .filter(|x| !known_names.contains(x.get()))
+        .filter(|x| x.at_least().is_none())
         .collect();
     vec.sort();
     if !vec.is_empty() {

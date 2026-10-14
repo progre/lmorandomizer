@@ -14,23 +14,20 @@ use crate::{
 use super::state::State;
 
 pub fn is_event_achievable(state: &State, event: &Event) -> bool {
-    if let Some(region) = event.region {
-        state.is_reachable(region, event.requirements.as_ref())
-    } else {
-        state.is_reachable_without_region(event.requirements.as_ref())
-    }
+    state.is_satisfied(event.requirements.as_ref())
 }
 
 struct RequirementNames {
     names: HashSet<String>,
-    includes_sacred_orb: bool,
+    /// 「N 個以上」の要求に現れる接頭辞
+    counted_prefixes: HashSet<String>,
 }
 
 impl RequirementNames {
     fn collect(unreachables: &Spots, all_regions: &Regions) -> Self {
         let mut result = Self {
             names: HashSet::new(),
-            includes_sacred_orb: false,
+            counted_prefixes: HashSet::new(),
         };
         for spot in &unreachables.field_item_spots {
             result.add(spot.requirements());
@@ -45,10 +42,7 @@ impl RequirementNames {
             result.add(event.requirements.as_ref());
         }
         for region in all_regions.iter() {
-            result.add(region.access_rule());
-            for exit in region.exits() {
-                result.add(exit.requirements.as_ref());
-            }
+            result.add(all_regions.requirements(region.id()));
         }
         result
     }
@@ -59,17 +53,20 @@ impl RequirementNames {
         };
         for all in &any.0 {
             for requirement in &all.0 {
-                if requirement.is_sacred_orb() {
-                    self.includes_sacred_orb = true;
-                } else {
-                    self.names.insert(requirement.get().to_owned());
-                }
+                match requirement.at_least() {
+                    Some((prefix, _)) => self.counted_prefixes.insert(prefix.to_owned()),
+                    None => self.names.insert(requirement.get().to_owned()),
+                };
             }
         }
     }
 
     fn contains(&self, name: &StrategyFlag) -> bool {
-        self.names.contains(name.get()) || self.includes_sacred_orb && name.is_sacred_orb()
+        self.names.contains(name.get())
+            || name
+                .get()
+                .split_once(':')
+                .is_some_and(|(prefix, _)| self.counted_prefixes.contains(prefix))
     }
 }
 
@@ -86,19 +83,19 @@ fn expands_reachability<'a>(
     let mut state = state.clone();
     state.insert_flag(&item.name);
     state.explore_regions(all_regions);
-    state.reachable_regions().count() > baseline_region_count
+    state.reachable_region_count() > baseline_region_count
         || unreachables
             .field_item_spots
             .iter()
-            .any(|x| state.is_reachable(x.region(), x.requirements()))
+            .any(|x| state.is_satisfied(x.requirements()))
         || unreachables
             .talk_spots
             .iter()
-            .any(|x| state.is_reachable(x.spot.region(), x.spot.requirements()))
+            .any(|x| state.is_satisfied(x.spot.requirements()))
         || unreachables
             .shops
             .iter()
-            .any(|x| state.is_reachable(x.spot.region(), x.spot.requirements()))
+            .any(|x| state.is_satisfied(x.spot.requirements()))
         || pending_events
             .iter()
             .any(|&event| is_event_achievable(&state, event))
@@ -115,7 +112,7 @@ pub fn progression_flags<'a>(
     // どの requirement にも名前が現れない item は到達可能範囲を変えられないため、
     // 事前に除外して到達可能性の再計算回数を減らす
     let requirement_names = RequirementNames::collect(unreachables, all_regions);
-    let baseline_region_count = state.reachable_regions().count();
+    let baseline_region_count = state.reachable_region_count();
     // 既に達成可能な event は「新たに」達成可能になるわけではないため除外する
     let pending_events: Vec<_> = unreachables
         .events
