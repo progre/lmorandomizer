@@ -2,17 +2,11 @@ use std::fmt;
 
 use crate::{
     dataset::spot::ShopSpot,
+    randomizer::storage::{Chest, MainWeapon, Rom, Seal, Shop, SubWeapon, Talk},
     script::enums::{ChestItem, FieldNumber},
 };
 
-use super::{
-    spoiler::spots::SpotRef,
-    storage::{
-        Chest, ChestRef, MainWeapon, MainWeaponRef, Rom, RomRef, Seal, SealRef, Shop, ShopRef,
-        SubWeapon, SubWeaponRef, Talk, TalkRef,
-        item::{Item, StrategyFlag},
-    },
-};
+use super::{Checkpoint, SpoilerLog};
 
 fn compare_key_for_spoiler_log(field_number: FieldNumber) -> u8 {
     if matches!(field_number, FieldNumber::TwinLabyrinthsRight) {
@@ -20,18 +14,6 @@ fn compare_key_for_spoiler_log(field_number: FieldNumber) -> u8 {
     } else {
         field_number.to_logic_number().unwrap() * 10
     }
-}
-
-#[derive(Debug)]
-pub enum Checkpoint {
-    MainWeapon(MainWeapon),
-    SubWeapon(SubWeapon),
-    Chest(Chest),
-    Seal(Seal),
-    Rom(Rom),
-    Talk(Talk),
-    Shop(Shop),
-    Event(StrategyFlag),
 }
 
 fn fmt_checkpoints(checkpoints: &[&Checkpoint], f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -86,103 +68,6 @@ fn fmt_checkpoints(checkpoints: &[&Checkpoint], f: &mut fmt::Formatter<'_>) -> f
         fmt_shop(f, &shop[0].spot, &shop)?;
     }
     Ok(())
-}
-
-pub enum CheckpointRef<'a> {
-    MainWeapon(MainWeaponRef<'a>),
-    SubWeapon(SubWeaponRef<'a>),
-    Chest(ChestRef<'a>),
-    Seal(SealRef<'a>),
-    Rom(RomRef<'a>),
-    Talk(TalkRef<'a>),
-    Shop(ShopRef<'a>),
-    Event(&'a StrategyFlag),
-}
-
-impl<'a> CheckpointRef<'a> {
-    pub fn from_field_spot_item(spot: SpotRef<'a>, item: &'a Item) -> Self {
-        match spot {
-            SpotRef::MainWeapon(spot) => Self::MainWeapon(MainWeaponRef { spot, item }),
-            SpotRef::SubWeapon(spot) => Self::SubWeapon(SubWeaponRef { spot, item }),
-            SpotRef::Chest(spot) => Self::Chest(ChestRef { spot, item }),
-            SpotRef::Seal(spot) => Self::Seal(SealRef { spot, item }),
-            SpotRef::Rom(spot) => Self::Rom(RomRef { spot, item }),
-            SpotRef::Talk(spot) => Self::Talk(TalkRef { spot, item }),
-        }
-    }
-
-    pub fn to_owned(&self) -> Checkpoint {
-        match self {
-            Self::MainWeapon(checkpoint) => Checkpoint::MainWeapon(MainWeapon {
-                spot: checkpoint.spot.to_owned(),
-                item: checkpoint.item.to_owned(),
-            }),
-            Self::SubWeapon(checkpoint) => Checkpoint::SubWeapon(SubWeapon {
-                spot: checkpoint.spot.to_owned(),
-                item: checkpoint.item.to_owned(),
-            }),
-            Self::Chest(checkpoint) => Checkpoint::Chest(Chest {
-                spot: checkpoint.spot.to_owned(),
-                item: checkpoint.item.to_owned(),
-            }),
-            Self::Seal(checkpoint) => Checkpoint::Seal(Seal {
-                spot: checkpoint.spot.to_owned(),
-                item: checkpoint.item.to_owned(),
-            }),
-            Self::Rom(checkpoint) => Checkpoint::Rom(Rom {
-                spot: checkpoint.spot.to_owned(),
-                item: checkpoint.item.to_owned(),
-            }),
-            Self::Talk(checkpoint) => Checkpoint::Talk(Talk {
-                spot: checkpoint.spot.to_owned(),
-                item: checkpoint.item.to_owned(),
-            }),
-            Self::Shop(checkpoint) => Checkpoint::Shop(Shop {
-                spot: checkpoint.spot.to_owned(),
-                idx: checkpoint.idx,
-                item: checkpoint.item.to_owned(),
-            }),
-            Self::Event(flag) => Checkpoint::Event((*flag).to_owned()),
-        }
-    }
-}
-
-#[derive(Debug)]
-pub struct Sphere {
-    checkpoints: Vec<Checkpoint>,
-}
-impl Sphere {
-    pub fn new(checkpoints: Vec<Checkpoint>) -> Self {
-        Self { checkpoints }
-    }
-}
-
-pub struct SphereRef<'a> {
-    checkpoints: Vec<CheckpointRef<'a>>,
-}
-
-impl<'a> SphereRef<'a> {
-    pub fn new(checkpoints: Vec<CheckpointRef<'a>>) -> Self {
-        Self { checkpoints }
-    }
-
-    pub fn iter(&self) -> impl Iterator<Item = &CheckpointRef<'a>> {
-        self.checkpoints.iter()
-    }
-
-    pub fn into_inner(self) -> Vec<CheckpointRef<'a>> {
-        self.checkpoints
-    }
-
-    pub fn append_checkpoints(&mut self, mut checkpoints: Vec<CheckpointRef<'a>>) {
-        self.checkpoints.append(&mut checkpoints);
-    }
-}
-
-#[derive(Debug)]
-pub struct SpoilerLog {
-    progression: Vec<Sphere>,
-    maps: Vec<Checkpoint>,
 }
 
 impl fmt::Display for SpoilerLog {
@@ -245,44 +130,5 @@ impl fmt::Display for SpoilerLog {
         writeln!(f)?;
         writeln!(f, "[Maps]")?;
         fmt_checkpoints(&self.maps.iter().collect::<Vec<_>>(), f)
-    }
-}
-
-pub struct SpoilerLogRef<'a> {
-    pub progression: Vec<SphereRef<'a>>,
-    pub maps: Vec<CheckpointRef<'a>>,
-}
-
-impl SpoilerLogRef<'_> {
-    pub fn to_owned(&self) -> SpoilerLog {
-        SpoilerLog {
-            progression: self
-                .progression
-                .iter()
-                .map(|sphere| {
-                    Sphere::new(
-                        sphere
-                            .checkpoints
-                            .iter()
-                            .map(|checkpoint| checkpoint.to_owned())
-                            .collect(),
-                    )
-                })
-                .collect(),
-            maps: self
-                .maps
-                .iter()
-                .map(|checkpoint| checkpoint.to_owned())
-                .collect(),
-        }
-    }
-
-    #[cfg(test)]
-    pub fn count_checkpoints(&self) -> usize {
-        self.progression
-            .iter()
-            .map(|sphere| sphere.checkpoints.len())
-            .sum::<usize>()
-            + self.maps.len()
     }
 }
